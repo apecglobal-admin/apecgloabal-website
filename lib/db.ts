@@ -1,12 +1,40 @@
 import { Pool } from 'pg';
 
 // Khởi tạo kết nối PostgreSQL
-const pool = new Pool({
-  connectionString: 'postgresql://neondb_owner:npg_JGyM4NXEfVS6@ep-tiny-poetry-a45r81hy-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
-});
+const connectionString = process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_JGyM4NXEfVS6@ep-tiny-poetry-a45r81hy-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require';
+
+// Tạo pool connection chỉ ở phía server
+let pool: Pool;
+
+if (typeof window === 'undefined') {
+  // Chỉ tạo pool ở phía server
+  if (!global.pg) {
+    global.pg = {};
+  }
+  
+  if (!global.pg.pool) {
+    global.pg.pool = new Pool({
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+  }
+  
+  pool = global.pg.pool;
+} else {
+  // Dummy pool cho phía client
+  pool = {} as Pool;
+}
 
 // Hàm thực thi truy vấn
 export async function query(text: string, params?: any[]) {
+  // Kiểm tra xem có đang ở phía server không
+  if (typeof window !== 'undefined') {
+    console.error('Database query attempted on client side');
+    throw new Error('Cannot execute database query on the client side');
+  }
+
   const start = Date.now();
   try {
     const res = await pool.query(text, params);

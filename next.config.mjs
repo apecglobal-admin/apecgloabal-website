@@ -8,6 +8,13 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['images.unsplash.com', 'apecgloabal-website.vercel.app'],
+  },
+  env: {
+    POSTGRES_URL: process.env.POSTGRES_URL,
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['pg'],
   },
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on Node.js modules

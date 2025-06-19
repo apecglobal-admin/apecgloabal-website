@@ -4,7 +4,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getCompanyDetails, getProjectsByCompany, getServicesByCompany } from '@/lib/db'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Company, Project, Service } from '@/lib/schema'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
@@ -97,16 +98,68 @@ const formatDate = (date: Date) => {
   return format(new Date(date), 'dd/MM/yyyy')
 }
 
-export default async function CompanyDetailPage({ params }: { params: { slug: string } }) {
+export default function CompanyDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params
-  const companyData = await getCompanyDetails(slug)
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [companyData, setCompanyData] = useState<any>(null)
+  const [projects, setProjects] = useState<any[]>([])
+  const [services, setServices] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
   
-  if (!companyData) {
-    notFound()
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const response = await fetch(`/api/companies/details?slug=${slug}`)
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            router.push('/404')
+            return
+          }
+          throw new Error('Failed to fetch company data')
+        }
+        
+        const data = await response.json()
+        setCompanyData(data.company)
+        setProjects(data.projects)
+        setServices(data.services)
+      } catch (err) {
+        console.error('Error fetching company data:', err)
+        setError('Failed to load company data. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchCompanyData()
+  }, [slug, router])
+  
+  // Hiển thị loading hoặc error state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
+      </div>
+    )
   }
   
-  const projects = await getProjectsByCompany(companyData.id)
-  const services = await getServicesByCompany(companyData.id)
+  if (error || !companyData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 flex items-center justify-center">
+        <div className="bg-black/50 p-8 rounded-xl border border-red-500/30 max-w-md text-center">
+          <div className="text-red-400 text-4xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-white mb-4">Đã xảy ra lỗi</h1>
+          <p className="text-white/70 mb-6">{error || 'Không thể tải thông tin công ty. Vui lòng thử lại sau.'}</p>
+          <Link href="/companies">
+            <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md">
+              Quay lại danh sách công ty
+            </button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
   
   // Mô tả chi tiết công ty
   const detailedDescription = `

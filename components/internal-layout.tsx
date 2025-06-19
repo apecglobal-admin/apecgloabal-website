@@ -88,11 +88,23 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
     setIsLoading(false)
   }, [router])
 
-  const handleLogout = () => {
-    localStorage.removeItem("internal_logged_in")
-    localStorage.removeItem("internal_user")
-    setIsLoggedIn(false)
-    router.push("/internal")
+  const handleLogout = async () => {
+    try {
+      // Gọi API đăng xuất
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      
+      // Xóa dữ liệu đăng nhập khỏi localStorage
+      localStorage.removeItem("internal_logged_in")
+      localStorage.removeItem("internal_user")
+      setIsLoggedIn(false)
+      
+      // Chuyển hướng về trang chủ
+      router.push("/internal")
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   }
 
   if (isLoading) {

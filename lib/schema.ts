@@ -48,6 +48,7 @@ export interface Employee {
 export interface Project {
   id: number;
   name: string;
+  slug: string;
   description: string;
   company_id: number;
   manager_id: number;
@@ -60,6 +61,19 @@ export interface Project {
   spent: number;
   team_size: number;
   technologies: string[];
+  image_url?: string;
+  gallery?: string[];
+  features?: string[];
+  challenges?: string[];
+  solutions?: string[];
+  results?: string[];
+  testimonials?: {
+    name: string;
+    position: string;
+    company: string;
+    content: string;
+    avatar?: string;
+  }[];
   created_at: Date;
   updated_at: Date;
 }

@@ -31,6 +31,38 @@ export async function getCompanyBySlug(slug: string) {
   return result.rows[0];
 }
 
+// Hàm lấy thông tin chi tiết công ty bao gồm số lượng dự án, nhân viên, dịch vụ
+export async function getCompanyDetails(slug: string) {
+  // Lấy thông tin cơ bản của công ty
+  const company = await getCompanyBySlug(slug);
+  
+  if (!company) return null;
+  
+  // Lấy số lượng dự án
+  const projectsCountResult = await query('SELECT COUNT(*) FROM projects WHERE company_id = $1', [company.id]);
+  const projectsCount = parseInt(projectsCountResult.rows[0].count);
+  
+  // Lấy số lượng nhân viên
+  const employeesCountResult = await query('SELECT COUNT(*) FROM employees WHERE company_id = $1', [company.id]);
+  const employeesCount = parseInt(employeesCountResult.rows[0].count);
+  
+  // Lấy số lượng dịch vụ
+  const servicesCountResult = await query('SELECT COUNT(*) FROM services WHERE company_id = $1', [company.id]);
+  const servicesCount = parseInt(servicesCountResult.rows[0].count);
+  
+  // Lấy danh sách phòng ban
+  const departmentsResult = await query('SELECT * FROM departments WHERE company_id = $1', [company.id]);
+  const departments = departmentsResult.rows;
+  
+  return {
+    ...company,
+    projectsCount,
+    employeesCount,
+    servicesCount,
+    departments
+  };
+}
+
 // Hàm lấy tất cả dịch vụ
 export async function getAllServices() {
   const result = await query('SELECT * FROM services ORDER BY title');
@@ -71,12 +103,49 @@ export async function getAllJobs() {
 
 // Hàm lấy tất cả dự án
 export async function getAllProjects() {
-  const result = await query('SELECT * FROM projects ORDER BY start_date DESC');
+  const result = await query(`
+    SELECT p.*, c.name as company_name, c.logo_url as company_logo 
+    FROM projects p
+    LEFT JOIN companies c ON p.company_id = c.id
+    ORDER BY p.start_date DESC
+  `);
   return result.rows;
 }
 
 // Hàm lấy dự án theo công ty
 export async function getProjectsByCompany(companyId: number) {
-  const result = await query('SELECT * FROM projects WHERE company_id = $1', [companyId]);
+  const result = await query(`
+    SELECT p.*, c.name as company_name, c.logo_url as company_logo 
+    FROM projects p
+    LEFT JOIN companies c ON p.company_id = c.id
+    WHERE p.company_id = $1
+  `, [companyId]);
+  return result.rows;
+}
+
+// Hàm lấy dự án theo slug
+export async function getProjectBySlug(slug: string) {
+  const result = await query(`
+    SELECT p.*, c.name as company_name, c.logo_url as company_logo, c.slug as company_slug
+    FROM projects p
+    LEFT JOIN companies c ON p.company_id = c.id
+    WHERE p.slug = $1
+  `, [slug]);
+  return result.rows[0];
+}
+
+// Hàm lấy các dự án liên quan (cùng công ty hoặc cùng công nghệ)
+export async function getRelatedProjects(projectId: number, companyId: number, limit = 3) {
+  const result = await query(`
+    SELECT p.*, c.name as company_name, c.logo_url as company_logo 
+    FROM projects p
+    LEFT JOIN companies c ON p.company_id = c.id
+    WHERE (p.company_id = $1 OR p.technologies && (
+      SELECT technologies FROM projects WHERE id = $2
+    ))
+    AND p.id != $2
+    ORDER BY p.start_date DESC
+    LIMIT $3
+  `, [companyId, projectId, limit]);
   return result.rows;
 }

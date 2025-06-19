@@ -28,7 +28,11 @@ export default function AdminLogin() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ 
+          username, 
+          password,
+          source: "admin" // Xác định nguồn đăng nhập là trang admin
+        }),
       });
 
       const data = await response.json();
@@ -37,8 +41,8 @@ export default function AdminLogin() {
         throw new Error(data.error || "Đăng nhập thất bại");
       }
 
-      // Kiểm tra quyền admin
-      if (data.user.role !== "admin") {
+      // Kiểm tra quyền admin_access
+      if (!data.user.permissions?.admin_access) {
         throw new Error("Bạn không có quyền truy cập trang quản trị");
       }
 

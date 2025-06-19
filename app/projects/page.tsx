@@ -1,3 +1,4 @@
+import Link from "next/link"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,117 +16,133 @@ import {
   CheckCircle,
   AlertCircle,
   PlayCircle,
+  Code,
+  Server,
+  Database,
+  Globe,
+  Zap,
+  Layers,
 } from "lucide-react"
+import { getAllProjects } from "@/lib/db"
+import { Project } from "@/lib/schema"
 
-export default function ProjectsPage() {
-  const projects = [
-    {
-      title: "Nền tảng AI Giáo dục Thông minh",
-      company: "ApecTech",
-      icon: Brain,
-      status: "Đang phát triển",
-      progress: 75,
-      description: "Hệ thống học tập cá nhân hóa sử dụng AI để tối ưu hóa trải nghiệm giáo dục cho từng học viên.",
-      timeline: "Q1 2024 - Q3 2024",
-      team: "15 người",
-      technologies: ["Machine Learning", "NLP", "React", "Python"],
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      title: "Hệ thống Bảo mật Thông minh IoT",
-      company: "GuardCam",
-      icon: Shield,
-      status: "Beta Testing",
-      progress: 90,
-      description: "Giải pháp bảo mật toàn diện cho các thiết bị IoT với khả năng phát hiện và ngăn chặn tự động.",
-      timeline: "Q2 2023 - Q1 2024",
-      team: "12 người",
-      technologies: ["Computer Vision", "IoT", "Edge Computing", "Blockchain"],
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "Phân tích Cảm xúc Khách hàng Real-time",
-      company: "EmoCommerce",
-      icon: Heart,
-      status: "Hoàn thành",
-      progress: 100,
-      description: "Công cụ phân tích cảm xúc khách hàng trong thời gian thực để tối ưu hóa trải nghiệm mua sắm.",
-      timeline: "Q3 2023 - Q4 2023",
-      team: "10 người",
-      technologies: ["Emotion AI", "Computer Vision", "Real-time Analytics", "Node.js"],
-      color: "from-pink-500 to-rose-500",
-    },
-    {
-      title: "Dashboard Phân tích Hành vi Người dùng",
-      company: "TimeLoop",
-      icon: Clock,
-      status: "Đang phát triển",
-      progress: 60,
-      description: "Bảng điều khiển trực quan để theo dõi và phân tích hành vi người dùng trên các nền tảng số.",
-      timeline: "Q4 2023 - Q2 2024",
-      team: "8 người",
-      technologies: ["Data Analytics", "D3.js", "Python", "PostgreSQL"],
-      color: "from-orange-500 to-amber-500",
-    },
-    {
-      title: "ApecNeuroOS Core Engine",
-      company: "ApecNeuroOS",
-      icon: Cpu,
-      status: "Nghiên cứu",
-      progress: 30,
-      description: "Nhân hệ điều hành thông minh với khả năng tự học và tối ưu hóa tự động cho doanh nghiệp.",
-      timeline: "Q1 2024 - Q4 2024",
-      team: "20 người",
-      technologies: ["Operating Systems", "AI/ML", "Rust", "Kubernetes"],
-      color: "from-purple-500 to-violet-500",
-    },
-    {
-      title: "Nền tảng Tích hợp API Thống nhất",
-      company: "ApecGlobal",
-      icon: TrendingUp,
-      status: "Lên kế hoạch",
-      progress: 15,
-      description: "API Gateway thống nhất để kết nối tất cả các sản phẩm trong hệ sinh thái ApecGlobal.",
-      timeline: "Q2 2024 - Q1 2025",
-      team: "25 người",
-      technologies: ["Microservices", "GraphQL", "Docker", "AWS"],
-      color: "from-indigo-500 to-purple-500",
-    },
-  ]
+// Hàm lấy icon dựa trên công nghệ
+const getTechIcon = (technologies: string[]) => {
+  if (!technologies || technologies.length === 0) return Brain;
+  
+  const techString = technologies.join(' ').toLowerCase();
+  
+  if (techString.includes('ai') || techString.includes('machine learning') || techString.includes('ml')) return Brain;
+  if (techString.includes('security') || techString.includes('bảo mật')) return Shield;
+  if (techString.includes('analytics') || techString.includes('phân tích')) return TrendingUp;
+  if (techString.includes('iot') || techString.includes('edge')) return Cpu;
+  if (techString.includes('react') || techString.includes('vue') || techString.includes('angular')) return Code;
+  if (techString.includes('node') || techString.includes('express') || techString.includes('backend')) return Server;
+  if (techString.includes('sql') || techString.includes('database') || techString.includes('postgres')) return Database;
+  if (techString.includes('web') || techString.includes('cloud') || techString.includes('aws')) return Globe;
+  if (techString.includes('mobile') || techString.includes('app')) return Layers;
+  
+  return Zap; // Default icon
+}
 
+// Hàm lấy màu gradient dựa trên status
+const getStatusGradient = (status: string) => {
+  const statusLower = status?.toLowerCase() || '';
+  
+  if (statusLower.includes('hoàn thành') || statusLower.includes('complete')) 
+    return 'from-green-500 to-emerald-500';
+  if (statusLower.includes('đang phát triển') || statusLower.includes('progress')) 
+    return 'from-blue-500 to-cyan-500';
+  if (statusLower.includes('thử nghiệm') || statusLower.includes('beta') || statusLower.includes('testing')) 
+    return 'from-orange-500 to-amber-500';
+  if (statusLower.includes('nghiên cứu') || statusLower.includes('research')) 
+    return 'from-purple-500 to-violet-500';
+  if (statusLower.includes('lên kế hoạch') || statusLower.includes('plan')) 
+    return 'from-indigo-500 to-purple-500';
+  
+  return 'from-blue-500 to-cyan-500'; // Default color
+}
+
+// Hàm chuyển đổi trạng thái sang tiếng Việt
+const translateStatus = (status: string) => {
+  const statusLower = status?.toLowerCase() || '';
+  
+  if (statusLower.includes('complete') || statusLower.includes('completed')) 
+    return 'Hoàn thành';
+  if (statusLower.includes('progress') || statusLower.includes('in progress')) 
+    return 'Đang phát triển';
+  if (statusLower.includes('beta') || statusLower.includes('testing')) 
+    return 'Thử nghiệm';
+  if (statusLower.includes('research')) 
+    return 'Nghiên cứu';
+  if (statusLower.includes('plan') || statusLower.includes('planning')) 
+    return 'Lên kế hoạch';
+  if (statusLower.includes('pending')) 
+    return 'Chờ xử lý';
+  if (statusLower.includes('cancel') || statusLower.includes('cancelled')) 
+    return 'Đã hủy';
+  if (statusLower.includes('pause') || statusLower.includes('paused')) 
+    return 'Tạm dừng';
+  
+  return status; // Giữ nguyên nếu không khớp
+}
+
+export default async function ProjectsPage() {
+  // Lấy dữ liệu dự án từ database
+  const projectsData = await getAllProjects();
+  
+  // Chuyển đổi trạng thái sang tiếng Việt
+  const projectsWithVietnameseStatus = projectsData.map(project => ({
+    ...project,
+    status: translateStatus(project.status || '')
+  }));
+
+  // Hàm lấy icon dựa trên status
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "Hoàn thành":
-        return <CheckCircle className="h-5 w-5 text-green-400" />
-      case "Beta Testing":
-        return <PlayCircle className="h-5 w-5 text-blue-400" />
-      case "Đang phát triển":
-        return <AlertCircle className="h-5 w-5 text-orange-400" />
-      case "Nghiên cứu":
-        return <Brain className="h-5 w-5 text-purple-400" />
-      case "Lên kế hoạch":
-        return <Calendar className="h-5 w-5 text-gray-400" />
-      default:
-        return <AlertCircle className="h-5 w-5 text-gray-400" />
-    }
+    const statusLower = status?.toLowerCase() || '';
+    
+    if (statusLower.includes('hoàn thành') || statusLower.includes('complete'))
+      return <CheckCircle className="h-5 w-5 text-green-400" />
+    if (statusLower.includes('thử nghiệm') || statusLower.includes('beta') || statusLower.includes('testing'))
+      return <PlayCircle className="h-5 w-5 text-blue-400" />
+    if (statusLower.includes('đang phát triển') || statusLower.includes('progress'))
+      return <AlertCircle className="h-5 w-5 text-orange-400" />
+    if (statusLower.includes('nghiên cứu') || statusLower.includes('research'))
+      return <Brain className="h-5 w-5 text-purple-400" />
+    if (statusLower.includes('lên kế hoạch') || statusLower.includes('plan'))
+      return <Calendar className="h-5 w-5 text-gray-400" />
+    
+    return <AlertCircle className="h-5 w-5 text-gray-400" />
   }
 
+  // Hàm lấy màu nền dựa trên status
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Hoàn thành":
-        return "bg-green-600"
-      case "Beta Testing":
-        return "bg-blue-600"
-      case "Đang phát triển":
-        return "bg-orange-600"
-      case "Nghiên cứu":
-        return "bg-purple-600"
-      case "Lên kế hoạch":
-        return "bg-gray-600"
-      default:
-        return "bg-gray-600"
-    }
+    const statusLower = status?.toLowerCase() || '';
+    
+    if (statusLower.includes('hoàn thành') || statusLower.includes('complete'))
+      return "bg-green-600"
+    if (statusLower.includes('thử nghiệm') || statusLower.includes('beta') || statusLower.includes('testing'))
+      return "bg-blue-600"
+    if (statusLower.includes('đang phát triển') || statusLower.includes('progress'))
+      return "bg-orange-600"
+    if (statusLower.includes('nghiên cứu') || statusLower.includes('research'))
+      return "bg-purple-600"
+    if (statusLower.includes('lên kế hoạch') || statusLower.includes('plan'))
+      return "bg-gray-600"
+    
+    return "bg-gray-600"
   }
+  
+  // Tính toán số lượng dự án theo trạng thái
+  const inProgressCount = projectsWithVietnameseStatus.filter(p => 
+    p.status?.toLowerCase().includes('đang phát triển') && 
+    p.progress < 100
+  ).length;
+  
+  const completedCount = projectsWithVietnameseStatus.filter(p => 
+    p.status?.toLowerCase().includes('hoàn thành') ||
+    p.progress === 100
+  ).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
@@ -149,53 +166,45 @@ export default function ProjectsPage() {
             backgroundSize: '60px 60px'
           }}></div>
         </div>
-
-        {/* AI Nodes Animation */}
-        <div className="absolute inset-0">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-3 h-3 bg-cyan-400/40 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                boxShadow: '0 0 10px 2px rgba(45, 212, 191, 0.3)'
-              }}
-            ></div>
-          ))}
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-purple-400/40 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                boxShadow: '0 0 10px 2px rgba(139, 92, 246, 0.3)'
-              }}
-            ></div>
-          ))}
-        </div>
-
-        <div className="container mx-auto text-center relative z-10">
-          <div className="inline-block mb-6 relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 animate-pulse"></div>
-            <h1 className="relative text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Dự Án AI Tiêu Biểu
+        
+        <div className="container mx-auto relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-block mb-6">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 p-1 shadow-lg shadow-purple-900/30 mx-auto">
+                <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                  <Brain className="h-8 w-8 text-cyan-400" />
+                </div>
+              </div>
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent mb-6">
+              Dự Án Công Nghệ AI
             </h1>
+            
+            <p className="text-white/70 text-xl md:text-2xl max-w-3xl mx-auto mb-12">
+              Khám phá các dự án công nghệ trí tuệ nhân tạo tiên tiến của <span className="text-cyan-400">ApecGlobal Group</span>
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white text-lg px-8 py-6 transition-all duration-300 shadow-lg shadow-purple-900/30">
+                Khám Phá Dự Án
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
+                  <path d="m9 18 6-6-6-6"></path>
+                </svg>
+              </Button>
+              
+              <Button variant="outline" className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 text-lg px-8 py-6 transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-purple-400">
+                  <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"></path>
+                </svg>
+                Liên Hệ Hợp Tác
+              </Button>
+            </div>
           </div>
-          
-          <p className="text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Khám phá các dự án công nghệ trí tuệ nhân tạo tiên tiến đang được phát triển bởi các công ty thành viên trong hệ sinh thái
-            <span className="text-cyan-400 font-semibold"> ApecGlobal Group</span>.
-          </p>
         </div>
       </section>
-
-      {/* Projects Overview - AI Style */}
+      
+      {/* Stats Section - AI Style */}
       <section className="py-20 px-4 relative">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-purple-900/5 to-black/0"></div>
@@ -209,8 +218,8 @@ export default function ProjectsPage() {
                   <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                     <TrendingUp className="h-8 w-8 text-purple-400" />
                   </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">6</div>
-                  <div className="text-white/60">Dự án AI đang triển khai</div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">{inProgressCount}</div>
+                  <div className="text-white/60">Dự án đang triển khai</div>
                 </CardContent>
               </Card>
             </div>
@@ -222,7 +231,7 @@ export default function ProjectsPage() {
                   <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                     <CheckCircle className="h-8 w-8 text-green-400" />
                   </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">1</div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">{completedCount}</div>
                   <div className="text-white/60">Dự án hoàn thành</div>
                 </CardContent>
               </Card>
@@ -235,8 +244,10 @@ export default function ProjectsPage() {
                   <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                     <Users className="h-8 w-8 text-cyan-400" />
                   </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">90+</div>
-                  <div className="text-white/60">Chuyên gia AI tham gia</div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">
+                    {projectsData.reduce((sum, project) => sum + (project.team_size || 0), 0)}
+                  </div>
+                  <div className="text-white/60">Chuyên gia tham gia</div>
                 </CardContent>
               </Card>
             </div>
@@ -248,8 +259,8 @@ export default function ProjectsPage() {
                   <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                     <Calendar className="h-8 w-8 text-orange-400" />
                   </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">18</div>
-                  <div className="text-white/60">Tháng nghiên cứu & phát triển</div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">{projectsData.length}</div>
+                  <div className="text-white/60">Tổng số dự án</div>
                 </CardContent>
               </Card>
             </div>
@@ -263,7 +274,7 @@ export default function ProjectsPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-cyan-900/5 to-black/0"></div>
         
         <div className="container mx-auto relative">
-          <div className="flex items-center justify-between mb-16">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-16 gap-6">
             <div className="flex items-center">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -275,15 +286,36 @@ export default function ProjectsPage() {
                 </svg>
               </div>
               <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                Dự Án AI Đang Triển Khai
+                Danh Sách Dự Án
               </h2>
             </div>
-            <div className="hidden md:block h-[1px] w-1/3 bg-gradient-to-r from-purple-500/50 to-transparent"></div>
+            
+            <div className="flex flex-wrap gap-3">
+              <Badge 
+                variant="outline" 
+                className="border-purple-500/30 text-purple-300 bg-black/30 px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-purple-900/20 transition-colors"
+              >
+                Tất cả dự án ({projectsData.length})
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="border-cyan-500/30 text-cyan-300 bg-black/30 px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-cyan-900/20 transition-colors"
+              >
+                Đang phát triển ({inProgressCount})
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="border-green-500/30 text-green-300 bg-black/30 px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-green-900/20 transition-colors"
+              >
+                Hoàn thành ({completedCount})
+              </Badge>
+            </div>
           </div>
           
           <div className="space-y-16 stagger-animation">
-            {projects.map((project, index) => {
-              const IconComponent = project.icon
+            {projectsWithVietnameseStatus.map((project, index) => {
+              const IconComponent = getTechIcon(project.technologies || []);
+              const colorGradient = getStatusGradient(project.status || '');
               return (
                 <div key={index} className="relative group">
                   {/* Decorative elements */}
@@ -298,17 +330,17 @@ export default function ProjectsPage() {
                       <div className="md:col-span-2 space-y-8">
                         <div className="flex items-start space-x-6">
                           <div
-                            className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${project.color} flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-900/20 group-hover:scale-110 transition-transform duration-500`}
+                            className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${colorGradient} flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-900/20 group-hover:scale-110 transition-transform duration-500`}
                           >
                             <IconComponent className="h-10 w-10 text-white" />
                           </div>
                           <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 mb-3">
                               <h3 className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300">
-                                {project.title}
+                                {project.name}
                               </h3>
                               <div className="flex items-center space-x-1 bg-black/30 py-1 px-2 rounded-full border border-purple-500/20">
-                                {getStatusIcon(project.status)}
+                                {getStatusIcon(project.status || '')}
                                 <span className="text-white/80 text-xs ml-1">{project.status}</span>
                               </div>
                             </div>
@@ -317,80 +349,150 @@ export default function ProjectsPage() {
                                 variant="outline" 
                                 className="border-purple-500/30 text-purple-300 bg-black/30 px-3 py-1 rounded-full"
                               >
-                                {project.company}
+                                {project.company_name || 'ApecTech'}
                               </Badge>
                               <Badge 
-                                className={`${getStatusColor(project.status)} px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider`}
+                                className={`${getStatusColor(project.status || '')} px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider`}
                               >
                                 {project.status}
                               </Badge>
+                              {project.is_featured && (
+                                <Badge 
+                                  className="bg-amber-600 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider"
+                                >
+                                  Dự án nổi bật
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </div>
-
-                        <p className="text-white/80 leading-relaxed text-lg">{project.description}</p>
-
-                        <div className="flex flex-wrap gap-2">
-                          {project.technologies.map((tech, idx) => (
-                            <Badge 
-                              key={idx} 
-                              variant="outline" 
-                              className="border-cyan-500/30 text-cyan-300 bg-black/30 hover:bg-cyan-900/20 transition-colors duration-300 cursor-default"
-                            >
-                              {tech}
-                            </Badge>
-                          ))}
+                        
+                        <p className="text-white/80 leading-relaxed">{project.description}</p>
+                        
+                        {project.goals && project.goals.length > 0 && (
+                          <div className="space-y-2">
+                            <h4 className="text-white/90 font-medium">Mục tiêu dự án:</h4>
+                            <ul className="list-disc list-inside text-white/70 space-y-1">
+                              {project.goals.map((goal, idx) => (
+                                <li key={idx}>{goal}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2">
+                          <h4 className="text-white/90 font-medium">Công nghệ sử dụng:</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {(project.technologies || []).map((tech, idx) => (
+                              <Badge 
+                                key={idx} 
+                                variant="outline" 
+                                className="border-cyan-500/30 text-cyan-300 bg-black/30 hover:bg-cyan-900/20 transition-colors duration-300 cursor-default"
+                              >
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       </div>
-
-                      {/* Project Details */}
+                      
+                      {/* Project Stats */}
                       <div className="space-y-6">
                         {/* Progress */}
                         <div className="relative">
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-xl blur opacity-30"></div>
-                          <div className="relative bg-black/60 rounded-xl p-6 backdrop-blur-sm">
-                            <div className="flex justify-between text-sm mb-3">
-                              <span className="text-white/60">Tiến độ dự án</span>
-                              <span className="text-white font-medium">{project.progress}%</span>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-white/80 text-sm">Tiến độ dự án</span>
+                            <span className="text-cyan-400 font-medium">{project.progress || 0}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full bg-gradient-to-r ${colorGradient}`}
+                              style={{ width: `${project.progress || 0}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        {/* Timeline & Team */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                            <div className="flex items-center mb-2">
+                              <Calendar className="h-4 w-4 text-purple-400 mr-2" />
+                              <span className="text-white/80 text-sm">Thời gian</span>
                             </div>
-                            <div className="w-full bg-black/50 rounded-full h-3 overflow-hidden border border-purple-500/20">
-                              <div
-                                className={`bg-gradient-to-r ${project.color} h-3 rounded-full transition-all duration-1000 relative`}
-                                style={{ width: `${project.progress}%` }}
+                            <div className="text-white font-medium">
+                              {project.start_date ? new Date(project.start_date).toLocaleDateString('vi-VN', {year: 'numeric', month: 'numeric'}) : ''} - 
+                              {project.end_date ? new Date(project.end_date).toLocaleDateString('vi-VN', {year: 'numeric', month: 'numeric'}) : ''}
+                            </div>
+                          </div>
+                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                            <div className="flex items-center mb-2">
+                              <Users className="h-4 w-4 text-cyan-400 mr-2" />
+                              <span className="text-white/80 text-sm">Đội ngũ</span>
+                            </div>
+                            <div className="text-white font-medium">{project.team_size || 0} người</div>
+                          </div>
+                          
+                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                            <div className="flex items-center mb-2">
+                              <Globe className="h-4 w-4 text-green-400 mr-2" />
+                              <span className="text-white/80 text-sm">Địa điểm</span>
+                            </div>
+                            <div className="text-white font-medium">{project.location || 'Hà Nội'}</div>
+                          </div>
+                          
+                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                            <div className="flex items-center mb-2">
+                              <Zap className="h-4 w-4 text-yellow-400 mr-2" />
+                              <span className="text-white/80 text-sm">Độ ưu tiên</span>
+                            </div>
+                            <div className="text-white font-medium">
+                              {project.priority === 'high' ? 'Cao' : 
+                               project.priority === 'medium' ? 'Trung bình' : 
+                               project.priority === 'low' ? 'Thấp' : 'Bình thường'}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Thông tin bổ sung */}
+                        {project.client_name && (
+                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                            <div className="flex items-center mb-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-blue-400 mr-2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                              </svg>
+                              <span className="text-white/80 text-sm">Khách hàng</span>
+                            </div>
+                            <div className="text-white font-medium">{project.client_name}</div>
+                          </div>
+                        )}
+                        
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-3 mt-8">
+                          <Link href={`/projects/${project.slug}`}>
+                            <Button
+                              className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white transition-all duration-300 shadow-lg shadow-purple-900/30 w-full"
+                            >
+                              Xem Chi Tiết
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                              </svg>
+                            </Button>
+                          </Link>
+                          
+                          {project.demo_url && (
+                            <Link href={project.demo_url} target="_blank">
+                              <Button
+                                variant="outline"
+                                className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300 w-full"
                               >
-                                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-                              </div>
-                            </div>
-                          </div>
+                                Xem Demo
+                                <PlayCircle className="h-4 w-4 ml-2" />
+                              </Button>
+                            </Link>
+                          )}
                         </div>
-
-                        {/* Timeline */}
-                        <div className="bg-black/30 rounded-xl p-5 border border-purple-500/20 backdrop-blur-sm group-hover:border-cyan-500/30 transition-colors duration-300">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Calendar className="h-5 w-5 text-cyan-400" />
-                            <span className="text-white/60 text-sm">Thời gian triển khai</span>
-                          </div>
-                          <span className="text-white font-medium">{project.timeline}</span>
-                        </div>
-
-                        {/* Team Size */}
-                        <div className="bg-black/30 rounded-xl p-5 border border-purple-500/20 backdrop-blur-sm group-hover:border-cyan-500/30 transition-colors duration-300">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Users className="h-5 w-5 text-cyan-400" />
-                            <span className="text-white/60 text-sm">Đội ngũ phát triển</span>
-                          </div>
-                          <span className="text-white font-medium">{project.team}</span>
-                        </div>
-
-                        <Button
-                          className={`w-full bg-gradient-to-r ${project.color} hover:opacity-90 transition-all duration-300 shadow-lg shadow-purple-900/20 group`}
-                        >
-                          <span className="mr-2">Xem Chi Tiết</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                          </svg>
-                        </Button>
                       </div>
                     </div>
                   </Card>

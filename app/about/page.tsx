@@ -3,8 +3,22 @@ import Footer from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Target, Building2, History, Crown, Users, Award, Globe, Lightbulb, TrendingUp, Shield } from "lucide-react"
+import { getAllCompanies } from "@/lib/db"
+import { Company } from "@/lib/schema"
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  // Lấy dữ liệu công ty từ database
+  const dbCompanies = await getAllCompanies()
+  
+  // Tính tổng số nhân viên từ tất cả các công ty
+  const totalEmployees = dbCompanies.reduce((sum, company) => sum + (company.employee_count || 0), 0)
+  
+  // Lấy năm thành lập của công ty đầu tiên (giả sử là công ty mẹ)
+  const foundingYear = dbCompanies.length > 0 && dbCompanies[0].established_date 
+    ? new Date(dbCompanies[0].established_date).getFullYear() 
+    : 2020
+  
+  // Dữ liệu ban lãnh đạo - có thể cập nhật từ database trong tương lai
   const leadership = [
     {
       name: "Nguyễn Văn A",
@@ -119,8 +133,8 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-white/80 text-center">
-                  Từ năm 2020, chúng tôi đã phát triển từ một startup công nghệ thành tập đoàn đa ngành với 5 công ty
-                  thành viên và hơn 200 nhân viên.
+                  Từ năm {foundingYear}, chúng tôi đã phát triển từ một startup công nghệ thành tập đoàn đa ngành với {dbCompanies.length} công ty
+                  thành viên và hơn {totalEmployees} nhân viên.
                 </p>
               </CardContent>
             </Card>

@@ -1,5 +1,3 @@
-"use client"
-
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,52 +20,119 @@ import {
   Globe,
   Zap,
 } from "lucide-react"
+import { getAllCompanies, getAllProjects } from "@/lib/db"
+import { Company, Project } from "@/lib/schema"
 
-export default function HomePage() {
-  const memberCompanies = [
-    {
-      name: "ApecTech",
-      icon: Brain,
-      description: "AI và học tập số",
-      color: "from-blue-500 to-cyan-500",
-      href: "/companies/apectech",
-    },
-    {
-      name: "GuardCam",
-      icon: Shield,
-      description: "Bảo mật công nghệ",
-      color: "from-green-500 to-emerald-500",
-      href: "/companies/guardcam",
-    },
-    {
-      name: "EmoCommerce",
-      icon: Heart,
-      description: "Thương mại điện tử cảm xúc",
-      color: "from-pink-500 to-rose-500",
-      href: "/companies/emocommerce",
-    },
-    {
-      name: "TimeLoop",
-      icon: Clock,
-      description: "Phân tích hành vi và thời gian",
-      color: "from-orange-500 to-amber-500",
-      href: "/companies/timeloop",
-    },
-    {
-      name: "ApecNeuroOS",
-      icon: Cpu,
-      description: "Hệ điều hành doanh nghiệp tương lai",
-      color: "from-purple-500 to-violet-500",
-      href: "/companies/apecneuroos",
-    },
-  ]
+// Hàm để lấy icon dựa trên tên công ty
+const getCompanyIcon = (name: string) => {
+  switch (name) {
+    case "ApecTech":
+      return Brain
+    case "GuardCam":
+      return Shield
+    case "EmoCommerce":
+      return Heart
+    case "TimeLoop":
+      return Clock
+    case "ApecNeuroOS":
+      return Cpu
+    default:
+      return Brain
+  }
+}
 
+// Hàm để lấy màu gradient dựa trên tên công ty
+const getCompanyColor = (name: string) => {
+  switch (name) {
+    case "ApecTech":
+      return "from-blue-500 to-cyan-500"
+    case "GuardCam":
+      return "from-green-500 to-emerald-500"
+    case "EmoCommerce":
+      return "from-pink-500 to-rose-500"
+    case "TimeLoop":
+      return "from-orange-500 to-amber-500"
+    case "ApecNeuroOS":
+      return "from-purple-500 to-violet-500"
+    default:
+      return "from-blue-500 to-cyan-500"
+  }
+}
+
+// Hàm để lấy mô tả ngắn dựa trên tên công ty
+const getCompanyShortDescription = (name: string) => {
+  switch (name) {
+    case "ApecTech":
+      return "AI và học tập số"
+    case "GuardCam":
+      return "Bảo mật công nghệ"
+    case "EmoCommerce":
+      return "Thương mại điện tử cảm xúc"
+    case "TimeLoop":
+      return "Phân tích hành vi và thời gian"
+    case "ApecNeuroOS":
+      return "Hệ điều hành doanh nghiệp tương lai"
+    default:
+      return "Công nghệ tiên tiến"
+  }
+}
+
+export default async function HomePage() {
+  // Lấy dữ liệu công ty từ database
+  const dbCompanies = await getAllCompanies()
+  const dbProjects = await getAllProjects()
+  
+  // Chuyển đổi dữ liệu từ database sang định dạng hiển thị
+  const memberCompanies = dbCompanies.map((company: Company) => {
+    return {
+      name: company.name,
+      icon: getCompanyIcon(company.name),
+      description: getCompanyShortDescription(company.name),
+      color: getCompanyColor(company.name),
+      href: `/companies/${company.slug}`,
+    }
+  })
+
+  // Tính toán số liệu thống kê
+  const completedProjects = dbProjects.filter(
+    (project: Project) => project.status?.toLowerCase().includes('hoàn thành') || 
+                         project.status?.toLowerCase().includes('complete')
+  ).length
+  
+  // Tính tổng số nhân viên từ tất cả các công ty
+  const totalEmployees = dbCompanies.reduce((sum, company) => sum + (company.employee_count || 0), 0)
+  
+  // Đếm số quốc gia duy nhất từ địa chỉ công ty
+  const countries = new Set()
+  dbCompanies.forEach((company) => {
+    if (company.address) {
+      // Giả định rằng quốc gia là từ cuối cùng trong địa chỉ
+      const addressParts = company.address.split(',')
+      const country = addressParts[addressParts.length - 1].trim()
+      if (country) countries.add(country)
+    }
+  })
+  
   const stats = [
-    { label: "Công ty thành viên", value: "5+", icon: Building2 },
-    { label: "Nhân viên", value: "200+", icon: Users },
-    { label: "Dự án hoàn thành", value: "50+", icon: Zap },
-    { label: "Quốc gia", value: "3+", icon: Globe },
+    { label: "Công ty thành viên", value: `${dbCompanies.length}+`, icon: Building2 },
+    { label: "Nhân viên", value: `${totalEmployees}+`, icon: Users },
+    { label: "Dự án hoàn thành", value: `${completedProjects}+`, icon: Zap },
+    { label: "Quốc gia", value: `${countries.size || 3}+`, icon: Globe },
   ]
+
+  // Lấy 3 dự án nổi bật
+  const featuredProjects = dbProjects
+    .filter((project: Project) => project.is_featured)
+    .slice(0, 3)
+    .map((project: Project) => {
+      return {
+        title: project.name,
+        description: project.description,
+        image: project.image_url || '/images/projects/default.jpg',
+        href: `/projects/${project.slug}`,
+        technologies: project.technologies || [],
+      }
+    })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
@@ -254,7 +319,7 @@ export default function HomePage() {
                     Khám phá các dự án công nghệ tiên tiến đang được phát triển
                   </p>
                   <Badge className="w-full justify-center bg-purple-600 text-white text-xs sm:text-sm">
-                    15+ Dự án đang triển khai
+                    {dbProjects.length}+ Dự án đang triển khai
                   </Badge>
                 </CardContent>
               </Card>

@@ -21,20 +21,93 @@ import AdminLayout from "@/components/admin/layout";
 async function checkAdmin() {
   const cookieStore = cookies();
   const authCookie = cookieStore.get("auth");
+  const adminAuthCookie = cookieStore.get("admin_auth");
   
-  if (!authCookie) {
+  if (!authCookie || !adminAuthCookie) {
     redirect("/admin/login");
   }
   
   try {
-    const userId = authCookie.value;
-    const result = await query("SELECT * FROM users WHERE id = $1", [userId]);
-    
-    if (result.rows.length === 0 || result.rows[0].role !== "admin") {
-      redirect("/admin/login");
+    // Thử parse giá trị cookie dưới dạng JSON
+    try {
+      const authData = JSON.parse(authCookie.value);
+      
+      if (!authData.permissions?.admin_access) {
+        redirect("/admin/login");
+      }
+      
+      // Nếu là tài khoản admin (id = 999)
+      if (authData.id === 999) {
+        return {
+          id: 999,
+          username: "admin",
+          email: "admin@apecglobal.com",
+          role: "admin",
+          is_active: true,
+          permissions: {
+            admin_access: true,
+            portal_access: true
+          }
+        };
+      }
+      
+      // Nếu không phải tài khoản admin, truy vấn database
+      const result = await query(`
+        SELECT u.*, p.admin_access, p.portal_access
+        FROM users u
+        LEFT JOIN permissions p ON u.employee_id = p.employee_id
+        WHERE u.id = $1
+      `, [authData.id]);
+      
+      if (result.rows.length === 0 || !result.rows[0].admin_access) {
+        redirect("/admin/login");
+      }
+      
+      return {
+        ...result.rows[0],
+        permissions: {
+          admin_access: result.rows[0].admin_access,
+          portal_access: result.rows[0].portal_access
+        }
+      };
+    } catch (parseError) {
+      // Nếu không parse được JSON, xử lý như cũ (giá trị cookie là userId)
+      const userId = authCookie.value;
+      
+      // Nếu là tài khoản admin
+      if (userId === "999") {
+        return {
+          id: 999,
+          username: "admin",
+          email: "admin@apecglobal.com",
+          role: "admin",
+          is_active: true,
+          permissions: {
+            admin_access: true,
+            portal_access: true
+          }
+        };
+      }
+      
+      const result = await query(`
+        SELECT u.*, p.admin_access, p.portal_access
+        FROM users u
+        LEFT JOIN permissions p ON u.employee_id = p.employee_id
+        WHERE u.id = $1
+      `, [userId]);
+      
+      if (result.rows.length === 0 || !result.rows[0].admin_access) {
+        redirect("/admin/login");
+      }
+      
+      return {
+        ...result.rows[0],
+        permissions: {
+          admin_access: result.rows[0].admin_access,
+          portal_access: result.rows[0].portal_access
+        }
+      };
     }
-    
-    return result.rows[0];
   } catch (error) {
     console.error("Error checking admin:", error);
     redirect("/admin/login");
@@ -111,6 +184,13 @@ export default async function AdminDashboard() {
       icon: <Users className="h-8 w-8 text-green-500" />,
       link: "/admin/users",
       count: stats.usersCount
+    },
+    {
+      title: "Quản lý phân quyền",
+      description: "Cấp quyền truy cập cho nhân viên",
+      icon: <Settings className="h-8 w-8 text-red-500" />,
+      link: "/admin/permissions",
+      count: "Mới"
     },
     {
       title: "Quản lý danh mục",

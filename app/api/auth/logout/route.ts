@@ -3,9 +3,11 @@ import { cookies } from 'next/headers';
 
 export async function POST() {
   try {
-    // Xóa cookie xác thực
+    // Xóa tất cả cookie xác thực
     const cookieStore = cookies();
     cookieStore.delete('auth');
+    cookieStore.delete('internal_auth');
+    cookieStore.delete('admin_auth');
     
     return NextResponse.json({
       message: 'Đăng xuất thành công'

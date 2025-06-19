@@ -1,3 +1,5 @@
+"use client"
+
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Brain, Shield, Heart, Clock, Cpu, ExternalLink, Users, Calendar, TrendingUp } from "lucide-react"
-import { getAllCompanies } from "@/lib/db"
+import { useState, useEffect } from "react"
 import { Company } from "@/lib/schema"
 
 // Hàm để lấy icon dựa trên tên công ty
@@ -80,25 +82,46 @@ const getCompanyShortDescription = (name: string) => {
   }
 }
 
-export default async function CompaniesPage() {
-  // Lấy dữ liệu công ty từ database
-  const dbCompanies = await getAllCompanies()
-  
-  // Chuyển đổi dữ liệu từ database sang định dạng hiển thị
-  const companies = dbCompanies.map((company: Company) => {
-    return {
-      name: company.name,
-      icon: getCompanyIcon(company.name),
-      description: getCompanyShortDescription(company.name),
-      fullDescription: company.description,
-      color: getCompanyColor(company.name),
-      href: `/companies/${company.slug}`,
-      founded: new Date(company.established_date).getFullYear().toString(),
-      employees: `${company.employee_count}+`,
-      projects: "10+", // Giá trị mặc định vì chưa có dữ liệu thực tế
-      specialties: getCompanySpecialties(company.name),
-    }
-  })
+export default function CompaniesPage() {
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Lấy dữ liệu công ty từ API
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch('/api/companies');
+        if (!response.ok) {
+          throw new Error('Failed to fetch companies');
+        }
+        const dbCompanies = await response.json();
+        
+        // Chuyển đổi dữ liệu từ API sang định dạng hiển thị
+        const formattedCompanies = dbCompanies.map((company: Company) => {
+          return {
+            name: company.name,
+            icon: getCompanyIcon(company.name),
+            description: getCompanyShortDescription(company.name),
+            fullDescription: company.description,
+            color: getCompanyColor(company.name),
+            href: `/companies/${company.slug}`,
+            founded: new Date(company.established_date).getFullYear().toString(),
+            employees: `${company.employee_count}+`,
+            projects: "10+", // Giá trị mặc định vì chưa có dữ liệu thực tế
+            specialties: getCompanySpecialties(company.name),
+          };
+        });
+        
+        setCompanies(formattedCompanies);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
@@ -120,8 +143,13 @@ export default async function CompaniesPage() {
       {/* Companies Grid */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <div className="space-y-12">
-            {companies.map((company, index) => {
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
+            </div>
+          ) : (
+            <div className="space-y-12">
+              {companies.map((company, index) => {
               const IconComponent = company.icon
               return (
                 <Card
@@ -153,7 +181,7 @@ export default async function CompaniesPage() {
                         ))}
                       </div>
 
-                      <Link href={company.href}>
+                      <Link href={company.href} className="inline-block mt-4">
                         <Button className={`bg-gradient-to-r ${company.color} hover:opacity-90 transition-opacity`}>
                           Tìm Hiểu Chi Tiết
                           <ExternalLink className="ml-2 h-4 w-4" />
@@ -191,7 +219,8 @@ export default async function CompaniesPage() {
                 </Card>
               )
             })}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 

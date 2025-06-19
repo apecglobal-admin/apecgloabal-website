@@ -167,9 +167,7 @@ export default function InternalPortal() {
     )
   } else {
     // Nếu đã đăng nhập, chuyển hướng đến dashboard
-    useEffect(() => {
-      router.push("/internal/dashboard")
-    }, [router])
+    router.push("/internal/dashboard")
     
     // Hiển thị loading trong khi chuyển hướng
     return (

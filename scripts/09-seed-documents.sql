@@ -1,0 +1,16 @@
+INSERT INTO documents (name, file_type, file_size, file_url, category, uploaded_by, download_count, description, folder_path, is_public) VALUES
+('Báo cáo thường niên 2023', 'PDF', '5.2 MB', '/documents/annual-report-2023.pdf', 'Reports', 1, 245, 'Báo cáo thường niên của ApecGlobal Group năm 2023', '/reports/annual', true),
+('Hồ sơ năng lực ApecGlobal', 'PDF', '3.8 MB', '/documents/apecglobal-profile.pdf', 'Company', 1, 187, 'Hồ sơ năng lực của tập đoàn ApecGlobal', '/company/profile', true),
+('Giới thiệu công nghệ AI', 'PPTX', '12.5 MB', '/documents/ai-technology-intro.pptx', 'Technology', 3, 156, 'Giới thiệu về công nghệ AI và ứng dụng', '/technology/presentations', true),
+('Hướng dẫn sử dụng ApecLearn', 'PDF', '2.3 MB', '/documents/apeclearn-user-guide.pdf', 'User Guides', 4, 320, 'Hướng dẫn sử dụng nền tảng học tập ApecLearn', '/guides/apeclearn', true),
+('Whitepaper: Tương lai của AI trong giáo dục', 'PDF', '4.7 MB', '/documents/ai-in-education-whitepaper.pdf', 'Whitepapers', 1, 210, 'Nghiên cứu về tương lai của AI trong lĩnh vực giáo dục', '/research/whitepapers', true),
+('Kế hoạch kinh doanh 2024', 'XLSX', '1.8 MB', '/documents/business-plan-2024.xlsx', 'Business', 1, 45, 'Kế hoạch kinh doanh của ApecGlobal năm 2024', '/business/plans', false),
+('Báo cáo tài chính Q1 2024', 'XLSX', '2.2 MB', '/documents/financial-report-q1-2024.xlsx', 'Finance', 3, 32, 'Báo cáo tài chính quý 1 năm 2024', '/finance/quarterly', false),
+('Chiến lược marketing 2024', 'DOCX', '1.5 MB', '/documents/marketing-strategy-2024.docx', 'Marketing', 4, 28, 'Chiến lược marketing của ApecGlobal năm 2024', '/marketing/strategy', false),
+('Quy trình phát triển sản phẩm', 'PDF', '3.1 MB', '/documents/product-development-process.pdf', 'Processes', 5, 67, 'Quy trình phát triển sản phẩm của ApecGlobal', '/processes/development', false),
+('Hướng dẫn bảo mật thông tin', 'PDF', '1.9 MB', '/documents/security-guidelines.pdf', 'Security', 7, 89, 'Hướng dẫn bảo mật thông tin cho nhân viên', '/security/guidelines', false),
+('Báo cáo nghiên cứu thị trường', 'PPTX', '8.5 MB', '/documents/market-research-report.pptx', 'Research', 10, 41, 'Báo cáo nghiên cứu thị trường công nghệ AI', '/research/market', false),
+('Kế hoạch nhân sự 2024', 'XLSX', '1.3 MB', '/documents/hr-plan-2024.xlsx', 'HR', 17, 25, 'Kế hoạch nhân sự của ApecGlobal năm 2024', '/hr/plans', false),
+('Quy chế làm việc', 'DOCX', '0.9 MB', '/documents/work-regulations.docx', 'HR', 17, 112, 'Quy chế làm việc của ApecGlobal', '/hr/regulations', false),
+('Tài liệu đào tạo nhân viên mới', 'PDF', '4.5 MB', '/documents/new-employee-training.pdf', 'Training', 17, 78, 'Tài liệu đào tạo dành cho nhân viên mới', '/training/onboarding', false),
+('Roadmap phát triển sản phẩm 2024-2025', 'PDF', '2.7 MB', '/documents/product-roadmap-2024-2025.pdf', 'Product', 20, 53, 'Lộ trình phát triển sản phẩm 2024-2025', '/product/roadmap', false);

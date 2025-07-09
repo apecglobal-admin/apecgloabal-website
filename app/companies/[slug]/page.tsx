@@ -271,7 +271,7 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
               <div className="flex items-center p-4 bg-black/30 rounded-xl border border-purple-500/20 backdrop-blur-sm">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-purple-600/10 to-cyan-600/10 overflow-hidden relative flex-shrink-0 border border-purple-500/20">
                   <Image 
-                    src={companyData.logo_url || '/placeholder-logo.png'} 
+                    src={companyData.logo_url} 
                     alt={companyData.name}
                     width={56}
                     height={56}

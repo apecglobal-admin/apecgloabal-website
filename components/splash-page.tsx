@@ -200,10 +200,10 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
         <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }}></div>
 
         {/* Floating Company Logos */}
-        {companies && companies.length > 0 && companies.slice(0, 5).map((company, index) => {
+        {companies && companies.length > 0 && companies.map((company, index) => {
           const position = logoPositions[index]
           if (!position) return null
-          
+          console.log("Com", company)
           return (
             <div
               key={company.id}

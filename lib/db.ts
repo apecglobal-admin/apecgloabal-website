@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 
 // Khởi tạo kết nối PostgreSQL
-const connectionString = process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_JGyM4NXEfVS6@ep-tiny-poetry-a45r81hy-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const connectionString = process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_j3mTncOHAh5Z@ep-wispy-pine-a1vklngi-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
 
 // Tạo pool connection chỉ ở phía server
 let pool: Pool;
@@ -82,12 +82,22 @@ export async function getCompanyDetails(slug: string) {
   const departmentsResult = await query('SELECT * FROM departments WHERE company_id = $1', [company.id]);
   const departments = departmentsResult.rows;
   
+  // Lấy danh sách tài liệu công ty
+  const documentsResult = await query(`
+    SELECT * FROM documents 
+    WHERE category = 'company' AND is_public = true
+    ORDER BY created_at DESC
+    LIMIT 10
+  `);
+  const documents = documentsResult.rows;
+  
   return {
     ...company,
     projectsCount,
     employeesCount,
     servicesCount,
-    departments
+    departments,
+    documents
   };
 }
 

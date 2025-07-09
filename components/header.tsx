@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Globe } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -28,7 +29,7 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed py-6 top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-black/90 backdrop-blur-md border-b border-purple-500/30"
           : "bg-black/80 backdrop-blur-sm border-b border-purple-500/20"
@@ -37,16 +38,21 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <div className="flex items-center space-x-2 z-50">
+          <div className="flex items-center z-50">
             <Link
               href="/home"
-              className="flex items-center space-x-2 hover:scale-105 transform transition-all duration-200"
+              className="hover:scale-105 transform transition-all duration-200"
               onClick={closeMenu}
             >
-              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm lg:text-base">A</span>
+              <div className="w-24 h-24 lg:w-32 lg:h-32 relative -ml-3 -my-4">
+                <Image
+                  src="/main-logo.png"
+                  alt="APEC Global Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-              <span className="text-lg lg:text-xl font-bold text-white">ApecGlobal</span>
             </Link>
           </div>
 

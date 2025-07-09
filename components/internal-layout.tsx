@@ -22,6 +22,8 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Shield,
+  Building2,
 } from "lucide-react"
 
 interface InternalLayoutProps {
@@ -56,6 +58,12 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       color: "text-green-400",
     },
     {
+      name: "Tin Tức",
+      href: "/internal/news",
+      icon: FileText,
+      color: "text-yellow-400",
+    },
+    {
       name: "Tài Liệu",
       href: "/internal/documents",
       icon: FileText,
@@ -73,6 +81,22 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       icon: Settings,
       color: "text-gray-400",
     },
+  ]
+
+  // Admin menu items - chỉ hiển thị cho admin
+  const adminMenuItems = [
+    {
+      name: "Công Ty",
+      href: "/internal/companies",
+      icon: Building2,
+      color: "text-indigo-400",
+    },
+    {
+      name: "Phân Quyền",
+      href: "/internal/permissions",
+      icon: Shield,
+      color: "text-red-400",
+    }
   ]
 
   useEffect(() => {
@@ -236,6 +260,32 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
                 </Link>
               )
             })}
+
+            {/* Admin Menu - chỉ hiển thị cho admin */}
+            {currentUser === "admin" && (
+              <>
+                <p className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-4 mt-8">Quản Trị</p>
+                {adminMenuItems.map((item) => {
+                  const IconComponent = item.icon
+                  const isActive = pathname === item.href || pathname.startsWith(item.href)
+                  return (
+                    <Link key={item.href} href={item.href} onClick={() => setIsSidebarOpen(false)}>
+                      <div
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                          isActive
+                            ? "bg-red-500/20 border border-red-500/50 text-white"
+                            : "text-white/70 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        <IconComponent className={`h-5 w-5 ${isActive ? "text-red-400" : item.color}`} />
+                        <span className="font-medium">{item.name}</span>
+                        {isActive && <ChevronRight className="h-4 w-4 ml-auto text-red-400" />}
+                      </div>
+                    </Link>
+                  )
+                })}
+              </>
+            )}
           </nav>
 
           {/* Quick Stats */}

@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
 
     fetchUser();
-  }, [router]);
+  }, []); // Chỉ chạy một lần khi component mount
 
   const handleLogout = async () => {
     try {

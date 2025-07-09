@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       if (!company) {
         return NextResponse.json({ error: 'Company not found' }, { status: 404 });
       }
-      
+      console.log("Fetched company:", company);
       return NextResponse.json(company);
     } else {
       // Nếu không có slug, lấy tất cả công ty
@@ -60,6 +60,7 @@ export async function GET(request: Request) {
         updated_at: company.updated_at
       }))
 
+      console.log("Fetched companies:", companiesData);
       
       return NextResponse.json({
         success: true,

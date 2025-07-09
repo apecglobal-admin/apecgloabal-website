@@ -277,7 +277,7 @@ async function getCategories() {
 }
 
 // Tạo metadata động cho trang
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+/* export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   // Đảm bảo slug an toàn trước khi truy vấn
   let safeSlug = slug;
@@ -307,9 +307,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       images: news.image_url ? [{ url: news.image_url }] : [],
     },
   };
-}
+} */
 
-export default async function NewsDetailPage({ params }: { params: { slug: string } }) {
+export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   console.log('Rendering news page for slug:', slug);
   

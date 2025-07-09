@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import InternalLayout from "@/components/internal-layout"
+import React, { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +8,38 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { Search, Filter, Plus, ArrowLeft, Mail, Phone, Calendar, Edit, Trash2, Eye, Download, Users, Shield, Settings } from "lucide-react"
+import InternalLayout from "@/components/internal-layout"
+
+// TypeScript interfaces
+interface Employee {
+  id: number;
+  name: string;
+  position: string;
+  department: string;
+  email: string;
+  phone: string;
+  joinDate: string;
+  status: "active" | "leave" | "inactive";
+  avatar: string;
+}
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: "admin" | "manager" | "user";
+  isActive: boolean;
+  lastLogin: string;
+  permissions: string[];
+  employeeId: number;
+  employeeName: string;
+}
+
+interface Department {
+  name: string;
+  count: number;
+  color: string;
+}
 
 export default function EmployeesPage() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -16,7 +47,7 @@ export default function EmployeesPage() {
   const [selectedDepartment, setSelectedDepartment] = useState("Tất cả")
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [activeTab, setActiveTab] = useState("employees")
 
@@ -27,7 +58,7 @@ export default function EmployeesPage() {
     }
   }, []);
 
-  const employees = [
+  const employees: Employee[] = [
     {
       id: 1,
       name: "Nguyễn Văn A",
@@ -119,7 +150,7 @@ export default function EmployeesPage() {
   ]
 
   // Mock data cho users (chỉ admin mới thấy)
-  const users = [
+  const users: User[] = [
     {
       id: 1,
       username: "admin",
@@ -166,7 +197,7 @@ export default function EmployeesPage() {
     }
   ]
 
-  const departments = [
+  const departments: Department[] = [
     { name: "Tất cả", count: employees.length, color: "bg-gray-600" },
     { name: "ApecTech", count: employees.filter((e) => e.department === "ApecTech").length, color: "bg-blue-600" },
     { name: "GuardCam", count: employees.filter((e) => e.department === "GuardCam").length, color: "bg-green-600" },
@@ -200,7 +231,7 @@ export default function EmployeesPage() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedEmployees = filteredEmployees.slice(startIndex, startIndex + itemsPerPage)
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: Employee['status']) => {
     switch (status) {
       case "active":
         return "bg-green-600"
@@ -213,7 +244,7 @@ export default function EmployeesPage() {
     }
   }
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: Employee['status']) => {
     switch (status) {
       case "active":
         return "Đang làm việc"
@@ -226,7 +257,7 @@ export default function EmployeesPage() {
     }
   }
 
-  const getDepartmentColor = (department: string) => {
+  const getDepartmentColor = (department: Employee['department']) => {
     switch (department) {
       case "ApecTech":
         return "bg-blue-500/10 text-blue-300 border-blue-500/30"
@@ -249,19 +280,19 @@ export default function EmployeesPage() {
     setShowAddModal(true)
   }
 
-  const handleEditEmployee = (employee) => {
+  const handleEditEmployee = (employee: Employee) => {
     setSelectedEmployee(employee)
     setShowEditModal(true)
   }
 
-  const handleDeleteEmployee = (employeeId) => {
+  const handleDeleteEmployee = (employeeId: number) => {
     if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
       // Implement delete logic here
       alert(`Đã xóa nhân viên ID: ${employeeId}`)
     }
   }
 
-  const handleViewEmployee = (employee) => {
+  const handleViewEmployee = (employee: Employee) => {
     alert(`Xem chi tiết nhân viên: ${employee.name}`)
   }
 
@@ -274,7 +305,7 @@ export default function EmployeesPage() {
   }
 
   // Helper functions for users
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (role: User['role']) => {
     switch (role) {
       case 'admin': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'manager': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
@@ -283,7 +314,7 @@ export default function EmployeesPage() {
     }
   };
 
-  const getRoleText = (role: string) => {
+  const getRoleText = (role: User['role']) => {
     switch (role) {
       case 'admin': return 'Quản trị viên';
       case 'manager': return 'Quản lý';
@@ -349,9 +380,8 @@ export default function EmployeesPage() {
               Xuất Excel
             </Button>
           </div>
-        </div>
 
-        {/* Department Filter */}
+          {/* Department Filter */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-white mb-4">Phòng Ban</h3>
           <div className="flex flex-wrap gap-3">

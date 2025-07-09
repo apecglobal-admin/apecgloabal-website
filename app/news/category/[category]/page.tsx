@@ -83,17 +83,19 @@ async function getCategories() {
 }
 
 // Tạo metadata động cho trang
-export async function generateMetadata({ params }: { params: { category: string } }): Promise<Metadata> {
-  const decodedCategory = decodeURIComponent(params.category);
+/* export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
+  const { category } = await params;
+  const decodedCategory = decodeURIComponent(category);
   
   return {
     title: `Tin tức ${decodedCategory} - ApecGlobal`,
     description: `Danh sách tin tức thuộc danh mục ${decodedCategory} từ ApecGlobal Group`,
   };
-}
+} */
 
-export default async function CategoryPage({ params }: { params: { category: string } }) {
-  const decodedCategory = decodeURIComponent(params.category);
+export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  const { category } = await params;
+  const decodedCategory = decodeURIComponent(category);
   const newsItems = await getNewsByCategory(decodedCategory);
   const categories = await getCategories();
   

@@ -63,8 +63,9 @@ async function getServiceBySlug(slug: string) {
 }
 
 // Tạo metadata động cho trang
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const service = await getServiceBySlug(params.slug);
+/* export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const service = await getServiceBySlug(slug);
   
   if (!service) {
     return {
@@ -77,7 +78,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: `Yêu cầu Demo: ${service.title}`,
     description: `Đăng ký nhận demo dịch vụ ${service.title} từ ${service.company_name || 'ApecTech'}`,
   };
-}
+} */
 
 // Hàm để lấy màu gradient dựa trên tên công ty
 const getCompanyGradient = (companyName: string) => {
@@ -97,9 +98,10 @@ const getCompanyGradient = (companyName: string) => {
   }
 }
 
-export default async function ServiceDemoPage({ params }: { params: { slug: string } }) {
-  console.log('Rendering service demo page for slug:', params.slug);
-  const service = await getServiceBySlug(params.slug);
+export default async function ServiceDemoPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  console.log('Rendering service demo page for slug:', slug);
+  const service = await getServiceBySlug(slug);
   
   // Chuẩn bị dữ liệu dịch vụ
   const serviceData = service ? {

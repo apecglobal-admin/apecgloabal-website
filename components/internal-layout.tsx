@@ -335,5 +335,3 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
     </div>
   )
 }
-
-export default InternalLayout

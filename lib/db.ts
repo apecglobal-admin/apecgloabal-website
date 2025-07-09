@@ -2,7 +2,6 @@ import { Pool } from 'pg';
 
 // Khởi tạo kết nối PostgreSQL
 const connectionString = process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_j3mTncOHAh5Z@ep-wispy-pine-a1vklngi-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
-
 // Tạo pool connection chỉ ở phía server
 let pool: Pool;
 

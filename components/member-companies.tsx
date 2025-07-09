@@ -83,14 +83,7 @@ const getCompanyShortDescription = (name: string) => {
 
 export default function MemberCompanies() {
   // Fallback companies data nếu API fails
-  const fallbackCompanies: Company[] = [
-    { id: 1, name: "ApecTech", slug: "apectech", logo_url: "/logos/apectech.png" },
-    { id: 2, name: "GuardCam", slug: "guardcam", logo_url: "/logos/guardcam.png" },
-    { id: 3, name: "EmoCommerce", slug: "emocommerce", logo_url: "/logos/emocommerce.png" },
-    { id: 4, name: "TimeLoop", slug: "timeloop", logo_url: "/logos/timeloop.png" },
-    { id: 5, name: "ApecNeuroOS", slug: "apecneuroos", logo_url: "/logos/apecneuroos.png" },
-    { id: 6, name: "ApecGlobal", slug: "apecglobal", logo_url: "/logos/apecglobal.png" }
-  ]
+  
 
   // Sử dụng API cache để lấy companies
   const { data: apiResponse, loading, error } = useApiCache<any>(
@@ -107,7 +100,7 @@ export default function MemberCompanies() {
 
   // Extract companies array from API response
   const apiCompanies = apiResponse?.success ? apiResponse.data : null
-  const companies = Array.isArray(apiCompanies) ? apiCompanies : fallbackCompanies
+  const companies = Array.isArray(apiCompanies) ? apiCompanies : []
 
   if (loading) {
     return (

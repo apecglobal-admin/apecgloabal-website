@@ -28,13 +28,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const [isTeleporting, setIsTeleporting] = useState(false)
   
   // Fallback companies data nếu API fails
-  const fallbackCompanies: Company[] = [
-    { id: 1, name: "ApecTech", slug: "apectech", logo_url: "/logos/apectech.png" },
-    { id: 2, name: "GuardCam", slug: "guardcam", logo_url: "/logos/guardcam.png" },
-    { id: 3, name: "EmoCommerce", slug: "emocommerce", logo_url: "/logos/emocommerce.png" },
-    { id: 4, name: "TimeLoop", slug: "timeloop", logo_url: "/logos/timeloop.png" },
-    { id: 5, name: "ApecNeuroOS", slug: "apecneuroos", logo_url: "/logos/apecneuroos.png" }
-  ]
   
   // Sử dụng API cache để lấy companies
   const { data: apiResponse, loading, error } = useApiCache<any>(
@@ -54,7 +47,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const apiCompanies = apiResponse?.success ? apiResponse.data : null
 
   // Sử dụng fallback data nếu API không có data
-  const companies = Array.isArray(apiCompanies) ? apiCompanies : fallbackCompanies
+  const companies = Array.isArray(apiCompanies) ? apiCompanies : []
 
   const checkAllAssetsLoaded = useCallback(() => {
     if (logoLoaded && companyLogosLoaded && !loading) {
@@ -200,10 +193,10 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
         <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }}></div>
 
         {/* Floating Company Logos */}
-        {companies && companies.length > 0 && companies.slice(0, 5).map((company, index) => {
+        {companies && companies.length > 0 && companies.map((company, index) => {
           const position = logoPositions[index]
           if (!position) return null
-          
+          console.log("Com", company)
           return (
             <div
               key={company.id}

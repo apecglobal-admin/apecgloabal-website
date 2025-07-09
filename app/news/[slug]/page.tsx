@@ -278,11 +278,12 @@ async function getCategories() {
 
 // Tạo metadata động cho trang
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const { slug } = await params;
   // Đảm bảo slug an toàn trước khi truy vấn
-  let safeSlug = params.slug;
+  let safeSlug = slug;
   try {
     // Thử giải mã slug nếu cần
-    safeSlug = decodeURIComponent(params.slug);
+    safeSlug = decodeURIComponent(slug);
   } catch (error) {
     console.log('Error decoding slug in metadata:', error);
     // Giữ nguyên slug nếu không thể giải mã
@@ -309,13 +310,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function NewsDetailPage({ params }: { params: { slug: string } }) {
-  console.log('Rendering news page for slug:', params.slug);
+  const { slug } = await params;
+  console.log('Rendering news page for slug:', slug);
   
   // Đảm bảo slug an toàn trước khi truy vấn
-  let safeSlug = params.slug;
+  let safeSlug = slug;
   try {
     // Thử giải mã slug nếu cần
-    safeSlug = decodeURIComponent(params.slug);
+    safeSlug = decodeURIComponent(slug);
   } catch (error) {
     console.log('Error decoding slug in page component:', error);
     // Giữ nguyên slug nếu không thể giải mã
@@ -324,7 +326,7 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
   const news = await getNewsBySlug(safeSlug);
   
   if (!news) {
-    console.log('News not found for slug:', params.slug);
+    console.log('News not found for slug:', slug);
     notFound();
   }
   

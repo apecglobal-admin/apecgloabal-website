@@ -71,7 +71,8 @@ async function getRelatedServices(id: string, company_id: number, limit: number 
 
 // Tạo metadata động cho trang
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const service = await getServiceBySlug(params.slug);
+  const { slug } = await params;
+  const service = await getServiceBySlug(slug);
   
   if (!service) {
     return {
@@ -105,7 +106,8 @@ const getCompanyGradient = (companyName: string) => {
 }
 
 export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const service = await getServiceBySlug(params.slug);
+  const { slug } = await params;
+  const service = await getServiceBySlug(slug);
   
   if (!service) {
     notFound();

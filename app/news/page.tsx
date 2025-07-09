@@ -57,7 +57,7 @@ export default async function NewsPage() {
     title: featuredNewsItem.title,
     excerpt: featuredNewsItem.excerpt,
     date: formatDate(featuredNewsItem.published_at),
-    author: "Ban Biên Tập", // Giá trị mặc định vì chưa có dữ liệu tác giả thực tế
+    author: featuredNewsItem.author_name || "Ban Biên Tập",
     readTime: calculateReadTime(featuredNewsItem.content),
     views: featuredNewsItem.view_count.toLocaleString(),
     category: featuredNewsItem.category,
@@ -74,7 +74,7 @@ export default async function NewsPage() {
         title: item.title,
         excerpt: item.excerpt,
         date: formatDate(item.published_at),
-        author: "Ban Biên Tập", // Giá trị mặc định vì chưa có dữ liệu tác giả thực tế
+        author: item.author_name || "Ban Biên Tập",
         readTime: calculateReadTime(item.content),
         views: item.view_count.toLocaleString(),
         category: item.category,

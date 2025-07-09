@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Brain, Shield, Heart, Clock, Cpu, ExternalLink, Users, Calendar, TrendingUp } from "lucide-react"
+import Image from "next/image"
+import { Brain, Shield, Heart, Clock, Cpu, ExternalLink, Users, Calendar, TrendingUp, Mail, Phone, MapPin } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Company } from "@/lib/schema"
+import { useApiCache } from "@/hooks/use-api-cache"
 
 // Hàm để lấy icon dựa trên tên công ty
 const getCompanyIcon = (name: string) => {
@@ -83,45 +85,46 @@ const getCompanyShortDescription = (name: string) => {
 }
 
 export default function CompaniesPage() {
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Lấy dữ liệu công ty từ API
-    const fetchCompanies = async () => {
-      try {
-        const response = await fetch('/api/companies');
-        if (!response.ok) {
-          throw new Error('Failed to fetch companies');
-        }
-        const dbCompanies = await response.json();
-        
-        // Chuyển đổi dữ liệu từ API sang định dạng hiển thị
-        const formattedCompanies = dbCompanies.map((company: Company) => {
-          return {
-            name: company.name,
-            icon: getCompanyIcon(company.name),
-            description: getCompanyShortDescription(company.name),
-            fullDescription: company.description,
-            color: getCompanyColor(company.name),
-            href: `/companies/${company.slug}`,
-            founded: new Date(company.established_date).getFullYear().toString(),
-            employees: `${company.employee_count}+`,
-            projects: "10+", // Giá trị mặc định vì chưa có dữ liệu thực tế
-            specialties: getCompanySpecialties(company.name),
-          };
-        });
-        
-        setCompanies(formattedCompanies);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-        setLoading(false);
+  // Lấy dữ liệu từ API companies
+  const { data: apiResponse, loading, error } = useApiCache<any>(
+    'companies-list',
+    async () => {
+      const response = await fetch('/api/companies')
+      if (!response.ok) {
+        throw new Error('Failed to fetch companies')
       }
-    };
+      return response.json()
+    },
+    5 * 60 * 1000 // Cache 5 phút
+  )
 
-    fetchCompanies();
-  }, []);
+  // Extract companies array từ API response
+  const apiCompanies = apiResponse?.success ? apiResponse.data : []
+  
+  // Chuyển đổi dữ liệu từ API sang định dạng hiển thị  
+  const companies = apiCompanies.map((company: any) => {
+    return {
+      id: company.id,
+      name: company.name,
+      slug: company.slug,
+      icon: getCompanyIcon(company.name),
+      logo_url: company.logo_url,
+      description: company.short_description || getCompanyShortDescription(company.name),
+      fullDescription: company.description,
+      color: getCompanyColor(company.name),
+      href: `/companies/${company.slug}`,
+      founded: company.created_at ? new Date(company.created_at).getFullYear().toString() : new Date().getFullYear().toString(),
+      employees: `${company.employee_count || 0}+`,
+      projects: "10+", // Giá trị mặc định vì chưa có dữ liệu thực tế
+      specialties: getCompanySpecialties(company.name),
+      industry: company.industry || "Technology",
+      website: company.website,
+      address: company.address,
+      phone: company.phone,
+      email: company.email,
+      is_featured: company.is_featured || false
+    }
+  })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
@@ -147,6 +150,24 @@ export default function CompaniesPage() {
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
             </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <div className="text-red-400 text-lg mb-4">
+                Không thể tải dữ liệu companies: {error}
+              </div>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+              >
+                Thử lại
+              </Button>
+            </div>
+          ) : companies.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="text-white/80 text-lg">
+                Không có dữ liệu companies từ API
+              </div>
+            </div>
           ) : (
             <div className="space-y-12">
               {companies.map((company, index) => {
@@ -160,10 +181,24 @@ export default function CompaniesPage() {
                     {/* Company Info */}
                     <div className="md:col-span-2 space-y-6">
                       <div className="flex items-center space-x-4">
-                        <div
-                          className={`w-16 h-16 rounded-full bg-gradient-to-r ${company.color} flex items-center justify-center`}
-                        >
-                          <IconComponent className="h-8 w-8 text-white" />
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden ${
+                          company.logo_url 
+                            ? 'bg-gradient-to-br from-gray-50 to-white shadow-lg border-2 border-purple-200/50' 
+                            : 'bg-white/10'
+                        }`}>
+                          {company.logo_url ? (
+                            <Image
+                              src={company.logo_url}
+                              alt={`${company.name} logo`}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-contain p-2"
+                            />
+                          ) : (
+                            <div className={`w-full h-full rounded-full bg-gradient-to-r ${company.color} flex items-center justify-center`}>
+                              <IconComponent className="h-8 w-8 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-white">{company.name}</h3>
@@ -214,6 +249,73 @@ export default function CompaniesPage() {
                         </div>
                         <span className="text-white font-semibold">{company.projects}</span>
                       </div>
+
+                      {/* Industry */}
+                      <div className="bg-black/30 rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <TrendingUp className="h-4 w-4 text-purple-400" />
+                          <span className="text-white/60 text-sm">Ngành</span>
+                        </div>
+                        <span className="text-white font-semibold text-xs">{company.industry}</span>
+                      </div>
+
+                      {/* Contact Info */}
+                      {company.website && (
+                        <div className="bg-black/30 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <ExternalLink className="h-4 w-4 text-blue-400" />
+                            <span className="text-white/60 text-sm">Website</span>
+                          </div>
+                          <a 
+                            href={company.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 text-sm break-all"
+                          >
+                            {company.website}
+                          </a>
+                        </div>
+                      )}
+
+                      {company.email && (
+                        <div className="bg-black/30 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Mail className="h-4 w-4 text-green-400" />
+                            <span className="text-white/60 text-sm">Email</span>
+                          </div>
+                          <a 
+                            href={`mailto:${company.email}`}
+                            className="text-green-400 hover:text-green-300 text-sm break-all"
+                          >
+                            {company.email}
+                          </a>
+                        </div>
+                      )}
+
+                      {company.phone && (
+                        <div className="bg-black/30 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Phone className="h-4 w-4 text-yellow-400" />
+                            <span className="text-white/60 text-sm">Điện thoại</span>
+                          </div>
+                          <a 
+                            href={`tel:${company.phone}`}
+                            className="text-yellow-400 hover:text-yellow-300 text-sm"
+                          >
+                            {company.phone}
+                          </a>
+                        </div>
+                      )}
+
+                      {company.address && (
+                        <div className="bg-black/30 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <MapPin className="h-4 w-4 text-red-400" />
+                            <span className="text-white/60 text-sm">Địa chỉ</span>
+                          </div>
+                          <span className="text-white font-semibold text-xs">{company.address}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>

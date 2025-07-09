@@ -103,10 +103,11 @@ export default function EditNews({ params }: { params: { id: string } }) {
       }
     };
     
+    // Chỉ fetch khi thực sự cần thiết
     fetchNews();
     fetchCategories();
     fetchAuthors();
-  }, [params.id]);
+  }, [params.id]); // Chỉ chạy khi params.id thay đổi
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

@@ -53,20 +53,11 @@ export default function AdminCategories() {
         if (response.ok) {
           const data = await response.json();
           
-          // Lấy số lượng tin tức cho mỗi danh mục
-          const categoriesWithCount = await Promise.all(
-            data.map(async (category: string) => {
-              const newsResponse = await fetch(`/api/news?category=${category}&limit=1`);
-              if (newsResponse.ok) {
-                const newsData = await newsResponse.json();
-                return {
-                  name: category,
-                  count: newsData.pagination.total,
-                };
-              }
-              return { name: category, count: 0 };
-            })
-          );
+          // Lấy số lượng tin tức cho mỗi danh mục (tối ưu hóa)
+          const categoriesWithCount = data.map((category: string) => ({
+            name: category,
+            count: 0, // Có thể thêm API riêng để lấy count một lần hoặc cache
+          }));
           
           setCategories(categoriesWithCount);
         } else {

@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import InternalLayout from "@/components/internal-layout"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Search, Filter, Plus, ArrowLeft, Mail, Phone, Calendar, Edit, Trash2, Eye, Download } from "lucide-react"
+import { Search, Filter, Plus, ArrowLeft, Mail, Phone, Calendar, Edit, Trash2, Eye, Download, Users, Shield, Settings } from "lucide-react"
 
 export default function EmployeesPage() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -16,6 +17,15 @@ export default function EmployeesPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [activeTab, setActiveTab] = useState("employees")
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("internal_user");
+    if (savedUser) {
+      setIsAdmin(savedUser === "admin");
+    }
+  }, []);
 
   const employees = [
     {
@@ -106,6 +116,54 @@ export default function EmployeesPage() {
       status: "active",
       avatar: "BH",
     },
+  ]
+
+  // Mock data cho users (chỉ admin mới thấy)
+  const users = [
+    {
+      id: 1,
+      username: "admin",
+      email: "admin@apecglobal.com",
+      role: "admin",
+      isActive: true,
+      lastLogin: "2024-01-20T10:30:00",
+      permissions: ["admin", "portal_access", "user_management", "content_management"],
+      employeeId: 1,
+      employeeName: "Nguyễn Văn A"
+    },
+    {
+      id: 2,
+      username: "manager1",
+      email: "manager1@apecglobal.com",
+      role: "manager",
+      isActive: true,
+      lastLogin: "2024-01-19T14:15:00",
+      permissions: ["portal_access", "team_management", "project_management"],
+      employeeId: 2,
+      employeeName: "Trần Thị B"
+    },
+    {
+      id: 3,
+      username: "user1",
+      email: "user1@apecglobal.com",
+      role: "user",
+      isActive: true,
+      lastLogin: "2024-01-18T09:45:00",
+      permissions: ["portal_access", "view_reports"],
+      employeeId: 6,
+      employeeName: "Vũ Thị F"
+    },
+    {
+      id: 4,
+      username: "user2",
+      email: "user2@apecglobal.com",
+      role: "user",
+      isActive: false,
+      lastLogin: "2024-01-10T16:20:00",
+      permissions: ["portal_access"],
+      employeeId: 7,
+      employeeName: "Đặng Văn G"
+    }
   ]
 
   const departments = [
@@ -211,9 +269,28 @@ export default function EmployeesPage() {
     alert("Đang xuất file Excel...")
   }
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page)
   }
+
+  // Helper functions for users
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'manager': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'user': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    }
+  };
+
+  const getRoleText = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Quản trị viên';
+      case 'manager': return 'Quản lý';
+      case 'user': return 'Người dùng';
+      default: return 'Không xác định';
+    }
+  };
 
   return (
     <InternalLayout>
@@ -233,13 +310,32 @@ export default function EmployeesPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Quản Lý Nhân Viên</h1>
-            <p className="text-white/60">Quản lý thông tin và hoạt động của {filteredEmployees.length} nhân viên</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Quản Lý Nhân Viên & Người Dùng</h1>
+            <p className="text-white/60">Quản lý thông tin nhân viên và tài khoản người dùng</p>
           </div>
-          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-            <Button
-              onClick={handleAddEmployee}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-black/50 border border-purple-500/30">
+            <TabsTrigger value="employees" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-white text-white/60">
+              <Users className="h-4 w-4 mr-2" />
+              Nhân Viên ({employees.length})
+            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="users" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-white text-white/60">
+                <Shield className="h-4 w-4 mr-2" />
+                Người Dùng ({users.length})
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          {/* Employees Tab */}
+          <TabsContent value="employees" className="space-y-6">
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={handleAddEmployee}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
             >
               <Plus className="h-4 w-4 mr-2" />
               Thêm Nhân Viên
@@ -427,6 +523,86 @@ export default function EmployeesPage() {
             </div>
           </div>
         )}
+        </TabsContent>
+
+        {/* Users Tab - chỉ admin mới thấy */}
+        {isAdmin && (
+            <TabsContent value="users" className="space-y-6">
+              <div className="flex items-center space-x-4">
+                <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm Người Dùng
+                </Button>
+                <Link href="/internal/permissions">
+                  <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Phân Quyền
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Users List */}
+              <div className="grid gap-6">
+                {users.map((user) => (
+                  <Card key={user.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                              <span className="text-white font-bold">
+                                {user.username.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-white">{user.username}</h3>
+                              <p className="text-white/60">{user.email}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm flex-wrap">
+                            <Badge className={getRoleColor(user.role)}>
+                              {getRoleText(user.role)}
+                            </Badge>
+                            <Badge className={user.isActive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}>
+                              {user.isActive ? 'Hoạt động' : 'Không hoạt động'}
+                            </Badge>
+                            <span className="text-white/60">
+                              Nhân viên: {user.employeeName}
+                            </span>
+                            <span className="text-white/60">
+                              Đăng nhập cuối: {new Date(user.lastLogin).toLocaleString('vi-VN')}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1">
+                            {user.permissions.map((permission, index) => (
+                              <Badge key={index} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
+                                {permission}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
+                            <Shield className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 hover:text-red-400">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          )}
+        </Tabs>
 
         {/* Add Employee Modal */}
         {showAddModal && (

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import InternalLayout from "@/components/internal-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,9 +19,22 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
+  Shield,
+  Settings,
+  Building2,
 } from "lucide-react"
 
 export default function InternalDashboard() {
+  const [currentUser, setCurrentUser] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("internal_user");
+    if (savedUser) {
+      setCurrentUser(savedUser);
+      setIsAdmin(savedUser === "admin");
+    }
+  }, []);
   const stats = [
     {
       title: "Tổng Nhân Viên",
@@ -267,6 +281,86 @@ export default function InternalDashboard() {
             </Card>
           </div>
         </div>
+
+        {/* Admin Section - chỉ hiển thị cho admin */}
+        {isAdmin && (
+          <div className="mt-8 mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <Shield className="h-6 w-6 text-red-400" />
+              <h3 className="text-xl font-bold text-white">Khu vực Quản trị</h3>
+              <Badge className="bg-red-500/20 text-red-400 border border-red-500/30">Admin</Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              <Card className="bg-yellow-500/10 border-yellow-500/30 hover:border-yellow-500/60 transition-all duration-300">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-yellow-400">Tin tức</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white mb-1">34</div>
+                  <p className="text-yellow-300 text-xs">25 published, 9 draft</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-blue-500/10 border-blue-500/30 hover:border-blue-500/60 transition-all duration-300">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-blue-400">Permissions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white mb-1">8</div>
+                  <p className="text-blue-300 text-xs">Active roles</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-green-500/10 border-green-500/30 hover:border-green-500/60 transition-all duration-300">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-green-400">System</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white mb-1">99%</div>
+                  <p className="text-green-300 text-xs">Uptime</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Link href="/internal/companies">
+                <Card className="bg-indigo-500/10 border-indigo-500/30 hover:border-indigo-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <Building2 className="h-8 w-8 mx-auto text-indigo-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Quản lý Công ty</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/internal/news">
+                <Card className="bg-yellow-500/10 border-yellow-500/30 hover:border-yellow-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <FileText className="h-8 w-8 mx-auto text-yellow-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Quản lý Tin tức</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/internal/settings">
+                <Card className="bg-blue-500/10 border-blue-500/30 hover:border-blue-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <Settings className="h-8 w-8 mx-auto text-blue-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Cấu hình System</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/internal/permissions">
+                <Card className="bg-purple-500/10 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <Shield className="h-8 w-8 mx-auto text-purple-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Phân quyền</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="mt-8">

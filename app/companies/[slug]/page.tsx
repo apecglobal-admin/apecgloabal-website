@@ -133,7 +133,7 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
     }
     
     fetchCompanyData()
-  }, [slug, router])
+  }, [slug]) // Chỉ phụ thuộc vào slug, không cần router
   
   // Hiển thị loading hoặc error state
   if (loading) {

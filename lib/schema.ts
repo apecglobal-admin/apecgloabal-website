@@ -14,6 +14,14 @@ export interface Company {
   employee_count: number;
   industry: string;
   status: string;
+  image_url?: string;
+  image_public_id?: string;
+  gallery?: string[];
+  gallery_public_ids?: string[];
+  image_url?: string;
+  image_public_id?: string;
+  gallery?: string[];
+  gallery_public_ids?: string[];
   created_at: Date;
   updated_at: Date;
 }
@@ -99,6 +107,8 @@ export interface Document {
   file_type: string;
   file_size: string;
   file_url: string;
+  file_public_id?: string;
+  file_public_id?: string;
   category: string;
   uploaded_by: number;
   download_count: number;

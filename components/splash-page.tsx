@@ -28,13 +28,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const [isTeleporting, setIsTeleporting] = useState(false)
   
   // Fallback companies data nếu API fails
-  const fallbackCompanies: Company[] = [
-    { id: 1, name: "ApecTech", slug: "apectech", logo_url: "/logos/apectech.png" },
-    { id: 2, name: "GuardCam", slug: "guardcam", logo_url: "/logos/guardcam.png" },
-    { id: 3, name: "EmoCommerce", slug: "emocommerce", logo_url: "/logos/emocommerce.png" },
-    { id: 4, name: "TimeLoop", slug: "timeloop", logo_url: "/logos/timeloop.png" },
-    { id: 5, name: "ApecNeuroOS", slug: "apecneuroos", logo_url: "/logos/apecneuroos.png" }
-  ]
   
   // Sử dụng API cache để lấy companies
   const { data: apiResponse, loading, error } = useApiCache<any>(
@@ -54,7 +47,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const apiCompanies = apiResponse?.success ? apiResponse.data : null
 
   // Sử dụng fallback data nếu API không có data
-  const companies = Array.isArray(apiCompanies) ? apiCompanies : fallbackCompanies
+  const companies = Array.isArray(apiCompanies) ? apiCompanies : []
 
   const checkAllAssetsLoaded = useCallback(() => {
     if (logoLoaded && companyLogosLoaded && !loading) {

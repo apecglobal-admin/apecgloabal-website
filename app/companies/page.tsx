@@ -2,6 +2,7 @@
 
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import PageHeroCarousel from "@/components/page-hero-carousel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -126,25 +127,104 @@ export default function CompaniesPage() {
     }
   })
 
+  // Hero slides for Companies page
+  const heroSlides = [
+    {
+      title: "CÔNG TY THÀNH VIÊN",
+      subtitle: "Khám phá hệ sinh thái công nghệ đa dạng của ApecGlobal với 5+ công ty thành viên, mỗi công ty chuyên sâu về một lĩnh vực công nghệ cụ thể",
+      gradient: "from-purple-400 via-white to-blue-400",
+      backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Khám Phá Ngay",
+        href: "#companies-grid",
+        gradient: "from-purple-600 to-blue-600",
+        hoverGradient: "from-purple-700 to-blue-700"
+      },
+      secondaryButton: {
+        text: "Liên Hệ Hợp Tác",
+        href: "/contact",
+        borderColor: "border-purple-500/50",
+        hoverBg: "bg-purple-500/20",
+        hoverBorder: "border-purple-400"
+      }
+    },
+    {
+      title: "APECTECH - AI & GIÁO DỤC",
+      subtitle: "Công ty tiên phong trong lĩnh vực trí tuệ nhân tạo và công nghệ giáo dục, phát triển các giải pháp học tập thông minh",
+      gradient: "from-blue-400 via-white to-cyan-400",
+      backgroundImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Tìm Hiểu ApecTech",
+        href: "/companies/apectech",
+        gradient: "from-blue-600 to-cyan-600",
+        hoverGradient: "from-blue-700 to-cyan-700"
+      },
+      secondaryButton: {
+        text: "Xem Dịch Vụ AI",
+        href: "/services",
+        borderColor: "border-blue-500/50",
+        hoverBg: "bg-blue-500/20",
+        hoverBorder: "border-blue-400"
+      }
+    },
+    {
+      title: "GUARDCAM - BẢO MẬT THÔNG MINH",
+      subtitle: "Chuyên gia về giải pháp bảo mật và giám sát thông minh với công nghệ computer vision và IoT tiên tiến",
+      gradient: "from-green-400 via-white to-emerald-400",
+      backgroundImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Khám Phá GuardCam",
+        href: "/companies/guardcam",
+        gradient: "from-green-600 to-emerald-600",
+        hoverGradient: "from-green-700 to-emerald-700"
+      },
+      secondaryButton: {
+        text: "Giải Pháp Bảo Mật",
+        href: "/services",
+        borderColor: "border-green-500/50",
+        hoverBg: "bg-green-500/20",
+        hoverBorder: "border-green-400"
+      }
+    },
+    {
+      title: "EMOCOMMERCE - THƯƠNG MẠI CẢM XÚC",
+      subtitle: "Nền tảng thương mại điện tử thông minh với công nghệ phân tích cảm xúc và cá nhân hóa trải nghiệm khách hàng",
+      gradient: "from-pink-400 via-white to-rose-400",
+      backgroundImage: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Tìm Hiểu EmoCommerce",
+        href: "/companies/emocommerce",
+        gradient: "from-pink-600 to-rose-600",
+        hoverGradient: "from-pink-700 to-rose-700"
+      },
+      secondaryButton: {
+        text: "Dự Án E-commerce",
+        href: "/projects",
+        borderColor: "border-pink-500/50",
+        hoverBg: "bg-pink-500/20",
+        hoverBorder: "border-pink-400"
+      }
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
       <Header />
 
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Công Ty Thành Viên
-          </h1>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
-            Khám phá hệ sinh thái công nghệ đa dạng của ApecGlobal với 5 công ty thành viên, mỗi công ty chuyên sâu về
-            một lĩnh vực công nghệ cụ thể.
-          </p>
+      {/* Hero Carousel Section */}
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
+        <div className="container mx-auto relative z-10">
+          <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Companies Grid */}
-      <section className="py-16 px-4">
+      <section id="companies-grid" className="py-16 px-4">
         <div className="container mx-auto">
           {loading ? (
             <div className="flex justify-center items-center py-20">

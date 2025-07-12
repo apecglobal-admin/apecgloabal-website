@@ -1,5 +1,6 @@
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import PageHeroCarousel from "@/components/page-hero-carousel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -32,6 +33,90 @@ import { getAllJobs, getAllCompanies } from "@/lib/db"
 import { Job, Company } from "@/lib/schema"
 
 export default async function CareersPage() {
+  // Hero slides data
+  const heroSlides = [
+    {
+      title: "Tham Gia Đội Ngũ ApecGlobal",
+      subtitle: "Khám phá cơ hội nghề nghiệp tuyệt vời cùng chúng tôi. Nơi tài năng được phát triển và ước mơ trở thành hiện thực.",
+      backgroundImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+      heroImage: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      gradient: "from-blue-400 via-purple-500 to-cyan-500",
+      primaryButton: {
+        text: "Xem Vị Trí Tuyển Dụng",
+        href: "#jobs",
+        gradient: "from-blue-600 to-purple-600",
+        hoverGradient: "from-blue-700 to-purple-700"
+      },
+      secondaryButton: {
+        text: "Tìm Hiểu Văn Hóa",
+        href: "#culture",
+        borderColor: "border-blue-500/50",
+        hoverBg: "bg-blue-500/20",
+        hoverBorder: "border-blue-400"
+      }
+    },
+    {
+      title: "Môi Trường Làm Việc Hiện Đại",
+      subtitle: "Văn phòng hiện đại, công nghệ tiên tiến và đội ngũ tài năng. Nơi bạn có thể phát huy hết khả năng của mình.",
+      backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+      heroImage: "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      gradient: "from-green-400 via-blue-500 to-purple-500",
+      primaryButton: {
+        text: "Khám Phá Văn Phóng",
+        href: "#office",
+        gradient: "from-green-600 to-blue-600",
+        hoverGradient: "from-green-700 to-blue-700"
+      },
+      secondaryButton: {
+        text: "Phúc Lợi Nhân Viên",
+        href: "#benefits",
+        borderColor: "border-green-500/50",
+        hoverBg: "bg-green-500/20",
+        hoverBorder: "border-green-400"
+      }
+    },
+    {
+      title: "Phát Triển Sự Nghiệp",
+      subtitle: "Chương trình đào tạo chuyên sâu, mentorship và cơ hội thăng tiến rõ ràng. Đầu tư vào tương lai của bạn.",
+      backgroundImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+      heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      gradient: "from-purple-400 via-pink-500 to-red-500",
+      primaryButton: {
+        text: "Chương Trình Đào Tạo",
+        href: "#training",
+        gradient: "from-purple-600 to-pink-600",
+        hoverGradient: "from-purple-700 to-pink-700"
+      },
+      secondaryButton: {
+        text: "Lộ Trình Thăng Tiến",
+        href: "#career-path",
+        borderColor: "border-purple-500/50",
+        hoverBg: "bg-purple-500/20",
+        hoverBorder: "border-purple-400"
+      }
+    },
+    {
+      title: "Ứng Tuyển Ngay Hôm Nay",
+      subtitle: "Sẵn sàng bắt đầu hành trình mới? Gửi CV của bạn và tham gia cùng chúng tôi xây dựng tương lai công nghệ.",
+      backgroundImage: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+      heroImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      gradient: "from-cyan-400 via-blue-500 to-indigo-600",
+      primaryButton: {
+        text: "Ứng Tuyển Ngay",
+        href: "#apply",
+        gradient: "from-cyan-600 to-blue-600",
+        hoverGradient: "from-cyan-700 to-blue-700"
+      },
+      secondaryButton: {
+        text: "Liên Hệ HR",
+        href: "#contact-hr",
+        borderColor: "border-cyan-500/50",
+        hoverBg: "bg-cyan-500/20",
+        hoverBorder: "border-cyan-400"
+      }
+    }
+  ]
+
   // Lấy dữ liệu việc làm từ database
   const dbJobs = await getAllJobs()
   const dbCompanies = await getAllCompanies()
@@ -158,46 +243,10 @@ export default async function CareersPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20 animate-pulse"></div>
-          {/* Floating Career Icons */}
-          {[Code, Brain, Shield, Rocket, Target, Globe].map((Icon, i) => (
-            <Icon
-              key={i}
-              className="absolute text-white/10 animate-float"
-              size={40}
-              style={{
-                left: `${20 + i * 15}%`,
-                top: `${30 + (i % 2) * 20}%`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: `${8 + i}s`,
-              }}
-            />
-          ))}
-        </div>
-        <div className="container mx-auto text-center relative z-10">
-          <div className="animate-fade-in-up">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent animate-glow">
-              Tuyển Dụng & Nghề Nghiệp
-            </h1>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto mb-8">
-              Gia nhập đội ngũ ApecGlobal Group - nơi tài năng được tôn vinh và sự nghiệp được phát triển không giới hạn
-              trong môi trường công nghệ tiên tiến.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-lg px-8 py-4 hover:scale-105 transform transition-all duration-300">
-                Xem Vị Trí Tuyển Dụng
-                <Briefcase className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                variant="outline"
-                className="border-purple-500/30 text-white hover:bg-purple-500/20 text-lg px-8 py-4 hover:scale-105 transform transition-all duration-300"
-              >
-                Tìm Hiểu Văn Hóa Công Ty
-              </Button>
-            </div>
-          </div>
+      <section className="py-8 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
+        <div className="container mx-auto relative z-10">
+          <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 

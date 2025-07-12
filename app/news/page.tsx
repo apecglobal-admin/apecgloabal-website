@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import PageHeroCarousel from "@/components/page-hero-carousel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -122,60 +123,99 @@ export default async function NewsPage() {
     }
   }
 
+  // Hero slides for News page
+  const heroSlides = [
+    {
+      title: "TIN TỨC & SỰ KIỆN",
+      subtitle: "Cập nhật những tin tức mới nhất về công nghệ AI, sự kiện và thành tựu của ApecGlobal Group trong hành trình phát triển",
+      gradient: "from-purple-400 via-white to-blue-400",
+      backgroundImage: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Đọc Tin Mới Nhất",
+        href: "#latest-news",
+        gradient: "from-purple-600 to-blue-600",
+        hoverGradient: "from-purple-700 to-blue-700"
+      },
+      secondaryButton: {
+        text: "Tìm Kiếm Tin Tức",
+        href: "/news/search",
+        borderColor: "border-purple-500/50",
+        hoverBg: "bg-purple-500/20",
+        hoverBorder: "border-purple-400"
+      }
+    },
+    {
+      title: "CÔNG NGHỆ AI MỚI NHẤT",
+      subtitle: "Khám phá những xu hướng công nghệ trí tuệ nhân tạo mới nhất và cách ApecGlobal ứng dụng vào thực tế",
+      gradient: "from-blue-400 via-white to-cyan-400",
+      backgroundImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Tin Tức Công Nghệ",
+        href: "/news/category/technology",
+        gradient: "from-blue-600 to-cyan-600",
+        hoverGradient: "from-blue-700 to-cyan-700"
+      },
+      secondaryButton: {
+        text: "Dự Án AI",
+        href: "/projects",
+        borderColor: "border-blue-500/50",
+        hoverBg: "bg-blue-500/20",
+        hoverBorder: "border-blue-400"
+      }
+    },
+    {
+      title: "SỰ KIỆN & HOẠT ĐỘNG",
+      subtitle: "Tham gia các sự kiện, hội thảo và hoạt động cộng đồng do ApecGlobal Group tổ chức và tham gia",
+      gradient: "from-green-400 via-white to-emerald-400",
+      backgroundImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Sự Kiện Sắp Tới",
+        href: "/news/category/events",
+        gradient: "from-green-600 to-emerald-600",
+        hoverGradient: "from-green-700 to-emerald-700"
+      },
+      secondaryButton: {
+        text: "Liên Hệ Tham Gia",
+        href: "/contact",
+        borderColor: "border-green-500/50",
+        hoverBg: "bg-green-500/20",
+        hoverBorder: "border-green-400"
+      }
+    },
+    {
+      title: "THÀNH TỰU & GIẢI THƯỞNG",
+      subtitle: "Tự hào về những thành tựu, giải thưởng và sự công nhận mà ApecGlobal Group đã đạt được",
+      gradient: "from-orange-400 via-white to-amber-400",
+      backgroundImage: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Xem Thành Tựu",
+        href: "/news/category/achievements",
+        gradient: "from-orange-600 to-amber-600",
+        hoverGradient: "from-orange-700 to-amber-700"
+      },
+      secondaryButton: {
+        text: "Về Chúng Tôi",
+        href: "/about",
+        borderColor: "border-orange-500/50",
+        hoverBg: "bg-orange-500/20",
+        hoverBorder: "border-orange-400"
+      }
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
       <Header />
 
-      {/* Hero Section - AI/Automation Style */}
-      <section className="relative py-24 px-4 overflow-hidden">
-        {/* Background Animation Effect */}
-        <div className="absolute inset-0 bg-black">
-          <div className="absolute inset-0 opacity-20" style={{ 
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '24px 24px'
-          }}></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/50 via-black/80 to-black/90"></div>
-        </div>
-        
-        {/* Floating Circuit Lines */}
-        <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div className="absolute w-full h-full" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px',
-            animation: 'slide 20s linear infinite'
-          }}></div>
-        </div>
-
-        <div className="container mx-auto text-center relative z-10">
-          <div className="inline-block mb-6 relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg blur opacity-30 animate-pulse"></div>
-            <h1 className="relative text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Tin Tức & Sự Kiện
-            </h1>
-          </div>
-          
-          <p className="text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Cập nhật những tin tức mới nhất, sự kiện quan trọng và các cột mốc phát triển của 
-            <span className="text-cyan-400 font-semibold"> ApecGlobal Group </span>
-            và các công ty thành viên.
-          </p>
-          
-          {/* Search Form with AI-style */}
-          <form action="/news/search" className="max-w-md mx-auto relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg blur opacity-30"></div>
-            <div className="relative">
-              <input
-                type="text"
-                name="q"
-                placeholder="Tìm kiếm tin tức..."
-                className="w-full px-4 py-3 bg-black/70 border border-purple-500/30 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-500 backdrop-blur-sm"
-              />
-              <Button type="submit" className="absolute right-1 top-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
-                <Search className="h-4 w-4 mr-1" />
-                <span className="text-xs">AI Search</span>
-              </Button>
-            </div>
-          </form>
+      {/* Hero Carousel Section */}
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
+        <div className="container mx-auto relative z-10">
+          <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
@@ -239,7 +279,7 @@ export default async function NewsPage() {
       </section>
 
       {/* Featured News - AI Style */}
-      <section className="py-16 px-4">
+      <section id="latest-news" className="py-16 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center">

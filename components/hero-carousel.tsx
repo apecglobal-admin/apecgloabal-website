@@ -102,7 +102,7 @@ export default function HeroCarousel() {
   return (
     <div className="w-full max-w-7xl mx-auto">
       {/* Background Image với overlay */}
-      <div className="relative min-h-[600px] md:min-h-[700px] lg:min-h-[800px] rounded-2xl overflow-hidden group">
+      <div className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] rounded-2xl overflow-hidden group">
         {/* Background Image với transition */}
         <div className="absolute inset-0">
           <Image
@@ -121,52 +121,52 @@ export default function HeroCarousel() {
           onClick={prevSlide}
           onMouseEnter={() => setIsAutoPlay(false)}
           onMouseLeave={() => setIsAutoPlay(true)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-3 text-white transition-all duration-300 opacity-0 group-hover:opacity-100"
+          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 sm:p-3 text-white transition-all duration-300 opacity-70 sm:opacity-0 group-hover:opacity-100"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6" />
         </button>
         
         <button
           onClick={nextSlide}
           onMouseEnter={() => setIsAutoPlay(false)}
           onMouseLeave={() => setIsAutoPlay(true)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-3 text-white transition-all duration-300 opacity-0 group-hover:opacity-100"
+          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 sm:p-3 text-white transition-all duration-300 opacity-70 sm:opacity-0 group-hover:opacity-100"
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6" />
         </button>
 
         {/* Content Layout */}
-        <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-between p-6 sm:p-8 lg:p-16">
+        <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-between p-4 sm:p-6 md:p-8 lg:p-16">
           {/* Left Side - Content */}
-          <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-8">
-            <h1 className={`hero-title font-bold mb-4 sm:mb-6 bg-gradient-to-r ${currentSlideData.gradient} bg-clip-text text-transparent animate-glow`}>
+          <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-8 w-full">
+            <h1 className={`hero-title font-bold mb-3 sm:mb-4 md:mb-6 bg-gradient-to-r ${currentSlideData.gradient} bg-clip-text text-transparent animate-glow text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight`}>
               {currentSlideData.title}
             </h1>
-            <p className="hero-subtitle text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed text-base sm:text-lg">
+            <p className="hero-subtitle text-white/90 mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl">
               {currentSlideData.subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start max-w-md sm:max-w-none mx-auto lg:mx-0">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-md sm:max-w-none mx-auto lg:mx-0">
               <Link href={currentSlideData.primaryButton.href}>
-                <Button className={`w-full sm:w-auto bg-gradient-to-r ${currentSlideData.primaryButton.gradient} hover:${currentSlideData.primaryButton.hoverGradient} text-white border-0 text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-3 sm:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}>
+                <Button className={`w-full sm:w-auto bg-gradient-to-r ${currentSlideData.primaryButton.gradient} hover:${currentSlideData.primaryButton.hoverGradient} text-white border-0 text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}>
                   {currentSlideData.primaryButton.text}
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                 </Button>
               </Link>
               <Link href={currentSlideData.secondaryButton.href}>
                 <Button
                   variant="outline"
-                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border-2 ${currentSlideData.secondaryButton.borderColor} text-white hover:${currentSlideData.secondaryButton.hoverBg} hover:${currentSlideData.secondaryButton.hoverBorder} hover:text-white text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-3 sm:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}
+                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border-2 ${currentSlideData.secondaryButton.borderColor} text-white hover:${currentSlideData.secondaryButton.hoverBg} hover:${currentSlideData.secondaryButton.hoverBorder} hover:text-white text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}
                 >
                   {currentSlideData.secondaryButton.text}
-                  <ExternalLink className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <ExternalLink className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                 </Button>
               </Link>
             </div>
           </div>
 
           {/* Right Side - Hero Image */}
-          <div className="flex-1 mt-8 lg:mt-0 lg:pl-8">
-            <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
+          <div className="flex-1 mt-6 sm:mt-8 lg:mt-0 lg:pl-8 w-full">
+            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
               <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl animate-float">
                 <Image
                   src={currentSlideData.heroImage}
@@ -179,26 +179,26 @@ export default function HeroCarousel() {
                 {/* Glowing border effect */}
                 <div className="absolute inset-0 rounded-2xl border-2 border-purple-500/30 animate-pulse-glow" />
               </div>
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-xl animate-pulse" />
-              <div className="absolute -bottom-4 -left-4 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-xl animate-pulse delay-1000" />
-              {/* Additional floating elements */}
-              <div className="absolute top-1/4 -left-8 w-4 h-4 bg-purple-400/40 rounded-full animate-float-1" />
-              <div className="absolute top-3/4 -right-6 w-3 h-3 bg-blue-400/40 rounded-full animate-float-2" />
-              <div className="absolute bottom-1/4 -left-4 w-2 h-2 bg-cyan-400/40 rounded-full animate-float-3" />
+              {/* Decorative elements - responsive sizes */}
+              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-xl animate-pulse" />
+              <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-xl animate-pulse delay-1000" />
+              {/* Additional floating elements - hidden on very small screens */}
+              <div className="hidden sm:block absolute top-1/4 -left-6 lg:-left-8 w-3 h-3 lg:w-4 lg:h-4 bg-purple-400/40 rounded-full animate-float-1" />
+              <div className="hidden sm:block absolute top-3/4 -right-4 lg:-right-6 w-2 h-2 lg:w-3 lg:h-3 bg-blue-400/40 rounded-full animate-float-2" />
+              <div className="hidden sm:block absolute bottom-1/4 -left-3 lg:-left-4 w-1.5 h-1.5 lg:w-2 lg:h-2 bg-cyan-400/40 rounded-full animate-float-3" />
             </div>
           </div>
         </div>
 
         {/* Slide Indicators */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex space-x-2">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex space-x-2">
           {heroSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
               onMouseEnter={() => setIsAutoPlay(false)}
               onMouseLeave={() => setIsAutoPlay(true)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide
                   ? 'bg-white shadow-lg scale-125'
                   : 'bg-white/50 hover:bg-white/70'
@@ -208,7 +208,7 @@ export default function HeroCarousel() {
         </div>
 
         {/* Slide counter */}
-        <div className="absolute top-6 right-6 z-20 bg-black/30 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm">
+        <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-white text-xs sm:text-sm">
           {currentSlide + 1} / {heroSlides.length}
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import PageHeroCarousel from "@/components/page-hero-carousel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -67,25 +68,104 @@ export default function ContactPage() {
     },
   ]
 
+  // Hero slides for Contact page
+  const heroSlides = [
+    {
+      title: "LIÊN HỆ VỚI CHÚNG TÔI",
+      subtitle: "Hãy kết nối với ApecGlobal Group để khám phá cơ hội hợp tác, tìm hiểu về sản phẩm dịch vụ hoặc gia nhập đội ngũ của chúng tôi",
+      gradient: "from-purple-400 via-white to-blue-400",
+      backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Gửi Tin Nhắn",
+        href: "#contact-form",
+        gradient: "from-purple-600 to-blue-600",
+        hoverGradient: "from-purple-700 to-blue-700"
+      },
+      secondaryButton: {
+        text: "Thông Tin Liên Hệ",
+        href: "#contact-info",
+        borderColor: "border-purple-500/50",
+        hoverBg: "bg-purple-500/20",
+        hoverBorder: "border-purple-400"
+      }
+    },
+    {
+      title: "HỢP TÁC KINH DOANH",
+      subtitle: "Khám phá cơ hội hợp tác chiến lược và phát triển kinh doanh cùng ApecGlobal Group trong lĩnh vực công nghệ AI",
+      gradient: "from-blue-400 via-white to-cyan-400",
+      backgroundImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Thảo Luận Hợp Tác",
+        href: "#contact-form",
+        gradient: "from-blue-600 to-cyan-600",
+        hoverGradient: "from-blue-700 to-cyan-700"
+      },
+      secondaryButton: {
+        text: "Về Chúng Tôi",
+        href: "/about",
+        borderColor: "border-blue-500/50",
+        hoverBg: "bg-blue-500/20",
+        hoverBorder: "border-blue-400"
+      }
+    },
+    {
+      title: "TUYỂN DỤNG & NGHỀ NGHIỆP",
+      subtitle: "Tham gia đội ngũ ApecGlobal Group và cùng chúng tôi xây dựng tương lai công nghệ AI tại Việt Nam",
+      gradient: "from-green-400 via-white to-emerald-400",
+      backgroundImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Ứng Tuyển Ngay",
+        href: "#contact-form",
+        gradient: "from-green-600 to-emerald-600",
+        hoverGradient: "from-green-700 to-emerald-700"
+      },
+      secondaryButton: {
+        text: "Văn Hóa Công Ty",
+        href: "/about",
+        borderColor: "border-green-500/50",
+        hoverBg: "bg-green-500/20",
+        hoverBorder: "border-green-400"
+      }
+    },
+    {
+      title: "HỖ TRỢ KHÁCH HÀNG",
+      subtitle: "Đội ngũ hỗ trợ chuyên nghiệp của chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc về sản phẩm và dịch vụ",
+      gradient: "from-orange-400 via-white to-amber-400",
+      backgroundImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Yêu Cầu Hỗ Trợ",
+        href: "#contact-form",
+        gradient: "from-orange-600 to-amber-600",
+        hoverGradient: "from-orange-700 to-amber-700"
+      },
+      secondaryButton: {
+        text: "Dịch Vụ",
+        href: "/services",
+        borderColor: "border-orange-500/50",
+        hoverBg: "bg-orange-500/20",
+        hoverBorder: "border-orange-400"
+      }
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
       <Header />
 
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Liên Hệ Với Chúng Tôi
-          </h1>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
-            Hãy kết nối với ApecGlobal Group để khám phá cơ hội hợp tác, tìm hiểu về sản phẩm dịch vụ hoặc gia nhập đội
-            ngũ của chúng tôi.
-          </p>
+      {/* Hero Carousel Section */}
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
+        <div className="container mx-auto relative z-10">
+          <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Contact Information */}
-      <section className="py-16 px-4">
+      <section id="contact-info" className="py-16 px-4">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {contactInfo.map((info, index) => {
@@ -114,7 +194,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form & Map */}
-      <section className="py-16 px-4">
+      <section id="contact-form" className="py-16 px-4">
         <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}

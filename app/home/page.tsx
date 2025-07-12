@@ -41,7 +41,7 @@ export default async function HomePage() {
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-20 lg:pt-24 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
         <div className="container mx-auto relative z-10">
           <HeroCarousel />

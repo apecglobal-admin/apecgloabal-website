@@ -1,5 +1,6 @@
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import PageHeroCarousel from "@/components/page-hero-carousel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -147,96 +148,84 @@ export default async function ServicesPage() {
     },
   ]
 
+  // Hero slides for Services page
+  const heroSlides = [
+    {
+      title: "DỊCH VỤ CÔNG NGHỆ AI",
+      subtitle: "Khám phá bộ sưu tập dịch vụ công nghệ trí tuệ nhân tạo tiên tiến của ApecGlobal Group, được thiết kế để thúc đẩy sự đổi mới và tăng trưởng cho doanh nghiệp của bạn",
+      gradient: "from-purple-400 via-cyan-400 to-blue-400",
+      backgroundImage: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Tư Vấn Miễn Phí",
+        href: "/contact",
+        gradient: "from-purple-600 to-cyan-600",
+        hoverGradient: "from-purple-700 to-cyan-700"
+      },
+      secondaryButton: {
+        text: "Xem Dịch Vụ",
+        href: "#main-services",
+        borderColor: "border-purple-500/50",
+        hoverBg: "bg-purple-500/20",
+        hoverBorder: "border-purple-400"
+      }
+    },
+    {
+      title: "PHÁT TRIỂN PHẦN MỀM",
+      subtitle: "Thiết kế và phát triển ứng dụng web, mobile, desktop với công nghệ hiện đại và quy trình chuyên nghiệp",
+      gradient: "from-blue-400 via-white to-cyan-400",
+      backgroundImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Khám Phá Ngay",
+        href: "#main-services",
+        gradient: "from-blue-600 to-cyan-600",
+        hoverGradient: "from-blue-700 to-cyan-700"
+      },
+      secondaryButton: {
+        text: "Xem Portfolio",
+        href: "/projects",
+        borderColor: "border-blue-500/50",
+        hoverBg: "bg-blue-500/20",
+        hoverBorder: "border-blue-400"
+      }
+    },
+    {
+      title: "TƯ VẤN CÔNG NGHỆ",
+      subtitle: "Tư vấn chiến lược công nghệ, chuyển đổi số và tối ưu hóa quy trình kinh doanh với đội ngũ chuyên gia hàng đầu",
+      gradient: "from-green-400 via-white to-emerald-400",
+      backgroundImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Đặt Lịch Tư Vấn",
+        href: "/contact",
+        gradient: "from-green-600 to-emerald-600",
+        hoverGradient: "from-green-700 to-emerald-700"
+      },
+      secondaryButton: {
+        text: "Quy Trình Làm Việc",
+        href: "#process",
+        borderColor: "border-green-500/50",
+        hoverBg: "bg-green-500/20",
+        hoverBorder: "border-green-400"
+      }
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
       <Header />
 
-      {/* Hero Section - AI/Automation Style */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        {/* Background Animation Effect */}
-        <div className="absolute inset-0 bg-black">
-          <div className="absolute inset-0 opacity-20" style={{ 
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '24px 24px'
-          }}></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/50 via-black/80 to-black/90"></div>
-        </div>
-        
-        {/* Floating Circuit Lines */}
-        <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div className="absolute w-full h-full animate-slide" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }}></div>
-        </div>
-
-        {/* AI Nodes Animation */}
-        <div className="absolute inset-0">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-3 h-3 bg-cyan-400/40 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                boxShadow: '0 0 10px 2px rgba(45, 212, 191, 0.3)'
-              }}
-            ></div>
-          ))}
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-purple-400/40 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                boxShadow: '0 0 10px 2px rgba(139, 92, 246, 0.3)'
-              }}
-            ></div>
-          ))}
-        </div>
-
-        <div className="container mx-auto text-center relative z-10">
-          <div className="inline-block mb-6 relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 animate-pulse"></div>
-            <h1 className="relative text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Dịch Vụ Công Nghệ AI
-            </h1>
-          </div>
-          
-          <p className="text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Khám phá bộ sưu tập dịch vụ công nghệ trí tuệ nhân tạo tiên tiến của 
-            <span className="text-cyan-400 font-semibold"> ApecGlobal Group</span>, 
-            được thiết kế để thúc đẩy sự đổi mới và tăng trưởng cho doanh nghiệp của bạn.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-              <Button className="relative bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-lg px-8 py-4 transition-all duration-300 shadow-lg shadow-purple-900/30">
-                Tư Vấn Miễn Phí
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-            
-            <Link href="/contact">
-              <Button
-                variant="outline"
-                className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 text-lg px-8 py-4 transition-all duration-300"
-              >
-                Liên Hệ Ngay
-              </Button>
-            </Link>
-          </div>
+      {/* Hero Carousel Section */}
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
+        <div className="container mx-auto relative z-10">
+          <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Main Services - AI Style */}
-      <section className="py-20 px-4 relative">
+      <section id="main-services" className="py-20 px-4 relative">
         {/* Background decoration */}
         <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-purple-900/10 to-transparent"></div>
         
@@ -651,6 +640,39 @@ export default async function ServicesPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Process Section */}
+      <section id="process" className="py-20 px-4 relative">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Quy Trình Làm Việc
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {processSteps.map((step, index) => {
+              const IconComponent = step.icon
+              return (
+                <div key={index} className="relative">
+                  {index < processSteps.length - 1 && (
+                    <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-purple-500/50 to-transparent z-0"></div>
+                  )}
+                  <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-300 relative z-10">
+                    <CardHeader className="text-center">
+                      <div className="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center mb-4">
+                        <IconComponent className="h-8 w-8 text-white" />
+                      </div>
+                      <div className="text-2xl font-bold text-purple-400 mb-2">{step.step}</div>
+                      <CardTitle className="text-white">{step.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-white/80 text-center">{step.description}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>

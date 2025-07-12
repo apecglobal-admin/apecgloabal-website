@@ -1,5 +1,6 @@
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import PageHeroCarousel from "@/components/page-hero-carousel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Target, Building2, History, Crown, Users, Award, Globe, Lightbulb, TrendingUp, Shield } from "lucide-react"
@@ -79,25 +80,84 @@ export default async function AboutPage() {
     { year: "2024", event: "Khởi động ApecNeuroOS", description: "Phát triển hệ điều hành doanh nghiệp thế hệ mới" },
   ]
 
+  // Hero slides for About page
+  const heroSlides = [
+    {
+      title: "VỀ APECGLOBAL GROUP",
+      subtitle: "Tập đoàn công nghệ tiên phong, cam kết tạo ra những giải pháp đột phá để định hình tương lai số của Việt Nam và khu vực",
+      gradient: "from-purple-400 via-white to-blue-400",
+      backgroundImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Tìm Hiểu Thêm",
+        href: "#vision",
+        gradient: "from-purple-600 to-blue-600",
+        hoverGradient: "from-purple-700 to-blue-700"
+      },
+      secondaryButton: {
+        text: "Liên Hệ Với Chúng Tôi",
+        href: "/contact",
+        borderColor: "border-purple-500/50",
+        hoverBg: "bg-purple-500/20",
+        hoverBorder: "border-purple-400"
+      }
+    },
+    {
+      title: "LỊCH SỬ PHÁT TRIỂN",
+      subtitle: "Từ năm 2020, chúng tôi đã phát triển từ một startup công nghệ thành tập đoàn đa ngành với 5+ công ty thành viên",
+      gradient: "from-blue-400 via-white to-cyan-400",
+      backgroundImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Xem Hành Trình",
+        href: "#timeline",
+        gradient: "from-blue-600 to-cyan-600",
+        hoverGradient: "from-blue-700 to-cyan-700"
+      },
+      secondaryButton: {
+        text: "Các Công Ty Thành Viên",
+        href: "/companies",
+        borderColor: "border-blue-500/50",
+        hoverBg: "bg-blue-500/20",
+        hoverBorder: "border-blue-400"
+      }
+    },
+    {
+      title: "ĐỘI NGŨ LÃNH ĐẠO",
+      subtitle: "Đội ngũ lãnh đạo giàu kinh nghiệm với tầm nhìn chiến lược và khả năng thực thi xuất sắc trong lĩnh vực công nghệ",
+      gradient: "from-green-400 via-white to-emerald-400",
+      backgroundImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&h=1080&q=80",
+      heroImage: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&h=800&q=80",
+      primaryButton: {
+        text: "Gặp Gỡ Đội Ngũ",
+        href: "#leadership",
+        gradient: "from-green-600 to-emerald-600",
+        hoverGradient: "from-green-700 to-emerald-700"
+      },
+      secondaryButton: {
+        text: "Tham Gia Với Chúng Tôi",
+        href: "/careers",
+        borderColor: "border-green-500/50",
+        hoverBg: "bg-green-500/20",
+        hoverBorder: "border-green-400"
+      }
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
       <Header />
 
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Về ApecGlobal Group
-          </h1>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
-            Chúng tôi là tập đoàn công nghệ tiên phong, cam kết tạo ra những giải pháp đột phá để định hình tương lai số
-            của Việt Nam và khu vực.
-          </p>
+      {/* Hero Carousel Section */}
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
+        <div className="container mx-auto relative z-10">
+          <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Vision, Mission, Values */}
-      <section className="py-16 px-4">
+      <section id="vision" className="py-16 px-4">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
@@ -184,7 +244,7 @@ export default async function AboutPage() {
       </section>
 
       {/* Leadership Team */}
-      <section className="py-16 px-4">
+      <section id="leadership" className="py-16 px-4">
         <div className="container mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             Đội Ngũ Lãnh Đạo
@@ -213,7 +273,7 @@ export default async function AboutPage() {
       </section>
 
       {/* Timeline */}
-      <section className="py-16 px-4">
+      <section id="timeline" className="py-16 px-4">
         <div className="container mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             Hành Trình Phát Triển

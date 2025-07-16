@@ -100,9 +100,9 @@ export default function HeroCarousel() {
   const currentSlideData = heroSlides[currentSlide]
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full">
       {/* Background Image với overlay */}
-      <div className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] rounded-2xl overflow-hidden group">
+      <div className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] overflow-hidden group">
         {/* Background Image với transition */}
         <div className="absolute inset-0">
           <Image

@@ -63,7 +63,7 @@ const getCategoryColor = (category: string) => {
     case "Productivity":
       return "bg-orange-600"
     default:
-      return "bg-gray-600"
+      return "bg-red-600"
   }
 }
 
@@ -355,35 +355,35 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
   console.log('Image URL for news:', newsData.image);
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
       
       {/* Hero Section with Featured Image */}
       <section className="relative">
         {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0 opacity-30">
+        <div className="absolute inset-0 z-0 opacity-10">
           {newsData.image && (
             <Image 
               src={newsData.image} 
               alt={newsData.title}
               fill
-              className="object-cover blur-sm"
+              className="object-cover"
               priority
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-white/90"></div>
         </div>
         
         {/* Content */}
-        <div className="relative z-10 pt-12 pb-16 px-4">
+        <div className="relative z-10 pt-24 pb-16 px-4">
           <div className="container mx-auto max-w-5xl">
             {/* Breadcrumb */}
-            <div className="flex items-center text-white/70 text-sm mb-8 backdrop-blur-sm bg-black/20 inline-flex px-4 py-2 rounded-full">
-              <Link href="/" className="hover:text-white transition-colors">Trang chủ</Link>
+            <div className="flex items-center text-gray-600 text-sm mb-8 bg-white shadow-md inline-flex px-4 py-2 rounded-full">
+              <Link href="/" className="hover:text-red-600 transition-colors">Trang chủ</Link>
               <span className="mx-2">/</span>
-              <Link href="/news" className="hover:text-white transition-colors">Tin tức</Link>
+              <Link href="/news" className="hover:text-red-600 transition-colors">Tin tức</Link>
               <span className="mx-2">/</span>
-              <span className="text-white/90 truncate max-w-[200px]">{newsData.title}</span>
+              <span className="text-red-600 truncate max-w-[200px]">{newsData.title}</span>
             </div>
             
             <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -391,39 +391,39 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               <div className="md:w-2/3">
                 <Link 
                   href="/news" 
-                  className="inline-flex items-center text-white/70 hover:text-white mb-6 transition-colors bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full"
+                  className="inline-flex items-center text-gray-600 hover:text-red-600 mb-6 transition-colors bg-white shadow-md px-4 py-2 rounded-full"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Quay lại danh sách tin tức
                 </Link>
                 
-                <Badge className={`${getCategoryColor(newsData.category)} mb-4 text-sm px-3 py-1`}>
+                <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
                   {newsData.category}
-                </Badge>
+                </div>
                 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-red-600 mb-6 leading-tight">
                   {newsData.title}
                 </h1>
                 
-                <p className="text-white/80 text-xl mb-8 leading-relaxed">
+                <p className="text-gray-600 text-xl mb-8 leading-relaxed">
                   {newsData.excerpt}
                 </p>
                 
-                <div className="flex flex-wrap items-center gap-4 text-white/70 text-sm mb-8 p-4 bg-black/30 backdrop-blur-sm rounded-xl border border-purple-500/20">
+                <div className="flex flex-wrap items-center gap-4 text-gray-600 text-sm mb-8 p-4 bg-white shadow-lg rounded-xl">
                   <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-purple-400" />
+                    <Calendar className="h-4 w-4 text-red-600" />
                     <span>{newsData.date}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-blue-400" />
+                    <User className="h-4 w-4 text-red-600" />
                     <span>{newsData.author}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-green-400" />
+                    <Clock className="h-4 w-4 text-red-600" />
                     <span>{newsData.readTime}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Eye className="h-4 w-4 text-cyan-400" />
+                    <Eye className="h-4 w-4 text-red-600" />
                     <span>{newsData.views} lượt xem</span>
                   </div>
                 </div>
@@ -431,10 +431,10 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               
               {/* Right Content - Author Card */}
               <div className="md:w-1/3">
-                <Card className="bg-black/40 backdrop-blur-md border-purple-500/30 hover:border-purple-500/50 transition-all duration-300">
+                <Card className="bg-white shadow-2xl hover:shadow-3xl transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500/30 to-blue-500/30 overflow-hidden relative ring-2 ring-purple-500/50 ring-offset-2 ring-offset-black/50">
+                      <div className="w-20 h-20 rounded-full bg-white shadow-md overflow-hidden relative">
                         <Image 
                           src={newsData.authorAvatar} 
                           alt={newsData.author}
@@ -443,16 +443,16 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                         />
                       </div>
                       <div>
-                        <h3 className="text-white font-medium text-lg">{newsData.author}</h3>
-                        <p className="text-white/60 text-sm">Tác giả</p>
+                        <h3 className="text-gray-900 font-medium text-lg">{newsData.author}</h3>
+                        <p className="text-gray-600 text-sm">Tác giả</p>
                         <div className="flex gap-2 mt-2">
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-blue-500/50 text-blue-400 hover:bg-blue-500/20">
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-red-200 text-red-600 hover:bg-red-50">
                             <Facebook className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-sky-500/50 text-sky-400 hover:bg-sky-500/20">
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-red-200 text-red-600 hover:bg-red-50">
                             <Twitter className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-blue-700/50 text-blue-600 hover:bg-blue-700/20">
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-red-200 text-red-600 hover:bg-red-50">
                             <Linkedin className="h-4 w-4" />
                           </Button>
                         </div>
@@ -469,7 +469,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
       {/* Featured Image */}
       <section className="px-4 -mt-8">
         <div className="container mx-auto max-w-5xl">
-          <div className="aspect-video w-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl overflow-hidden mb-12 relative shadow-2xl ring-1 ring-purple-500/30 transform hover:scale-[1.01] transition-transform duration-300">
+          <div className="aspect-video w-full bg-white shadow-2xl rounded-xl overflow-hidden mb-12 relative transform hover:scale-[1.01] transition-transform duration-300">
             {newsData.image && (
               <Image 
                 src={newsData.image} 
@@ -489,7 +489,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             {/* Main Content */}
             <div className="md:col-span-8">
-              <div className="prose prose-invert prose-lg max-w-none text-white/90 bg-black/20 backdrop-blur-sm p-8 rounded-xl border border-purple-500/20 shadow-lg">
+              <div className="prose prose-lg max-w-none text-gray-900 bg-white p-8 rounded-xl shadow-2xl">
                 <div dangerouslySetInnerHTML={{ 
                   __html: formatContentToHtml(newsData.content || '')
                 }} />
@@ -497,8 +497,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               
               {/* Tags */}
               {newsData.tags && newsData.tags.length > 0 && (
-                <div className="mt-12 bg-black/20 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
-                  <h3 className="text-white text-lg font-medium mb-4 flex items-center">
+                <div className="mt-12 bg-white backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
+                  <h3 className="text-gray-900 text-lg font-medium mb-4 flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
@@ -515,24 +515,24 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               )}
               
               {/* Share */}
-              <div className="mt-12 bg-black/20 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
-                <h3 className="text-white text-lg font-medium mb-4 flex items-center">
+              <div className="mt-12 bg-white backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
+                <h3 className="text-gray-900 text-lg font-medium mb-4 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
                   Chia sẻ bài viết:
                 </h3>
                 <div className="flex space-x-4">
-                  <Button variant="outline" size="icon" className="rounded-full border-blue-500/50 text-blue-400 hover:bg-blue-500/20 h-12 w-12">
+                  <Button variant="outline" size="icon" className="rounded-full border-sky-800/50 text-sky-800 hover:bg-blue-800/20 h-12 w-12">
                     <Facebook className="h-5 w-5" />
                   </Button>
                   <Button variant="outline" size="icon" className="rounded-full border-sky-500/50 text-sky-400 hover:bg-sky-500/20 h-12 w-12">
                     <Twitter className="h-5 w-5" />
                   </Button>
-                  <Button variant="outline" size="icon" className="rounded-full border-blue-700/50 text-blue-600 hover:bg-blue-700/20 h-12 w-12">
+                  <Button variant="outline" size="icon" className="rounded-full border-sky-600/50 text-sky-600 hover:bg-sky-600/20 h-12 w-12">
                     <Linkedin className="h-5 w-5" />
                   </Button>
-                  <Button variant="outline" size="icon" className="rounded-full border-purple-500/50 text-purple-400 hover:bg-purple-500/20 h-12 w-12">
+                  <Button variant="outline" size="icon" className="rounded-full border-red-500/50 text-red-500 hover:bg-red-500/20 h-12 w-12">
                     <Share2 className="h-5 w-5" />
                   </Button>
                 </div>
@@ -542,7 +542,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
             {/* Sidebar */}
             <div className="md:col-span-4">
               {/* Categories */}
-              <Card className="bg-black/40 backdrop-blur-md border-purple-500/30 mb-8 overflow-hidden">
+              <Card className="bg-white backdrop-blur-md border-purple-500/30 mb-8 overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-600 to-blue-600 py-3 px-6">
                   <h3 className="text-white font-medium">Danh mục</h3>
                 </div>
@@ -552,7 +552,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                       <Link 
                         key={index}
                         href={`/news/category/${category.toLowerCase()}`} 
-                        className="flex items-center text-white/80 hover:text-white group"
+                        className="flex items-center text-red-600 group"
                       >
                         <div className={`w-2 h-2 rounded-full ${getCategoryColor(category)} mr-3 group-hover:scale-125 transition-transform`}></div>
                         <span className="transition-colors">{category}</span>
@@ -586,7 +586,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               </Card>
               
               {/* Tech Trends */}
-              <Card className="bg-black/40 backdrop-blur-md border-purple-500/30 overflow-hidden">
+              <Card className="bg-white backdrop-blur-md border-purple-500/30 overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-3 px-6">
                   <h3 className="text-white font-medium">Xu hướng công nghệ</h3>
                 </div>
@@ -635,41 +635,41 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
       
       {/* Related News */}
       {relatedNews.length > 0 && (
-        <section className="py-16 px-4 bg-gradient-to-b from-transparent to-black/40">
+        <section className="py-16 px-4 bg-white shadow-lg">
           <div className="container mx-auto max-w-5xl">
             <div className="flex items-center mb-12">
-              <div className="h-1 bg-gradient-to-r from-purple-600 to-blue-600 w-16 mr-4 rounded-full"></div>
-              <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">Tin tức liên quan</h2>
+              <div className="h-1 bg-gradient-to-r from-red-600 to-red-800 w-16 mr-4 rounded-full"></div>
+              <h2 className="text-3xl font-bold text-red-600">Tin tức liên quan</h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
               {relatedNews.map((article, index) => (
                 <Link href={article.slug ? `/news/${encodeURIComponent(article.slug)}` : `/news/redirect?slug=${encodeURIComponent(article.title || article.id)}`} key={index}>
-                  <Card className="bg-black/40 backdrop-blur-sm border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/10 h-full overflow-hidden group">
+                  <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 h-full overflow-hidden group">
                     {/* Thumbnail Image */}
-                    <div className="aspect-video w-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 overflow-hidden relative">
+                    <div className="aspect-video w-full bg-white shadow-md overflow-hidden relative">
                       <Image 
                         src={article.image_url || `https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=1476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&h=300&q=80`} 
                         alt={article.title || 'Tin tức liên quan'}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-70"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-50"></div>
                       <Badge className={`${getCategoryColor(article.category || 'Tin tức')} absolute top-3 left-3`}>
                         {article.category || 'Tin tức'}
                       </Badge>
                     </div>
                     
                     <CardContent className="p-6 relative">
-                      <h3 className="text-white font-medium text-lg mb-2 line-clamp-2 group-hover:text-purple-300 transition-colors">{article.title || 'Tin tức liên quan'}</h3>
-                      <p className="text-white/70 text-sm mb-4 line-clamp-2">{article.excerpt || ''}</p>
-                      <div className="flex items-center justify-between text-white/60 text-xs">
+                      <h3 className="text-gray-900 font-medium text-lg mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">{article.title || 'Tin tức liên quan'}</h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{article.excerpt || ''}</p>
+                      <div className="flex items-center justify-between text-gray-500 text-xs">
                         <div className="flex items-center space-x-1">
-                          <Calendar className="h-3 w-3 text-purple-400" />
+                          <Calendar className="h-3 w-3 text-red-600" />
                           <span>{article.published_at ? formatDate(article.published_at) : 'Chưa xuất bản'}</span>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <Eye className="h-3 w-3 text-blue-400" />
+                          <Eye className="h-3 w-3 text-red-600" />
                           <span>{article.view_count || 0}</span>
                         </div>
                       </div>

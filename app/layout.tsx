@@ -21,7 +21,7 @@ export default function RootLayout({
         {/* Preload main logo for faster splash page loading */}
         <link rel="preload" href="/main-logo.png" as="image" />
       </head>
-      <body>
+      <body className="bg-white text-black">
         {children}
         <Toaster />
       </body>

@@ -217,7 +217,7 @@ export default async function CareersPage() {
       case "Internship":
         return "bg-purple-600"
       default:
-        return "bg-gray-600"
+        return "bg-red-600"
     }
   }
 
@@ -234,200 +234,258 @@ export default async function CareersPage() {
       case "ApecNeuroOS":
         return "border-purple-500/50 bg-purple-500/10"
       default:
-        return "border-gray-500/50 bg-gray-500/10"
+        return "border-red-500/50 bg-white shadow-md"
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Section */}
-      <section className="py-8 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Company Stats */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <Card className="bg-black/50 border-purple-500/30 text-center hover:scale-105 transition-all duration-300">
-              <CardContent className="p-6">
-                <Users className="h-8 w-8 mx-auto text-purple-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">200+</div>
-                <div className="text-white/60">Nhân viên</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/50 border-purple-500/30 text-center hover:scale-105 transition-all duration-300">
-              <CardContent className="p-6">
-                <TrendingUp className="h-8 w-8 mx-auto text-green-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">95%</div>
-                <div className="text-white/60">Tỷ lệ hài lòng</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/50 border-purple-500/30 text-center hover:scale-105 transition-all duration-300">
-              <CardContent className="p-6">
-                <Award className="h-8 w-8 mx-auto text-yellow-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">15+</div>
-                <div className="text-white/60">Giải thưởng</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/50 border-purple-500/30 text-center hover:scale-105 transition-all duration-300">
-              <CardContent className="p-6">
-                <Globe className="h-8 w-8 mx-auto text-blue-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">5+</div>
-                <div className="text-white/60">Quốc gia</div>
-              </CardContent>
-            </Card>
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-6">
+              <Users className="w-4 h-4 mr-2" />
+              Tại Sao Chọn ApecGlobal
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Môi Trường Làm Việc <span className="text-red-600">Tuyệt Vời</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Những con số ấn tượng minh chứng cho môi trường làm việc chuyên nghiệp và cơ hội phát triển tại ApecGlobal
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Users className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">200+</div>
+                <div className="text-gray-600">Nhân viên</div>
+              </div>
+            </div>
+            
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <TrendingUp className="w-8 h-8 text-green-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">95%</div>
+                <div className="text-gray-600">Tỷ lệ hài lòng</div>
+              </div>
+            </div>
+            
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Award className="w-8 h-8 text-yellow-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">15+</div>
+                <div className="text-gray-600">Giải thưởng</div>
+              </div>
+            </div>
+            
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Globe className="w-8 h-8 text-purple-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">5+</div>
+                <div className="text-gray-600">Quốc gia</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Job Search & Filter */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Vị Trí Đang Tuyển Dụng
+      <section id="jobs" className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <Briefcase className="w-4 h-4 mr-2" />
+              Vị Trí Tuyển Dụng
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Cơ Hội Nghề Nghiệp <span className="text-red-600">Tuyệt Vời</span>
             </h2>
-            <p className="text-white/60 text-lg">Khám phá cơ hội nghề nghiệp tại các công ty thành viên</p>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Khám phá cơ hội nghề nghiệp tại các công ty thành viên trong hệ sinh thái ApecGlobal
+            </p>
           </div>
 
           {/* Search and Filter */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-12">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
               <Input
                 placeholder="Tìm kiếm vị trí, công ty, kỹ năng..."
-                className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
               />
             </div>
-            <Button variant="outline" className="border-purple-500/30 text-white hover:bg-purple-500/20">
-              <Filter className="h-4 w-4 mr-2" />
+            <Button variant="outline" className="btn-outline">
+              <Filter className="w-4 h-4 mr-2" />
               Bộ Lọc
             </Button>
           </div>
 
           {/* Job Listings */}
-          <div className="space-y-6">
-            {jobOpenings.map((job, index) => (
-              <Card
-                key={index}
-                className={`bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 hover:scale-[1.02] ${getCompanyColor(job.company)}`}
-              >
-                <CardContent className="p-8">
-                  <div className="grid lg:grid-cols-4 gap-6">
-                    {/* Job Info */}
-                    <div className="lg:col-span-3 space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-xl font-bold text-white hover:text-purple-300 transition-colors">
-                              {job.title}
-                            </h3>
-                            {job.urgent && <Badge className="bg-red-600 animate-pulse">Urgent</Badge>}
-                            {job.remote && (
-                              <Badge variant="outline" className="border-green-500/30 text-green-300">
-                                Remote OK
-                              </Badge>
-                            )}
+          <div className="space-y-8">
+            {jobOpenings.map((job, index) => {
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' }
+              ]
+              const color = colors[index % colors.length]
+              
+              return (
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
+                  
+                  <div className="relative card-feature p-8 bg-white rounded-2xl">
+                    <div className="grid lg:grid-cols-4 gap-6">
+                      {/* Job Info */}
+                      <div className="lg:col-span-3 space-y-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h3 className="text-xl font-bold text-red-600 hover:text-red-700 transition-colors">
+                                {job.title}
+                              </h3>
+                              {job.urgent && <div className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium animate-pulse">Urgent</div>}
+                              {job.remote && (
+                                <div className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                  Remote OK
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-4 text-gray-600 text-sm mb-3">
+                              <span className="flex items-center">
+                                <Briefcase className="h-4 w-4 mr-1" />
+                                {job.company}
+                              </span>
+                              <span className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-1" />
+                                {job.location}
+                              </span>
+                              <span className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1" />
+                                {job.experience}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-4 text-white/60 text-sm mb-3">
-                            <span className="flex items-center">
-                              <Briefcase className="h-4 w-4 mr-1" />
-                              {job.company}
-                            </span>
-                            <span className="flex items-center">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              {job.location}
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="h-4 w-4 mr-1" />
-                              {job.experience}
-                            </span>
+                          <div className="inline-flex items-center px-3 py-1 bg-white shadow-md text-gray-700 rounded-full text-sm font-medium">
+                            {job.type}
                           </div>
                         </div>
-                        <Badge className={getJobTypeColor(job.type)}>{job.type}</Badge>
+
+                        <p className="text-gray-600 leading-relaxed">{job.description}</p>
+
+                        <div className="flex flex-wrap gap-2">
+                          {job.skills.map((skill, idx) => (
+                            <div key={idx} className="inline-flex items-center px-3 py-1 bg-white shadow-md text-gray-700 rounded-full text-sm">
+                              {skill}
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
-                      <p className="text-white/80 leading-relaxed">{job.description}</p>
+                      {/* Salary & Apply */}
+                      <div className="space-y-4">
+                        <div className="card-standard p-4 text-center">
+                          <div className="text-lg font-bold text-red-600 mb-1">{job.salary}</div>
+                          <p className="text-gray-500 text-sm">Mức lương</p>
+                        </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        {job.skills.map((skill, idx) => (
-                          <Badge key={idx} variant="outline" className="border-blue-500/30 text-blue-300">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <Button className="w-full btn-primary hover:scale-105 transform transition-all duration-300">
+                            Ứng Tuyển Ngay
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full btn-outline"
+                          >
+                            Lưu Vị Trí
+                          </Button>
+                        </div>
 
-                    {/* Salary & Apply */}
-                    <div className="space-y-4">
-                      <div className="bg-black/30 rounded-lg p-4 text-center">
-                        <div className="text-lg font-bold text-white mb-1">{job.salary}</div>
-                        <p className="text-white/60 text-sm">Mức lương</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 hover:scale-105 transform transition-all duration-300">
-                          Ứng Tuyển Ngay
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full border-purple-500/30 text-white hover:bg-purple-500/20"
-                        >
-                          Lưu Vị Trí
-                        </Button>
-                      </div>
-
-                      <div className="flex items-center justify-center space-x-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
-                        ))}
-                        <span className="text-white/60 text-xs ml-1">4.8/5</span>
+                        <div className="flex items-center justify-center space-x-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                          ))}
+                          <span className="text-gray-500 text-xs ml-1">4.8/5</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Benefits */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+      <section id="benefits" className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-6">
+              <Heart className="w-4 h-4 mr-2" />
               Quyền Lợi & Phúc Lợi
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Những Gì Chúng Tôi <span className="text-red-600">Mang Lại</span>
             </h2>
-            <p className="text-white/60 text-lg">Những gì chúng tôi mang lại cho đội ngũ</p>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Môi trường làm việc lý tưởng với những quyền lợi và phúc lợi đặc biệt dành cho nhân viên ApecGlobal
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => {
               const IconComponent = benefit.icon
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' },
+                { bg: 'bg-pink-100', text: 'text-pink-600', gradient: 'from-pink-100 to-pink-200' }
+              ]
+              const color = colors[index % colors.length]
+              
               return (
-                <Card
-                  key={index}
-                  className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 hover:scale-105 group"
-                >
-                  <CardHeader className="text-center">
-                    <div className="w-16 h-16 mx-auto bg-black/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <IconComponent className={`h-8 w-8 ${benefit.color}`} />
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
+                  
+                  <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                    <div className={`w-16 h-16 mx-auto ${color.bg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500`}>
+                      <IconComponent className={`w-8 h-8 ${color.text}`} />
                     </div>
-                    <CardTitle className="text-white group-hover:text-purple-300 transition-colors">
+                    <h3 className="heading-h4 text-red-600 mb-4 group-hover:text-red-700 transition-colors">
                       {benefit.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/80 text-center text-sm leading-relaxed">{benefit.description}</p>
-                  </CardContent>
-                </Card>
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">{benefit.description}</p>
+                  </div>
+                </div>
               )
             })}
           </div>
@@ -435,27 +493,45 @@ export default async function CareersPage() {
       </section>
 
       {/* Company Values */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+      <section id="culture" className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-6">
+              <Target className="w-4 h-4 mr-2" />
               Giá Trị Cốt Lõi
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Văn Hóa <span className="text-red-600">ApecGlobal</span>
             </h2>
-            <p className="text-white/60 text-lg">Những nguyên tắc định hướng văn hóa công ty</p>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Những nguyên tắc định hướng văn hóa công ty và tạo nên môi trường làm việc tích cực
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {companyValues.map((value, index) => {
               const IconComponent = value.icon
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' }
+              ]
+              const color = colors[index % colors.length]
+              
               return (
-                <div key={index} className="text-center group">
-                  <div className="w-20 h-20 mx-auto bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <IconComponent className="h-10 w-10 text-white" />
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
+                  
+                  <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                    <div className={`w-20 h-20 mx-auto ${color.bg} rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500`}>
+                      <IconComponent className={`w-10 h-10 ${color.text}`} />
+                    </div>
+                    <h3 className="heading-h4 text-red-600 mb-3 group-hover:text-red-700 transition-colors">
+                      {value.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">{value.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">
-                    {value.title}
-                  </h3>
-                  <p className="text-white/80 text-sm leading-relaxed">{value.description}</p>
                 </div>
               )
             })}
@@ -464,78 +540,83 @@ export default async function CareersPage() {
       </section>
 
       {/* Application Form */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
+      <section id="apply" className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-black/50 border-purple-500/30">
-              <CardHeader className="text-center">
-                <CardTitle className="text-white text-2xl flex items-center justify-center">
-                  <Send className="h-6 w-6 mr-3 text-purple-400" />
-                  Ứng Tuyển Nhanh
-                </CardTitle>
-                <p className="text-white/80">Gửi thông tin của bạn và chúng tôi sẽ liên hệ sớm nhất</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-white/80 text-sm mb-2">Họ và tên *</label>
-                    <Input
-                      placeholder="Nhập họ và tên"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
-                    />
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              
+              <div className="relative card-feature p-8 bg-white rounded-2xl">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <Send className="w-8 h-8 text-red-600" />
                   </div>
-                  <div>
-                    <label className="block text-white/80 text-sm mb-2">Email *</label>
-                    <Input
-                      type="email"
-                      placeholder="Nhập địa chỉ email"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
-                    />
-                  </div>
+                  <h3 className="heading-h3 text-red-600 mb-2">Ứng Tuyển Nhanh</h3>
+                  <p className="text-gray-600">Gửi thông tin của bạn và chúng tôi sẽ liên hệ sớm nhất</p>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-white/80 text-sm mb-2">Số điện thoại</label>
-                    <Input
-                      placeholder="Nhập số điện thoại"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white/80 text-sm mb-2">Vị trí ứng tuyển</label>
-                    <select className="w-full px-3 py-2 bg-black/30 border border-purple-500/30 rounded-md text-white">
-                      <option value="">Chọn vị trí</option>
-                      {jobOpenings.map((job, idx) => (
-                        <option key={idx} value={job.title}>
-                          {job.title} - {job.company}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-white/80 text-sm mb-2">Giới thiệu bản thân</label>
-                  <Textarea
-                    placeholder="Chia sẻ về kinh nghiệm và động lực của bạn..."
-                    rows={4}
-                    className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/80 text-sm mb-2">CV/Resume</label>
-                  <div className="border-2 border-dashed border-purple-500/30 rounded-lg p-6 text-center hover:border-purple-500/60 transition-colors">
-                    <div className="text-white/60">
-                      <p>Kéo thả file CV hoặc click để chọn</p>
-                      <p className="text-sm mt-1">Hỗ trợ: PDF, DOC, DOCX (Max: 5MB)</p>
+                
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-700 text-sm mb-2">Họ và tên *</label>
+                      <Input
+                        placeholder="Nhập họ và tên"
+                        className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm mb-2">Email *</label>
+                      <Input
+                        type="email"
+                        placeholder="Nhập địa chỉ email"
+                        className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                      />
                     </div>
                   </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-700 text-sm mb-2">Số điện thoại</label>
+                      <Input
+                        placeholder="Nhập số điện thoại"
+                        className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm mb-2">Vị trí ứng tuyển</label>
+                      <select className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900">
+                        <option value="">Chọn vị trí</option>
+                        {jobOpenings.map((job, idx) => (
+                          <option key={idx} value={job.title}>
+                            {job.title} - {job.company}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 text-sm mb-2">Giới thiệu bản thân</label>
+                    <Textarea
+                      placeholder="Chia sẻ về kinh nghiệm và động lực của bạn..."
+                      rows={4}
+                      className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 text-sm mb-2">CV/Resume</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-300 transition-colors">
+                      <div className="text-gray-500">
+                        <p>Kéo thả file CV hoặc click để chọn</p>
+                        <p className="text-sm mt-1">Hỗ trợ: PDF, DOC, DOCX (Max: 5MB)</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="w-full btn-primary text-lg py-3">
+                    Gửi Hồ Sơ Ứng Tuyển
+                    <Send className="ml-2 h-5 w-5" />
+                  </Button>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-lg py-3 hover:scale-105 transform transition-all duration-300">
-                  Gửi Hồ Sơ Ứng Tuyển
-                  <Send className="ml-2 h-5 w-5" />
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>

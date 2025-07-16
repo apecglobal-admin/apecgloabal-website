@@ -145,98 +145,132 @@ export default async function AboutPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Vision, Mission, Values */}
-      <section id="vision" className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
-              <CardHeader className="text-center">
-                <Target className="h-12 w-12 mx-auto text-purple-400 mb-4" />
-                <CardTitle className="text-white">Tầm Nhìn</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80 text-center">
+      <section id="vision" className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium mb-6">
+              <Target className="w-4 h-4 mr-2" />
+              Tầm Nhìn - Sứ Mệnh - Giá Trị
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Định Hướng <span className="text-red-600">Chiến Lược</span> 
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Những giá trị cốt lõi và định hướng chiến lược dẫn dắt ApecGlobal Group 
+              hướng tới tương lai công nghệ tiên tiến
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Target className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="heading-h4 text-red-600 mb-4">Tầm Nhìn</h3>
+                <p className="text-gray-600 leading-relaxed">
                   Trở thành tập đoàn công nghệ hàng đầu Đông Nam Á, định hình tương lai số và tạo ra những đột phá công
                   nghệ có tác động toàn cầu.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
-              <CardHeader className="text-center">
-                <Building2 className="h-12 w-12 mx-auto text-blue-400 mb-4" />
-                <CardTitle className="text-white">Sứ Mệnh</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80 text-center">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Building2 className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="heading-h4 text-red-600 mb-4">Sứ Mệnh</h3>
+                <p className="text-gray-600 leading-relaxed">
                   Kết nối và thống nhất hệ sinh thái công nghệ, phát triển các giải pháp AI tiên tiến để nâng cao chất
                   lượng cuộc sống và hiệu quả kinh doanh.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
-              <CardHeader className="text-center">
-                <History className="h-12 w-12 mx-auto text-green-400 mb-4" />
-                <CardTitle className="text-white">Lịch Sử</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80 text-center">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <History className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="heading-h4 text-red-600 mb-4">Lịch Sử</h3>
+                <p className="text-gray-600 leading-relaxed">
                   Từ năm {foundingYear}, chúng tôi đã phát triển từ một startup công nghệ thành tập đoàn đa ngành với {dbCompanies.length} công ty
                   thành viên và hơn {totalEmployees} nhân viên.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
-              <CardHeader className="text-center">
-                <Crown className="h-12 w-12 mx-auto text-yellow-400 mb-4" />
-                <CardTitle className="text-white">Giá Trị</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80 text-center">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Crown className="w-8 h-8 text-purple-600" />
+                </div>
+                <h3 className="heading-h4 text-red-600 mb-4">Giá Trị</h3>
+                <p className="text-gray-600 leading-relaxed">
                   Đổi mới, hợp tác, phát triển bền vững và xây dựng lòng tin là những giá trị cốt lõi định hướng mọi
                   hoạt động của chúng tôi.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Core Values */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Giá Trị Cốt Lõi
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <Crown className="w-4 h-4 mr-2" />
+              Giá Trị Cốt Lõi
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Văn Hóa <span className="text-red-600">Doanh Nghiệp</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Những giá trị cốt lõi tạo nên văn hóa doanh nghiệp độc đáo và 
+              định hướng phát triển bền vững của ApecGlobal Group
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => {
               const IconComponent = value.icon
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' }
+              ]
+              const color = colors[index % colors.length]
+              
               return (
-                <Card
-                  key={index}
-                  className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 hover:scale-105"
-                >
-                  <CardHeader className="text-center">
-                    <IconComponent className="h-12 w-12 mx-auto text-purple-400 mb-4" />
-                    <CardTitle className="text-white">{value.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/80 text-center text-sm">{value.description}</p>
-                  </CardContent>
-                </Card>
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform`}></div>
+                  <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                    <div className={`w-16 h-16 ${color.bg} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform`}>
+                      <IconComponent className={`w-8 h-8 ${color.text}`} />
+                    </div>
+                    <h3 className="heading-h4 text-red-600 mb-4">{value.title}</h3>
+                    <p className="text-gray-600 leading-relaxed">{value.description}</p>
+                  </div>
+                </div>
               )
             })}
           </div>
@@ -244,94 +278,168 @@ export default async function AboutPage() {
       </section>
 
       {/* Leadership Team */}
-      <section id="leadership" className="py-16 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Đội Ngũ Lãnh Đạo
-          </h2>
+      <section id="leadership" className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-6">
+              <Users className="w-4 h-4 mr-2" />
+              Đội Ngũ Lãnh Đạo
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Những <span className="text-red-600">Nhà Lãnh Đạo</span> Tài Năng
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Đội ngũ lãnh đạo giàu kinh nghiệm với tầm nhìn chiến lược và khả năng thực thi xuất sắc 
+              trong lĩnh vực công nghệ
+            </p>
+          </div>
+          
           <div className="grid md:grid-cols-3 gap-8">
-            {leadership.map((leader, index) => (
-              <Card
-                key={index}
-                className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
-              >
-                <CardHeader className="text-center">
-                  <div className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4">
-                    <Users className="h-12 w-12 text-white" />
+            {leadership.map((leader, index) => {
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' }
+              ]
+              const color = colors[index % colors.length]
+              
+              return (
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform`}></div>
+                  <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                    <div className={`w-20 h-20 ${color.bg} rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform`}>
+                      <Users className={`w-10 h-10 ${color.text}`} />
+                    </div>
+                    <h3 className="heading-h4 text-red-600 mb-2">{leader.name}</h3>
+                    <div className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium mb-4">
+                      {leader.position}
+                    </div>
+                    <p className="text-gray-600 mb-2">{leader.experience}</p>
+                    <p className="text-gray-500 text-sm">{leader.specialty}</p>
                   </div>
-                  <CardTitle className="text-white">{leader.name}</CardTitle>
-                  <Badge className="bg-purple-600">{leader.position}</Badge>
-                </CardHeader>
-                <CardContent className="text-center space-y-2">
-                  <p className="text-white/80">{leader.experience}</p>
-                  <p className="text-white/60 text-sm">{leader.specialty}</p>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Timeline */}
-      <section id="timeline" className="py-16 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Hành Trình Phát Triển
-          </h2>
-          <div className="space-y-8">
-            {milestones.map((milestone, index) => (
-              <div key={index} className="flex items-start space-x-6">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">{milestone.year}</span>
+      <section id="timeline" className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-6">
+              <History className="w-4 h-4 mr-2" />
+              Hành Trình Phát Triển
+            </div>
+            <h2 className="heading-h2 mb-4">
+              <span className="text-red-600">Cột Mốc</span> Quan Trọng
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Những dấu mốc quan trọng trong hành trình phát triển và khẳng định vị thế của ApecGlobal Group
+            </p>
+          </div>
+          
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-red-200 via-blue-200 to-green-200"></div>
+            
+            <div className="space-y-12">
+              {milestones.map((milestone, index) => {
+                const colors = [
+                  { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                  { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                  { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                  { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                  { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' }
+                ]
+                const color = colors[index % colors.length]
+                
+                return (
+                  <div key={index} className="flex items-start space-x-8">
+                    <div className="flex-shrink-0 relative z-10">
+                      <div className={`w-16 h-16 ${color.bg} rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                        <span className={`${color.text} font-bold text-sm`}>{milestone.year}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 group">
+                      <div className="relative">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform opacity-20`}></div>
+                        <div className="relative card-feature p-8 bg-white rounded-2xl">
+                          <h3 className="heading-h4 text-red-600 mb-3">{milestone.event}</h3>
+                          <p className="text-gray-600 leading-relaxed">{milestone.description}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <Card className="flex-1 bg-black/50 border-purple-500/30">
-                  <CardHeader>
-                    <CardTitle className="text-white">{milestone.event}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/80">{milestone.description}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+                )
+              })}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <Card className="bg-black/50 border-purple-500/30 text-center">
-              <CardContent className="p-6">
-                <Building2 className="h-8 w-8 mx-auto text-purple-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">5+</div>
-                <div className="text-white/60">Công ty thành viên</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/50 border-purple-500/30 text-center">
-              <CardContent className="p-6">
-                <Users className="h-8 w-8 mx-auto text-blue-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">200+</div>
-                <div className="text-white/60">Nhân viên</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/50 border-purple-500/30 text-center">
-              <CardContent className="p-6">
-                <Award className="h-8 w-8 mx-auto text-green-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">50+</div>
-                <div className="text-white/60">Dự án hoàn thành</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/50 border-purple-500/30 text-center">
-              <CardContent className="p-6">
-                <Globe className="h-8 w-8 mx-auto text-yellow-400 mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">3+</div>
-                <div className="text-white/60">Quốc gia</div>
-              </CardContent>
-            </Card>
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
+              <Award className="w-4 h-4 mr-2" />
+              Thống Kê Nổi Bật
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Những Con Số <span className="text-red-600">Ấn Tượng</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Minh chứng rõ nét cho sự phát triển mạnh mẽ và thành tựu đáng tự hào của ApecGlobal Group
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Building2 className="w-8 h-8 text-red-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">{dbCompanies.length}+</div>
+                <div className="text-gray-600">Công ty thành viên</div>
+              </div>
+            </div>
+            
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Users className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">{totalEmployees}+</div>
+                <div className="text-gray-600">Nhân viên</div>
+              </div>
+            </div>
+            
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Award className="w-8 h-8 text-green-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">50+</div>
+                <div className="text-gray-600">Dự án hoàn thành</div>
+              </div>
+            </div>
+            
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Globe className="w-8 h-8 text-purple-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">3+</div>
+                <div className="text-gray-600">Quốc gia</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

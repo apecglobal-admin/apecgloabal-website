@@ -107,10 +107,10 @@ export default function MemberCompanies() {
       <section className="py-12 sm:py-16 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="section-title font-bold mb-3 sm:mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <h2 className="section-title font-bold mb-3 sm:mb-4 text-red-700">
               Công Ty Thành Viên
             </h2>
-            <p className="text-white/60 text-base sm:text-lg max-w-2xl mx-auto">
+            <p className="text-black/70 text-base sm:text-lg max-w-2xl mx-auto">
               Khám phá hệ sinh thái công nghệ đa dạng của ApecGlobal
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function MemberCompanies() {
           {/* Loading skeleton */}
           <div className="responsive-grid-3 mb-6 sm:mb-8">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="bg-black/50 border-purple-500/30 animate-pulse">
+              <Card key={i} className="bg-white border-gray-200 shadow-lg animate-pulse">
                 <CardHeader className="text-center p-4 sm:p-6">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-gray-700 mb-3 sm:mb-4" />
                   <div className="h-6 bg-gray-700 rounded mx-auto w-3/4 mb-2" />
@@ -141,13 +141,13 @@ export default function MemberCompanies() {
       <section className="py-12 sm:py-16 px-4">
         <div className="container mx-auto">
           <div className="text-center">
-            <h2 className="section-title font-bold mb-3 sm:mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <h2 className="section-title font-bold mb-3 sm:mb-4 text-red-700">
               Công Ty Thành Viên
             </h2>
-            <p className="text-red-400 mb-4">Không thể tải dữ liệu: {error}</p>
+            <p className="text-red-600 mb-4">Không thể tải dữ liệu: {error}</p>
             <Button 
               onClick={() => window.location.reload()} 
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+              className="bg-red-700 hover:bg-red-800 text-white"
             >
               Thử lại
             </Button>
@@ -173,10 +173,10 @@ export default function MemberCompanies() {
     <section className="py-12 sm:py-16 px-4">
       <div className="container mx-auto">
         <div className="text-center mb-8 sm:mb-12">
-          <h2 className="section-title font-bold mb-3 sm:mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h2 className="section-title font-bold mb-3 sm:mb-4 text-red-700">
             Công Ty Thành Viên
           </h2>
-          <p className="text-white/60 text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-black/70 text-base sm:text-lg max-w-2xl mx-auto">
             Khám phá hệ sinh thái công nghệ đa dạng của ApecGlobal
           </p>
         </div>
@@ -186,7 +186,7 @@ export default function MemberCompanies() {
             const IconComponent = company.icon
             return (
               <Link key={company.name} href={company.href}>
-                <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 hover:scale-105 cursor-pointer h-full">
+                <Card className="bg-white border-gray-200 hover:border-red-300 transition-all duration-300 hover:scale-105 cursor-pointer h-full shadow-lg hover:shadow-xl">
                   <CardHeader className="text-center p-4 sm:p-6">
                     <div
                       className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full flex items-center justify-center mb-3 sm:mb-4 overflow-hidden ${
@@ -209,13 +209,13 @@ export default function MemberCompanies() {
                         <IconComponent className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                       )}
                     </div>
-                    <CardTitle className="text-white text-base sm:text-lg">{company.name}</CardTitle>
-                    <p className="text-white/60 text-sm">{company.description}</p>
+                    <CardTitle className="text-red-700 text-base sm:text-lg">{company.name}</CardTitle>
+                    <p className="text-black/70 text-sm">{company.description}</p>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
                     <Button
                       variant="outline"
-                      className="w-full bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20 hover:border-purple-400 hover:text-white text-sm"
+                      className="w-full bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 hover:border-red-500 hover:text-red-800 text-sm"
                     >
                       Tìm Hiểu Thêm
                       <ExternalLink className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
@@ -229,7 +229,7 @@ export default function MemberCompanies() {
 
         <div className="text-center">
           <Link href="/companies">
-            <Button className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 px-6 sm:px-8 py-3 hover:scale-105 transform transition-all duration-300">
+            <Button className="w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white border-0 px-6 sm:px-8 py-3 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl">
               Xem Tất Cả Công Ty
               <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
             </Button>

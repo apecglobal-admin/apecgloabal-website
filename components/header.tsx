@@ -31,8 +31,8 @@ export default function Header() {
     <header
       className={`fixed py-6 top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-black/90 backdrop-blur-md border-b border-purple-500/30"
-          : "bg-black/80 backdrop-blur-sm border-b border-purple-500/20"
+          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm"
+          : "bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm"
       }`}
     >
       <div className="container mx-auto px-4">
@@ -60,43 +60,43 @@ export default function Header() {
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             <Link
               href="/about"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Giới Thiệu" : "About"}
             </Link>
             <Link
               href="/companies"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Công Ty" : "Companies"}
             </Link>
             <Link
               href="/projects"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Dự Án" : "Projects"}
             </Link>
             <Link
               href="/news"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Tin Tức" : "News"}
             </Link>
             <Link
               href="/services"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Dịch Vụ" : "Services"}
             </Link>
             <Link
               href="/careers"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Tuyển Dụng" : "Careers"}
             </Link>
             <Link
               href="/contact"
-              className="text-white/80 hover:text-white transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
+              className="text-black/80 hover:text-red-700 transition-all duration-200 hover:scale-105 transform text-sm xl:text-base font-medium"
             >
               {language === "vi" ? "Liên Hệ" : "Contact"}
             </Link>
@@ -108,14 +108,14 @@ export default function Header() {
               variant="ghost"
               size="sm"
               onClick={toggleLanguage}
-              className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20 px-3 py-1.5"
+              className="text-black/80 hover:text-black hover:bg-black/10 border border-black/20 px-3 py-1.5"
             >
               <Globe className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
               <span className="text-xs lg:text-sm font-medium">{language.toUpperCase()}</span>
             </Button>
 
             <button
-              className="lg:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="lg:hidden text-black p-2 hover:bg-black/10 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -125,11 +125,11 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu Overlay */}
-        {isMenuOpen && <div className="fixed inset-0 bg-black/80 backdrop-blur-sm lg:hidden" onClick={closeMenu} />}
+        {isMenuOpen && <div className="fixed inset-0 bg-white/80 backdrop-blur-sm lg:hidden" onClick={closeMenu} />}
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden fixed top-16 left-0 right-0 bg-black/95 backdrop-blur-md border-b border-purple-500/30 transition-all duration-300 ${
+          className={`lg:hidden fixed top-16 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg transition-all duration-300 ${
             isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
           }`}
         >
@@ -137,49 +137,49 @@ export default function Header() {
             <div className="flex flex-col space-y-4">
               <Link
                 href="/about"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Giới Thiệu" : "About"}
               </Link>
               <Link
                 href="/companies"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Công Ty" : "Companies"}
               </Link>
               <Link
                 href="/projects"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Dự Án" : "Projects"}
               </Link>
               <Link
                 href="/news"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Tin Tức" : "News"}
               </Link>
               <Link
                 href="/services"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Dịch Vụ" : "Services"}
               </Link>
               <Link
                 href="/careers"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Tuyển Dụng" : "Careers"}
               </Link>
               <Link
                 href="/contact"
-                className="text-white/80 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 text-base font-medium"
+                className="text-black/80 hover:text-red-700 transition-colors py-3 px-4 rounded-lg hover:bg-black/10 text-base font-medium"
                 onClick={closeMenu}
               >
                 {language === "vi" ? "Liên Hệ" : "Contact"}

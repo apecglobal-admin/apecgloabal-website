@@ -153,35 +153,31 @@ export default function ContactPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Contact Information */}
-      <section id="contact-info" className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+      <section id="contact-info" className="section-gray">
+        <div className="container-standard">
+          <div className="grid-4-col mb-16">
             {contactInfo.map((info, index) => {
               const IconComponent = info.icon
               return (
-                <Card
-                  key={index}
-                  className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
-                >
+                <Card key={index} className="card-standard">
                   <CardHeader className="text-center">
-                    <IconComponent className={`h-12 w-12 mx-auto ${info.color} mb-4`} />
-                    <CardTitle className="text-white">{info.title}</CardTitle>
+                    <IconComponent className="icon-xl mx-auto mb-4" />
+                    <CardTitle className="heading-h4">{info.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-center space-y-2">
                     {info.details.map((detail, idx) => (
-                      <p key={idx} className="text-white/80 text-sm">
+                      <p key={idx} className="text-body-sm">
                         {detail}
                       </p>
                     ))}
@@ -194,55 +190,55 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form & Map */}
-      <section id="contact-form" className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
+      <section id="contact-form" className="section-standard">
+        <div className="container-standard">
+          <div className="grid-2-col">
             {/* Contact Form */}
-            <Card className="bg-black/50 border-purple-500/30">
+            <Card className="card-elevated">
               <CardHeader>
-                <CardTitle className="text-white text-2xl flex items-center">
-                  <Send className="h-6 w-6 mr-3 text-purple-400" />
+                <CardTitle className="heading-h3 flex items-center">
+                  <Send className="icon-standard mr-3" />
                   Gửi Tin Nhắn
                 </CardTitle>
-                <p className="text-white/80">Điền thông tin bên dưới và chúng tôi sẽ liên hệ lại trong vòng 24 giờ.</p>
+                <p className="text-body">Điền thông tin bên dưới và chúng tôi sẽ liên hệ lại trong vòng 24 giờ.</p>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-white/80 text-sm mb-2">Họ và tên *</label>
+                    <label className="block text-body text-body-sm mb-2">Họ và tên *</label>
                     <Input
                       placeholder="Nhập họ và tên"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                      className="bg-white border-gray-300 text-primary placeholder:text-muted"
                     />
                   </div>
                   <div>
-                    <label className="block text-white/80 text-sm mb-2">Email *</label>
+                    <label className="block text-body text-body-sm mb-2">Email *</label>
                     <Input
                       type="email"
                       placeholder="Nhập địa chỉ email"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                      className="bg-white border-gray-300 text-black placeholder:text-black/50"
                     />
                   </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-white/80 text-sm mb-2">Số điện thoại</label>
+                    <label className="block text-black/80 text-sm mb-2">Số điện thoại</label>
                     <Input
                       placeholder="Nhập số điện thoại"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                      className="bg-white border-gray-300 text-black placeholder:text-black/50"
                     />
                   </div>
                   <div>
-                    <label className="block text-white/80 text-sm mb-2">Công ty</label>
+                    <label className="block text-black/80 text-sm mb-2">Công ty</label>
                     <Input
                       placeholder="Tên công ty"
-                      className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                      className="bg-white border-gray-300 text-black placeholder:text-black/50"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-white/80 text-sm mb-2">Chủ đề *</label>
-                  <select className="w-full px-3 py-2 bg-black/30 border border-purple-500/30 rounded-md text-white">
+                  <label className="block text-black/80 text-sm mb-2">Chủ đề *</label>
+                  <select className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-black">
                     <option value="">Chọn chủ đề</option>
                     <option value="business">Hợp tác kinh doanh</option>
                     <option value="careers">Cơ hội nghề nghiệp</option>
@@ -252,14 +248,14 @@ export default function ContactPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-white/80 text-sm mb-2">Tin nhắn *</label>
+                  <label className="block text-black/80 text-sm mb-2">Tin nhắn *</label>
                   <Textarea
                     placeholder="Nhập nội dung tin nhắn..."
                     rows={5}
-                    className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                    className="bg-white border-gray-300 text-black placeholder:text-black/50"
                   />
                 </div>
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-lg py-3">
+                <Button className="w-full bg-red-700 hover:bg-red-800 text-white text-lg py-3">
                   Gửi Tin Nhắn
                   <Send className="ml-2 h-5 w-5" />
                 </Button>
@@ -268,20 +264,20 @@ export default function ContactPage() {
 
             {/* Map & Office Info */}
             <div className="space-y-8">
-              <Card className="bg-black/50 border-purple-500/30">
+              <Card className="bg-white border-gray-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-white">Văn Phòng Chính</CardTitle>
+                  <CardTitle className="text-red-700">Văn Phòng Chính</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-video bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg flex items-center justify-center mb-4">
-                    <MapPin className="h-16 w-16 text-white/40" />
+                  <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                    <MapPin className="h-16 w-16 text-gray-400" />
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-start space-x-3">
-                      <MapPin className="h-5 w-5 text-purple-400 mt-1" />
+                      <MapPin className="h-5 w-5 text-red-700 mt-1" />
                       <div>
-                        <p className="text-white font-medium">ApecGlobal Group Headquarters</p>
-                        <p className="text-white/80 text-sm">
+                        <p className="text-black font-medium">ApecGlobal Group Headquarters</p>
+                        <p className="text-black/80 text-sm">
                           Tầng 15, Tòa nhà Keangnam
                           <br />
                           Phạm Hùng, Nam Từ Liêm
@@ -291,33 +287,33 @@ export default function ContactPage() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Phone className="h-5 w-5 text-blue-400" />
-                      <span className="text-white">+84 24 3123 4567</span>
+                      <Phone className="h-5 w-5 text-red-700" />
+                      <span className="text-black">+84 24 3123 4567</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Mail className="h-5 w-5 text-green-400" />
-                      <span className="text-white">info@apecglobal.com</span>
+                      <Mail className="h-5 w-5 text-red-700" />
+                      <span className="text-black">info@apecglobal.com</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/50 border-purple-500/30">
+              <Card className="bg-white border-gray-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-white">Giờ Làm Việc</CardTitle>
+                  <CardTitle className="text-red-700">Giờ Làm Việc</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-white/80">Thứ 2 - Thứ 6</span>
-                    <span className="text-white">8:00 - 18:00</span>
+                    <span className="text-black/80">Thứ 2 - Thứ 6</span>
+                    <span className="text-black">8:00 - 18:00</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/80">Thứ 7</span>
-                    <span className="text-white">8:00 - 12:00</span>
+                    <span className="text-black/80">Thứ 7</span>
+                    <span className="text-black">8:00 - 12:00</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/80">Chủ nhật</span>
-                    <span className="text-white/60">Nghỉ</span>
+                    <span className="text-black/80">Chủ nhật</span>
+                    <span className="text-black/60">Nghỉ</span>
                   </div>
                 </CardContent>
               </Card>
@@ -327,9 +323,9 @@ export default function ContactPage() {
       </section>
 
       {/* Department Contacts */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 bg-gray-50">
         <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold text-center mb-12 text-red-700">
             Liên Hệ Theo Phòng Ban
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -338,23 +334,21 @@ export default function ContactPage() {
               return (
                 <Card
                   key={index}
-                  className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 hover:scale-105"
+                  className="bg-white border-gray-200 hover:border-red-300 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   <CardHeader className="text-center">
-                    <div
-                      className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${dept.color} flex items-center justify-center mb-4`}
-                    >
+                    <div className="w-16 h-16 mx-auto rounded-full bg-red-700 flex items-center justify-center mb-4">
                       <IconComponent className="h-8 w-8 text-white" />
                     </div>
-                    <CardTitle className="text-white">{dept.title}</CardTitle>
+                    <CardTitle className="text-red-700">{dept.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-center space-y-4">
-                    <p className="text-white/80 text-sm">{dept.description}</p>
+                    <p className="text-black/80 text-sm">{dept.description}</p>
                     <div className="space-y-2">
-                      <p className="text-white/60 text-xs">Email trực tiếp:</p>
-                      <p className="text-purple-300 text-sm font-medium">{dept.email}</p>
+                      <p className="text-black/60 text-xs">Email trực tiếp:</p>
+                      <p className="text-red-700 text-sm font-medium">{dept.email}</p>
                     </div>
-                    <Button variant="outline" className="w-full border-purple-500/30 text-white hover:bg-purple-500/20">
+                    <Button variant="outline" className="w-full border-gray-300 text-black hover:bg-red-50 hover:border-red-300">
                       Liên Hệ Ngay
                     </Button>
                   </CardContent>
@@ -366,42 +360,42 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 bg-white">
         <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-bold text-center mb-12 text-red-700">
             Câu Hỏi Thường Gặp
           </h2>
           <div className="max-w-3xl mx-auto space-y-6">
-            <Card className="bg-black/50 border-purple-500/30">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-white">Làm thế nào để trở thành đối tác của ApecGlobal?</CardTitle>
+                <CardTitle className="text-red-700">Làm thế nào để trở thành đối tác của ApecGlobal?</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-white/80">
+                <p className="text-black/80">
                   Bạn có thể liên hệ với chúng tôi qua email business@apecglobal.com hoặc điền form liên hệ với chủ đề
                   "Hợp tác kinh doanh". Đội ngũ của chúng tôi sẽ liên hệ lại trong vòng 24 giờ.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-black/50 border-purple-500/30">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-white">ApecGlobal có tuyển dụng thường xuyên không?</CardTitle>
+                <CardTitle className="text-red-700">ApecGlobal có tuyển dụng thường xuyên không?</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-white/80">
+                <p className="text-black/80">
                   Có, chúng tôi luôn tìm kiếm những nhân tài xuất sắc. Bạn có thể xem các vị trí tuyển dụng hiện tại tại
                   trang Careers hoặc gửi CV về careers@apecglobal.com.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-black/50 border-purple-500/30">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-white">Tôi có thể đến thăm văn phòng ApecGlobal không?</CardTitle>
+                <CardTitle className="text-red-700">Tôi có thể đến thăm văn phòng ApecGlobal không?</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-white/80">
+                <p className="text-black/80">
                   Chúng tôi hoan nghênh việc đến thăm văn phòng, tuy nhiên vui lòng đặt lịch hẹn trước qua điện thoại
                   hoặc email để đảm bảo có người tiếp đón bạn.
                 </p>

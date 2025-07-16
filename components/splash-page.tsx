@@ -56,7 +56,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     }
   }, [logoLoaded, companyLogosLoaded, loading])
 
-  // Generate random positions when component mounts
+  // Generate initial positions when component mounts
   useEffect(() => {
     const generatePositions = () => {
       return Array.from({ length: 5 }, () => ({
@@ -68,19 +68,10 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     // Set initial positions
     setLogoPositions(generatePositions())
     
-    // Continuous position changes - logos will teleport to random positions
-    const interval = setInterval(() => {
-      // Fade out
-      setIsTeleporting(true)
-      
-      // Change positions and fade in
-      setTimeout(() => {
-        setLogoPositions(generatePositions())
-        setIsTeleporting(false)
-      }, 200) // 200ms fade out duration
-    }, 1500 + Math.random() * 1000) // Random between 1.5-2.5 seconds (faster)
+    // No need for teleporting effect anymore as we'll use CSS animations for gentle floating
+    setIsTeleporting(false)
     
-    return () => clearInterval(interval)
+    return () => {}
   }, [])
 
   useEffect(() => {
@@ -192,23 +183,31 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
         <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '8s', animationDelay: '2s' }}></div>
         <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }}></div>
 
-        {/* Floating Company Logos */}
+        {/* Floating Company Logos with gentle animations */}
         {companies && companies.length > 0 && companies.map((company, index) => {
           const position = logoPositions[index]
           if (!position) return null
-          console.log("Com", company)
+          
+          // Assign different float animations to each logo
+          const floatAnimations = [
+            "animate-float-1", 
+            "animate-float-2", 
+            "animate-float-3", 
+            "animate-float-4", 
+            "animate-float-5"
+          ]
+          const animationClass = floatAnimations[index % floatAnimations.length]
+          
           return (
             <div
               key={company.id}
-              className={`absolute hover:opacity-60 transition-all duration-300 hover:scale-110 cursor-pointer ${
-                isTeleporting ? 'opacity-0' : 'opacity-25'
-              }`}
+              className={`absolute hover:opacity-60 transition-all duration-300 hover:scale-110 cursor-pointer opacity-25 ${animationClass}`}
               style={{
                 left: `${position.left}%`,
                 top: `${position.top}%`,
               }}
             >
-<div className="relative w-20 h-20 md:w-24 md:h-24 filter drop-shadow-2xl">
+              <div className="relative w-20 h-20 md:w-24 md:h-24 filter drop-shadow-2xl">
                 {company.logo_url ? (
                   <Image
                     src={company.logo_url}
@@ -374,9 +373,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
           animation: shootingStar linear infinite;
         }
         
-
-        
-        @keyframes float {
+        @keyframes gentleFloat {
           0%, 100% { 
             transform: translateY(0px) rotate(0deg); 
           }

@@ -23,6 +23,8 @@ import {
   Globe,
   Zap,
   Layers,
+  ArrowRight,
+  FileText,
 } from "lucide-react"
 import { getAllProjects } from "@/lib/db"
 import { Project } from "@/lib/schema"
@@ -230,186 +232,169 @@ export default async function ProjectsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Stats Section - AI Style */}
-      <section className="py-20 px-4 relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-purple-900/5 to-black/0"></div>
-        
-        <div className="container mx-auto relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <TrendingUp className="h-8 w-8 text-purple-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">{inProgressCount}</div>
-                  <div className="text-white/60">Dự án đang triển khai</div>
-                </CardContent>
-              </Card>
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Thống Kê Dự Án
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Tổng Quan <span className="text-red-600">Dự Án</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Khám phá những con số ấn tượng về các dự án công nghệ mà ApecGlobal Group 
+              đã và đang triển khai
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <TrendingUp className="w-8 h-8 text-orange-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">{inProgressCount}</div>
+                <div className="text-gray-600">Dự án đang triển khai</div>
+              </div>
             </div>
             
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <CheckCircle className="h-8 w-8 text-green-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">{completedCount}</div>
-                  <div className="text-white/60">Dự án hoàn thành</div>
-                </CardContent>
-              </Card>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">{completedCount}</div>
+                <div className="text-gray-600">Dự án hoàn thành</div>
+              </div>
             </div>
             
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <Users className="h-8 w-8 text-cyan-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">
-                    {projectsData.reduce((sum, project) => sum + (project.team_size || 0), 0)}
-                  </div>
-                  <div className="text-white/60">Chuyên gia tham gia</div>
-                </CardContent>
-              </Card>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Users className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">
+                  {projectsData.reduce((sum, project) => sum + (project.team_size || 0), 0)}
+                </div>
+                <div className="text-gray-600">Chuyên gia tham gia</div>
+              </div>
             </div>
             
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <Calendar className="h-8 w-8 text-orange-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">{projectsData.length}</div>
-                  <div className="text-white/60">Tổng số dự án</div>
-                </CardContent>
-              </Card>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Calendar className="w-8 h-8 text-purple-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">{projectsData.length}</div>
+                <div className="text-gray-600">Tổng số dự án</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Projects List - AI Style */}
-      <section id="projects-grid" className="py-20 px-4 relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-cyan-900/5 to-black/0"></div>
-        
-        <div className="container mx-auto relative">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-16 gap-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-              </div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                Danh Sách Dự Án
-              </h2>
+      <section id="projects-grid" className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <Code className="w-4 h-4 mr-2" />
+              Danh Sách Dự Án
             </div>
-            
-            <div className="flex flex-wrap gap-3">
-              <Badge 
-                variant="outline" 
-                className="border-purple-500/30 text-purple-300 bg-black/30 px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-purple-900/20 transition-colors"
-              >
-                Tất cả dự án ({projectsData.length})
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="border-cyan-500/30 text-cyan-300 bg-black/30 px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-cyan-900/20 transition-colors"
-              >
-                Đang phát triển ({inProgressCount})
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="border-green-500/30 text-green-300 bg-black/30 px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-green-900/20 transition-colors"
-              >
-                Hoàn thành ({completedCount})
-              </Badge>
+            <h2 className="heading-h2 mb-4">
+              Dự Án <span className="text-red-600">Công Nghệ</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Khám phá danh mục dự án công nghệ đa dạng từ AI, machine learning đến 
+              các giải pháp doanh nghiệp tiên tiến
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+              Tất cả dự án ({projectsData.length})
+            </div>
+            <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+              Đang phát triển ({inProgressCount})
+            </div>
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+              Hoàn thành ({completedCount})
             </div>
           </div>
           
-          <div className="space-y-16 stagger-animation">
+          <div className="space-y-12">
             {projectsWithVietnameseStatus.map((project, index) => {
               const IconComponent = getTechIcon(project.technologies || []);
-              const colorGradient = getStatusGradient(project.status || '');
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' },
+                { bg: 'bg-pink-100', text: 'text-pink-600', gradient: 'from-pink-100 to-pink-200' }
+              ]
+              const color = colors[index % colors.length]
+              
               return (
-                <div key={index} className="relative group">
-                  {/* Decorative elements */}
-                  <div className="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 border-b-2 border-r-2 border-cyan-500/30 rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
                   
-                  <Card
-                    className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden"
-                  >
-                    <div className="grid md:grid-cols-3 gap-8 p-8">
+                  <div className="relative card-feature p-8 bg-white rounded-2xl">
+                    <div className="grid md:grid-cols-3 gap-8">
                       {/* Project Info */}
-                      <div className="md:col-span-2 space-y-8">
+                      <div className="md:col-span-2 space-y-6">
                         <div className="flex items-start space-x-6">
-                          <div
-                            className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${colorGradient} flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-900/20 group-hover:scale-110 transition-transform duration-500`}
-                          >
-                            <IconComponent className="h-10 w-10 text-white" />
+                          <div className={`w-20 h-20 ${color.bg} rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500`}>
+                            <IconComponent className={`h-10 w-10 ${color.text}`} />
                           </div>
                           <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 mb-3">
-                              <h3 className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300">
+                              <h3 className="heading-h3 text-red-600 group-hover:text-red-700 transition-colors duration-300">
                                 {project.name}
                               </h3>
-                              <div className="flex items-center space-x-1 bg-black/30 py-1 px-2 rounded-full border border-purple-500/20">
+                              <div className="flex items-center space-x-1 bg-gray-100 py-1 px-2 rounded-full">
                                 {getStatusIcon(project.status || '')}
-                                <span className="text-white/80 text-xs ml-1">{project.status}</span>
+                                <span className="text-gray-600 text-sm ml-1">{project.status}</span>
                               </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-3 mb-4">
-                              <Badge 
-                                variant="outline" 
-                                className="border-purple-500/30 text-purple-300 bg-black/30 px-3 py-1 rounded-full"
-                              >
+                              <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                                 {project.company_name || 'ApecTech'}
-                              </Badge>
-                              <Badge 
-                                className={`${getStatusColor(project.status || '')} px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider`}
-                              >
+                              </div>
+                              <div className={`inline-flex items-center px-3 py-1 ${getStatusColor(project.status || '')} text-white rounded-full text-sm font-medium`}>
                                 {project.status}
-                              </Badge>
+                              </div>
                               {project.is_featured && (
-                                <Badge 
-                                  className="bg-amber-600 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider"
-                                >
+                                <div className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
                                   Dự án nổi bật
-                                </Badge>
+                                </div>
                               )}
                             </div>
                           </div>
                         </div>
                         
-                        <p className="text-white/80 leading-relaxed">{project.description}</p>
+                        <p className="text-gray-600 leading-relaxed">{project.description}</p>
                         
                         {project.goals && project.goals.length > 0 && (
                           <div className="space-y-2">
-                            <h4 className="text-white/90 font-medium">Mục tiêu dự án:</h4>
-                            <ul className="list-disc list-inside text-white/70 space-y-1">
+                            <h4 className="text-red-600 font-medium">Mục tiêu dự án:</h4>
+                            <ul className="list-disc list-inside text-gray-600 space-y-1">
                               {project.goals.map((goal, idx) => (
                                 <li key={idx}>{goal}</li>
                               ))}
@@ -418,16 +403,12 @@ export default async function ProjectsPage() {
                         )}
                         
                         <div className="space-y-2">
-                          <h4 className="text-white/90 font-medium">Công nghệ sử dụng:</h4>
+                          <h4 className="text-red-600 font-medium">Công nghệ sử dụng:</h4>
                           <div className="flex flex-wrap gap-2">
                             {(project.technologies || []).map((tech, idx) => (
-                              <Badge 
-                                key={idx} 
-                                variant="outline" 
-                                className="border-cyan-500/30 text-cyan-300 bg-black/30 hover:bg-cyan-900/20 transition-colors duration-300 cursor-default"
-                              >
+                              <div key={idx} className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
                                 {tech}
-                              </Badge>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -438,12 +419,12 @@ export default async function ProjectsPage() {
                         {/* Progress */}
                         <div className="relative">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-white/80 text-sm">Tiến độ dự án</span>
-                            <span className="text-cyan-400 font-medium">{project.progress || 0}%</span>
+                            <span className="text-gray-500 text-sm">Tiến độ dự án</span>
+                            <span className="text-red-600 font-medium">{project.progress || 0}%</span>
                           </div>
-                          <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden">
+                          <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                             <div 
-                              className={`h-full rounded-full bg-gradient-to-r ${colorGradient}`}
+                              className={`h-full rounded-full bg-gradient-to-r ${color.gradient}`}
                               style={{ width: `${project.progress || 0}%` }}
                             ></div>
                           </div>
@@ -451,38 +432,38 @@ export default async function ProjectsPage() {
                         
                         {/* Timeline & Team */}
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                          <div className="card-standard p-4">
                             <div className="flex items-center mb-2">
-                              <Calendar className="h-4 w-4 text-purple-400 mr-2" />
-                              <span className="text-white/80 text-sm">Thời gian</span>
+                              <Calendar className="w-4 h-4 text-gray-500 mr-2" />
+                              <span className="text-gray-500 text-sm">Thời gian</span>
                             </div>
-                            <div className="text-white font-medium">
+                            <div className="text-red-600 font-medium text-sm">
                               {project.start_date ? new Date(project.start_date).toLocaleDateString('vi-VN', {year: 'numeric', month: 'numeric'}) : ''} - 
                               {project.end_date ? new Date(project.end_date).toLocaleDateString('vi-VN', {year: 'numeric', month: 'numeric'}) : ''}
                             </div>
                           </div>
-                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                          <div className="card-standard p-4">
                             <div className="flex items-center mb-2">
-                              <Users className="h-4 w-4 text-cyan-400 mr-2" />
-                              <span className="text-white/80 text-sm">Đội ngũ</span>
+                              <Users className="w-4 h-4 text-gray-500 mr-2" />
+                              <span className="text-gray-500 text-sm">Đội ngũ</span>
                             </div>
-                            <div className="text-white font-medium">{project.team_size || 0} người</div>
+                            <div className="text-red-600 font-medium">{project.team_size || 0} người</div>
                           </div>
                           
-                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                          <div className="card-standard p-4">
                             <div className="flex items-center mb-2">
-                              <Globe className="h-4 w-4 text-green-400 mr-2" />
-                              <span className="text-white/80 text-sm">Địa điểm</span>
+                              <Globe className="w-4 h-4 text-gray-500 mr-2" />
+                              <span className="text-gray-500 text-sm">Địa điểm</span>
                             </div>
-                            <div className="text-white font-medium">{project.location || 'Hà Nội'}</div>
+                            <div className="text-red-600 font-medium">{project.location || 'Hà Nội'}</div>
                           </div>
                           
-                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                          <div className="card-standard p-4">
                             <div className="flex items-center mb-2">
-                              <Zap className="h-4 w-4 text-yellow-400 mr-2" />
-                              <span className="text-white/80 text-sm">Độ ưu tiên</span>
+                              <Zap className="w-4 h-4 text-gray-500 mr-2" />
+                              <span className="text-gray-500 text-sm">Độ ưu tiên</span>
                             </div>
-                            <div className="text-white font-medium">
+                            <div className="text-red-600 font-medium">
                               {project.priority === 'high' ? 'Cao' : 
                                project.priority === 'medium' ? 'Trung bình' : 
                                project.priority === 'low' ? 'Thấp' : 'Bình thường'}
@@ -492,38 +473,27 @@ export default async function ProjectsPage() {
                         
                         {/* Thông tin bổ sung */}
                         {project.client_name && (
-                          <div className="bg-black/30 p-4 rounded-xl border border-purple-500/20">
+                          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                             <div className="flex items-center mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-blue-400 mr-2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                              </svg>
-                              <span className="text-white/80 text-sm">Khách hàng</span>
+                              <Users className="w-4 h-4 text-gray-500 mr-2" />
+                              <span className="text-gray-500 text-sm">Khách hàng</span>
                             </div>
-                            <div className="text-white font-medium">{project.client_name}</div>
+                            <div className="text-red-600 font-medium">{project.client_name}</div>
                           </div>
                         )}
                         
                         {/* Action Buttons */}
                         <div className="flex flex-col gap-3 mt-8">
                           <Link href={`/projects/${project.slug}`}>
-                            <Button
-                              className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white transition-all duration-300 shadow-lg shadow-purple-900/30 w-full"
-                            >
+                            <Button className="btn-primary w-full">
                               Xem Chi Tiết
-                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
-                                <path d="M5 12h14"></path>
-                                <path d="m12 5 7 7-7 7"></path>
-                              </svg>
+                              <ArrowRight className="ml-2 w-4 h-4" />
                             </Button>
                           </Link>
                           
                           {project.demo_url && (
                             <Link href={project.demo_url} target="_blank">
-                              <Button
-                                variant="outline"
-                                className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300 w-full"
-                              >
+                              <Button variant="outline" className="btn-outline w-full">
                                 Xem Demo
                                 <PlayCircle className="h-4 w-4 ml-2" />
                               </Button>
@@ -532,7 +502,7 @@ export default async function ProjectsPage() {
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </div>
               )
             })}
@@ -540,95 +510,42 @@ export default async function ProjectsPage() {
         </div>
       </section>
 
-      {/* CTA Section - AI Style */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        {/* Background circuit pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M0 50h100M50 0v100" stroke="white" strokeWidth="0.5" fill="none" />
-                <circle cx="50" cy="50" r="3" fill="white" />
-                <circle cx="0" cy="50" r="3" fill="white" />
-                <circle cx="100" cy="50" r="3" fill="white" />
-                <circle cx="50" cy="0" r="3" fill="white" />
-                <circle cx="50" cy="100" r="3" fill="white" />
-              </pattern>
-            </defs>
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#circuit-pattern)" />
-          </svg>
-        </div>
-        
-        {/* AI Nodes Animation */}
-        <div className="absolute inset-0">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-cyan-400/40 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                boxShadow: '0 0 10px 2px rgba(45, 212, 191, 0.3)'
-              }}
-            ></div>
-          ))}
-        </div>
-        
-        <div className="container mx-auto relative z-10">
-          <div className="max-w-4xl mx-auto relative">
-            {/* Decorative elements */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/20 rounded-tl-3xl"></div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
-            
-            <Card className="bg-black/60 border-none shadow-2xl shadow-purple-900/20 backdrop-blur-md overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-blue-600"></div>
+      {/* CTA Section */}
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
               
-              <CardContent className="p-12 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center animate-pulse">
-                  <Brain className="h-10 w-10 text-white" />
+              <div className="relative card-feature p-12 bg-white rounded-2xl text-center">
+                <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                  <Brain className="h-10 w-10 text-red-600" />
                 </div>
                 
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent mb-6">
+                <h2 className="heading-h2 text-red-600 mb-6">
                   Quan Tâm Đến Dự Án AI Của Chúng Tôi?
                 </h2>
                 
-                <p className="text-white/80 text-lg mb-10 max-w-2xl mx-auto">
-                  Tìm hiểu thêm về cách <span className="text-cyan-400 font-semibold">ApecGlobal Group</span> có thể hợp tác 
+                <p className="text-body-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+                  Tìm hiểu thêm về cách <span className="text-red-600 font-semibold">ApecGlobal Group</span> có thể hợp tác 
                   để phát triển các giải pháp công nghệ trí tuệ nhân tạo tiên tiến cho doanh nghiệp của bạn.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-                    <Button className="relative bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-lg px-8 py-4 transition-all duration-300 shadow-lg shadow-purple-900/30">
+                  <Link href="/contact">
+                    <Button className="btn-primary text-lg px-8 py-4">
                       Liên Hệ Hợp Tác
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                      </svg>
+                      <Users className="ml-2 w-5 h-5" />
                     </Button>
-                  </div>
+                  </Link>
                   
-                  <Button
-                    variant="outline"
-                    className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 text-lg px-8 py-4 transition-all duration-300 group"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-cyan-400">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                      <line x1="16" y1="13" x2="8" y2="13"></line>
-                      <line x1="16" y1="17" x2="8" y2="17"></line>
-                      <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
+                  <Button variant="outline" className="btn-outline text-lg px-8 py-4">
+                    <FileText className="mr-2 w-5 h-5" />
                     Tải Brochure
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>

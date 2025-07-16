@@ -65,9 +65,9 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
   const currentSlideData = slides[currentSlide]
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full">
       {/* Background Image với overlay */}
-      <div className="relative min-h-[350px] sm:min-h-[450px] md:min-h-[550px] lg:min-h-[650px] rounded-2xl overflow-hidden group">
+      <div className="relative min-h-[350px] sm:min-h-[450px] md:min-h-[550px] lg:min-h-[650px] overflow-hidden group">
         {/* Background Image với transition */}
         <div className="absolute inset-0">
           <Image
@@ -116,7 +116,7 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-md sm:max-w-none mx-auto lg:mx-0">
               <Link href={currentSlideData.primaryButton.href}>
-                <Button className={`w-full sm:w-auto bg-gradient-to-r ${currentSlideData.primaryButton.gradient} hover:${currentSlideData.primaryButton.hoverGradient} text-white border-0 text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}>
+                <Button className={`w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white border-0 text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}>
                   {currentSlideData.primaryButton.text}
                   <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                 </Button>
@@ -124,7 +124,7 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
               <Link href={currentSlideData.secondaryButton.href}>
                 <Button
                   variant="outline"
-                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border-2 ${currentSlideData.secondaryButton.borderColor} text-white hover:${currentSlideData.secondaryButton.hoverBg} hover:${currentSlideData.secondaryButton.hoverBorder} hover:text-white text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}
+                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border border-gray-300 text-white hover:bg-white hover:text-black text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}
                 >
                   {currentSlideData.secondaryButton.text}
                   <ExternalLink className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />

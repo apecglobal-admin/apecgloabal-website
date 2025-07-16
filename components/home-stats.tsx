@@ -134,14 +134,14 @@ export default function HomeStats() {
             return (
               <Card
                 key={index}
-                className="bg-black/50 border-purple-500/30 text-center hover:scale-105 transition-all duration-300 p-4 sm:p-6"
+                className="bg-white border-gray-200 text-center hover:scale-105 transition-all duration-300 p-4 sm:p-6 shadow-lg hover:shadow-xl hover:border-red-300"
               >
                 <CardContent className="p-3 sm:p-6">
-                  <IconComponent className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-purple-400 mb-3 sm:mb-4" />
-                  <div className={`text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2 ${loading ? 'animate-pulse' : ''}`}>
+                  <IconComponent className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-red-700 mb-3 sm:mb-4" />
+                  <div className={`text-2xl sm:text-3xl font-bold text-red-700 mb-1 sm:mb-2 ${loading ? 'animate-pulse' : ''}`}>
                     {loading ? '...' : stat.value}
                   </div>
-                  <div className="text-white/60 text-xs sm:text-sm">{stat.label}</div>
+                  <div className="text-black/70 text-xs sm:text-sm">{stat.label}</div>
                 </CardContent>
               </Card>
             )

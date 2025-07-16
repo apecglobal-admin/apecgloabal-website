@@ -208,23 +208,22 @@ export default async function NewsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Categories Filter - AI Style */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto">
+      <section className="section-gray">
+        <div className="container-standard">
           <div className="relative mb-8 text-center">
-            <h3 className="text-xl font-medium text-white/90 inline-flex items-center">
-              <span className="w-8 h-8 mr-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+            <h3 className="heading-h4 inline-flex items-center">
+              <span className="w-8 h-8 mr-2 rounded-full bg-red-700 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/>
                   <path d="M2 15h10"/>
@@ -235,7 +234,7 @@ export default async function NewsPage() {
             </h3>
           </div>
           
-          <div className="backdrop-blur-sm bg-black/20 p-6 rounded-xl border border-purple-500/20 mx-auto">
+          <div className="card-elevated p-6 mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {categories.map((category, index) => 
                 category.name === "Tất cả" ? (
@@ -244,13 +243,13 @@ export default async function NewsPage() {
                     variant={category.active ? "default" : "outline"}
                     className={`${
                       category.active
-                        ? "bg-gradient-to-r from-purple-600 to-cyan-600 shadow-lg shadow-purple-500/20 w-full"
-                        : "border-purple-500/30 text-white hover:bg-purple-500/20 hover:border-cyan-500/50 transition-all duration-300 w-full"
+                        ? "w-full"
+                        : "w-full"
                     } rounded-full h-10 flex items-center justify-center`}
                   >
-                    <span className="mr-1 text-xs md:text-sm">#</span>
-                    <span className="text-xs md:text-sm truncate">{category.name}</span>
-                    <Badge variant="secondary" className="ml-1 bg-black/30 text-white text-xs">
+                    <span className="mr-1 text-body-sm">#</span>
+                    <span className="text-body-sm truncate">{category.name}</span>
+                    <Badge variant="secondary" className="ml-1 badge-secondary text-body-sm">
                       {category.count}
                     </Badge>
                   </Button>
@@ -260,13 +259,13 @@ export default async function NewsPage() {
                       variant={category.active ? "default" : "outline"}
                       className={`${
                         category.active
-                          ? "bg-gradient-to-r from-purple-600 to-cyan-600 shadow-lg shadow-purple-500/20 w-full"
-                          : "border-purple-500/30 text-white hover:bg-purple-500/20 hover:border-cyan-500/50 transition-all duration-300 w-full"
+                          ? "w-full"
+                          : "w-full"
                       } rounded-full h-10 flex items-center justify-center`}
                     >
-                      <span className="mr-1 text-xs md:text-sm">#</span>
-                      <span className="text-xs md:text-sm truncate">{category.name}</span>
-                      <Badge variant="secondary" className="ml-1 bg-black/30 text-white text-xs">
+                      <span className="mr-1 text-body-sm">#</span>
+                      <span className="text-body-sm truncate">{category.name}</span>
+                      <Badge variant="secondary" className="ml-1 badge-secondary text-body-sm">
                         {category.count}
                       </Badge>
                     </Button>
@@ -279,28 +278,28 @@ export default async function NewsPage() {
       </section>
 
       {/* Featured News - AI Style */}
-      <section id="latest-news" className="py-16 px-4">
-        <div className="container mx-auto">
+      <section id="latest-news" className="section-standard">
+        <div className="container-standard">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4">
+              <div className="w-10 h-10 rounded-lg bg-red-700 flex items-center justify-center mr-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Tin Nổi Bật</h2>
+              <h2 className="heading-h2">Tin Nổi Bật</h2>
             </div>
             <div className="hidden md:flex items-center">
-              <span className="h-[1px] w-24 bg-gradient-to-r from-purple-500 to-transparent"></span>
+              <span className="h-[1px] w-24 bg-gradient-to-r from-red-500 to-transparent"></span>
             </div>
           </div>
           
           <div className="relative">
             {/* Decorative elements */}
-            <div className="absolute -top-4 -left-4 w-20 h-20 border-t-2 border-l-2 border-purple-500/30 rounded-tl-xl"></div>
-            <div className="absolute -bottom-4 -right-4 w-20 h-20 border-b-2 border-r-2 border-cyan-500/30 rounded-br-xl"></div>
+            <div className="absolute -top-4 -left-4 w-20 h-20 border-t-2 border-l-2 border-red-300 rounded-tl-xl"></div>
+            <div className="absolute -bottom-4 -right-4 w-20 h-20 border-b-2 border-r-2 border-red-300 rounded-br-xl"></div>
             
-            <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-500 backdrop-blur-sm overflow-hidden">
+            <Card className="card-feature overflow-hidden">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="aspect-video relative rounded-lg overflow-hidden group">
                   {featuredNews.image ? (
@@ -314,46 +313,46 @@ export default async function NewsPage() {
                         priority
                       />
                       <div className="absolute bottom-4 left-4 z-20">
-                        <Badge className={`${getCategoryColor(featuredNews.category)} px-3 py-1 text-xs font-medium uppercase tracking-wider`}>
+                        <Badge className={`${getCategoryColor(featuredNews.category)} badge-standard`}>
                           {featuredNews.category}
                         </Badge>
                       </div>
                     </>
                   ) : (
-                    <div className="aspect-video bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg flex items-center justify-center">
-                      <Newspaper className="h-16 w-16 text-white/40" />
+                    <div className="aspect-video card-standard rounded-lg flex items-center justify-center">
+                      <Newspaper className="icon-xl text-muted" />
                     </div>
                   )}
                 </div>
                 
                 <div className="p-8 space-y-5 flex flex-col">
-                  <div className="flex items-center space-x-2 text-white/60 text-sm">
-                    <Calendar className="h-4 w-4 text-cyan-400" />
+                  <div className="flex items-center space-x-2 text-muted text-body-sm">
+                    <Calendar className="icon-standard" />
                     <span>{featuredNews.date}</span>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white leading-tight">{featuredNews.title}</h3>
+                  <h3 className="heading-h3 leading-tight">{featuredNews.title}</h3>
                   
-                  <p className="text-white/80 leading-relaxed flex-grow">{featuredNews.excerpt}</p>
+                  <p className="text-body leading-relaxed flex-grow">{featuredNews.excerpt}</p>
                   
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center space-x-4 text-white/60 text-sm">
+                    <div className="flex items-center space-x-4 text-muted text-body-sm">
                       <div className="flex items-center space-x-1">
-                        <User className="h-4 w-4 text-purple-400" />
+                        <User className="icon-standard" />
                         <span>{featuredNews.author}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Clock className="h-4 w-4 text-purple-400" />
+                        <Clock className="icon-standard" />
                         <span>{featuredNews.readTime}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Eye className="h-4 w-4 text-purple-400" />
+                        <Eye className="icon-standard" />
                         <span>{featuredNews.views}</span>
                       </div>
                     </div>
                     
                     <Link href={featuredNews.slug ? `/news/${encodeURIComponent(featuredNews.slug)}` : `/news/redirect?slug=${encodeURIComponent(featuredNews.title)}`}>
-                      <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 shadow-lg shadow-purple-900/30">
+                      <Button className="bg-red-700 hover:bg-red-800 text-white transition-all duration-300 shadow-lg shadow-red-700/30">
                         Đọc Thêm
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -367,11 +366,11 @@ export default async function NewsPage() {
       </section>
 
       {/* News Grid - AI Style */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 bg-gray-50">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4">
+              <div className="w-10 h-10 rounded-lg bg-red-700 flex items-center justify-center mr-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -380,10 +379,10 @@ export default async function NewsPage() {
                   <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Tin Tức Mới Nhất</h2>
+              <h2 className="text-3xl font-bold text-red-700">Tin Tức Mới Nhất</h2>
             </div>
             <div className="hidden md:flex items-center">
-              <span className="h-[1px] w-24 bg-gradient-to-r from-purple-500 to-transparent"></span>
+              <span className="h-[1px] w-24 bg-gradient-to-r from-red-500 to-transparent"></span>
             </div>
           </div>
           
@@ -391,7 +390,7 @@ export default async function NewsPage() {
             {news.map((article, index) => (
               <Card
                 key={index}
-                className="group bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden"
+                className="group bg-white border-gray-200 hover:border-red-300 transition-all duration-500 hover:shadow-lg hover:shadow-red-200/20 backdrop-blur-sm overflow-hidden"
               >
                 {/* Thêm hình ảnh tin tức */}
                 <div className="relative aspect-video w-full overflow-hidden">
@@ -410,47 +409,47 @@ export default async function NewsPage() {
                         </Badge>
                       </div>
                       <div className="absolute bottom-3 right-3 z-20">
-                        <div className="flex items-center space-x-1 text-white/80 text-xs bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm">
-                          <Calendar className="h-3 w-3 text-cyan-400" />
+                        <div className="flex items-center space-x-1 text-white text-xs bg-red-700/80 px-2 py-1 rounded-full backdrop-blur-sm">
+                          <Calendar className="h-3 w-3 text-white" />
                           <span>{article.date}</span>
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="aspect-video bg-gradient-to-r from-purple-500/20 to-blue-500/20 flex items-center justify-center">
-                      <Newspaper className="h-12 w-12 text-white/40" />
+                    <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                      <Newspaper className="h-12 w-12 text-gray-400" />
                     </div>
                   )}
                 </div>
                 
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-lg leading-tight line-clamp-2 group-hover:text-cyan-300 transition-colors duration-300">
+                  <CardTitle className="text-red-700 text-lg leading-tight line-clamp-2 group-hover:text-red-800 transition-colors duration-300">
                     {article.title}
                   </CardTitle>
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
-                  <p className="text-white/70 text-sm leading-relaxed line-clamp-3">{article.excerpt}</p>
+                  <p className="text-black/70 text-sm leading-relaxed line-clamp-3">{article.excerpt}</p>
                   
-                  <div className="flex items-center justify-between text-white/60 text-xs">
+                  <div className="flex items-center justify-between text-black/60 text-xs">
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center space-x-1">
-                        <User className="h-3 w-3 text-purple-400" />
+                        <User className="h-3 w-3 text-red-700" />
                         <span>{article.author}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Clock className="h-3 w-3 text-purple-400" />
+                        <Clock className="h-3 w-3 text-red-700" />
                         <span>{article.readTime}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Eye className="h-3 w-3 text-purple-400" />
+                      <Eye className="h-3 w-3 text-red-700" />
                       <span>{article.views}</span>
                     </div>
                   </div>
                   
                   <Link href={article.slug ? `/news/${encodeURIComponent(article.slug)}` : `/news/redirect?slug=${encodeURIComponent(article.title)}`} className="w-full block">
-                    <Button variant="outline" className="w-full border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300 group-hover:border-cyan-500/50">
+                    <Button variant="outline" className="w-full border-gray-300 text-black hover:bg-red-50 hover:border-red-300 transition-all duration-300 group-hover:border-red-300">
                       <span className="mr-2">Đọc Thêm</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -466,18 +465,18 @@ export default async function NewsPage() {
       </section>
 
       {/* Newsletter Signup - AI Style */}
-      <section className="py-20 px-4 relative overflow-hidden">
+      <section className="py-20 px-4 relative overflow-hidden bg-white">
         {/* Background circuit pattern */}
         <div className="absolute inset-0 opacity-5">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M0 50h100M50 0v100" stroke="white" strokeWidth="0.5" fill="none" />
-                <circle cx="50" cy="50" r="3" fill="white" />
-                <circle cx="0" cy="50" r="3" fill="white" />
-                <circle cx="100" cy="50" r="3" fill="white" />
-                <circle cx="50" cy="0" r="3" fill="white" />
-                <circle cx="50" cy="100" r="3" fill="white" />
+                <path d="M0 50h100M50 0v100" stroke="black" strokeWidth="0.5" fill="none" />
+                <circle cx="50" cy="50" r="3" fill="black" />
+                <circle cx="0" cy="50" r="3" fill="black" />
+                <circle cx="100" cy="50" r="3" fill="black" />
+                <circle cx="50" cy="0" r="3" fill="black" />
+                <circle cx="50" cy="100" r="3" fill="black" />
               </pattern>
             </defs>
             <rect x="0" y="0" width="100%" height="100%" fill="url(#circuit-pattern)" />
@@ -487,37 +486,37 @@ export default async function NewsPage() {
         <div className="container mx-auto relative z-10">
           <div className="max-w-3xl mx-auto relative">
             {/* Decorative elements */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/20 rounded-tl-3xl"></div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
+            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-red-300 rounded-tl-3xl"></div>
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-red-300 rounded-br-3xl"></div>
             
-            <Card className="bg-black/60 border-none shadow-2xl shadow-purple-900/20 backdrop-blur-md overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-blue-600"></div>
+            <Card className="bg-white border-gray-200 shadow-2xl shadow-red-200/20 backdrop-blur-md overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-red-700"></div>
               
               <CardHeader className="text-center pt-10">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-700 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                     <polyline points="22,6 12,13 2,6"></polyline>
                   </svg>
                 </div>
-                <CardTitle className="text-white text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                <CardTitle className="text-red-700 text-3xl font-bold">
                   Đăng Ký Nhận Tin
                 </CardTitle>
-                <p className="text-white/80 mt-2 max-w-md mx-auto">
+                <p className="text-black/80 mt-2 max-w-md mx-auto">
                   Nhận thông tin cập nhật mới nhất về công nghệ AI và tự động hóa từ ApecGlobal Group
                 </p>
               </CardHeader>
               
               <CardContent className="space-y-6 p-8">
                 <div className="relative">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30"></div>
+                  <div className="absolute -inset-0.5 bg-red-200 rounded-lg blur opacity-30"></div>
                   <div className="relative flex flex-col sm:flex-row gap-4">
                     <input
                       type="email"
                       placeholder="Nhập địa chỉ email của bạn"
-                      className="flex-1 px-4 py-3 bg-black/70 border border-purple-500/30 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-500 backdrop-blur-sm"
+                      className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder:text-black/50 focus:outline-none focus:border-red-500 backdrop-blur-sm"
                     />
-                    <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 px-8 shadow-lg shadow-purple-900/30 transition-all duration-300">
+                    <Button className="bg-red-700 hover:bg-red-800 text-white px-8 shadow-lg shadow-red-700/30 transition-all duration-300">
                       <span className="mr-2">Đăng Ký</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -528,14 +527,14 @@ export default async function NewsPage() {
                 </div>
                 
                 <div className="flex items-center justify-center space-x-6 pt-2">
-                  <div className="flex items-center text-white/60 text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-cyan-400">
+                  <div className="flex items-center text-black/60 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-red-700">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     </svg>
                     <span>Bảo mật thông tin</span>
                   </div>
-                  <div className="flex items-center text-white/60 text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-purple-400">
+                  <div className="flex items-center text-black/60 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-red-700">
                       <polyline points="9 11 12 14 22 4"></polyline>
                       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import Image from "next/image"
-import { Brain, Shield, Heart, Clock, Cpu, ExternalLink, Users, Calendar, TrendingUp, Mail, Phone, MapPin } from "lucide-react"
+import { Brain, Shield, Heart, Clock, Cpu, ExternalLink, Users, Calendar, TrendingUp, Mail, Phone, MapPin, Globe } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Company } from "@/lib/schema"
 import { useApiCache } from "@/hooks/use-api-cache"
@@ -212,225 +212,190 @@ export default function CompaniesPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Companies Grid */}
-      <section id="companies-grid" className="py-16 px-4">
-        <div className="container mx-auto">
+      <section id="companies-grid" className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <Users className="w-4 h-4 mr-2" />
+              Công Ty Thành Viên
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Hệ Sinh Thái <span className="text-red-600">Công Nghệ</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Khám phá các công ty thành viên trong hệ sinh thái ApecGlobal, mỗi công ty chuyên sâu 
+              về một lĩnh vực công nghệ cụ thể
+            </p>
+          </div>
+
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500"></div>
             </div>
           ) : error ? (
             <div className="text-center py-20">
-              <div className="text-red-400 text-lg mb-4">
+              <div className="text-red-500 text-lg mb-4">
                 Không thể tải dữ liệu companies: {error}
               </div>
               <Button 
                 onClick={() => window.location.reload()} 
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                className="btn-primary"
               >
                 Thử lại
               </Button>
             </div>
           ) : companies.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-white/80 text-lg">
+              <div className="text-gray-600 text-lg">
                 Không có dữ liệu companies từ API
               </div>
             </div>
           ) : (
-            <div className="space-y-12">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {companies.map((company, index) => {
-              const IconComponent = company.icon
-              return (
-                <Card
-                  key={company.name}
-                  className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
-                >
-                  <div className="grid md:grid-cols-3 gap-8 p-8">
-                    {/* Company Info */}
-                    <div className="md:col-span-2 space-y-6">
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden ${
+                const IconComponent = company.icon
+                const colors = [
+                  { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                  { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                  { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                  { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                  { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' }
+                ]
+                const color = colors[index % colors.length]
+                
+                return (
+                  <div key={company.name} className="group relative">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
+                    
+                    <div className="relative card-feature p-6 bg-white rounded-2xl h-full flex flex-col">
+                      {/* Company Header */}
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${
                           company.logo_url 
-                            ? 'bg-gradient-to-br from-gray-50 to-white shadow-lg border-2 border-purple-200/50' 
-                            : 'bg-white/10'
+                            ? 'bg-white border-2 border-gray-200 shadow-sm' 
+                            : color.bg
                         }`}>
                           {company.logo_url ? (
                             <Image
                               src={company.logo_url}
                               alt={`${company.name} logo`}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-contain p-2"
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-contain p-1"
                             />
                           ) : (
-                            <div className={`w-full h-full rounded-full bg-gradient-to-r ${company.color} flex items-center justify-center`}>
-                              <IconComponent className="h-8 w-8 text-white" />
+                            <IconComponent className={`w-6 h-6 ${color.text}`} />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-red-600">{company.name}</h3>
+                          <p className="text-sm text-gray-600 truncate">{company.description}</p>
+                        </div>
+                      </div>
+
+                      {/* Company Info */}
+                      <div className="flex-1 space-y-4">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-gray-500" />
+                            <span className="text-gray-600">{company.founded}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Users className="w-4 h-4 text-gray-500" />
+                            <span className="text-gray-600">{company.employees}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <TrendingUp className="w-4 h-4 text-gray-500" />
+                            <span className="text-gray-600">{company.projects}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Globe className="w-4 h-4 text-gray-500" />
+                            <span className="text-gray-600 text-xs">{company.industry}</span>
+                          </div>
+                        </div>
+
+                        {/* Specialties */}
+                        <div className="flex flex-wrap gap-1">
+                          {company.specialties.slice(0, 3).map((specialty, idx) => (
+                            <div key={idx} className="inline-flex items-center px-2 py-1 bg-white shadow-md text-gray-700 rounded-full text-xs">
+                              {specialty}
+                            </div>
+                          ))}
+                          {company.specialties.length > 3 && (
+                            <div className="inline-flex items-center px-2 py-1 bg-white shadow-md text-gray-700 rounded-full text-xs">
+                              +{company.specialties.length - 3}
                             </div>
                           )}
                         </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-white">{company.name}</h3>
-                          <p className="text-purple-300">{company.description}</p>
-                        </div>
                       </div>
 
-                      <p className="text-white/80 text-lg leading-relaxed">{company.fullDescription}</p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {company.specialties.map((specialty, idx) => (
-                          <Badge key={idx} variant="outline" className="border-purple-500/30 text-purple-300">
-                            {specialty}
-                          </Badge>
-                        ))}
+                      {/* Action Button */}
+                      <div className="mt-6 pt-4 border-t border-gray-100">
+                        <Link href={company.href} className="block">
+                          <Button className="w-full btn-primary text-sm py-2">
+                            Tìm Hiểu Chi Tiết
+                            <ExternalLink className="ml-2 w-4 h-4" />
+                          </Button>
+                        </Link>
                       </div>
-
-                      <Link href={company.href} className="inline-block mt-4">
-                        <Button className={`bg-gradient-to-r ${company.color} hover:opacity-90 transition-opacity`}>
-                          Tìm Hiểu Chi Tiết
-                          <ExternalLink className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-
-                    {/* Company Stats */}
-                    <div className="space-y-4">
-                      <div className="bg-black/30 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Calendar className="h-4 w-4 text-purple-400" />
-                          <span className="text-white/60 text-sm">Thành lập</span>
-                        </div>
-                        <span className="text-white font-semibold">{company.founded}</span>
-                      </div>
-
-                      <div className="bg-black/30 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Users className="h-4 w-4 text-blue-400" />
-                          <span className="text-white/60 text-sm">Nhân viên</span>
-                        </div>
-                        <span className="text-white font-semibold">{company.employees}</span>
-                      </div>
-
-                      <div className="bg-black/30 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <TrendingUp className="h-4 w-4 text-green-400" />
-                          <span className="text-white/60 text-sm">Dự án</span>
-                        </div>
-                        <span className="text-white font-semibold">{company.projects}</span>
-                      </div>
-
-                      {/* Industry */}
-                      <div className="bg-black/30 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <TrendingUp className="h-4 w-4 text-purple-400" />
-                          <span className="text-white/60 text-sm">Ngành</span>
-                        </div>
-                        <span className="text-white font-semibold text-xs">{company.industry}</span>
-                      </div>
-
-                      {/* Contact Info */}
-                      {company.website && (
-                        <div className="bg-black/30 rounded-lg p-4">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <ExternalLink className="h-4 w-4 text-blue-400" />
-                            <span className="text-white/60 text-sm">Website</span>
-                          </div>
-                          <a 
-                            href={company.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 text-sm break-all"
-                          >
-                            {company.website}
-                          </a>
-                        </div>
-                      )}
-
-                      {company.email && (
-                        <div className="bg-black/30 rounded-lg p-4">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Mail className="h-4 w-4 text-green-400" />
-                            <span className="text-white/60 text-sm">Email</span>
-                          </div>
-                          <a 
-                            href={`mailto:${company.email}`}
-                            className="text-green-400 hover:text-green-300 text-sm break-all"
-                          >
-                            {company.email}
-                          </a>
-                        </div>
-                      )}
-
-                      {company.phone && (
-                        <div className="bg-black/30 rounded-lg p-4">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Phone className="h-4 w-4 text-yellow-400" />
-                            <span className="text-white/60 text-sm">Điện thoại</span>
-                          </div>
-                          <a 
-                            href={`tel:${company.phone}`}
-                            className="text-yellow-400 hover:text-yellow-300 text-sm"
-                          >
-                            {company.phone}
-                          </a>
-                        </div>
-                      )}
-
-                      {company.address && (
-                        <div className="bg-black/30 rounded-lg p-4">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <MapPin className="h-4 w-4 text-red-400" />
-                            <span className="text-white/60 text-sm">Địa chỉ</span>
-                          </div>
-                          <span className="text-white font-semibold text-xs">{company.address}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </Card>
-              )
-            })}
+                )
+              })}
             </div>
           )}
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto text-center">
-          <Card className="bg-black/50 border-purple-500/30 max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-white text-2xl">Quan Tâm Đến Việc Hợp Tác?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-white/80">
-                Chúng tôi luôn tìm kiếm những đối tác và nhân tài để cùng phát triển hệ sinh thái công nghệ ApecGlobal.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/contact">
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                    Liên Hệ Hợp Tác
-                  </Button>
-                </Link>
-                <Link href="/careers">
-                  <Button variant="outline" className="border-purple-500/30 text-white hover:bg-purple-500/20">
-                    Cơ Hội Nghề Nghiệp
-                  </Button>
-                </Link>
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              
+              <div className="relative card-feature p-12 bg-white rounded-2xl text-center">
+                <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                  <Users className="h-10 w-10 text-red-600" />
+                </div>
+                
+                <h2 className="heading-h2 text-red-600 mb-6">
+                  Quan Tâm Đến Việc Hợp Tác?
+                </h2>
+                
+                <p className="text-body-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+                  Chúng tôi luôn tìm kiếm những đối tác và nhân tài để cùng phát triển hệ sinh thái công nghệ ApecGlobal.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                  <Link href="/contact">
+                    <Button className="btn-primary text-lg px-8 py-4">
+                      Liên Hệ Hợp Tác
+                      <Mail className="ml-2 w-5 h-5" />
+                    </Button>
+                  </Link>
+                  
+                  <Link href="/careers">
+                    <Button variant="outline" className="btn-outline text-lg px-8 py-4">
+                      Cơ Hội Nghề Nghiệp
+                      <TrendingUp className="ml-2 w-5 h-5" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </section>
 

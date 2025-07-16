@@ -213,86 +213,77 @@ export default async function ServicesPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
 
       {/* Hero Carousel Section */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20"></div>
-        <div className="container mx-auto relative z-10">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 overflow-hidden">
+        <div className="hero-carousel-container relative z-10">
           <PageHeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       {/* Main Services - AI Style */}
-      <section id="main-services" className="py-20 px-4 relative">
-        {/* Background decoration */}
-        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-purple-900/10 to-transparent"></div>
-        
-        <div className="container mx-auto relative">
-          <div className="flex items-center justify-between mb-16">
-            <div className="flex items-center">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
-                  <path d="M12 2a10 10 0 0 1 10 10h-10V2z"></path>
-                  <path d="M12 12l0 10"></path>
-                  <path d="M12 12l10 0"></path>
-                </svg>
-              </div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                Dịch Vụ Chính
-              </h2>
+      <section id="main-services" className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium mb-6">
+              <Brain className="w-4 h-4 mr-2" />
+              Dịch Vụ Chính
             </div>
-            <div className="hidden md:block h-[1px] w-1/3 bg-gradient-to-r from-purple-500/50 to-transparent"></div>
+            <h2 className="heading-h2 mb-4">
+              Giải Pháp Công Nghệ <span className="text-red-600">AI Tiên Tiến</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Các giải pháp công nghệ AI cốt lõi được phát triển bởi đội ngũ chuyên gia hàng đầu, 
+              tích hợp trí tuệ nhân tạo và tự động hóa để tối ưu hóa quy trình kinh doanh của bạn.
+            </p>
           </div>
-          
-          <p className="text-white/70 text-lg max-w-2xl mb-16">
-            Các giải pháp công nghệ AI cốt lõi được phát triển bởi đội ngũ chuyên gia hàng đầu, 
-            tích hợp trí tuệ nhân tạo và tự động hóa để tối ưu hóa quy trình kinh doanh của bạn.
-          </p>
 
-          <div className="space-y-16">
+          <div className="space-y-12">
             {mainServices.map((service, index) => {
               const IconComponent = service.icon
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' }
+              ]
+              const color = colors[index % colors.length]
+              
               return (
-                <div key={index} className="relative group">
-                  {/* Decorative elements */}
-                  <div className="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 border-b-2 border-r-2 border-cyan-500/30 rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
                   
-                  <Card
-                    className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden"
-                  >
-                    <div className="grid lg:grid-cols-3 gap-8 p-8">
+                  <div className="relative card-feature p-8 bg-white rounded-2xl">
+                    <div className="grid lg:grid-cols-3 gap-8">
                       {/* Service Info */}
-                      <div className="lg:col-span-2 space-y-8">
+                      <div className="lg:col-span-2 space-y-6">
                         <div className="flex items-start space-x-6">
-                          <div
-                            className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${service.color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-purple-900/20`}
-                          >
-                            <IconComponent className="h-10 w-10 text-white" />
+                          <div className={`w-20 h-20 ${color.bg} rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500`}>
+                            <IconComponent className={`h-10 w-10 ${color.text}`} />
                           </div>
                           <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 mb-3">
-                              <h3 className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300">
+                              <h3 className="heading-h3 text-red-600 group-hover:text-red-700 transition-colors duration-300">
                                 {service.title}
                               </h3>
-                              <Badge className={`bg-gradient-to-r ${service.color} px-3 py-1 text-xs font-medium uppercase tracking-wider`}>
+                              <div className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
                                 {service.company}
-                              </Badge>
+                              </div>
                             </div>
-                            <p className="text-white/80 text-lg leading-relaxed mb-6">{service.description}</p>
+                            <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
                           </div>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-4">
                           {service.features.map((feature, idx) => (
                             <div key={idx} className="flex items-center space-x-3 group/feature">
-                              <div className="w-6 h-6 rounded-full bg-black/30 border border-green-500/30 flex items-center justify-center flex-shrink-0 group-hover/feature:bg-green-500/20 transition-colors duration-300">
-                                <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+                              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover/feature:bg-green-200 transition-colors duration-300">
+                                <CheckCircle className="w-4 h-4 text-green-600" />
                               </div>
-                              <span className="text-white/80 group-hover/feature:text-white transition-colors duration-300">{feature}</span>
+                              <span className="text-gray-700 group-hover/feature:text-red-600 transition-colors duration-300">{feature}</span>
                             </div>
                           ))}
                         </div>
@@ -301,44 +292,36 @@ export default async function ServicesPage() {
                       {/* Pricing & CTA */}
                       <div className="space-y-6">
                         <div className="relative">
-                          <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-cyan-600/30 rounded-xl blur opacity-30"></div>
-                          <div className="relative bg-black/60 rounded-xl p-6 text-center backdrop-blur-sm">
-                            <div className="text-3xl font-bold text-white mb-2">{service.price}</div>
-                            <p className="text-white/60 text-sm">Giá khởi điểm dự án</p>
+                          <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-xl opacity-20`}></div>
+                          <div className="relative card-standard p-6 text-center">
+                            <div className="heading-h3 text-red-600 mb-2">{service.price}</div>
+                            <p className="text-gray-500 text-body-sm">Giá khởi điểm dự án</p>
                           </div>
                         </div>
 
                         <div className="space-y-4">
                           <Link href={`/services/${service.slug}`} className="block">
-                            <Button
-                              className={`w-full bg-gradient-to-r ${service.color} hover:opacity-90 transition-all duration-300 shadow-lg shadow-purple-900/20`}
-                            >
+                            <Button className="w-full btn-primary">
                               <span className="mr-2">Tìm Hiểu Chi Tiết</span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                              </svg>
+                              <ArrowRight className="w-4 h-4" />
                             </Button>
                           </Link>
                           <Link href={`/services/demo/${service.slug}`} className="block">
-                            <Button
-                              variant="outline"
-                              className="w-full border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300"
-                            >
+                            <Button variant="outline" className="w-full btn-outline">
                               Yêu Cầu Demo
                             </Button>
                           </Link>
                         </div>
 
-                        <div className="flex items-center justify-center space-x-1 bg-black/30 py-2 px-3 rounded-lg">
+                        <div className="flex items-center justify-center space-x-1 bg-white py-2 px-3 rounded-lg shadow-md">
                           {[...Array(5)].map((_, i) => (
                             <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
                           ))}
-                          <span className="text-white/60 text-sm ml-2">4.9/5 (50+ reviews)</span>
+                          <span className="text-gray-600 text-sm ml-2">4.9/5 (50+ reviews)</span>
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </div>
               )
             })}
@@ -347,68 +330,58 @@ export default async function ServicesPage() {
       </section>
 
       {/* Additional Services - AI Style */}
-      <section className="py-20 px-4 relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-purple-900/5 to-black/0"></div>
-        
-        <div className="container mx-auto relative">
-          <div className="flex items-center justify-between mb-16">
-            <div className="flex items-center">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center mr-4 shadow-lg shadow-cyan-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-              </div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
-                Dịch Vụ Bổ Sung
-              </h2>
+      <section className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <Code className="w-4 h-4 mr-2" />
+              Dịch Vụ Bổ Sung
             </div>
-            <div className="hidden md:block h-[1px] w-1/3 bg-gradient-to-r from-cyan-500/50 to-transparent"></div>
+            <h2 className="heading-h2 mb-4">
+              Dịch Vụ <span className="text-red-600">Hỗ Trợ</span> Khác
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Các dịch vụ hỗ trợ và mở rộng để hoàn thiện giải pháp công nghệ AI, 
+              giúp doanh nghiệp của bạn tối ưu hóa hiệu suất và tăng tính cạnh tranh.
+            </p>
           </div>
-          
-          <p className="text-white/70 text-lg max-w-2xl mb-16">
-            Các dịch vụ hỗ trợ và mở rộng để hoàn thiện giải pháp công nghệ AI, 
-            giúp doanh nghiệp của bạn tối ưu hóa hiệu suất và tăng tính cạnh tranh.
-          </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-animation">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {additionalServices.map((service, index) => {
               const IconComponent = service.icon
+              const colors = [
+                { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' },
+                { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-100 to-orange-200' },
+                { bg: 'bg-pink-100', text: 'text-pink-600', gradient: 'from-pink-100 to-pink-200' }
+              ]
+              const color = colors[index % colors.length]
+              
               return (
-                <Card
-                  key={index}
-                  className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-cyan-900/20 backdrop-blur-sm overflow-hidden group"
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                <div key={index} className="group relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform`}></div>
                   
-                  <CardHeader className="text-center pt-8">
-                    <div className="relative w-20 h-20 mx-auto mb-6">
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse"></div>
-                      <div className="relative w-full h-full bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <IconComponent className="h-10 w-10 text-white" />
-                      </div>
+                  <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                    <div className={`w-20 h-20 ${color.bg} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500`}>
+                      <IconComponent className={`h-10 w-10 ${color.text}`} />
                     </div>
-                    <CardTitle className="text-xl text-white group-hover:text-cyan-300 transition-colors duration-300">
+                    
+                    <h3 className="heading-h4 text-red-600 mb-4 group-hover:text-red-700 transition-colors duration-300">
                       {service.title}
-                    </CardTitle>
-                  </CardHeader>
-                  
-                  <CardContent className="text-center pb-8">
-                    <p className="text-white/70 text-sm leading-relaxed mb-6">{service.description}</p>
+                    </h3>
+                    
+                    <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
+                    
                     <Link href={`/services/${service.slug || service.id}`}>
-                      <Button variant="outline" className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300">
+                      <Button variant="outline" className="btn-outline">
                         <span className="mr-2">Tìm Hiểu Thêm</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
-                          <line x1="5" y1="12" x2="19" y2="12"></line>
-                          <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
+                        <ArrowRight className="w-4 h-4" />
                       </Button>
                     </Link>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )
             })}
           </div>
@@ -416,67 +389,59 @@ export default async function ServicesPage() {
       </section>
 
       {/* Process Steps - AI Style */}
-      <section className="py-24 px-4 relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-cyan-900/5 to-black/0"></div>
-        
-        <div className="container mx-auto relative">
-          <div className="flex items-center justify-between mb-16">
-            <div className="flex items-center">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
-              </div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-                Quy Trình Làm Việc
-              </h2>
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-6">
+              <Target className="w-4 h-4 mr-2" />
+              Quy Trình Làm Việc
             </div>
-            <div className="hidden md:block h-[1px] w-1/3 bg-gradient-to-r from-purple-500/50 to-transparent"></div>
+            <h2 className="heading-h2 mb-4">
+              Quy Trình <span className="text-red-600">Chuyên Nghiệp</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Quy trình làm việc chuyên nghiệp và hiệu quả để đảm bảo dự án thành công, 
+              từ khâu tư vấn đến triển khai và hỗ trợ sau bán hàng
+            </p>
           </div>
-          
-          <p className="text-white/70 text-lg max-w-2xl mb-16">
-            4 bước đơn giản để biến ý tưởng thành hiện thực với công nghệ AI tiên tiến, 
-            được thiết kế để tối ưu hóa quy trình và đảm bảo kết quả xuất sắc.
-          </p>
 
           <div className="relative">
             {/* Connecting line for desktop */}
-            <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600/50 via-cyan-600/50 to-purple-600/50 transform -translate-y-1/2 z-0"></div>
+            <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-red-200 via-blue-200 to-green-200 transform -translate-y-1/2 z-0"></div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-6 relative z-10">
               {processSteps.map((step, index) => {
                 const IconComponent = step.icon
+                const colors = [
+                  { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-red-100 to-red-200' },
+                  { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-100 to-blue-200' },
+                  { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-100 to-green-200' },
+                  { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-100 to-purple-200' }
+                ]
+                const color = colors[index % colors.length]
+                
                 return (
                   <div key={index} className="relative group">
-                    {/* Vertical connecting line for mobile/tablet */}
-                    {index < processSteps.length - 1 && (
-                      <div className="md:block lg:hidden absolute top-[90px] bottom-[-60px] left-1/2 w-0.5 bg-gradient-to-b from-cyan-600/70 to-purple-600/30 transform -translate-x-1/2"></div>
-                    )}
-                    
                     <div className="text-center">
                       <div className="relative mb-8 inline-block">
-                        {/* Glowing effect */}
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600/30 to-cyan-600/30 blur-xl animate-pulse"></div>
-                        
                         {/* Main circle */}
-                        <div className="relative w-24 h-24 mx-auto bg-black/60 backdrop-blur-sm border border-purple-500/30 rounded-full flex items-center justify-center group-hover:border-cyan-500/50 transition-colors duration-500">
-                          <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-purple-900/30">
-                            <IconComponent className="h-10 w-10 text-white" />
+                        <div className="relative w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-500">
+                          <div className={`w-20 h-20 ${color.bg} rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500`}>
+                            <IconComponent className={`h-10 w-10 ${color.text}`} />
                           </div>
                         </div>
                         
                         {/* Step number */}
-                        <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-900/30 border-2 border-black">
+                        <div className="absolute -top-2 -right-2 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-white">
                           {step.step}
                         </div>
                       </div>
                       
-                      <h3 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors duration-300">
+                      <h3 className="heading-h4 text-red-600 mb-4 group-hover:text-red-700 transition-colors duration-300">
                         {step.title}
                       </h3>
                       
-                      <p className="text-white/70 text-sm leading-relaxed max-w-xs mx-auto">
+                      <p className="text-gray-600 leading-relaxed max-w-xs mx-auto">
                         {step.description}
                       </p>
                     </div>
@@ -488,191 +453,117 @@ export default async function ServicesPage() {
           
           {/* Action button */}
           <div className="mt-16 text-center">
-            <div className="relative inline-block">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-              <Button className="relative bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 px-8 py-3 text-lg shadow-lg shadow-purple-900/30">
+            <Link href="/contact">
+              <Button className="btn-primary px-8 py-3 text-lg">
                 Bắt Đầu Dự Án Ngay
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Stats Section - AI Style */}
-      <section className="py-20 px-4 relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-purple-900/5 to-black/0"></div>
-        
-        <div className="container mx-auto relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <TrendingUp className="h-8 w-8 text-purple-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">150+</div>
-                  <div className="text-white/60">Dự án AI hoàn thành</div>
-                </CardContent>
-              </Card>
+      <section className="section-standard">
+        <div className="container-standard">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-6">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Thống Kê Dịch Vụ
+            </div>
+            <h2 className="heading-h2 mb-4">
+              Thành Tựu <span className="text-red-600">Đáng Tự Hào</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
+              Những con số ấn tượng minh chứng cho chất lượng dịch vụ và sự tin tưởng của khách hàng
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <TrendingUp className="w-8 h-8 text-red-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">150+</div>
+                <div className="text-gray-600">Dự án AI hoàn thành</div>
+              </div>
             </div>
             
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <Users className="h-8 w-8 text-cyan-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">80+</div>
-                  <div className="text-white/60">Khách hàng hài lòng</div>
-                </CardContent>
-              </Card>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Users className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">80+</div>
+                <div className="text-gray-600">Khách hàng hài lòng</div>
+              </div>
             </div>
             
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <Award className="h-8 w-8 text-yellow-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">15+</div>
-                  <div className="text-white/60">Giải thưởng công nghệ</div>
-                </CardContent>
-              </Card>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Award className="w-8 h-8 text-green-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">15+</div>
+                <div className="text-gray-600">Giải thưởng công nghệ</div>
+              </div>
             </div>
             
-            <div className="group">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 text-center transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="p-8 relative">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <Globe className="h-8 w-8 text-green-400" />
-                  </div>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2 group-hover:animate-pulse">5+</div>
-                  <div className="text-white/60">Quốc gia triển khai</div>
-                </CardContent>
-              </Card>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+              <div className="relative card-feature p-8 bg-white rounded-2xl text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <Globe className="w-8 h-8 text-purple-600" />
+                </div>
+                <div className="text-3xl font-bold text-red-600 mb-2">5+</div>
+                <div className="text-gray-600">Quốc gia triển khai</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section - AI Style */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        {/* Background circuit pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M0 50h100M50 0v100" stroke="white" strokeWidth="0.5" fill="none" />
-                <circle cx="50" cy="50" r="3" fill="white" />
-                <circle cx="0" cy="50" r="3" fill="white" />
-                <circle cx="100" cy="50" r="3" fill="white" />
-                <circle cx="50" cy="0" r="3" fill="white" />
-                <circle cx="50" cy="100" r="3" fill="white" />
-              </pattern>
-            </defs>
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#circuit-pattern)" />
-          </svg>
-        </div>
-        
-        {/* AI Nodes Animation */}
-        <div className="absolute inset-0">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-cyan-400/40 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                boxShadow: '0 0 10px 2px rgba(45, 212, 191, 0.3)'
-              }}
-            ></div>
-          ))}
-        </div>
-        
-        <div className="container mx-auto relative z-10">
-          <div className="max-w-4xl mx-auto relative">
-            {/* Decorative elements */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/20 rounded-tl-3xl"></div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
-            
-            <Card className="bg-black/60 border-none shadow-2xl shadow-purple-900/20 backdrop-blur-md overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-blue-600"></div>
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
+        <div className="container-standard">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
               
-              <CardContent className="p-12 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center animate-pulse">
-                  <Rocket className="h-10 w-10 text-white" />
+              <div className="relative card-feature p-12 bg-white rounded-2xl text-center">
+                <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                  <Rocket className="h-10 w-10 text-red-600" />
                 </div>
                 
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent mb-6">
+                <h2 className="heading-h2 text-red-600 mb-6">
                   Sẵn Sàng Bắt Đầu Dự Án AI Của Bạn?
                 </h2>
                 
-                <p className="text-white/80 text-lg mb-10 max-w-2xl mx-auto">
-                  Hãy để <span className="text-cyan-400 font-semibold">ApecGlobal Group</span> đồng hành cùng bạn trong hành trình 
+                <p className="text-body-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+                  Hãy để <span className="text-red-600 font-semibold">ApecGlobal Group</span> đồng hành cùng bạn trong hành trình 
                   chuyển đổi số và phát triển công nghệ trí tuệ nhân tạo tiên tiến.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-                    <Button className="relative bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-lg px-8 py-4 transition-all duration-300 shadow-lg shadow-purple-900/30">
+                  <Link href="/contact">
+                    <Button className="btn-primary text-lg px-8 py-4">
                       Bắt Đầu Ngay
                       <Rocket className="ml-2 h-5 w-5" />
                     </Button>
-                  </div>
+                  </Link>
                   
                   <Link href="/contact">
-                    <Button
-                      variant="outline"
-                      className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 text-lg px-8 py-4 transition-all duration-300"
-                    >
+                    <Button variant="outline" className="btn-outline text-lg px-8 py-4">
                       Tư Vấn Miễn Phí
                     </Button>
                   </Link>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Process Section */}
-      <section id="process" className="py-20 px-4 relative">
-        <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Quy Trình Làm Việc
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {processSteps.map((step, index) => {
-              const IconComponent = step.icon
-              return (
-                <div key={index} className="relative">
-                  {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-purple-500/50 to-transparent z-0"></div>
-                  )}
-                  <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-300 relative z-10">
-                    <CardHeader className="text-center">
-                      <div className="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center mb-4">
-                        <IconComponent className="h-8 w-8 text-white" />
-                      </div>
-                      <div className="text-2xl font-bold text-purple-400 mb-2">{step.step}</div>
-                      <CardTitle className="text-white">{step.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-white/80 text-center">{step.description}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              )
-            })}
+              </div>
+            </div>
           </div>
         </div>
       </section>

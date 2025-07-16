@@ -195,39 +195,31 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   ];
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
+    <div className="min-h-screen bg-white text-black">
       <Header />
       
-      {/* Breadcrumb - AI Style */}
-      <section className="pt-8 px-4">
+      {/* Breadcrumb */}
+      <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto">
-          <div className="flex items-center text-white/60 text-sm">
-            <Link href="/" className="hover:text-cyan-400 transition-colors duration-300">Trang chủ</Link>
-            <span className="mx-2 text-purple-500/50">/</span>
-            <Link href="/services" className="hover:text-cyan-400 transition-colors duration-300">Dịch vụ</Link>
-            <span className="mx-2 text-purple-500/50">/</span>
-            <span className="text-cyan-400/80 truncate max-w-[200px]">{serviceData.title}</span>
+          <div className="flex items-center text-gray-600 text-sm">
+            <Link href="/" className="hover:text-red-600 transition-colors duration-300">Trang chủ</Link>
+            <span className="mx-2 text-gray-400">/</span>
+            <Link href="/services" className="hover:text-red-600 transition-colors duration-300">Dịch vụ</Link>
+            <span className="mx-2 text-gray-400">/</span>
+            <span className="text-red-600 truncate max-w-[200px]">{serviceData.title}</span>
           </div>
         </div>
       </section>
       
-      {/* Service Header - AI Style */}
-      <section className="py-16 px-4 relative">
-        {/* Background Animation Effect */}
-        <div className="absolute inset-0 bg-black/50">
-          <div className="absolute inset-0 opacity-10" style={{ 
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '24px 24px'
-          }}></div>
-        </div>
-        
-        <div className="container mx-auto relative">
+      {/* Service Header */}
+      <section className="py-16 px-4 bg-white shadow-lg">
+        <div className="container mx-auto">
           <Link 
             href="/services" 
-            className="inline-flex items-center text-white/60 hover:text-cyan-400 mb-8 transition-colors group"
+            className="inline-flex items-center text-gray-600 hover:text-red-600 mb-8 transition-colors group"
           >
-            <div className="w-8 h-8 rounded-full bg-black/30 border border-purple-500/30 flex items-center justify-center mr-2 group-hover:border-cyan-500/50 transition-colors duration-300">
-              <ArrowLeft className="h-4 w-4 group-hover:text-cyan-400 transition-colors duration-300" />
+            <div className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center mr-2 group-hover:shadow-lg transition-all duration-300">
+              <ArrowLeft className="h-4 w-4 group-hover:text-red-600 transition-colors duration-300" />
             </div>
             Quay lại danh sách dịch vụ
           </Link>
@@ -235,32 +227,29 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="flex flex-wrap items-center gap-3 mb-2">
-                <Badge className={`bg-gradient-to-r ${serviceData.gradient} px-3 py-1 text-xs font-medium uppercase tracking-wider`}>
+                <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                   {serviceData.category}
-                </Badge>
-                <div className="flex items-center space-x-1 bg-black/30 py-1 px-2 rounded-full">
+                </div>
+                <div className="flex items-center space-x-1 bg-white shadow-md py-1 px-2 rounded-full">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                    <Star key={i} className="h-3 w-3 text-yellow-600 fill-current" />
                   ))}
-                  <span className="text-white/60 text-xs ml-1">4.9/5</span>
+                  <span className="text-yellow-700 text-xs ml-1">4.9/5</span>
                 </div>
               </div>
               
               <div>
-                <div className="inline-block relative mb-2">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-cyan-600/30 rounded-lg blur opacity-30"></div>
-                  <h1 className="relative text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent leading-tight">
-                    {serviceData.title}
-                  </h1>
-                </div>
+                <h1 className="text-4xl md:text-5xl font-bold text-red-600 leading-tight mb-4">
+                  {serviceData.title}
+                </h1>
                 
-                <p className="text-white/80 text-lg leading-relaxed">
+                <p className="text-gray-600 text-lg leading-relaxed">
                   {serviceData.description}
                 </p>
               </div>
               
-              <div className="flex items-center p-4 bg-black/30 rounded-xl border border-purple-500/20 backdrop-blur-sm">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-purple-600/10 to-cyan-600/10 overflow-hidden relative flex-shrink-0 border border-purple-500/20">
+              <div className="flex items-center p-4 bg-white rounded-xl shadow-lg">
+                <div className="w-14 h-14 rounded-xl bg-white shadow-md overflow-hidden relative flex-shrink-0">
                   <Image 
                     src={serviceData.companyLogo} 
                     alt={serviceData.company}
@@ -269,30 +258,24 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   />
                 </div>
                 <div className="ml-4">
-                  <p className="text-white/60 text-sm">Cung cấp bởi</p>
-                  <p className="text-white font-medium">{serviceData.company}</p>
+                  <p className="text-gray-500 text-sm">Cung cấp bởi</p>
+                  <p className="text-gray-900 font-medium">{serviceData.company}</p>
                 </div>
               </div>
               
               <div className="flex flex-wrap gap-4">
-                <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-                  <Link href={`/services/demo/${serviceData.slug}`}>
-                    <Button className={`relative bg-gradient-to-r ${serviceData.gradient} hover:opacity-90 shadow-lg shadow-purple-900/20`}>
-                      <span className="mr-2">Yêu Cầu Demo</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                      </svg>
-                    </Button>
-                  </Link>
-                </div>
+                <Link href={`/services/demo/${serviceData.slug}`}>
+                  <Button className="bg-red-600 hover:bg-red-700 text-white">
+                    <span className="mr-2">Yêu Cầu Demo</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
                 
                 <Button 
                   variant="outline" 
-                  className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300"
+                  className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-300"
                 >
-                  <Phone className="mr-2 h-4 w-4 text-cyan-400" />
+                  <Phone className="mr-2 h-4 w-4" />
                   Liên Hệ Tư Vấn
                 </Button>
               </div>
@@ -300,7 +283,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-xl blur opacity-30"></div>
-              <div className="relative bg-black/60 rounded-xl p-8 border border-purple-500/30 backdrop-blur-sm">
+              <div className="relative bg-white rounded-xl p-8 border border-purple-500/30 backdrop-blur-sm">
                 <div className="flex items-center mb-6">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -308,7 +291,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 bg-clip-text text-transparent">
                     Tính Năng Nổi Bật
                   </h3>
                 </div>
@@ -316,10 +299,10 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 <div className="space-y-4">
                   {serviceData.features.map((feature, index) => (
                     <div key={index} className="flex items-start space-x-3 group">
-                      <div className="w-6 h-6 rounded-full bg-black/30 border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-green-500/20 transition-colors duration-300">
+                      <div className="w-6 h-6 rounded-full bg-white border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-green-500/20 transition-colors duration-300">
                         <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
                       </div>
-                      <p className="text-white/80 group-hover:text-white transition-colors duration-300">{feature}</p>
+                      <p className="text-gray-600 group-hover:text-cyan-600 transition-colors duration-300">{feature}</p>
                     </div>
                   ))}
                 </div>
@@ -327,7 +310,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 <div className="h-px w-full bg-gradient-to-r from-purple-500/30 via-cyan-500/30 to-purple-500/30 my-6"></div>
                 
                 <div className="text-center">
-                  <p className="text-white/60 mb-2">Giá khởi điểm từ</p>
+                  <p className="text-gray-500 mb-2">Giá khởi điểm từ</p>
                   <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-4">{serviceData.price}</p>
                   <Link href={`/services/demo/${serviceData.slug}`} className="w-full block">
                     <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 shadow-lg shadow-purple-900/20">
@@ -350,28 +333,28 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           <Tabs defaultValue="overview" className="w-full">
             <div className="relative max-w-2xl mx-auto mb-12">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-full blur opacity-30"></div>
-              <TabsList className="relative grid grid-cols-4 bg-black/60 border border-purple-500/30 rounded-full backdrop-blur-sm overflow-hidden">
+              <TabsList className="relative grid grid-cols-4 bg-white border border-purple-500/30 rounded-full backdrop-blur-sm overflow-hidden">
                 <TabsTrigger 
                   value="overview" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
                 >
                   Tổng Quan
                 </TabsTrigger>
                 <TabsTrigger 
                   value="benefits" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
                 >
                   Lợi Ích
                 </TabsTrigger>
                 <TabsTrigger 
                   value="process" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
                 >
                   Quy Trình
                 </TabsTrigger>
                 <TabsTrigger 
                   value="faq" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
                 >
                   FAQ
                 </TabsTrigger>
@@ -379,33 +362,33 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             </div>
             
             <TabsContent value="overview" className="mt-6 animate-fade-in-up">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
                 <CardContent className="p-8 md:p-10">
                   <div className="prose prose-invert prose-lg max-w-none">
                     <div dangerouslySetInnerHTML={{ __html: overviewContent.replace(/\n/g, '<br />') }} />
                   </div>
                   
                   <div className="grid md:grid-cols-3 gap-6 mt-16">
-                    <div className="group bg-black/30 p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                    <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                         <Shield className="h-8 w-8 text-purple-400" />
                       </div>
-                      <h3 className="text-white font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Bảo Mật Tối Đa</h3>
-                      <p className="text-white/70 text-sm">Hệ thống bảo mật đa lớp bảo vệ dữ liệu của bạn với công nghệ AI tiên tiến</p>
+                      <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Bảo Mật Tối Đa</h3>
+                      <p className="text-gray-600 text-sm">Hệ thống bảo mật đa lớp bảo vệ dữ liệu của bạn với công nghệ AI tiên tiến</p>
                     </div>
-                    <div className="group bg-black/30 p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                    <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                         <Zap className="h-8 w-8 text-cyan-400" />
                       </div>
-                      <h3 className="text-white font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Hiệu Suất Cao</h3>
-                      <p className="text-white/70 text-sm">Tối ưu hóa hiệu suất và tốc độ xử lý với thuật toán machine learning</p>
+                      <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Hiệu Suất Cao</h3>
+                      <p className="text-gray-600 text-sm">Tối ưu hóa hiệu suất và tốc độ xử lý với thuật toán machine learning</p>
                     </div>
-                    <div className="group bg-black/30 p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                    <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                         <Users className="h-8 w-8 text-green-400" />
                       </div>
-                      <h3 className="text-white font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Hỗ Trợ 24/7</h3>
-                      <p className="text-white/70 text-sm">Đội ngũ chuyên gia và hệ thống AI chatbot luôn sẵn sàng hỗ trợ</p>
+                      <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Hỗ Trợ 24/7</h3>
+                      <p className="text-gray-600 text-sm">Đội ngũ chuyên gia và hệ thống AI chatbot luôn sẵn sàng hỗ trợ</p>
                     </div>
                   </div>
                 </CardContent>
@@ -413,7 +396,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             </TabsContent>
             
             <TabsContent value="benefits" className="mt-6 animate-fade-in-up">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
                 <CardContent className="p-8 md:p-10">
                   <div className="flex items-center mb-8">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
@@ -421,7 +404,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 bg-clip-text text-transparent">
                       Lợi Ích Khi Sử Dụng Dịch Vụ
                     </h3>
                   </div>
@@ -433,7 +416,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                           <CheckCircle className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-white/90 text-lg group-hover:text-cyan-300 transition-colors duration-300">{benefit}</p>
+                          <p className="text-gray-800 text-lg group-hover:text-cyan-300 transition-colors duration-300">{benefit}</p>
                         </div>
                       </div>
                     ))}
@@ -441,14 +424,14 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   
                   <div className="mt-12 relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-xl blur opacity-30"></div>
-                    <div className="relative bg-black/60 p-6 rounded-xl border border-yellow-500/20 backdrop-blur-sm">
+                    <div className="relative bg-white p-6 rounded-xl border border-yellow-500/20 backdrop-blur-sm">
                       <div className="flex items-center space-x-3 mb-4">
                         <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-yellow-600 to-orange-600 flex items-center justify-center shadow-lg shadow-yellow-900/20">
                           <Award className="h-5 w-5 text-white" />
                         </div>
-                        <h3 className="text-xl font-bold bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent">Cam Kết Chất Lượng</h3>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-yellow-800 to-yellow-400 bg-clip-text text-transparent">Cam Kết Chất Lượng</h3>
                       </div>
-                      <p className="text-white/70">
+                      <p className="text-gray-600">
                         Chúng tôi cam kết cung cấp dịch vụ chất lượng cao nhất với sự hài lòng của khách hàng là ưu tiên hàng đầu. 
                         Nếu bạn không hài lòng với dịch vụ của chúng tôi trong 30 ngày đầu tiên, chúng tôi sẽ hoàn tiền 100%.
                       </p>
@@ -459,7 +442,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             </TabsContent>
             
             <TabsContent value="process" className="mt-6 animate-fade-in-up">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
                 <CardContent className="p-8 md:p-10">
                   <div className="flex items-center mb-12">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
@@ -467,7 +450,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 bg-clip-text text-transparent">
                       Quy Trình Triển Khai AI
                     </h3>
                   </div>
@@ -489,8 +472,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             </div>
                           </div>
                           <div className="pt-1">
-                            <h4 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300">{step.title}</h4>
-                            <p className="text-white/70 leading-relaxed">{step.description}</p>
+                            <h4 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-300">{step.title}</h4>
+                            <p className="text-gray-600 leading-relaxed">{step.description}</p>
                           </div>
                         </div>
                       </div>
@@ -499,10 +482,10 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   
                   <div className="mt-16 relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-xl blur opacity-30"></div>
-                    <div className="relative bg-black/60 p-6 rounded-xl border border-purple-500/20 backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="relative bg-white p-6 rounded-xl border border-purple-500/20 backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-6">
                       <div>
                         <h4 className="text-xl font-bold bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">Sẵn sàng bắt đầu?</h4>
-                        <p className="text-white/70">Liên hệ với chúng tôi ngay hôm nay để bắt đầu quy trình triển khai AI</p>
+                        <p className="text-gray-600">Liên hệ với chúng tôi ngay hôm nay để bắt đầu quy trình triển khai AI</p>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-4">
                         <Button className={`bg-gradient-to-r ${serviceData.gradient} hover:opacity-90 shadow-lg shadow-purple-900/20`}>
@@ -511,7 +494,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300"
+                          className="border-purple-500/30 text-gray-900 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300"
                         >
                           <FileText className="mr-2 h-4 w-4 text-cyan-400" />
                           Tải Tài Liệu
@@ -524,7 +507,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             </TabsContent>
             
             <TabsContent value="faq" className="mt-6 animate-fade-in-up">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden">
                 <CardContent className="p-8 md:p-10">
                   <div className="flex items-center mb-12">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
@@ -534,7 +517,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 bg-clip-text text-transparent">
                       Câu Hỏi Thường Gặp
                     </h3>
                   </div>
@@ -543,16 +526,16 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     {faqItems.map((item, index) => (
                       <div key={index} className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                        <div className="relative bg-black/60 p-6 rounded-xl border border-purple-500/20 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
-                          <h4 className="text-white font-medium mb-3 group-hover:text-cyan-300 transition-colors duration-300">{item.question}</h4>
-                          <p className="text-white/70">{item.answer}</p>
+                        <div className="relative bg-white p-6 rounded-xl border border-purple-500/20 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+                          <h4 className="text-gray-900 font-medium mb-3 group-hover:text-cyan-300 transition-colors duration-300">{item.question}</h4>
+                          <p className="text-gray-600">{item.answer}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                   
                   <div className="mt-12 text-center">
-                    <p className="text-white/70 mb-6">Bạn có câu hỏi khác? Hãy liên hệ với chúng tôi</p>
+                    <p className="text-gray-600 mb-6">Bạn có câu hỏi khác? Hãy liên hệ với chúng tôi</p>
                     <div className="relative inline-block">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
                       <Button className="relative bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 shadow-lg shadow-purple-900/30">
@@ -587,7 +570,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     <line x1="12" y1="22.08" x2="12" y2="12"></line>
                   </svg>
                 </div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 bg-clip-text text-transparent">
                   Dịch Vụ Liên Quan
                 </h2>
               </div>
@@ -597,18 +580,18 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             <div className="grid md:grid-cols-3 gap-6 stagger-animation">
               {relatedServices.map((relatedService, index) => (
                 <Link href={`/services/${relatedService.slug || relatedService.id}`} key={index} className="group">
-                  <Card className="bg-black/50 border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden h-full">
+                  <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm overflow-hidden h-full">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                     
                     <CardContent className="p-6">
                       <Badge className={`bg-gradient-to-r ${getCompanyGradient(relatedService.company_name)} px-3 py-1 text-xs font-medium uppercase tracking-wider mb-3`}>
                         {relatedService.company_name}
                       </Badge>
-                      <h3 className="text-white font-medium mb-3 line-clamp-2 group-hover:text-cyan-300 transition-colors duration-300">{relatedService.title}</h3>
-                      <p className="text-white/60 text-sm mb-6 line-clamp-3">{relatedService.description}</p>
+                      <h3 className="text-gray-900 font-medium mb-3 line-clamp-2 group-hover:text-cyan-300 transition-colors duration-300">{relatedService.title}</h3>
+                      <p className="text-gray-600 text-sm mb-6 line-clamp-3">{relatedService.description}</p>
                       <Button 
                         variant="outline" 
-                        className="w-full border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300"
+                        className="w-full border-purple-500/30 text-gray-900 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 hover:border-cyan-500/50 transition-all duration-300"
                       >
                         <span className="mr-2">Xem Chi Tiết</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
@@ -668,7 +651,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
             
             <Card className={`bg-gradient-to-r ${serviceData.gradient} border-none shadow-2xl shadow-purple-900/20 overflow-hidden`}>
-              <div className="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
+              <div className="absolute inset-0 bg-white backdrop-blur-sm"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/20"></div>
               
               <CardContent className="p-12 text-center relative">
@@ -680,12 +663,12 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   </svg>
                 </div>
                 
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 drop-shadow-md">
+                <h2 className="text-3xl md:text-4xl font-bold text-red-600 mb-6 drop-shadow-md">
                   Sẵn sàng nâng cấp doanh nghiệp với AI?
                 </h2>
                 
-                <p className="text-white/90 text-lg mb-10 max-w-2xl mx-auto drop-shadow-md">
-                  Liên hệ với chúng tôi ngay hôm nay để được tư vấn miễn phí và nhận báo giá chi tiết cho dịch vụ <span className="font-semibold">{serviceData.title}</span>.
+                <p className="text-gray-800 text-lg mb-10 max-w-2xl mx-auto drop-shadow-md">
+                  Liên hệ với chúng tôi ngay hôm nay để được tư vấn miễn phí và nhận báo giá chi tiết cho dịch vụ <span className="font-semibold text-red-600">{serviceData.title}</span>.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row justify-center gap-6">
@@ -697,7 +680,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   <Link href={`/services/demo/${serviceData.slug}`}>
                     <Button 
                       variant="outline" 
-                      className="border-white text-white hover:bg-white/10 backdrop-blur-sm group"
+                      className="text-red-600 hover:text-white bg-white/10 backdrop-blur-sm group" 
                     >
                       <span className="mr-2">Yêu Cầu Demo</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">

@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import Link from "next/link"
+import DocumentPreviewModal from "@/components/document-preview-modal"
 import {
   FileText,
   Search,
@@ -42,6 +43,7 @@ import {
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { format } from 'date-fns';
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 // Define document type
 interface Document {
@@ -96,6 +98,8 @@ export default function DocumentsPage() {
   const [breadcrumbs, setBreadcrumbs] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [draggedDocumentId, setDraggedDocumentId] = useState<number | null>(null)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [previewDocument, setPreviewDocument] = useState<Document | null>(null)
 
   // Fetch user info on component mount
   useEffect(() => {
@@ -166,6 +170,16 @@ export default function DocumentsPage() {
       (doc.category && doc.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (doc.description && doc.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Pagination
+  const {
+    currentPage,
+    totalPages,
+    currentItems: paginatedDocuments, 
+    totalItems,
+    itemsPerPage,
+    goToPage
+  } = usePagination(filteredDocuments, 12);
 
   // Get file icon based on file type
   const getFileIcon = (type: string) => {
@@ -454,38 +468,49 @@ export default function DocumentsPage() {
 
   // Handle view document
   const handleViewDocument = (doc: Document) => {
-    window.open(doc.file_url, '_blank');
+    setPreviewDocument(doc);
+    setShowPreviewModal(true);
   };
 
   // Handle download document
   const handleDownloadDocument = async (doc: Document) => {
     try {
-      // Call the download API to increment the download count
-      const response = await fetch(`/api/documents/download?id=${doc.id}`);
+      toast.info('Đang chuẩn bị tải xuống...');
+      
+      // Use the proxy endpoint to get the file
+      const proxyUrl = `/api/documents/proxy?id=${doc.id}`;
+      
+      // Fetch the file through proxy
+      const response = await fetch(proxyUrl);
       
       if (!response.ok) {
-        throw new Error('Download failed');
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      const data = await response.json();
+      // Get the file as blob
+      const blob = await response.blob();
       
       // Create a temporary link and trigger download
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = doc.file_url;
+      link.href = url;
       link.setAttribute('download', doc.name);
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
-      // Update the document in the list with the new download count
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      // Update the document in the list with incremented download count
       setDocuments(documents.map(d => 
-        d.id === doc.id ? { ...d, download_count: data.document.download_count } : d
+        d.id === doc.id ? { ...d, download_count: d.download_count + 1 } : d
       ));
       
-      toast.success(`Đang tải xuống: ${doc.name}`);
+      toast.success(`Tải xuống thành công: ${doc.name}`);
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Không thể tải xuống tài liệu. Vui lòng thử lại.');
+      toast.error(`Không thể tải xuống tài liệu: ${error.message}`);
     }
   };
 
@@ -829,7 +854,7 @@ export default function DocumentsPage() {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {filteredDocuments
+                  {paginatedDocuments
                     .filter(doc => {
                       // Filter documents based on current folder
                       if (!currentFolder) {
@@ -901,7 +926,7 @@ export default function DocumentsPage() {
                                 className="bg-transparent border-2 border-blue-500/50 text-blue-300 hover:bg-blue-500/20"
                               >
                                 <Eye className="h-4 w-4 mr-2" />
-                                Xem
+                                Preview
                               </Button>
                               <Button
                                 onClick={() => handleDownloadDocument(doc)}
@@ -935,6 +960,19 @@ export default function DocumentsPage() {
                         </CardContent>
                       </Card>
                     ))}
+                </div>
+              )}
+              
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={goToPage}
+                  />
                 </div>
               )}
             </div>
@@ -1222,6 +1260,18 @@ export default function DocumentsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Document Preview Modal */}
+        <DocumentPreviewModal
+          document={previewDocument}
+          isOpen={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewDocument(null);
+          }}
+          onDownload={handleDownloadDocument}
+          onShare={handleShareDocument}
+        />
       </div>
     </InternalLayout>
   )

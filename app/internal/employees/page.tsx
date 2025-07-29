@@ -1,674 +1,705 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Link from "next/link"
-import { Search, Filter, Plus, ArrowLeft, Mail, Phone, Calendar, Edit, Trash2, Eye, Download, Users, Shield, Settings } from "lucide-react"
+import { useState, useEffect } from "react"
 import InternalLayout from "@/components/internal-layout"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { 
+  Plus, 
+  Search, 
+  Users, 
+  Building2, 
+  Mail, 
+  Phone, 
+  Calendar,
+  Edit,
+  Loader2,
+  UserCheck,
+  UserX,
+  Briefcase
+} from "lucide-react"
+import Image from "next/image"
+import { toast } from "sonner"
+import { Pagination, usePagination } from "@/components/ui/pagination"
 
-// TypeScript interfaces
 interface Employee {
-  id: number;
-  name: string;
-  position: string;
-  department: string;
-  email: string;
-  phone: string;
-  joinDate: string;
-  status: "active" | "leave" | "inactive";
-  avatar: string;
+  id: number
+  name: string
+  email: string
+  phone: string
+  position: string
+  department_id: number
+  department_name: string
+  company_id: number
+  company_name: string
+  company_logo: string
+  join_date: string
+  status: string
+  avatar_url: string
+  salary: number
+  manager_id: number
+  manager_name: string
+  address: string
+  birthday: string
+  education: string
+  skills: string[]
+  bio: string
 }
 
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: "admin" | "manager" | "user";
-  isActive: boolean;
-  lastLogin: string;
-  permissions: string[];
-  employeeId: number;
-  employeeName: string;
+interface Company {
+  id: number
+  name: string
+  logo_url: string
 }
 
 interface Department {
-  name: string;
-  count: number;
-  color: string;
+  id: number
+  name: string
+  company_id: number
+  company_name: string
 }
 
-export default function EmployeesPage() {
-  const [currentPage, setCurrentPage] = useState(1)
+function EmployeesManagementContent() {
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedDepartment, setSelectedDepartment] = useState("Tất cả")
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [activeTab, setActiveTab] = useState("employees")
+  const [selectedCompany, setSelectedCompany] = useState("all")
+  const [selectedStatus, setSelectedStatus] = useState("all")
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
+  const [creating, setCreating] = useState(false)
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    position: "",
+    department_id: "",
+    company_id: "",
+    join_date: "",
+    status: "active",
+    salary: "",
+    manager_id: "",
+    address: "",
+    birthday: "",
+    education: "",
+    skills: [] as string[],
+    bio: ""
+  })
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("internal_user");
-    if (savedUser) {
-      setIsAdmin(savedUser === "admin");
+    fetchEmployees()
+    fetchCompanies()
+    fetchDepartments()
+  }, [])
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch('/api/employees')
+      const result = await response.json()
+      if (result.success) {
+        // API trả về { data: { employees: [...], pagination: {...} } }
+        setEmployees(result.data.employees || [])
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error)
+      toast.error('Không thể tải danh sách nhân viên')
+    } finally {
+      setLoading(false)
     }
-  }, []);
+  }
 
-  const employees: Employee[] = [
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      position: "Senior AI Engineer",
-      department: "ApecTech",
-      email: "nguyen.a@apectech.com",
-      phone: "+84 123 456 789",
-      joinDate: "15/03/2022",
-      status: "active",
-      avatar: "NA",
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      position: "Security Specialist",
-      department: "GuardCam",
-      email: "tran.b@guardcam.com",
-      phone: "+84 123 456 790",
-      joinDate: "20/06/2022",
-      status: "active",
-      avatar: "TB",
-    },
-    {
-      id: 3,
-      name: "Lê Văn C",
-      position: "Frontend Developer",
-      department: "EmoCommerce",
-      email: "le.c@emocommerce.com",
-      phone: "+84 123 456 791",
-      joinDate: "10/01/2023",
-      status: "active",
-      avatar: "LC",
-    },
-    {
-      id: 4,
-      name: "Phạm Thị D",
-      position: "Data Scientist",
-      department: "TimeLoop",
-      email: "pham.d@timeloop.com",
-      phone: "+84 123 456 792",
-      joinDate: "05/08/2023",
-      status: "active",
-      avatar: "PD",
-    },
-    {
-      id: 5,
-      name: "Hoàng Văn E",
-      position: "DevOps Engineer",
-      department: "ApecNeuroOS",
-      email: "hoang.e@apecneuroos.com",
-      phone: "+84 123 456 793",
-      joinDate: "12/11/2023",
-      status: "active",
-      avatar: "HE",
-    },
-    {
-      id: 6,
-      name: "Vũ Thị F",
-      position: "Product Manager",
-      department: "ApecGlobal",
-      email: "vu.f@apecglobal.com",
-      phone: "+84 123 456 794",
-      joinDate: "18/02/2024",
-      status: "leave",
-      avatar: "VF",
-    },
-    {
-      id: 7,
-      name: "Đỗ Văn G",
-      position: "UI/UX Designer",
-      department: "ApecTech",
-      email: "do.g@apectech.com",
-      phone: "+84 123 456 795",
-      joinDate: "10/03/2024",
-      status: "active",
-      avatar: "DG",
-    },
-    {
-      id: 8,
-      name: "Bùi Thị H",
-      position: "Marketing Manager",
-      department: "ApecGlobal",
-      email: "bui.h@apecglobal.com",
-      phone: "+84 123 456 796",
-      joinDate: "15/04/2024",
-      status: "active",
-      avatar: "BH",
-    },
-  ]
-
-  // Mock data cho users (chỉ admin mới thấy)
-  const users: User[] = [
-    {
-      id: 1,
-      username: "admin",
-      email: "admin@apecglobal.com",
-      role: "admin",
-      isActive: true,
-      lastLogin: "2024-01-20T10:30:00",
-      permissions: ["admin", "portal_access", "user_management", "content_management"],
-      employeeId: 1,
-      employeeName: "Nguyễn Văn A"
-    },
-    {
-      id: 2,
-      username: "manager1",
-      email: "manager1@apecglobal.com",
-      role: "manager",
-      isActive: true,
-      lastLogin: "2024-01-19T14:15:00",
-      permissions: ["portal_access", "team_management", "project_management"],
-      employeeId: 2,
-      employeeName: "Trần Thị B"
-    },
-    {
-      id: 3,
-      username: "user1",
-      email: "user1@apecglobal.com",
-      role: "user",
-      isActive: true,
-      lastLogin: "2024-01-18T09:45:00",
-      permissions: ["portal_access", "view_reports"],
-      employeeId: 6,
-      employeeName: "Vũ Thị F"
-    },
-    {
-      id: 4,
-      username: "user2",
-      email: "user2@apecglobal.com",
-      role: "user",
-      isActive: false,
-      lastLogin: "2024-01-10T16:20:00",
-      permissions: ["portal_access"],
-      employeeId: 7,
-      employeeName: "Đặng Văn G"
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch('/api/companies')
+      const result = await response.json()
+      if (result.success) {
+        setCompanies(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error)
     }
-  ]
+  }
 
-  const departments: Department[] = [
-    { name: "Tất cả", count: employees.length, color: "bg-gray-600" },
-    { name: "ApecTech", count: employees.filter((e) => e.department === "ApecTech").length, color: "bg-blue-600" },
-    { name: "GuardCam", count: employees.filter((e) => e.department === "GuardCam").length, color: "bg-green-600" },
-    {
-      name: "EmoCommerce",
-      count: employees.filter((e) => e.department === "EmoCommerce").length,
-      color: "bg-pink-600",
-    },
-    { name: "TimeLoop", count: employees.filter((e) => e.department === "TimeLoop").length, color: "bg-orange-600" },
-    {
-      name: "ApecNeuroOS",
-      count: employees.filter((e) => e.department === "ApecNeuroOS").length,
-      color: "bg-purple-600",
-    },
-    { name: "ApecGlobal", count: employees.filter((e) => e.department === "ApecGlobal").length, color: "bg-cyan-600" },
-  ]
+  const fetchDepartments = async () => {
+    try {
+      const response = await fetch('/api/departments')
+      const result = await response.json()
+      if (result.success) {
+        setDepartments(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error)
+    }
+  }
 
-  // Filter employees based on search and department
+  const handleCreate = () => {
+    setEditingEmployee(null)
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      position: "",
+      department_id: "",
+      company_id: "",
+      join_date: "",
+      status: "active",
+      salary: "",
+      manager_id: "",
+      address: "",
+      birthday: "",
+      education: "",
+      skills: [],
+      bio: ""
+    })
+    setShowCreateModal(true)
+  }
+
+  const handleEdit = (employee: Employee) => {
+    setEditingEmployee(employee)
+    setFormData({
+      name: employee.name,
+      email: employee.email,
+      phone: employee.phone || "",
+      position: employee.position || "",
+      department_id: employee.department_id?.toString() || "",
+      company_id: employee.company_id.toString(),
+      join_date: employee.join_date ? employee.join_date.split('T')[0] : "",
+      status: employee.status,
+      salary: employee.salary?.toString() || "",
+      manager_id: employee.manager_id?.toString() || "",
+      address: employee.address || "",
+      birthday: employee.birthday ? employee.birthday.split('T')[0] : "",
+      education: employee.education || "",
+      skills: employee.skills || [],
+      bio: employee.bio || ""
+    })
+    setShowCreateModal(true)
+  }
+
+  const handleSave = async () => {
+    if (!formData.name || !formData.email || !formData.company_id) {
+      toast.error('Vui lòng nhập tên, email và chọn công ty')
+      return
+    }
+
+    setCreating(true)
+    try {
+      const url = editingEmployee ? `/api/employees/${editingEmployee.id}` : '/api/employees'
+      const method = editingEmployee ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          salary: parseFloat(formData.salary) || null,
+          department_id: formData.department_id ? parseInt(formData.department_id) : null,
+          company_id: parseInt(formData.company_id),
+          manager_id: formData.manager_id ? parseInt(formData.manager_id) : null
+        })
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setShowCreateModal(false)
+        fetchEmployees()
+        toast.success(`${editingEmployee ? 'Cập nhật' : 'Tạo'} nhân viên thành công!`)
+      } else {
+        toast.error('Lỗi: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error saving employee:', error)
+      toast.error('Lỗi kết nối server')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  // Filter employees
   const filteredEmployees = employees.filter((employee) => {
-    const matchesSearch =
+    const matchesSearch = 
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.position.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesDepartment = selectedDepartment === "Tất cả" || employee.department === selectedDepartment
-    return matchesSearch && matchesDepartment
+      employee.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (employee.position && employee.position.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesCompany = selectedCompany === "all" || employee.company_id.toString() === selectedCompany
+    const matchesStatus = selectedStatus === "all" || employee.status === selectedStatus
+    
+    return matchesSearch && matchesCompany && matchesStatus
   })
 
   // Pagination
-  const itemsPerPage = 4
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedEmployees = filteredEmployees.slice(startIndex, startIndex + itemsPerPage)
+  const {
+    currentPage,
+    totalPages,
+    currentItems: paginatedEmployees,
+    totalItems,
+    itemsPerPage,
+    goToPage
+  } = usePagination(filteredEmployees, 10)
 
-  const getStatusColor = (status: Employee['status']) => {
-    switch (status) {
-      case "active":
-        return "bg-green-600"
-      case "leave":
-        return "bg-orange-600"
-      case "inactive":
-        return "bg-red-600"
-      default:
-        return "bg-gray-600"
-    }
+  // Calculate stats
+  const totalEmployees = employees.length
+  const activeEmployees = employees.filter(e => e.status === 'active').length
+  const inactiveEmployees = employees.filter(e => e.status === 'inactive').length
+  const companiesWithEmployees = [...new Set(employees.map(e => e.company_id))].length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <span className="ml-2 text-white">Đang tải nhân viên...</span>
+      </div>
+    )
   }
-
-  const getStatusText = (status: Employee['status']) => {
-    switch (status) {
-      case "active":
-        return "Đang làm việc"
-      case "leave":
-        return "Nghỉ phép"
-      case "inactive":
-        return "Không hoạt động"
-      default:
-        return "Không xác định"
-    }
-  }
-
-  const getDepartmentColor = (department: Employee['department']) => {
-    switch (department) {
-      case "ApecTech":
-        return "bg-blue-500/10 text-blue-300 border-blue-500/30"
-      case "GuardCam":
-        return "bg-green-500/10 text-green-300 border-green-500/30"
-      case "EmoCommerce":
-        return "bg-pink-500/10 text-pink-300 border-pink-500/30"
-      case "TimeLoop":
-        return "bg-orange-500/10 text-orange-300 border-orange-500/30"
-      case "ApecNeuroOS":
-        return "bg-purple-500/10 text-purple-300 border-purple-500/30"
-      case "ApecGlobal":
-        return "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
-      default:
-        return "bg-gray-500/10 text-gray-300 border-gray-500/30"
-    }
-  }
-
-  const handleAddEmployee = () => {
-    setShowAddModal(true)
-  }
-
-  const handleEditEmployee = (employee: Employee) => {
-    setSelectedEmployee(employee)
-    setShowEditModal(true)
-  }
-
-  const handleDeleteEmployee = (employeeId: number) => {
-    if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
-      // Implement delete logic here
-      alert(`Đã xóa nhân viên ID: ${employeeId}`)
-    }
-  }
-
-  const handleViewEmployee = (employee: Employee) => {
-    alert(`Xem chi tiết nhân viên: ${employee.name}`)
-  }
-
-  const handleExportExcel = () => {
-    alert("Đang xuất file Excel...")
-  }
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-
-  // Helper functions for users
-  const getRoleColor = (role: User['role']) => {
-    switch (role) {
-      case 'admin': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'manager': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'user': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    }
-  };
-
-  const getRoleText = (role: User['role']) => {
-    switch (role) {
-      case 'admin': return 'Quản trị viên';
-      case 'manager': return 'Quản lý';
-      case 'user': return 'Người dùng';
-      default: return 'Không xác định';
-    }
-  };
 
   return (
-    <InternalLayout>
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center space-x-2 mb-8">
-          <Link href="/internal/dashboard">
-            <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-          </Link>
-          <span className="text-white/40">/</span>
-          <span className="text-white">Quản Lý Nhân Viên</span>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Quản Lý Nhân Viên
+          </h1>
+          <p className="text-white/80">Quản lý thông tin nhân viên của tất cả các công ty</p>
         </div>
+        <Button
+          onClick={handleCreate}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Thêm Nhân Viên
+        </Button>
+      </div>
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Quản Lý Nhân Viên & Người Dùng</h1>
-            <p className="text-white/60">Quản lý thông tin nhân viên và tài khoản người dùng</p>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-black/50 border-purple-500/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm">Tổng Nhân Viên</p>
+                <p className="text-2xl font-bold text-white">{totalEmployees}</p>
+              </div>
+              <Users className="h-8 w-8 text-purple-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/50 border-green-500/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm">Đang Hoạt Động</p>
+                <p className="text-2xl font-bold text-white">{activeEmployees}</p>
+              </div>
+              <UserCheck className="h-8 w-8 text-green-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/50 border-red-500/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm">Không Hoạt Động</p>
+                <p className="text-2xl font-bold text-white">{inactiveEmployees}</p>
+              </div>
+              <UserX className="h-8 w-8 text-red-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/50 border-blue-500/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm">Công Ty Có NV</p>
+                <p className="text-2xl font-bold text-white">{companiesWithEmployees}</p>
+              </div>
+              <Building2 className="h-8 w-8 text-blue-400" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card className="bg-black/50 border-purple-500/30">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm nhân viên..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+              />
+            </div>
+            
+            <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+              <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
+                <SelectValue placeholder="Chọn công ty" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả công ty</SelectItem>
+                {companies.map((company) => (
+                  <SelectItem key={company.id} value={company.id.toString()}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="active">Hoạt động</SelectItem>
+                <SelectItem value="inactive">Không hoạt động</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-black/50 border border-purple-500/30">
-            <TabsTrigger value="employees" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-white text-white/60">
-              <Users className="h-4 w-4 mr-2" />
-              Nhân Viên ({employees.length})
-            </TabsTrigger>
-            {isAdmin && (
-              <TabsTrigger value="users" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-white text-white/60">
-                <Shield className="h-4 w-4 mr-2" />
-                Người Dùng ({users.length})
-              </TabsTrigger>
-            )}
-          </TabsList>
-
-          {/* Employees Tab */}
-          <TabsContent value="employees" className="space-y-6">
-            <div className="flex items-center space-x-4">
-              <Button
-                onClick={handleAddEmployee}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm Nhân Viên
-            </Button>
-            <Button
-              onClick={handleExportExcel}
-              variant="outline"
-              className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Xuất Excel
-            </Button>
-          </div>
-
-          {/* Department Filter */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">Phòng Ban</h3>
-          <div className="flex flex-wrap gap-3">
-            {departments.map((dept, index) => (
-              <Button
-                key={index}
-                onClick={() => {
-                  setSelectedDepartment(dept.name)
-                  setCurrentPage(1)
-                }}
-                variant="outline"
-                className={`${selectedDepartment === dept.name ? "bg-purple-500/20 border-purple-400 text-white" : "bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"}`}
-              >
-                {dept.name}
-                <Badge className={`ml-2 ${dept.color} text-white`}>{dept.count}</Badge>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-5 w-5" />
-            <Input
-              placeholder="Tìm kiếm nhân viên theo tên, email, vị trí..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                setCurrentPage(1)
-              }}
-              className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
-            />
-          </div>
-          <Button
-            variant="outline"
-            className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Bộ Lọc
-          </Button>
-        </div>
-
-        {/* Employee List */}
-        <div className="grid gap-6 mb-8">
-          {paginatedEmployees.map((employee) => (
-            <Card
-              key={employee.id}
-              className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
-            >
-              <CardContent className="p-6">
-                <div className="grid lg:grid-cols-4 gap-6 items-center">
-                  {/* Employee Info */}
-                  <div className="lg:col-span-2 flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">{employee.avatar}</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-1">{employee.name}</h3>
-                      <p className="text-purple-300 font-medium mb-2">{employee.position}</p>
-                      <div className="flex items-center space-x-4 text-white/60 text-sm">
-                        <span className="flex items-center">
-                          <Mail className="h-4 w-4 mr-1" />
-                          {employee.email}
-                        </span>
-                        <span className="flex items-center">
-                          <Phone className="h-4 w-4 mr-1" />
-                          {employee.phone}
-                        </span>
+      {/* Employees Table */}
+      <Card className="bg-black/50 border-purple-500/30">
+        <CardHeader>
+          <CardTitle className="text-white">Danh Sách Nhân Viên</CardTitle>
+          <CardDescription className="text-white/80">
+            Hiển thị {paginatedEmployees.length} trên tổng số {filteredEmployees.length} nhân viên
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-purple-500/30">
+                <TableHead className="text-white">Nhân Viên</TableHead>
+                <TableHead className="text-white">Công Ty</TableHead>
+                <TableHead className="text-white">Phòng Ban</TableHead>
+                <TableHead className="text-white">Chức Vụ</TableHead>
+                <TableHead className="text-white">Liên Hệ</TableHead>
+                <TableHead className="text-white">Trạng Thái</TableHead>
+                <TableHead className="text-white">Thao Tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedEmployees.length > 0 ? (
+                paginatedEmployees.map((employee) => (
+                  <TableRow key={employee.id} className="border-b border-purple-500/30 hover:bg-white/5">
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                          {employee.avatar_url ? (
+                            <Image
+                              src={employee.avatar_url}
+                              alt={employee.name}
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Users className="h-5 w-5 text-white/60" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-white">{employee.name}</p>
+                          <p className="text-sm text-white/60">{employee.email}</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Department & Status */}
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-white/60 text-sm mb-1">Phòng ban</p>
-                      <Badge className={`${getDepartmentColor(employee.department)} border`}>
-                        {employee.department}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {employee.company_logo && (
+                          <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center overflow-hidden">
+                            <Image
+                              src={employee.company_logo}
+                              alt={employee.company_name}
+                              width={24}
+                              height={24}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <span className="text-white">{employee.company_name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-white/80">
+                      {employee.department_name || 'Chưa phân công'}
+                    </TableCell>
+                    <TableCell className="text-white/80">
+                      {employee.position || 'Chưa xác định'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm text-white/60">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {employee.email}
+                        </div>
+                        {employee.phone && (
+                          <div className="flex items-center text-sm text-white/60">
+                            <Phone className="h-3 w-3 mr-1" />
+                            {employee.phone}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        className={employee.status === 'active' 
+                          ? 'bg-green-600/20 text-green-400 border-green-500/30' 
+                          : 'bg-red-600/20 text-red-400 border-red-500/30'
+                        }
+                      >
+                        {employee.status === 'active' ? 'Hoạt động' : 'Không hoạt động'}
                       </Badge>
-                    </div>
-                    <div>
-                      <p className="text-white/60 text-sm mb-1">Trạng thái</p>
-                      <Badge className={`${getStatusColor(employee.status)} text-white`}>
-                        {getStatusText(employee.status)}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-white/60 text-sm mb-1">Ngày vào làm</p>
-                      <span className="text-white text-sm flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {employee.joinDate}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col space-y-2">
-                    <Button
-                      onClick={() => handleViewEmployee(employee)}
-                      variant="outline"
-                      size="sm"
-                      className="bg-transparent border-2 border-blue-500/50 text-blue-300 hover:bg-blue-500/20"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Xem Chi Tiết
-                    </Button>
-                    <Button
-                      onClick={() => handleEditEmployee(employee)}
-                      variant="outline"
-                      size="sm"
-                      className="bg-transparent border-2 border-green-500/50 text-green-300 hover:bg-green-500/20"
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Chỉnh Sửa
-                    </Button>
-                    <Button
-                      onClick={() => handleDeleteEmployee(employee.id)}
-                      variant="outline"
-                      size="sm"
-                      className="bg-transparent border-2 border-red-500/50 text-red-300 hover:bg-red-500/20"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Xóa
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(employee)}
+                        className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-white/60">
+                    Không tìm thấy nhân viên nào
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+        
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center">
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Trước
-              </Button>
+          <div className="px-6 pb-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={goToPage}
+            />
+          </div>
+        )}
+      </Card>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`${
-                    currentPage === page
-                      ? "bg-purple-600 text-white"
-                      : "bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
-                  }`}
-                  variant={currentPage === page ? "default" : "outline"}
+      {/* Create/Edit Modal */}
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              {editingEmployee ? 'Chỉnh Sửa Nhân Viên' : 'Thêm Nhân Viên Mới'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name" className="text-white">Họ Tên *</Label>
+                <Input
+                  id="name"
+                  placeholder="Nhập họ tên"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="bg-black/30 border-purple-500/30 text-white"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="email" className="text-white">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="bg-black/30 border-purple-500/30 text-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone" className="text-white">Số Điện Thoại</Label>
+                <Input
+                  id="phone"
+                  placeholder="0123456789"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="bg-black/30 border-purple-500/30 text-white"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="position" className="text-white">Chức Vụ</Label>
+                <Input
+                  id="position"
+                  placeholder="Nhập chức vụ"
+                  value={formData.position}
+                  onChange={(e) => setFormData({...formData, position: e.target.value})}
+                  className="bg-black/30 border-purple-500/30 text-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="company" className="text-white">Công Ty *</Label>
+                <Select
+                  value={formData.company_id}
+                  onValueChange={(value) => setFormData({...formData, company_id: value, department_id: ""})}
                 >
-                  {page}
-                </Button>
-              ))}
+                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectValue placeholder="Chọn công ty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id.toString()}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
+              <div>
+                <Label htmlFor="department" className="text-white">Phòng Ban</Label>
+                <Select
+                  value={formData.department_id}
+                  onValueChange={(value) => setFormData({...formData, department_id: value})}
+                  disabled={!formData.company_id}
+                >
+                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectValue placeholder="Chọn phòng ban" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments
+                      .filter(dept => dept.company_id.toString() === formData.company_id)
+                      .map((department) => (
+                        <SelectItem key={department.id} value={department.id.toString()}>
+                          {department.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="join_date" className="text-white">Ngày Vào Làm</Label>
+                <Input
+                  id="join_date"
+                  type="date"
+                  value={formData.join_date}
+                  onChange={(e) => setFormData({...formData, join_date: e.target.value})}
+                  className="bg-black/30 border-purple-500/30 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="status" className="text-white">Trạng Thái</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({...formData, status: value})}
+                >
+                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Hoạt động</SelectItem>
+                    <SelectItem value="inactive">Không hoạt động</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="salary" className="text-white">Lương (VND)</Label>
+                <Input
+                  id="salary"
+                  type="number"
+                  placeholder="Mức lương"
+                  value={formData.salary}
+                  onChange={(e) => setFormData({...formData, salary: e.target.value})}
+                  className="bg-black/30 border-purple-500/30 text-white"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="bio" className="text-white">Ghi Chú</Label>
+              <Textarea
+                id="bio"
+                placeholder="Thông tin thêm về nhân viên..."
+                value={formData.bio}
+                onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                className="bg-black/30 border-purple-500/30 text-white"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
               <Button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
                 variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setShowCreateModal(false)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
               >
-                Sau
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={creating}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+              >
+                {creating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    {editingEmployee ? 'Cập Nhật' : 'Tạo Nhân Viên'}
+                  </>
+                )}
               </Button>
             </div>
           </div>
-        )}
-        </TabsContent>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
 
-        {/* Users Tab - chỉ admin mới thấy */}
-        {isAdmin && (
-            <TabsContent value="users" className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Thêm Người Dùng
-                </Button>
-                <Link href="/internal/permissions">
-                  <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Phân Quyền
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Users List */}
-              <div className="grid gap-6">
-                {users.map((user) => (
-                  <Card key={user.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold">
-                                {user.username.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">{user.username}</h3>
-                              <p className="text-white/60">{user.email}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-4 text-sm flex-wrap">
-                            <Badge className={getRoleColor(user.role)}>
-                              {getRoleText(user.role)}
-                            </Badge>
-                            <Badge className={user.isActive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}>
-                              {user.isActive ? 'Hoạt động' : 'Không hoạt động'}
-                            </Badge>
-                            <span className="text-white/60">
-                              Nhân viên: {user.employeeName}
-                            </span>
-                            <span className="text-white/60">
-                              Đăng nhập cuối: {new Date(user.lastLogin).toLocaleString('vi-VN')}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap gap-1">
-                            {user.permissions.map((permission, index) => (
-                              <Badge key={index} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                {permission}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
-                            <Shield className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 hover:text-red-400">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          )}
-        </Tabs>
-
-        {/* Add Employee Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <Card className="bg-black/90 border-purple-500/30 w-full max-w-2xl">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Thêm Nhân Viên Mới</h3>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <Input placeholder="Họ và tên" className="bg-black/30 border-purple-500/30 text-white" />
-                  <Input placeholder="Email" className="bg-black/30 border-purple-500/30 text-white" />
-                  <Input placeholder="Số điện thoại" className="bg-black/30 border-purple-500/30 text-white" />
-                  <Input placeholder="Chức vụ" className="bg-black/30 border-purple-500/30 text-white" />
-                </div>
-                <div className="flex justify-end space-x-4">
-                  <Button
-                    onClick={() => setShowAddModal(false)}
-                    variant="outline"
-                    className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      alert("Đã thêm nhân viên mới!")
-                      setShowAddModal(false)
-                    }}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                  >
-                    Thêm
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+export default function EmployeesManagementPage() {
+  return (
+    <InternalLayout>
+      <EmployeesManagementContent />
     </InternalLayout>
   )
 }

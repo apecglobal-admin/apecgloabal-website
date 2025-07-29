@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
 import InternalLayout from "@/components/internal-layout";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 // Mock data - sẽ thay bằng API call thực tế
 const newsData = [
@@ -37,6 +38,69 @@ const newsData = [
     status: "published",
     publishedAt: "2024-01-10",
     views: 890
+  },
+  {
+    id: 4,
+    title: "Ra mắt dịch vụ cloud computing",
+    category: "Công nghệ",
+    author: "Phạm Minh D",
+    status: "published",
+    publishedAt: "2024-01-12",
+    views: 567
+  },
+  {
+    id: 5,
+    title: "Kế hoạch mở rộng thị trường Đông Nam Á",
+    category: "Kinh doanh",
+    author: "Hoàng Thị E",
+    status: "published",
+    publishedAt: "2024-01-08",
+    views: 1100
+  },
+  {
+    id: 6,
+    title: "Chương trình đào tạo nâng cao kỹ năng",
+    category: "Tuyển dụng",
+    author: "Đặng Văn F",
+    status: "draft",
+    publishedAt: null,
+    views: 0
+  },
+  {
+    id: 7,
+    title: "Giải pháp bảo mật thông tin mới",
+    category: "Công nghệ",
+    author: "Vũ Thị G",
+    status: "published",
+    publishedAt: "2024-01-05",
+    views: 780
+  },
+  {
+    id: 8,
+    title: "Hội thảo công nghệ blockchain",
+    category: "Công nghệ",
+    author: "Bùi Văn H",
+    status: "archived",
+    publishedAt: "2023-12-20",
+    views: 450
+  },
+  {
+    id: 9,
+    title: "Thành lập chi nhánh tại TP.HCM",
+    category: "Kinh doanh",
+    author: "Lương Thị I",
+    status: "published",
+    publishedAt: "2024-01-03",
+    views: 920
+  },
+  {
+    id: 10,
+    title: "Tuyển dụng chuyên gia Data Science",
+    category: "Tuyển dụng",
+    author: "Ngô Văn K",
+    status: "published",
+    publishedAt: "2024-01-01", 
+    views: 1350
   }
 ];
 
@@ -67,7 +131,11 @@ function NewsLoadingSkeleton() {
   );
 }
 
-function NewsContent() {
+function NewsContent({ searchTerm, categoryFilter, statusFilter }: { 
+  searchTerm: string; 
+  categoryFilter: string; 
+  statusFilter: string 
+}) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'bg-green-500/20 text-green-400 border-green-500/30';
@@ -86,9 +154,31 @@ function NewsContent() {
     }
   };
 
+  // Filter news based on search and filters
+  const filteredNews = newsData.filter((news) => {
+    const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         news.author.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || news.category === categoryFilter;
+    const matchesStatus = statusFilter === "all" || news.status === statusFilter;
+    
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  // Pagination
+  const {
+    currentPage,
+    totalPages,
+    currentItems: paginatedNews,
+    totalItems,
+    itemsPerPage,
+    goToPage
+  } = usePagination(filteredNews, 5);
+
   return (
     <div className="space-y-4">
-      {newsData.map((news) => (
+      {paginatedNews.length > 0 ? (
+        <>
+          {paginatedNews.map((news) => (
         <Card key={news.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
           <CardHeader>
             <div className="flex justify-between items-start">
@@ -135,12 +225,35 @@ function NewsContent() {
             </div>
           </CardHeader>
         </Card>
-      ))}
+          ))}
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={goToPage}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-center py-8 text-white/60">
+          <p>Không tìm thấy tin tức nào phù hợp</p>
+        </div>
+      )}
     </div>
   );
 }
 
 function NewsPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -168,22 +281,24 @@ function NewsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
                 <Input 
                   placeholder="Tìm kiếm tin tức..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
                 />
               </div>
             </div>
-            <Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full sm:w-48 bg-white/5 border-white/20 text-white">
                 <SelectValue placeholder="Danh mục" />
               </SelectTrigger>
               <SelectContent className="bg-black/90 border-purple-500/30">
                 <SelectItem value="all">Tất cả danh mục</SelectItem>
-                <SelectItem value="technology">Công nghệ</SelectItem>
-                <SelectItem value="business">Kinh doanh</SelectItem>
-                <SelectItem value="recruitment">Tuyển dụng</SelectItem>
+                <SelectItem value="Công nghệ">Công nghệ</SelectItem>
+                <SelectItem value="Kinh doanh">Kinh doanh</SelectItem>
+                <SelectItem value="Tuyển dụng">Tuyển dụng</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-48 bg-white/5 border-white/20 text-white">
                 <SelectValue placeholder="Trạng thái" />
               </SelectTrigger>
@@ -191,6 +306,7 @@ function NewsPage() {
                 <SelectItem value="all">Tất cả trạng thái</SelectItem>
                 <SelectItem value="published">Đã xuất bản</SelectItem>
                 <SelectItem value="draft">Bản nháp</SelectItem>
+                <SelectItem value="archived">Lưu trữ</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
@@ -213,7 +329,11 @@ function NewsPage() {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<NewsLoadingSkeleton />}>
-            <NewsContent />
+            <NewsContent 
+              searchTerm={searchTerm}
+              categoryFilter={categoryFilter}
+              statusFilter={statusFilter}
+            />
           </Suspense>
         </CardContent>
       </Card>

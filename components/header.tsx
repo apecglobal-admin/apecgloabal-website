@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Globe } from "lucide-react"
+import { Menu, X, Globe, Settings } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -100,10 +100,21 @@ export default function Header() {
             >
               {language === "vi" ? "Liên Hệ" : "Contact"}
             </Link>
+            
+
           </nav>
 
-          {/* Language Toggle & Mobile Menu */}
+          {/* Internal Portal & Language Toggle & Mobile Menu */}
           <div className="flex items-center space-x-3 lg:space-x-4 z-50">
+            <Link href="/internal">
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 transform text-xs lg:text-sm font-semibold px-4 py-2 border-0"
+              >
+                <Settings className="h-3 w-3 lg:h-4 lg:w-4 mr-1.5" />
+                {language === "vi" ? "Cổng Nội Bộ" : "Internal Portal"}
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
@@ -184,6 +195,22 @@ export default function Header() {
               >
                 {language === "vi" ? "Liên Hệ" : "Contact"}
               </Link>
+              
+              {/* Internal Portal for Mobile */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <Link
+                  href="/internal"
+                  onClick={closeMenu}
+                  className="block"
+                >
+                  <Button
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 text-sm font-semibold py-3 px-4 border-0"
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    {language === "vi" ? "Cổng Nội Bộ" : "Internal Portal"}
+                  </Button>
+                </Link>
+              </div>
             </div>
           </nav>
         </div>

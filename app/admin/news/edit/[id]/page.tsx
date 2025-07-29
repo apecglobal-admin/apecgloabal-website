@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Loader2, Trash2 } from "lucide-react";
@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import AdminLayout from "@/components/admin/layout";
 
-export default function EditNews({ params }: { params: { id: string } }) {
+export default function EditNews({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params)
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,7 +57,7 @@ export default function EditNews({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch(`/api/news/${params.id}`);
+        const response = await fetch(`/api/news/${id}`);
         if (response.ok) {
           const data = await response.json();
           setFormData({
@@ -107,7 +108,7 @@ export default function EditNews({ params }: { params: { id: string } }) {
     fetchNews();
     fetchCategories();
     fetchAuthors();
-  }, [params.id]); // Chỉ chạy khi params.id thay đổi
+  }, [id]); // Chỉ chạy khi id thay đổi
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -135,7 +136,7 @@ export default function EditNews({ params }: { params: { id: string } }) {
     setSuccess(false);
     
     try {
-      const response = await fetch(`/api/news/${params.id}`, {
+      const response = await fetch(`/api/news/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -166,7 +167,7 @@ export default function EditNews({ params }: { params: { id: string } }) {
     setDeleteLoading(true);
     
     try {
-      const response = await fetch(`/api/news/${params.id}`, {
+      const response = await fetch(`/api/news/${id}`, {
         method: "DELETE",
       });
       
@@ -419,11 +420,11 @@ export default function EditNews({ params }: { params: { id: string } }) {
             <Card>
               <CardContent className="p-6">
                 <div className="text-sm text-gray-500 mb-4">
-                  <p>ID: {params.id}</p>
+                  <p>ID: {id}</p>
                   <p>Ngày tạo: {new Date().toLocaleDateString()}</p>
                   <p>Lượt xem: N/A</p>
                 </div>
-                <Link href={`/news/${params.id}`} target="_blank">
+                <Link href={`/news/${id}`} target="_blank">
                   <Button variant="outline" className="w-full">
                     Xem trên trang web
                   </Button>

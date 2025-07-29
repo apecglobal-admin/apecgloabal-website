@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Trash2, Loader2 } from "lucide-react";
@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import AdminLayout from "@/components/admin/layout";
 
-export default function DeleteNews({ params }: { params: { id: string } }) {
+export default function DeleteNews({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params)
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +22,7 @@ export default function DeleteNews({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch(`/api/news/${params.id}`);
+        const response = await fetch(`/api/news/${id}`);
         if (response.ok) {
           const data = await response.json();
           setNews(data);
@@ -37,14 +38,14 @@ export default function DeleteNews({ params }: { params: { id: string } }) {
     };
 
     fetchNews();
-  }, [params.id]);
+  }, [id]);
 
   const handleDelete = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(`/api/news/${params.id}`, {
+      const response = await fetch(`/api/news/${id}`, {
         method: "DELETE",
       });
 
@@ -119,7 +120,7 @@ export default function DeleteNews({ params }: { params: { id: string } }) {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Link href={`/admin/news/edit/${params.id}`}>
+              <Link href={`/admin/news/edit/${id}`}>
                 <Button variant="outline">Hủy và quay lại</Button>
               </Link>
               <Button variant="destructive" onClick={handleDelete} disabled={loading}>

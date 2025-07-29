@@ -24,6 +24,9 @@ import {
   ChevronRight,
   Shield,
   Building2,
+  Package,
+  UserPlus,
+  Folder,
 } from "lucide-react"
 
 interface InternalLayoutProps {
@@ -76,6 +79,24 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       color: "text-cyan-400",
     },
     {
+      name: "Phòng Ban",
+      href: "/internal/departments",
+      icon: Folder,
+      color: "text-pink-400",
+    },
+    {
+      name: "Dịch Vụ",
+      href: "/internal/services",
+      icon: Package,
+      color: "text-emerald-400",
+    },
+    {
+      name: "Tuyển Dụng",
+      href: "/internal/jobs",
+      icon: UserPlus,
+      color: "text-amber-400",
+    },
+    {
       name: "Cài Đặt",
       href: "/internal/settings",
       icon: Settings,
@@ -93,10 +114,17 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
     },
     {
       name: "Phân Quyền",
-      href: "/internal/permissions",
+      href: "/internal/roles",
       icon: Shield,
       color: "text-red-400",
-    }
+    },
+    // Temporarily hidden - old permissions system
+    // {
+    //   name: "User Permissions (Old)",
+    //   href: "/internal/permissions",
+    //   icon: UserPlus,
+    //   color: "text-orange-400",
+    // }
   ]
 
   useEffect(() => {
@@ -106,10 +134,16 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
     if (savedLoginStatus === "true" && savedUser) {
       setIsLoggedIn(true)
       setCurrentUser(savedUser)
+      setIsLoading(false)
     } else {
-      router.push("/internal")
+      // Chuyển hướng với timeout nhỏ để tránh conflict
+      const timer = setTimeout(() => {
+        router.push("/internal")
+      }, 100)
+      
+      setIsLoading(false)
+      return () => clearTimeout(timer)
     }
-    setIsLoading(false)
   }, [router])
 
   const handleLogout = async () => {
@@ -213,7 +247,7 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
-        <div className="p-6">
+        <div className="p-6 h-full overflow-y-auto custom-scrollbar">
           {/* User Info */}
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-4">

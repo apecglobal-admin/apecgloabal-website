@@ -29,8 +29,8 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   
   // Fallback companies data nếu API fails
   
-  // Sử dụng API cache để lấy companies
-  const { data: apiResponse, loading, error } = useApiCache<any>(
+  // Sử dụng API cache để lấy companies với khả năng refresh
+  const { data: apiResponse, loading, error, refetch } = useApiCache<any>(
     'companies',
     async () => {
       const response = await fetch('/api/companies')
@@ -40,7 +40,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
       const data = await response.json()
       return data
     },
-    5 * 60 * 1000 // Cache 5 phút
+    2 * 60 * 1000 // Cache 2 phút (ngắn hơn để cập nhật nhanh hơn)
   )
 
   // Extract companies array from API response
@@ -49,30 +49,126 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   // Sử dụng fallback data nếu API không có data
   const companies = Array.isArray(apiCompanies) ? apiCompanies : []
 
+  // Auto-refresh data every 5 minutes to catch new companies
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch()
+    }, 5 * 60 * 1000) // 5 phút
+
+    return () => clearInterval(interval)
+  }, [refetch])
+
   const checkAllAssetsLoaded = useCallback(() => {
-    if (logoLoaded && companyLogosLoaded && !loading) {
+    // Đơn giản hóa điều kiện - chỉ cần logo chính load xong và API không loading
+    if (logoLoaded && !loading) {
       // Delay the main animation until all assets are loaded
       setTimeout(() => setIsLoaded(true), 100)
     }
-  }, [logoLoaded, companyLogosLoaded, loading])
+  }, [logoLoaded, loading])
 
-  // Generate initial positions when component mounts
-  useEffect(() => {
-    const generatePositions = () => {
-      return Array.from({ length: 5 }, () => ({
-        left: Math.random() * 85 + 5,         // 5% to 90%
-        top: Math.random() * 75 + 10,         // 10% to 85%
-      }))
+  // Generate positions for all companies, ensuring no overlap
+  const generateNonOverlappingPositions = useCallback((count: number) => {
+    const positions: Array<{ left: number; top: number }> = []
+    const minDistance = 12 // Minimum distance between logos (in percentage)
+    const maxAttempts = 150 // Maximum attempts to find a non-overlapping position
+    
+    // Safe zones to avoid main content area
+    const safeZones = [
+      { left: 30, right: 70, top: 20, bottom: 80 }, // Center area for main logo and content
+    ]
+    
+    // Predefined good positions around the edges for fallback
+    const fallbackPositions = [
+      { left: 10, top: 15 }, { left: 85, top: 15 }, // Top corners
+      { left: 10, top: 85 }, { left: 85, top: 85 }, // Bottom corners
+      { left: 5, top: 50 }, { left: 90, top: 50 },   // Middle sides
+      { left: 15, top: 30 }, { left: 80, top: 30 },  // Upper sides
+      { left: 15, top: 70 }, { left: 80, top: 70 },  // Lower sides
+      { left: 25, top: 10 }, { left: 75, top: 10 },  // Top middle
+      { left: 25, top: 90 }, { left: 75, top: 90 },  // Bottom middle
+    ]
+    
+    const isPositionValid = (newPos: { left: number; top: number }) => {
+      // Check if position is in safe zone
+      for (const zone of safeZones) {
+        if (newPos.left >= zone.left && newPos.left <= zone.right &&
+            newPos.top >= zone.top && newPos.top <= zone.bottom) {
+          return false
+        }
+      }
+      
+      // Check distance from existing positions
+      for (const existingPos of positions) {
+        const distance = Math.sqrt(
+          Math.pow(newPos.left - existingPos.left, 2) + 
+          Math.pow(newPos.top - existingPos.top, 2)
+        )
+        if (distance < minDistance) {
+          return false
+        }
+      }
+      
+      return true
     }
     
-    // Set initial positions
-    setLogoPositions(generatePositions())
+    for (let i = 0; i < count; i++) {
+      let attempts = 0
+      let validPosition = null
+      
+      // Try random positions first
+      while (attempts < maxAttempts && !validPosition) {
+        const candidate = {
+          left: Math.random() * 85 + 5,   // 5% to 90%
+          top: Math.random() * 85 + 5,    // 5% to 90%
+        }
+        
+        if (isPositionValid(candidate)) {
+          validPosition = candidate
+        }
+        attempts++
+      }
+      
+      // If random didn't work, try fallback positions
+      if (!validPosition) {
+        for (const fallback of fallbackPositions) {
+          if (isPositionValid(fallback)) {
+            validPosition = { ...fallback }
+            break
+          }
+        }
+      }
+      
+      // Last resort: systematic placement
+      if (!validPosition) {
+        const angle = (i * 360 / count) * (Math.PI / 180) // Distribute in circle
+        const radius = 40 // Distance from center
+        validPosition = {
+          left: 50 + radius * Math.cos(angle),
+          top: 50 + radius * Math.sin(angle),
+        }
+        
+        // Ensure within bounds
+        validPosition.left = Math.max(5, Math.min(90, validPosition.left))
+        validPosition.top = Math.max(5, Math.min(90, validPosition.top))
+      }
+      
+      positions.push(validPosition)
+    }
     
-    // No need for teleporting effect anymore as we'll use CSS animations for gentle floating
-    setIsTeleporting(false)
-    
-    return () => {}
+    return positions
   }, [])
+
+  // Generate positions when companies data changes
+  useEffect(() => {
+    if (companies && companies.length > 0) {
+      console.log(`Splash Page: Generating positions for ${companies.length} companies:`, companies.map(c => c.name))
+      const positions = generateNonOverlappingPositions(companies.length)
+      setLogoPositions(positions)
+      console.log(`Splash Page: Generated ${positions.length} positions`)
+    }
+    
+    setIsTeleporting(false)
+  }, [companies, generateNonOverlappingPositions])
 
   useEffect(() => {
     // Preload main logo for faster display
@@ -88,7 +184,13 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
       checkAllAssetsLoaded()
     }
     
-    // Không cần fetchCompanies nữa vì dùng useApiCache
+    // Safety timeout - force load after 10 seconds maximum
+    const safetyTimeout = setTimeout(() => {
+      console.log('Safety timeout triggered - forcing page load')
+      setIsLoaded(true)
+    }, 10000)
+    
+    return () => clearTimeout(safetyTimeout)
   }, [])
 
   const preloadCompanyLogos = useCallback(async (companyList: Company[]) => {
@@ -136,27 +238,15 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   // Show loading screen until everything is ready
   if (!isLoaded) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800/90 to-slate-900 overflow-hidden">
-        {/* Enhanced Animated Background */}
-        <div className="absolute inset-0">
-          {/* Multiple gradient layers for depth - reduced purple intensity */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-purple-600/8 via-transparent to-transparent animate-pulse"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/5 via-transparent to-transparent animate-pulse" style={{ animationDelay: '2s' }}></div>
-          
-          {/* Animated geometric shapes */}
-          <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '6s' }}></div>
-          <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '8s', animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }}></div>
-        </div>
+      <div className="relative min-h-screen bg-white overflow-hidden">
 
         {/* Loading Screen */}
-        <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl px-8 py-6 border border-white/20 shadow-2xl">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="bg-gray-50 rounded-2xl px-8 py-6 border border-gray-200 shadow-lg">
             <div className="flex flex-col items-center space-y-4">
-              <div className="w-8 h-8 border-2 border-white/60 border-t-transparent rounded-full animate-spin"></div>
-              <div className="text-white/80 text-lg font-medium">Đang tải trang...</div>
-              <div className="text-white/60 text-sm">
+              <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+              <div className="text-gray-800 text-lg font-medium">Đang tải trang...</div>
+              <div className="text-gray-600 text-sm">
                 {loading ? 'Đang tải dữ liệu công ty...' : 
                  !logoLoaded ? 'Đang tải logo chính...' : 
                  !companyLogosLoaded ? 'Đang tải logo công ty...' : 
@@ -170,38 +260,30 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800/90 to-slate-900 overflow-hidden">
-      {/* Enhanced Animated Background */}
+    <div className="relative min-h-screen bg-white overflow-hidden">
+      {/* Floating Company Logos with gentle animations */}
       <div className="absolute inset-0">
-        {/* Multiple gradient layers for depth - reduced purple intensity */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-purple-600/8 via-transparent to-transparent animate-pulse"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/5 via-transparent to-transparent animate-pulse" style={{ animationDelay: '2s' }}></div>
-        
-        {/* Animated geometric shapes */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '6s' }}></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '8s', animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-10 w-16 h-16 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }}></div>
-
-        {/* Floating Company Logos with gentle animations */}
-        {companies && companies.length > 0 && companies.map((company, index) => {
+        {companies && companies.length > 0 && logoPositions.length > 0 && companies.map((company, index) => {
           const position = logoPositions[index]
           if (!position) return null
           
-          // Assign different float animations to each logo
+          // Assign different float animations to each logo - only smooth floating
           const floatAnimations = [
             "animate-float-1", 
             "animate-float-2", 
             "animate-float-3", 
             "animate-float-4", 
-            "animate-float-5"
+            "animate-float-5",
+            "animate-float-6",
+            "animate-float-7",
+            "animate-float-8"
           ]
           const animationClass = floatAnimations[index % floatAnimations.length]
           
           return (
             <div
               key={company.id}
-              className={`absolute hover:opacity-60 transition-all duration-300 hover:scale-110 cursor-pointer opacity-25 ${animationClass}`}
+              className={`absolute hover:opacity-90 transition-all duration-300 hover:scale-110 cursor-pointer opacity-100 ${animationClass}`}
               style={{
                 left: `${position.left}%`,
                 top: `${position.top}%`,
@@ -238,17 +320,13 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
           <div className="mb-12">
             <div className="mb-8 flex justify-center">
               <div className="relative group">
-                {/* Simple glow effect */}
-                <div className="absolute -inset-4 bg-white/10 blur-2xl opacity-60 group-hover:opacity-90 transition-opacity duration-500"></div>
                 
                 {/* Logo container - minimal styling */}
                 <div className="relative w-36 h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 transition-all duration-500 hover:scale-105">
-                  {/* Clean backdrop without border */}
-                  <div className="absolute inset-0 bg-slate-800/40 backdrop-blur-sm shadow-2xl"></div>
                   
                   {!logoLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin"></div>
+                      <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
                     </div>
                   )}
                   <Image
@@ -257,7 +335,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
                     fill
                     className={`object-contain transition-opacity duration-500 relative z-10 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     style={{ 
-                      filter: 'drop-shadow(0 4px 20px rgba(255,255,255,0.5)) drop-shadow(0 0 50px rgba(255,255,255,0.3)) contrast(1.2) brightness(1.2)',
                     }}
                     sizes="(max-width: 768px) 144px, (max-width: 1024px) 192px, 224px"
                     priority

@@ -5,23 +5,47 @@ export interface Company {
   name: string;
   slug: string;
   description: string;
-  logo_url: string;
-  website_url: string;
-  email: string;
-  phone: string;
-  address: string;
-  established_date: Date;
+  short_description?: string;
+  logo_url?: string;
+  logo_public_id?: string;
+  website_url?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  established_date?: Date;
   employee_count: number;
-  industry: string;
+  industry?: string;
   status: string;
+  
+  // Display fields for public page
+  mission?: string;
+  vision?: string;
+  values?: string[];
+  achievements?: string[];
+  
+  // Media fields
   image_url?: string;
   image_public_id?: string;
   gallery?: string[];
   gallery_public_ids?: string[];
-  image_url?: string;
-  image_public_id?: string;
-  gallery?: string[];
-  gallery_public_ids?: string[];
+  
+  // Social media
+  facebook_url?: string;
+  twitter_url?: string;
+  linkedin_url?: string;
+  youtube_url?: string;
+  
+  // SEO and display
+  is_featured: boolean;
+  display_order: number;
+  meta_title?: string;
+  meta_description?: string;
+  
+  // Statistics (calculated fields)
+  projects_count?: number;
+  services_count?: number;
+  departments_count?: number;
+  
   created_at: Date;
   updated_at: Date;
 }
@@ -180,4 +204,40 @@ export interface User {
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface PermissionModule {
+  id: number;
+  module_name: string;
+  permission_type: string;
+  description: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface PermissionRole {
+  id: number;
+  employee_id: number;
+  module_name: string;
+  permission_type: string;
+  granted: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UserPermission {
+  module: string;
+  permission: string;
+  granted: boolean;
+  description?: string;
+}
+
+export interface UserWithPermissions extends User {
+  employee_name: string;
+  employee_email: string;
+  employee_position: string;
+  company_name: string;
+  department_name: string;
+  permissions: UserPermission[];
 }

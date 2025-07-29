@@ -112,8 +112,8 @@ const calculateProjectDuration = (startDate: Date, endDate: Date) => {
   }
 }
 
-export default async function ProjectDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const projectData = await getProjectBySlug(slug)
   
   if (!projectData) {

@@ -179,7 +179,9 @@ export default function SharedDocumentPage() {
   // Handle view document
   const handleViewDocument = () => {
     if (document) {
-      window.open(document.file_url, '_blank');
+      // Use the proxy endpoint for viewing
+      const proxyUrl = `/api/documents/proxy?id=${document.id}`;
+      window.open(proxyUrl, '_blank');
     }
   };
 
@@ -188,25 +190,37 @@ export default function SharedDocumentPage() {
     if (!document) return;
     
     try {
-      // Call the download API to increment the download count
-      const response = await fetch(`/api/documents/download?id=${document.id}`);
+      toast.info('Đang chuẩn bị tải xuống...');
+      
+      // Use the proxy endpoint to get the file
+      const proxyUrl = `/api/documents/proxy?id=${document.id}`;
+      
+      // Fetch the file through proxy
+      const response = await fetch(proxyUrl);
       
       if (!response.ok) {
-        throw new Error('Download failed');
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
+      // Get the file as blob
+      const blob = await response.blob();
+      
       // Create a temporary link and trigger download
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = document.file_url;
+      link.href = url;
       link.setAttribute('download', document.name);
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
-      toast.success(`Đang tải xuống: ${document.name}`);
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success(`Tải xuống thành công: ${document.name}`);
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Không thể tải xuống tài liệu. Vui lòng thử lại.');
+      toast.error(`Không thể tải xuống tài liệu: ${error.message}`);
     }
   };
 

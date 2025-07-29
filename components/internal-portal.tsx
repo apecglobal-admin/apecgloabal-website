@@ -28,17 +28,61 @@ export default function InternalPortal() {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  // Check login status on component mount
+  // Check login status on component mount with session validation
   useEffect(() => {
-    const savedLoginStatus = localStorage.getItem("internal_logged_in")
-    const savedUser = localStorage.getItem("internal_user")
+    const validateSession = async () => {
+      console.log('Checking login status...')
+      const savedLoginStatus = localStorage.getItem("internal_logged_in")
+      const savedUser = localStorage.getItem("internal_user")
+      
+      console.log('Saved login status:', savedLoginStatus)
+      console.log('Saved user:', savedUser)
 
-    if (savedLoginStatus === "true" && savedUser) {
-      setIsLoggedIn(true)
-      setLoginForm({ username: savedUser, password: "" })
+      if (savedLoginStatus === "true" && savedUser) {
+        console.log('Found localStorage data, validating session...')
+        
+        try {
+          // Validate session by checking if we can access internal API
+          const response = await fetch('/api/auth/validate', {
+            method: 'GET',
+            credentials: 'include'
+          })
+          
+          if (response.ok) {
+            console.log('Session is valid, redirecting to dashboard immediately')
+            // Redirect ngay lập tức thay vì set state
+            window.location.replace('/internal/dashboard')
+            return
+          } else {
+            console.log('Session expired, clearing localStorage')
+            localStorage.removeItem("internal_logged_in")
+            localStorage.removeItem("internal_user")
+            setIsLoggedIn(false)
+          }
+        } catch (error) {
+          console.log('Session validation failed, clearing localStorage')
+          localStorage.removeItem("internal_logged_in")
+          localStorage.removeItem("internal_user")
+          setIsLoggedIn(false)
+        }
+      } else {
+        console.log('User is not logged in')
+        setIsLoggedIn(false)
+      }
+      
+      setIsLoading(false)
     }
-    setIsLoading(false)
+
+    validateSession()
   }, [])
+
+  // Simplified redirect logic - only used for fresh login
+  useEffect(() => {
+    if (isLoggedIn && !isLoading) {
+      console.log('Fresh login detected, redirecting...')
+      window.location.replace('/internal/dashboard')
+    }
+  }, [isLoggedIn, isLoading])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,8 +119,9 @@ export default function InternalPortal() {
       
       setIsLoggedIn(true);
       
-      // Chuyển hướng đến dashboard
-      router.push("/internal/dashboard");
+      // Redirect immediately after successful login
+      console.log('Login successful, redirecting to dashboard')
+      window.location.replace('/internal/dashboard')
     } catch (error: any) {
       console.error("Login error:", error);
       alert(error.message || "Đăng nhập thất bại. Vui lòng thử lại.");
@@ -161,19 +206,48 @@ export default function InternalPortal() {
                 Đăng Nhập
               </Button>
             </form>
+            
+{/* Debug buttons - Uncomment if needed for debugging
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-300 text-xs mb-2">Debug Mode:</p>
+              <div className="space-y-2">
+                <Button
+                  onClick={() => {
+                    console.log('Force setting logged in state and redirecting...')
+                    localStorage.setItem("internal_logged_in", "true")
+                    localStorage.setItem("internal_user", "admin")
+                    window.location.replace('/internal/dashboard')
+                  }}
+                  className="w-full bg-red-500 hover:bg-red-600 text-white text-sm"
+                >
+                  [DEBUG] Force Login & Redirect
+                </Button>
+                <Button
+                  onClick={() => {
+                    console.log('Clearing localStorage...')
+                    localStorage.removeItem("internal_logged_in")
+                    localStorage.removeItem("internal_user")
+                    setIsLoggedIn(false)
+                    setLoginForm({ username: "", password: "" })
+                  }}
+                  className="w-full bg-gray-500 hover:bg-gray-600 text-white text-sm"
+                >
+                  [DEBUG] Clear Storage
+                </Button>
+              </div>
+            </div>
+            */}
           </CardContent>
         </Card>
       </div>
     )
-  } else {
-    // Nếu đã đăng nhập, chuyển hướng đến dashboard
-    router.push("/internal/dashboard")
-    
-    // Hiển thị loading trong khi chuyển hướng
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-      </div>
-    )
   }
+
+  // Nếu đã đăng nhập, hiển thị loading trong khi chuyển hướng (should not show anymore)
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      <p className="ml-4 text-white">Đang chuyển hướng đến dashboard...</p>
+    </div>
+  )
 }

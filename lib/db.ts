@@ -49,7 +49,7 @@ export async function query(text: string, params?: any[]) {
 // Hàm lấy tất cả công ty
 export async function getAllCompanies() {
   try {
-    const result = await query('SELECT * FROM companies ORDER BY name');
+    const result = await query('SELECT * FROM companies ORDER BY display_order, name');
     return result.rows;
   } catch (error) {
     console.log('Error getting all companies, returning empty array:', error);

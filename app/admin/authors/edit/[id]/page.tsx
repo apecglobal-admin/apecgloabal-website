@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Loader2, Plus, Trash, Trash2 } from "lucide-react";
@@ -27,7 +27,8 @@ interface SocialLink {
   url: string;
 }
 
-export default function EditAuthor({ params }: { params: { id: string } }) {
+export default function EditAuthor({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params)
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -50,7 +51,7 @@ export default function EditAuthor({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchAuthor = async () => {
       try {
-        const response = await fetch(`/api/authors/${params.id}`);
+        const response = await fetch(`/api/authors/${id}`);
         if (response.ok) {
           const data = await response.json();
           setFormData({
@@ -78,7 +79,7 @@ export default function EditAuthor({ params }: { params: { id: string } }) {
     };
     
     fetchAuthor();
-  }, [params.id]);
+  }, [id]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -115,7 +116,7 @@ export default function EditAuthor({ params }: { params: { id: string } }) {
         return acc;
       }, {} as Record<string, string>);
       
-      const response = await fetch(`/api/authors/${params.id}`, {
+      const response = await fetch(`/api/authors/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +150,7 @@ export default function EditAuthor({ params }: { params: { id: string } }) {
     setDeleteLoading(true);
     
     try {
-      const response = await fetch(`/api/authors/${params.id}`, {
+      const response = await fetch(`/api/authors/${id}`, {
         method: "DELETE",
       });
       

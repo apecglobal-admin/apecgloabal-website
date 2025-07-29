@@ -14,6 +14,7 @@ import {
   ArrowRight, 
   Award, 
   Building, 
+  Building2,
   Calendar, 
   CheckCircle, 
   Clock, 
@@ -23,6 +24,8 @@ import {
   FileText, 
   Github, 
   Globe, 
+  GraduationCap,
+  Handshake,
   Layers, 
   LayoutGrid, 
   Lightbulb, 
@@ -40,6 +43,8 @@ import {
   Terminal, 
   Trello, 
   Trophy, 
+  User,
+  UserCircle,
   Users, 
   Zap 
 } from 'lucide-react'
@@ -98,13 +103,16 @@ const formatDate = (date: Date) => {
   return format(new Date(date), 'dd/MM/yyyy')
 }
 
-export default function CompanyDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default function CompanyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = React.use(params)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [companyData, setCompanyData] = useState<any>(null)
   const [projects, setProjects] = useState<any[]>([])
   const [services, setServices] = useState<any[]>([])
+  const [employees, setEmployees] = useState<any[]>([])
+  const [departments, setDepartments] = useState<any[]>([])
+  const [jobs, setJobs] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
   
   useEffect(() => {
@@ -128,6 +136,30 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
         setCompanyData(data.company)
         setProjects(data.projects)
         setServices(data.services)
+
+        // Fetch additional data for other modules
+        if (data.company?.id) {
+          const [employeesRes, departmentsRes, jobsRes] = await Promise.all([
+            fetch(`/api/companies/${data.company.id}/employees`),
+            fetch(`/api/companies/${data.company.id}/departments`),
+            fetch(`/api/companies/${data.company.id}/jobs`)
+          ])
+
+          if (employeesRes.ok) {
+            const employeesData = await employeesRes.json()
+            setEmployees(employeesData.data || [])
+          }
+
+          if (departmentsRes.ok) {
+            const departmentsData = await departmentsRes.json()
+            setDepartments(departmentsData.data || [])
+          }
+
+          if (jobsRes.ok) {
+            const jobsData = await jobsRes.json()
+            setJobs(jobsData.data || [])
+          }
+        }
       } catch (err) {
         console.error('Error fetching company data:', err)
         setError('Failed to load company data. Please try again later.')
@@ -435,9 +467,9 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
 
         <div className="container mx-auto relative">
           <Tabs defaultValue="about" className="w-full">
-            <div className="relative max-w-2xl mx-auto mb-12">
+            <div className="relative max-w-4xl mx-auto mb-12">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-full blur opacity-30"></div>
-              <TabsList className="relative grid grid-cols-3 bg-white border border-purple-500/30 rounded-full backdrop-blur-sm overflow-hidden">
+              <TabsList className="relative grid grid-cols-6 bg-white border border-purple-500/30 rounded-full backdrop-blur-sm overflow-hidden">
                 <TabsTrigger
                   value="about"
                   className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
@@ -455,6 +487,24 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
                   className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
                 >
                   Dịch Vụ
+                </TabsTrigger>
+                <TabsTrigger
+                  value="team"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                >
+                  Đội Ngũ
+                </TabsTrigger>
+                <TabsTrigger
+                  value="departments"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                >
+                  Phòng Ban
+                </TabsTrigger>
+                <TabsTrigger
+                  value="careers"
+                  className="data-[state=inactive]:text-gray-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-full transition-all duration-300"
+                >
+                  Tuyển Dụng
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -829,6 +879,283 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
                       </h4>
                       <p className="text-gray-600">
                         Công ty chưa có dịch vụ nào được công bố.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Team Tab */}
+            <TabsContent value="team" className="mt-6 animate-fade-in-up">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm">
+                <CardHeader className="pb-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
+                      <UserCircle className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        Đội Ngũ Nhân Viên
+                      </CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Các thành viên tài năng của {companyData?.name}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {employees && employees.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {employees.map((employee) => (
+                        <div
+                          key={employee.id}
+                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/20 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
+                        >
+                          <div className="flex items-center mb-4">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
+                              {employee.avatar_url ? (
+                                <img
+                                  src={employee.avatar_url}
+                                  alt={employee.name}
+                                  className="w-full h-full rounded-full object-cover"
+                                />
+                              ) : (
+                                <User className="h-6 w-6 text-white" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                                {employee.name}
+                              </h4>
+                              <p className="text-sm text-gray-600">{employee.position}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Building2 className="h-4 w-4 mr-2" />
+                              <span>{employee.department_name || 'Chưa phân bộ'}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Mail className="h-4 w-4 mr-2" />
+                              <span>{employee.email}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Calendar className="h-4 w-4 mr-2" />
+                              <span>Gia nhập: {employee.join_date ? formatDate(employee.join_date) : 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <Badge className={employee.status === 'active' 
+                              ? 'bg-green-500/20 text-green-700 border-green-500/30' 
+                              : 'bg-gray-500/20 text-gray-700 border-gray-500/30'
+                            }>
+                              {employee.status === 'active' ? 'Đang làm việc' : 'Nghỉ việc'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                        <UserCircle className="h-10 w-10 text-purple-400" />
+                      </div>
+                      <h4 className="text-xl font-medium text-gray-900 mb-2">
+                        Chưa có nhân viên nào
+                      </h4>
+                      <p className="text-gray-600">
+                        Công ty chưa có thông tin nhân viên được công bố.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Departments Tab */}
+            <TabsContent value="departments" className="mt-6 animate-fade-in-up">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm">
+                <CardHeader className="pb-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
+                      <Building2 className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        Phòng Ban
+                      </CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Các phòng ban tại {companyData?.name}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {departments && departments.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {departments.map((dept) => (
+                        <div
+                          key={dept.id}
+                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/20 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center">
+                              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
+                                <Building2 className="h-6 w-6 text-white" />
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                                  {dept.name}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  Quản lý: {dept.manager_name || 'Chưa có'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-purple-600">
+                                {dept.employee_count || 0}
+                              </div>
+                              <div className="text-sm text-gray-500">nhân viên</div>
+                            </div>
+                          </div>
+                          
+                          <p className="text-gray-600 mb-4">{dept.description}</p>
+                          
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            <span>Thành lập: {dept.created_at ? formatDate(dept.created_at) : 'N/A'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                        <Building2 className="h-10 w-10 text-purple-400" />
+                      </div>
+                      <h4 className="text-xl font-medium text-gray-900 mb-2">
+                        Chưa có phòng ban nào
+                      </h4>
+                      <p className="text-gray-600">
+                        Công ty chưa có thông tin phòng ban được công bố.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Careers Tab */}
+            <TabsContent value="careers" className="mt-6 animate-fade-in-up">
+              <Card className="bg-white border-purple-500/30 hover:border-cyan-500/50 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/20 backdrop-blur-sm">
+                <CardHeader className="pb-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
+                      <GraduationCap className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        Tuyển Dụng
+                      </CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Cơ hội nghề nghiệp tại {companyData?.name}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {jobs && jobs.length > 0 ? (
+                    <div className="space-y-6">
+                      {jobs.map((job) => (
+                        <div
+                          key={job.id}
+                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/20 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center">
+                              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
+                                <GraduationCap className="h-6 w-6 text-white" />
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                                  {job.title}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {job.department_name || 'Chưa phân bộ'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end space-y-2">
+                              {job.urgent && (
+                                <Badge className="bg-red-500/20 text-red-700 border-red-500/30">
+                                  Cần gấp
+                                </Badge>
+                              )}
+                              <Badge className={job.status === 'active' 
+                                ? 'bg-green-500/20 text-green-700 border-green-500/30' 
+                                : 'bg-gray-500/20 text-gray-700 border-gray-500/30'
+                              }>
+                                {job.status === 'active' ? 'Đang tuyển' : 'Đã đóng'}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <p className="text-gray-600 mb-4">{job.description}</p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <MapPin className="h-4 w-4 mr-2" />
+                              <span>{job.location}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Clock className="h-4 w-4 mr-2" />
+                              <span>{job.type}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Trophy className="h-4 w-4 mr-2" />
+                              <span>{job.experience_required}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <DollarSign className="h-4 w-4 mr-2" />
+                              <span>{job.salary_range}</span>
+                            </div>
+                          </div>
+                          
+                          {job.remote_ok && (
+                            <div className="flex items-center text-sm text-green-600 mb-4">
+                              <Globe className="h-4 w-4 mr-2" />
+                              <span>Hỗ trợ làm việc từ xa</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex flex-wrap gap-2">
+                            {job.skills && job.skills.map((skill, idx) => (
+                              <Badge
+                                key={idx}
+                                variant="outline"
+                                className="border-purple-500/30 text-purple-600 bg-white hover:bg-purple-50 transition-colors duration-300"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                        <GraduationCap className="h-10 w-10 text-purple-400" />
+                      </div>
+                      <h4 className="text-xl font-medium text-gray-900 mb-2">
+                        Chưa có vị trí tuyển dụng
+                      </h4>
+                      <p className="text-gray-600">
+                        Công ty hiện tại chưa có vị trí tuyển dụng nào.
                       </p>
                     </div>
                   )}

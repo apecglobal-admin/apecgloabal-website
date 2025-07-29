@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Trash2, Loader2 } from "lucide-react";
@@ -11,7 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AdminLayout from "@/components/admin/layout";
 
-export default function DeleteAuthor({ params }: { params: { id: string } }) {
+export default function DeleteAuthor({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params)
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -23,13 +24,13 @@ export default function DeleteAuthor({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchAuthor = async () => {
       try {
-        const response = await fetch(`/api/authors/${params.id}`);
+        const response = await fetch(`/api/authors/${id}`);
         if (response.ok) {
           const data = await response.json();
           setAuthor(data);
           
           // Lấy số lượng tin tức của tác giả
-          const newsResponse = await fetch(`/api/news?author_id=${params.id}`);
+          const newsResponse = await fetch(`/api/news?author_id=${id}`);
           if (newsResponse.ok) {
             const newsData = await newsResponse.json();
             setNewsCount(newsData.pagination.total);
@@ -46,14 +47,14 @@ export default function DeleteAuthor({ params }: { params: { id: string } }) {
     };
 
     fetchAuthor();
-  }, [params.id]);
+  }, [id]);
 
   const handleDelete = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(`/api/authors/${params.id}`, {
+      const response = await fetch(`/api/authors/${id}`, {
         method: "DELETE",
       });
 
@@ -138,7 +139,7 @@ export default function DeleteAuthor({ params }: { params: { id: string } }) {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Link href={`/admin/authors/edit/${params.id}`}>
+              <Link href={`/admin/authors/edit/${id}`}>
                 <Button variant="outline">Hủy và quay lại</Button>
               </Link>
               <Button 

@@ -56,18 +56,18 @@ export async function POST(request: NextRequest) {
       
     console.log('Using Cloudinary folder:', cloudinaryFolder);
     
-    // Upload to Cloudinary
-    const result = await uploadToCloudinary(buffer, cloudinaryFolder);
+    // Upload to Cloudinary with MIME type
+    const result = await uploadToCloudinary(buffer, cloudinaryFolder, fileType);
     
     console.log('Cloudinary upload successful, saving to database...');
 
     // Save document to database
     const dbResult = await query(
       `INSERT INTO documents 
-       (name, file_type, file_size, file_url, file_public_id, category, uploaded_by, description, folder_path, is_public) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+       (name, file_type, file_size, file_url, file_public_id, resource_type, category, uploaded_by, description, folder_path, is_public) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
        RETURNING *`,
-      [name, fileType, fileSize, result.url, result.public_id, category, uploadedBy, description, folderPath, isPublic]
+      [name, fileType, fileSize, result.url, result.public_id, result.resource_type, category, uploadedBy, description, folderPath, isPublic]
     );
 
     console.log('Document saved to database with ID:', dbResult.rows[0].id);

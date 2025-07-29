@@ -114,16 +114,30 @@ export default function CompaniesPage() {
       fullDescription: company.description,
       color: getCompanyColor(company.name),
       href: `/companies/${company.slug}`,
-      founded: company.created_at ? new Date(company.created_at).getFullYear().toString() : new Date().getFullYear().toString(),
+      founded: company.established_date ? new Date(company.established_date).getFullYear().toString() : new Date().getFullYear().toString(),
       employees: `${company.employee_count || 0}+`,
-      projects: "10+", // Giá trị mặc định vì chưa có dữ liệu thực tế
+      projects: `${company.projects_count || 0}+`,
       specialties: getCompanySpecialties(company.name),
       industry: company.industry || "Technology",
-      website: company.website,
+      website: company.website_url,
       address: company.address,
       phone: company.phone,
       email: company.email,
-      is_featured: company.is_featured || false
+      is_featured: company.is_featured || false,
+      
+      // Thêm thông tin mới
+      mission: company.mission,
+      vision: company.vision,
+      values: company.values || [],
+      achievements: company.achievements || [],
+      facebook_url: company.facebook_url,
+      twitter_url: company.twitter_url,
+      linkedin_url: company.linkedin_url,
+      youtube_url: company.youtube_url,
+      
+      // Media
+      image_url: company.image_url,
+      gallery: company.gallery || [],
     }
   })
 

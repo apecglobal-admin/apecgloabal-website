@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 type CacheEntry<T> = {
   data: T;
@@ -23,6 +23,10 @@ export function useApiCache<T>(
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Use ref to store the latest fetchFn to avoid dependency issues
+  const fetchFnRef = useRef(fetchFn);
+  fetchFnRef.current = fetchFn;
 
   const fetchData = useCallback(async () => {
     try {
@@ -37,8 +41,8 @@ export function useApiCache<T>(
         return;
       }
 
-      // Fetch new data
-      const result = await fetchFn();
+      // Fetch new data using the ref to get the latest function
+      const result = await fetchFnRef.current();
       
       // Cache the result
       cache.set(key, {
@@ -53,7 +57,7 @@ export function useApiCache<T>(
     } finally {
       setLoading(false);
     }
-  }, [key, fetchFn, cacheTime]);
+  }, [key, cacheTime]);
 
   const refetch = useCallback(() => {
     cache.delete(key);

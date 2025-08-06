@@ -37,6 +37,7 @@ export interface Company {
   
   // SEO and display
   is_featured: boolean;
+  is_parent_company: boolean;
   display_order: number;
   meta_title?: string;
   meta_description?: string;
@@ -53,7 +54,6 @@ export interface Company {
 export interface Department {
   id: number;
   name: string;
-  company_id: number;
   description: string;
   manager_name: string;
   employee_count: number;

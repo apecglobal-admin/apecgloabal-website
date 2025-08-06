@@ -11,6 +11,7 @@ interface Company {
   name: string
   logo_url?: string
   slug: string
+  is_parent_company?: boolean
 }
 
 interface SplashPageProps {
@@ -29,17 +30,20 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   
   // Fallback companies data nếu API fails
   
+  // Tạo fetch function stable để tránh re-render vô hạn
+  const fetchCompanies = useCallback(async () => {
+    const response = await fetch('/api/companies')
+    if (!response.ok) {
+      throw new Error('Failed to fetch companies')
+    }
+    const data = await response.json()
+    return data
+  }, [])
+
   // Sử dụng API cache để lấy companies với khả năng refresh
   const { data: apiResponse, loading, error, refetch } = useApiCache<any>(
     'companies',
-    async () => {
-      const response = await fetch('/api/companies')
-      if (!response.ok) {
-        throw new Error('Failed to fetch companies')
-      }
-      const data = await response.json()
-      return data
-    },
+    fetchCompanies,
     2 * 60 * 1000 // Cache 2 phút (ngắn hơn để cập nhật nhanh hơn)
   )
 
@@ -47,7 +51,11 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const apiCompanies = apiResponse?.success ? apiResponse.data : null
 
   // Sử dụng fallback data nếu API không có data
-  const companies = Array.isArray(apiCompanies) ? apiCompanies : []
+  const allCompanies = Array.isArray(apiCompanies) ? apiCompanies : []
+  
+  // Tách parent company và client companies
+  const parentCompany = allCompanies.find(company => company.is_parent_company === true)
+  const clientCompanies = allCompanies.filter(company => company.is_parent_company !== true)
 
   // Auto-refresh data every 5 minutes to catch new companies
   useEffect(() => {
@@ -66,114 +74,102 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     }
   }, [logoLoaded, loading])
 
-  // Generate positions for all companies, ensuring no overlap
-  const generateNonOverlappingPositions = useCallback((count: number) => {
+  // Generate random starting positions for logos - distributed evenly across screen
+  const generateRandomStartingPositions = useCallback((count: number) => {
     const positions: Array<{ left: number; top: number }> = []
-    const minDistance = 12 // Minimum distance between logos (in percentage)
-    const maxAttempts = 150 // Maximum attempts to find a non-overlapping position
     
-    // Safe zones to avoid main content area
-    const safeZones = [
-      { left: 30, right: 70, top: 20, bottom: 80 }, // Center area for main logo and content
-    ]
+    if (count === 0) return positions
     
-    // Predefined good positions around the edges for fallback
-    const fallbackPositions = [
-      { left: 10, top: 15 }, { left: 85, top: 15 }, // Top corners
-      { left: 10, top: 85 }, { left: 85, top: 85 }, // Bottom corners
-      { left: 5, top: 50 }, { left: 90, top: 50 },   // Middle sides
-      { left: 15, top: 30 }, { left: 80, top: 30 },  // Upper sides
-      { left: 15, top: 70 }, { left: 80, top: 70 },  // Lower sides
-      { left: 25, top: 10 }, { left: 75, top: 10 },  // Top middle
-      { left: 25, top: 90 }, { left: 75, top: 90 },  // Bottom middle
-    ]
+    // Chia màn hình thành lưới để phân bố đều
+    const gridCols = Math.ceil(Math.sqrt(count * 1.5)) // Tăng số cột để rải rộng hơn
+    const gridRows = Math.ceil(count / gridCols)
     
-    const isPositionValid = (newPos: { left: number; top: number }) => {
-      // Check if position is in safe zone
-      for (const zone of safeZones) {
-        if (newPos.left >= zone.left && newPos.left <= zone.right &&
-            newPos.top >= zone.top && newPos.top <= zone.bottom) {
-          return false
-        }
+    // Tạo danh sách các ô lưới có sẵn
+    const availableCells: Array<{ col: number; row: number }> = []
+    for (let row = 0; row < gridRows; row++) {
+      for (let col = 0; col < gridCols; col++) {
+        availableCells.push({ col, row })
       }
-      
-      // Check distance from existing positions
-      for (const existingPos of positions) {
-        const distance = Math.sqrt(
-          Math.pow(newPos.left - existingPos.left, 2) + 
-          Math.pow(newPos.top - existingPos.top, 2)
-        )
-        if (distance < minDistance) {
-          return false
-        }
-      }
-      
-      return true
     }
     
+    // Trộn ngẫu nhiên danh sách các ô
+    for (let i = availableCells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[availableCells[i], availableCells[j]] = [availableCells[j], availableCells[i]]
+    }
+    
+    // Tạo vị trí cho từng logo trong các ô đã trộn
     for (let i = 0; i < count; i++) {
-      let attempts = 0
-      let validPosition = null
+      const cell = availableCells[i]
       
-      // Try random positions first
-      while (attempts < maxAttempts && !validPosition) {
-        const candidate = {
-          left: Math.random() * 85 + 5,   // 5% to 90%
-          top: Math.random() * 85 + 5,    // 5% to 90%
-        }
-        
-        if (isPositionValid(candidate)) {
-          validPosition = candidate
-        }
-        attempts++
+      // Tính toán vị trí cơ bản của ô
+      const cellWidth = 80 / gridCols  // 80% để tránh viền
+      const cellHeight = 80 / gridRows
+      
+      const baseCellLeft = 10 + cell.col * cellWidth  // 10% offset từ viền
+      const baseCellTop = 10 + cell.row * cellHeight
+      
+      // Thêm random trong ô để không quá cứng nhắc
+      const randomOffsetX = (Math.random() - 0.5) * cellWidth * 0.8  // Random trong 80% ô
+      const randomOffsetY = (Math.random() - 0.5) * cellHeight * 0.8
+      
+      const position = {
+        left: Math.max(5, Math.min(90, baseCellLeft + cellWidth/2 + randomOffsetX)),
+        top: Math.max(5, Math.min(90, baseCellTop + cellHeight/2 + randomOffsetY))
       }
       
-      // If random didn't work, try fallback positions
-      if (!validPosition) {
-        for (const fallback of fallbackPositions) {
-          if (isPositionValid(fallback)) {
-            validPosition = { ...fallback }
-            break
-          }
-        }
-      }
-      
-      // Last resort: systematic placement
-      if (!validPosition) {
-        const angle = (i * 360 / count) * (Math.PI / 180) // Distribute in circle
-        const radius = 40 // Distance from center
-        validPosition = {
-          left: 50 + radius * Math.cos(angle),
-          top: 50 + radius * Math.sin(angle),
-        }
-        
-        // Ensure within bounds
-        validPosition.left = Math.max(5, Math.min(90, validPosition.left))
-        validPosition.top = Math.max(5, Math.min(90, validPosition.top))
-      }
-      
-      positions.push(validPosition)
+      positions.push(position)
     }
     
     return positions
   }, [])
 
-  // Generate positions when companies data changes
+  // Generate random starting positions when client companies data changes
   useEffect(() => {
-    if (companies && companies.length > 0) {
-      console.log(`Splash Page: Generating positions for ${companies.length} companies:`, companies.map(c => c.name))
-      const positions = generateNonOverlappingPositions(companies.length)
+    if (clientCompanies && clientCompanies.length > 0) {
+      console.log(`Splash Page: Generating random starting positions for ${clientCompanies.length} client companies:`, clientCompanies.map(c => c.name))
+      const positions = generateRandomStartingPositions(clientCompanies.length)
       setLogoPositions(positions)
-      console.log(`Splash Page: Generated ${positions.length} positions`)
+      console.log(`Splash Page: Generated ${positions.length} random starting positions`)
     }
     
     setIsTeleporting(false)
-  }, [companies, generateNonOverlappingPositions])
+  }, [clientCompanies, generateRandomStartingPositions])
+
+  // Continuously update logo positions for dynamic movement
+  useEffect(() => {
+    if (!clientCompanies || clientCompanies.length === 0) return
+
+    const updatePositions = () => {
+      const newPositions = generateRandomStartingPositions(clientCompanies.length)
+      setLogoPositions(newPositions)
+    }
+
+    // Update positions every 15-25 seconds with random interval
+    const getRandomInterval = () => Math.random() * 10000 + 15000 // 15-25 seconds
+    
+    let timeoutId: NodeJS.Timeout
+    const scheduleNextUpdate = () => {
+      timeoutId = setTimeout(() => {
+        updatePositions()
+        scheduleNextUpdate() // Schedule next update
+      }, getRandomInterval())
+    }
+
+    // Start the cycle
+    scheduleNextUpdate()
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [clientCompanies, generateRandomStartingPositions])
 
   useEffect(() => {
     // Preload main logo for faster display
     const img = new window.Image()
-    img.src = '/main-logo.png'
+    // Sử dụng logo của parent company nếu có, nếu không thì dùng logo mặc định
+    const logoSrc = parentCompany?.logo_url || '/main-logo.png'
+    img.src = logoSrc
     img.onload = () => {
       setLogoLoaded(true)
       checkAllAssetsLoaded()
@@ -191,7 +187,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     }, 10000)
     
     return () => clearTimeout(safetyTimeout)
-  }, [])
+  }, [parentCompany])
 
   const preloadCompanyLogos = useCallback(async (companyList: Company[]) => {
     if (!companyList || companyList.length === 0) {
@@ -223,12 +219,12 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     setCompanyLogosLoaded(true)
   }, [])
 
-  // Preload company logos when companies data is available
+  // Preload company logos when client companies data is available
   useEffect(() => {
-    if (companies && companies.length > 0) {
-      preloadCompanyLogos(companies)
+    if (clientCompanies && clientCompanies.length > 0) {
+      preloadCompanyLogos(clientCompanies)
     }
-  }, [companies, preloadCompanyLogos])
+  }, [clientCompanies, preloadCompanyLogos])
 
   // Check if all assets are loaded whenever dependencies change
   useEffect(() => {
@@ -261,9 +257,9 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
 
   return (
     <div className="relative min-h-screen bg-white overflow-hidden">
-      {/* Floating Company Logos with gentle animations */}
-      <div className="absolute inset-0">
-        {companies && companies.length > 0 && logoPositions.length > 0 && companies.map((company, index) => {
+      {/* Floating Client Company Logos with random movement - mờ hơn */}
+      <div className="absolute inset-0" style={{ padding: '100px' }}>
+        {clientCompanies && clientCompanies.length > 0 && logoPositions.length > 0 && clientCompanies.map((company, index) => {
           const position = logoPositions[index]
           if (!position) return null
           
@@ -280,27 +276,32 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
           ]
           const animationClass = floatAnimations[index % floatAnimations.length]
           
+          // Tạo delay khác nhau cho mỗi logo để không bị đồng bộ
+          const animationDelay = `${(index * 0.8)}s`
+          
           return (
             <div
               key={company.id}
-              className={`absolute hover:opacity-90 transition-all duration-300 hover:scale-110 cursor-pointer opacity-100 ${animationClass}`}
+              className={`absolute hover:opacity-70 hover:scale-110 cursor-pointer opacity-40 ${animationClass}`}
               style={{
                 left: `${position.left}%`,
                 top: `${position.top}%`,
+                animationDelay: animationDelay,
+                transition: 'left 3s cubic-bezier(0.4, 0, 0.6, 1), top 3s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.5s ease, transform 0.5s ease',
               }}
             >
-              <div className="relative w-20 h-20 md:w-24 md:h-24 filter drop-shadow-2xl">
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 filter drop-shadow-lg">
                 {company.logo_url ? (
                   <Image
                     src={company.logo_url}
                     alt={`${company.name} logo`}
                     fill
                     className="object-contain"
-                    sizes="(max-width: 768px) 80px, 96px"
+                    sizes="(max-width: 640px) 56px, (max-width: 768px) 64px, (max-width: 1024px) 80px, 96px"
                   />
                 ) : (
-                  <div className="w-full h-full bg-white/15 rounded-xl backdrop-blur-md border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center">
-                    <div className="text-white/80 text-xs font-medium text-center px-2">
+                  <div className="w-full h-full bg-white/10 rounded-xl backdrop-blur-md border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+                    <div className="text-white/60 text-xs font-medium text-center px-2">
                       {company.name.split(' ').map(word => word[0]).join('').toUpperCase()}
                     </div>
                   </div>
@@ -322,7 +323,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
               <div className="relative group">
                 
                 {/* Logo container - minimal styling */}
-                <div className="relative w-36 h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 transition-all duration-500 hover:scale-105">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-56 lg:h-56 transition-all duration-500 hover:scale-105">
                   
                   {!logoLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -330,8 +331,8 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
                     </div>
                   )}
                   <Image
-                    src="/main-logo.png"
-                    alt="APEC Global Logo"
+                    src={parentCompany?.logo_url || '/main-logo.png'}
+                    alt={parentCompany?.name ? `${parentCompany.name} Logo` : "APEC Global Logo"}
                     fill
                     className={`object-contain transition-opacity duration-500 relative z-10 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     style={{ 
@@ -353,7 +354,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-blue-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent animate-gradient">
-                  APEC GLOBAL
+                  {parentCompany?.name?.toUpperCase() || 'APEC GLOBAL'}
                 </span>
               </h1>
               
@@ -370,7 +371,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
 
           {/* Enhanced Tagline */}
           <div className="mb-16">
-            <p className="text-xl md:text-2xl lg:text-3xl text-white/90 mb-4 font-light leading-relaxed">
+            <p className="text-xl md:text-2xl lg:text-3xl text-gray-700 mb-4 font-light leading-relaxed">
               Thống nhất hệ sinh thái công nghệ tương lai
             </p>
             <p className="text-sm md:text-base text-white/60 font-light italic">

@@ -74,6 +74,7 @@ export async function GET(request: Request) {
         
         // SEO and display
         is_featured: company.is_featured,
+        is_parent_company: company.is_parent_company || false,
         display_order: company.display_order,
         meta_title: company.meta_title,
         meta_description: company.meta_description,
@@ -146,6 +147,7 @@ export async function POST(request: NextRequest) {
       linkedin_url: data.linkedin_url || null,
       youtube_url: data.youtube_url || null,
       is_featured: data.is_featured || false,
+      is_parent_company: data.is_parent_company || false,
       display_order: data.display_order || 0,
       meta_title: data.meta_title || null,
       meta_description: data.meta_description || null

@@ -57,6 +57,50 @@ export async function getAllCompanies() {
   }
 }
 
+// Hàm lấy công ty mẹ
+export async function getParentCompany() {
+  try {
+    const result = await query('SELECT * FROM companies WHERE is_parent_company = true LIMIT 1');
+    return result.rows[0];
+  } catch (error) {
+    console.log('Error getting parent company, returning null:', error);
+    return null;
+  }
+}
+
+// Hàm lấy các công ty con
+export async function getSubsidiaryCompanies() {
+  try {
+    const result = await query('SELECT * FROM companies WHERE is_parent_company = false ORDER BY display_order, name');
+    return result.rows;
+  } catch (error) {
+    console.log('Error getting subsidiary companies, returning empty array:', error);
+    return [];
+  }
+}
+
+// Hàm lấy tất cả phòng ban (thuộc công ty mẹ)
+export async function getAllDepartments() {
+  try {
+    const result = await query('SELECT * FROM departments ORDER BY name');
+    return result.rows;
+  } catch (error) {
+    console.log('Error getting all departments, returning empty array:', error);
+    return [];
+  }
+}
+
+// Hàm lấy phòng ban theo ID
+export async function getDepartmentById(id: number) {
+  try {
+    const result = await query('SELECT * FROM departments WHERE id = $1', [id]);
+    return result.rows[0];
+  } catch (error) {
+    console.log('Error getting department by id, returning null:', error);
+    return null;
+  }
+}
+
 // Hàm lấy công ty theo slug
 export async function getCompanyBySlug(slug: string) {
   try {
@@ -105,10 +149,16 @@ export async function getCompanyDetails(slug: string) {
     servicesCount = 0;
   }
   
-  // Lấy danh sách phòng ban
+  // Lấy danh sách phòng ban (tất cả phòng ban thuộc công ty mẹ)
   let departments = [];
   try {
-    const departmentsResult = await query('SELECT * FROM departments WHERE company_id = $1', [company.id]);
+    const departmentsResult = await query(`
+      SELECT d.*, 
+        (SELECT COUNT(*) FROM employees WHERE department_id = d.id) as employee_count,
+        (SELECT COUNT(*) FROM employees WHERE department_id = d.id AND company_id = $1) as company_employee_count
+      FROM departments d 
+      ORDER BY d.name
+    `, [company.id]);
     departments = departmentsResult.rows;
   } catch (error) {
     console.log('Error getting departments, setting to empty array:', error);

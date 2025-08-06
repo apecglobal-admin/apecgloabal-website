@@ -23,7 +23,8 @@ import {
   Loader2,
   UserCheck,
   UserX,
-  Briefcase
+  Briefcase,
+  Trash2
 } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
@@ -77,6 +78,8 @@ function EmployeesManagementContent() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [creating, setCreating] = useState(false)
+  const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -225,6 +228,32 @@ function EmployeesManagementContent() {
       toast.error('Lỗi kết nối server')
     } finally {
       setCreating(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deletingEmployee) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/employees/${deletingEmployee.id}`, {
+        method: 'DELETE'
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setDeletingEmployee(null)
+        fetchEmployees()
+        toast.success('Xóa nhân viên thành công!')
+      } else {
+        toast.error('Lỗi: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error deleting employee:', error)
+      toast.error('Lỗi kết nối server')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -472,14 +501,24 @@ function EmployeesManagementContent() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(employee)}
-                        className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(employee)}
+                          className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDeletingEmployee(employee)}
+                          className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -599,7 +638,7 @@ function EmployeesManagementContent() {
                   </SelectTrigger>
                   <SelectContent>
                     {departments
-                      .filter(dept => dept.company_id.toString() === formData.company_id)
+                      .filter(dept => dept.company_id && dept.company_id.toString() === formData.company_id)
                       .map((department) => (
                         <SelectItem key={department.id} value={department.id.toString()}>
                           {department.name}
@@ -685,6 +724,54 @@ function EmployeesManagementContent() {
                   <>
                     <Plus className="h-4 w-4 mr-2" />
                     {editingEmployee ? 'Cập Nhật' : 'Tạo Nhân Viên'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingEmployee} onOpenChange={() => setDeletingEmployee(null)}>
+        <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Xác Nhận Xóa Nhân Viên
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-white/80">
+              Bạn có chắc chắn muốn xóa nhân viên <span className="font-semibold text-red-400">{deletingEmployee?.name}</span> không?
+            </p>
+            <p className="text-sm text-red-400">
+              ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan.
+            </p>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setDeletingEmployee(null)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                disabled={deleting}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa Nhân Viên
                   </>
                 )}
               </Button>

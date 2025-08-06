@@ -9,22 +9,18 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { 
   Plus, 
   Search, 
   Users, 
   Building2, 
-  Mail, 
-  Phone, 
-  MapPin,
   Edit,
   Loader2,
   Briefcase,
-  DollarSign
+  DollarSign,
+  Trash2
 } from "lucide-react"
-import Image from "next/image"
 import { toast } from "sonner"
 import { Pagination, usePagination } from "@/components/ui/pagination"
 
@@ -32,75 +28,32 @@ interface Department {
   id: number
   name: string
   description: string
-  company_id: number
-  company_name: string
-  company_logo: string
-  manager_id: number
   manager_name: string
-  location: string
-  phone: string
-  email: string
-  budget: number
   employee_count: number
-  status: string
   created_at: string
   updated_at: string
-  icon?: string
-  color?: string
 }
 
-interface DepartmentTemplate {
-  id: number
-  name: string
-  description: string
-  icon: string
-  color: string
-  sort_order: number
-  is_active: boolean
-}
 
-interface Company {
-  id: number
-  name: string
-  logo_url: string
-}
-
-interface Employee {
-  id: number
-  name: string
-  company_id: number
-}
 
 function DepartmentsManagementContent() {
   const [departments, setDepartments] = useState<Department[]>([])
-  const [companies, setCompanies] = useState<Company[]>([])
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [departmentTemplates, setDepartmentTemplates] = useState<DepartmentTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCompany, setSelectedCompany] = useState("all")
-  const [selectedStatus, setSelectedStatus] = useState("all")
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
   const [creating, setCreating] = useState(false)
+  const [deletingDepartment, setDeletingDepartment] = useState<Department | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const [formData, setFormData] = useState({
-    department_template_id: "",
-    company_id: "",
-    manager_id: "",
-    location: "",
-    phone: "",
-    email: "",
-    budget: "",
-    notes: "",
-    status: "active"
+    name: "",
+    description: "",
+    manager_name: ""
   })
 
   useEffect(() => {
     fetchDepartments()
-    fetchCompanies()
-    fetchEmployees()
-    fetchDepartmentTemplates()
   }, [])
 
   const fetchDepartments = async () => {
@@ -121,63 +74,14 @@ function DepartmentsManagementContent() {
     }
   }
 
-  const fetchCompanies = async () => {
-    try {
-      const response = await fetch('/api/companies')
-      const result = await response.json()
-      if (result.success && Array.isArray(result.data)) {
-        setCompanies(result.data)
-      } else {
-        setCompanies([]) // Fallback to empty array
-      }
-    } catch (error) {
-      console.error('Error fetching companies:', error)
-      setCompanies([]) // Fallback to empty array on error
-    }
-  }
 
-  const fetchEmployees = async () => {
-    try {
-      const response = await fetch('/api/employees')
-      const result = await response.json()
-      if (result.success && Array.isArray(result.data)) {
-        setEmployees(result.data)
-      } else {
-        setEmployees([]) // Fallback to empty array
-      }
-    } catch (error) {
-      console.error('Error fetching employees:', error)
-      setEmployees([]) // Fallback to empty array on error
-    }
-  }
-
-  const fetchDepartmentTemplates = async () => {
-    try {
-      const response = await fetch('/api/department-templates')
-      const result = await response.json()
-      if (result.success && Array.isArray(result.data)) {
-        setDepartmentTemplates(result.data)
-      } else {
-        setDepartmentTemplates([]) // Fallback to empty array
-      }
-    } catch (error) {
-      console.error('Error fetching department templates:', error)
-      setDepartmentTemplates([]) // Fallback to empty array on error
-    }
-  }
 
   const handleCreate = () => {
     setEditingDepartment(null)
     setFormData({
-      department_template_id: "",
-      company_id: "",
-      manager_id: "",
-      location: "",
-      phone: "",
-      email: "",
-      budget: "",
-      notes: "",
-      status: "active"
+      name: "",
+      description: "",
+      manager_name: ""
     })
     setShowCreateModal(true)
   }
@@ -187,20 +91,14 @@ function DepartmentsManagementContent() {
     setFormData({
       name: department.name,
       description: department.description || "",
-      company_id: department.company_id.toString(),
-      manager_id: department.manager_id?.toString() || "",
-      location: department.location || "",
-      phone: department.phone || "",
-      email: department.email || "",
-      budget: department.budget?.toString() || "",
-      status: department.status
+      manager_name: department.manager_name || ""
     })
     setShowCreateModal(true)
   }
 
   const handleSave = async () => {
-    if (!formData.department_template_id || !formData.company_id) {
-      toast.error('Vui lòng chọn loại phòng ban và công ty')
+    if (!formData.name.trim()) {
+      toast.error('Vui lòng nhập tên phòng ban')
       return
     }
 
@@ -215,15 +113,9 @@ function DepartmentsManagementContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          company_id: parseInt(formData.company_id),
-          department_template_id: parseInt(formData.department_template_id),
-          manager_id: formData.manager_id ? parseInt(formData.manager_id) : null,
-          location: formData.location,
-          phone: formData.phone,
-          email: formData.email,
-          budget: parseFloat(formData.budget) || 0,
-          notes: formData.notes,
-          status: formData.status
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          manager_name: formData.manager_name.trim()
         })
       })
 
@@ -244,6 +136,32 @@ function DepartmentsManagementContent() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!deletingDepartment) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/departments/${deletingDepartment.id}`, {
+        method: 'DELETE'
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setDeletingDepartment(null)
+        fetchDepartments()
+        toast.success('Xóa phòng ban thành công!')
+      } else {
+        toast.error('Lỗi: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error deleting department:', error)
+      toast.error('Lỗi kết nối server')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   // Ensure departments is always an array
   const safeDepartments = Array.isArray(departments) ? departments : []
   
@@ -251,21 +169,18 @@ function DepartmentsManagementContent() {
   const filteredDepartments = safeDepartments.filter((department) => {
     const matchesSearch = 
       department.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      department.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (department.description && department.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      (department.description && department.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (department.manager_name && department.manager_name.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    const matchesCompany = selectedCompany === "all" || department.company_id.toString() === selectedCompany
-    const matchesStatus = selectedStatus === "all" || department.status === selectedStatus
-    
-    return matchesSearch && matchesCompany && matchesStatus
+    return matchesSearch
   })
 
   // Calculate stats
   const totalDepartments = safeDepartments.length
-  const activeDepartments = safeDepartments.filter(d => d.status === 'active').length
-  const inactiveDepartments = safeDepartments.filter(d => d.status === 'inactive').length
-  const companiesWithDepartments = [...new Set(safeDepartments.map(d => d.company_id))].length
-  const totalBudget = safeDepartments.reduce((sum, d) => sum + (d.budget || 0), 0)
+  const departmentsWithManagers = safeDepartments.filter(d => d.manager_name && d.manager_name.trim() !== '').length
+  const departmentsWithEmployees = safeDepartments.filter(d => d.employee_count > 0).length
+  const totalEmployees = safeDepartments.reduce((sum, d) => sum + (d.employee_count || 0), 0)
+  const avgEmployeesPerDept = totalDepartments > 0 ? Math.round(totalEmployees / totalDepartments) : 0
 
   // Pagination
   const {
@@ -323,22 +238,10 @@ function DepartmentsManagementContent() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm">Đang Hoạt Động</p>
-                <p className="text-2xl font-bold text-white">{activeDepartments}</p>
+                <p className="text-white/60 text-sm">Có Trưởng Phòng</p>
+                <p className="text-2xl font-bold text-white">{departmentsWithManagers}</p>
               </div>
-              <Building2 className="h-8 w-8 text-green-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/50 border-red-500/30">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/60 text-sm">Không Hoạt Động</p>
-                <p className="text-2xl font-bold text-white">{inactiveDepartments}</p>
-              </div>
-              <Building2 className="h-8 w-8 text-red-400" />
+              <Users className="h-8 w-8 text-green-400" />
             </div>
           </CardContent>
         </Card>
@@ -347,10 +250,10 @@ function DepartmentsManagementContent() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm">Công Ty</p>
-                <p className="text-2xl font-bold text-white">{companiesWithDepartments}</p>
+                <p className="text-white/60 text-sm">Có Nhân Viên</p>
+                <p className="text-2xl font-bold text-white">{departmentsWithEmployees}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-400" />
+              <Building2 className="h-8 w-8 text-blue-400" />
             </div>
           </CardContent>
         </Card>
@@ -359,10 +262,22 @@ function DepartmentsManagementContent() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm">Tổng Ngân Sách</p>
-                <p className="text-lg font-bold text-white">{(totalBudget / 1000000).toFixed(1)}M</p>
+                <p className="text-white/60 text-sm">Tổng Nhân Viên</p>
+                <p className="text-2xl font-bold text-white">{totalEmployees}</p>
               </div>
-              <DollarSign className="h-8 w-8 text-orange-400" />
+              <Users className="h-8 w-8 text-orange-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/50 border-cyan-500/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm">TB NV/Phòng Ban</p>
+                <p className="text-2xl font-bold text-white">{avgEmployeesPerDept}</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-cyan-400" />
             </div>
           </CardContent>
         </Card>
@@ -375,37 +290,12 @@ function DepartmentsManagementContent() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
               <Input
-                placeholder="Tìm kiếm phòng ban..."
+                placeholder="Tìm kiếm phòng ban, mô tả, trưởng phòng..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
               />
             </div>
-            
-            <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-              <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
-                <SelectValue placeholder="Chọn công ty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả công ty</SelectItem>
-                {Array.isArray(companies) ? companies.map((company) => (
-                  <SelectItem key={company.id} value={company.id.toString()}>
-                    {company.name}
-                  </SelectItem>
-                )) : []}
-              </SelectContent>
-            </Select>
-            
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                <SelectItem value="active">Hoạt động</SelectItem>
-                <SelectItem value="inactive">Không hoạt động</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>
@@ -423,11 +313,9 @@ function DepartmentsManagementContent() {
             <TableHeader>
               <TableRow className="border-b border-purple-500/30">
                 <TableHead className="text-white">Phòng Ban</TableHead>
-                <TableHead className="text-white">Công Ty</TableHead>
                 <TableHead className="text-white">Trưởng Phòng</TableHead>
-                <TableHead className="text-white">Liên Hệ</TableHead>
-                <TableHead className="text-white">Ngân Sách</TableHead>
-                <TableHead className="text-white">Trạng Thái</TableHead>
+                <TableHead className="text-white">Số Nhân Viên</TableHead>
+                <TableHead className="text-white">Ngày Tạo</TableHead>
                 <TableHead className="text-white">Thao Tác</TableHead>
               </TableRow>
             </TableHeader>
@@ -441,69 +329,36 @@ function DepartmentsManagementContent() {
                         <p className="text-sm text-white/60">{department.description || 'Không có mô tả'}</p>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        {department.company_logo && (
-                          <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                            <Image
-                              src={department.company_logo}
-                              alt={department.company_name}
-                              width={24}
-                              height={24}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <span className="text-white">{department.company_name}</span>
-                      </div>
-                    </TableCell>
                     <TableCell className="text-white/80">
                       {department.manager_name || 'Chưa phân công'}
                     </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        {department.email && (
-                          <div className="flex items-center text-sm text-white/60">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {department.email}
-                          </div>
-                        )}
-                        {department.phone && (
-                          <div className="flex items-center text-sm text-white/60">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {department.phone}
-                          </div>
-                        )}
-                        {department.location && (
-                          <div className="flex items-center text-sm text-white/60">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {department.location}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-white">
-                      {department.budget ? `${(department.budget / 1000000).toFixed(1)}M VND` : 'Chưa xác định'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        className={department.status === 'active' 
-                          ? 'bg-green-600/20 text-green-400 border-green-500/30' 
-                          : 'bg-red-600/20 text-red-400 border-red-500/30'
-                        }
-                      >
-                        {department.status === 'active' ? 'Hoạt động' : 'Không hoạt động'}
+                    <TableCell className="text-center">
+                      <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30">
+                        {department.employee_count || 0}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-white/60">
+                      {new Date(department.created_at).toLocaleDateString('vi-VN')}
+                    </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(department)}
-                        className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(department)}
+                          className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDeletingDepartment(department)}
+                          className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -542,148 +397,41 @@ function DepartmentsManagementContent() {
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="department_template" className="text-white">Loại Phòng Ban *</Label>
-                <Select
-                  value={formData.department_template_id}
-                  onValueChange={(value) => setFormData({...formData, department_template_id: value})}
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn loại phòng ban" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.isArray(departmentTemplates) ? departmentTemplates.map((template) => (
-                      <SelectItem key={template.id} value={template.id.toString()}>
-                        <div className="flex items-center gap-2">
-                          <span className={`w-3 h-3 rounded-full bg-${template.color}-500`}></span>
-                          {template.name}
-                        </div>
-                      </SelectItem>
-                    )) : []}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="company" className="text-white">Công Ty *</Label>
-                <Select
-                  value={formData.company_id}
-                  onValueChange={(value) => setFormData({...formData, company_id: value, manager_id: ""})}
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn công ty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.isArray(companies) ? companies.map((company) => (
-                      <SelectItem key={company.id} value={company.id.toString()}>
-                        {company.name}
-                      </SelectItem>
-                    )) : []}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="name" className="text-white">Tên Phòng Ban *</Label>
+              <Input
+                id="name"
+                placeholder="Nhập tên phòng ban..."
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+              />
             </div>
 
             <div>
-              <Label htmlFor="notes" className="text-white">Ghi Chú</Label>
+              <Label htmlFor="description" className="text-white">Mô Tả</Label>
               <Textarea
-                id="notes"
-                placeholder="Ghi chú về phòng ban này..."
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                className="bg-black/30 border-purple-500/30 text-white"
+                id="description"
+                placeholder="Mô tả chức năng và nhiệm vụ của phòng ban..."
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
                 rows={3}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="manager" className="text-white">Trưởng Phòng</Label>
-                <Select
-                  value={formData.manager_id}
-                  onValueChange={(value) => setFormData({...formData, manager_id: value})}
-                  disabled={!formData.company_id}
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn trưởng phòng" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.isArray(employees) ? employees
-                      .filter(emp => emp.company_id.toString() === formData.company_id)
-                      .map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id.toString()}>
-                          {employee.name}
-                        </SelectItem>
-                      )) : []}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="status" className="text-white">Trạng Thái</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => setFormData({...formData, status: value})}
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Hoạt động</SelectItem>
-                    <SelectItem value="inactive">Không hoạt động</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="phone" className="text-white">Số Điện Thoại</Label>
-                <Input
-                  id="phone"
-                  placeholder="0123456789"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="email" className="text-white">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="department@company.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="budget" className="text-white">Ngân Sách (VND)</Label>
-                <Input
-                  id="budget"
-                  type="number"
-                  placeholder="Ngân sách phòng ban"
-                  value={formData.budget}
-                  onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-            </div>
-
             <div>
-              <Label htmlFor="location" className="text-white">Địa Điểm</Label>
+              <Label htmlFor="manager_name" className="text-white">Trưởng Phòng</Label>
               <Input
-                id="location"
-                placeholder="Vị trí văn phòng"
-                value={formData.location}
-                onChange={(e) => setFormData({...formData, location: e.target.value})}
-                className="bg-black/30 border-purple-500/30 text-white"
+                id="manager_name"
+                placeholder="Nhập tên trưởng phòng..."
+                value={formData.manager_name}
+                onChange={(e) => setFormData({...formData, manager_name: e.target.value})}
+                className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
               />
             </div>
+
+
 
             <div className="flex justify-end space-x-3 pt-4">
               <Button
@@ -707,6 +455,54 @@ function DepartmentsManagementContent() {
                   <>
                     <Plus className="h-4 w-4 mr-2" />
                     {editingDepartment ? 'Cập Nhật' : 'Tạo Phòng Ban'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingDepartment} onOpenChange={() => setDeletingDepartment(null)}>
+        <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Xác Nhận Xóa Phòng Ban
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-white/80">
+              Bạn có chắc chắn muốn xóa phòng ban <span className="font-semibold text-red-400">{deletingDepartment?.name}</span> không?
+            </p>
+            <p className="text-sm text-red-400">
+              ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan.
+            </p>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setDeletingDepartment(null)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                disabled={deleting}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa Phòng Ban
                   </>
                 )}
               </Button>

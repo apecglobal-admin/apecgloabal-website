@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ProjectDetailModal } from "@/components/project-detail-modal"
 import { ProjectCreateModal } from "@/components/project-create-modal"
 import { ProjectReportModal } from "@/components/project-report-modal"
@@ -57,6 +58,8 @@ export default function InternalProjectsPage() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [editMode, setEditMode] = useState(false)
+  const [deletingProject, setDeletingProject] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   
   // Bulk operations
   const [selectedProjects, setSelectedProjects] = useState<number[]>([])
@@ -220,16 +223,18 @@ export default function InternalProjectsPage() {
   }
 
   // New handlers
-  const handleDeleteProject = async (projectId) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa dự án này?')) return
+  const handleDeleteProject = async () => {
+    if (!deletingProject) return
     
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
+      const response = await fetch(`/api/projects/${deletingProject.id}`, {
         method: 'DELETE'
       })
       const result = await response.json()
       
       if (result.success) {
+        setDeletingProject(null)
         toast.success('Xóa dự án thành công!')
         fetchProjects()
       } else {
@@ -238,6 +243,8 @@ export default function InternalProjectsPage() {
     } catch (error) {
       console.error('Error deleting project:', error)
       toast.error('Có lỗi xảy ra khi xóa dự án')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -753,7 +760,7 @@ export default function InternalProjectsPage() {
                             <Archive className="h-4 w-4 mr-2" />
                             Lưu trữ
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteProject(project.id)} className="text-red-400 hover:bg-red-500/20">
+                          <DropdownMenuItem onClick={() => setDeletingProject(project)} className="text-red-400 hover:bg-red-500/20">
                             <Trash2 className="h-4 w-4 mr-2" />
                             Xóa
                           </DropdownMenuItem>
@@ -950,6 +957,54 @@ export default function InternalProjectsPage() {
             setShowImportModal(false)
           }}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!deletingProject} onOpenChange={() => setDeletingProject(null)}>
+          <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-white">
+                Xác Nhận Xóa Dự Án
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <p className="text-white/80">
+                Bạn có chắc chắn muốn xóa dự án <span className="font-semibold text-red-400">{deletingProject?.name}</span> không?
+              </p>
+              <p className="text-sm text-red-400">
+                ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan (task, member, v.v.).
+              </p>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setDeletingProject(null)}
+                  className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                  disabled={deleting}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleDeleteProject}
+                  disabled={deleting}
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Đang xóa...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Xóa Dự Án
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </InternalLayout>
   )

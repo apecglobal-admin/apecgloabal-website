@@ -47,8 +47,25 @@ export async function requireAuth(request: Request) {
   }
   
   try {
-    // Giả sử cookie chứa user_id
-    const userId = authCookie.value;
+    // Parse cookie value - nó chứa JSON object
+    const authData = JSON.parse(authCookie.value);
+    const userId = authData.id;
+    
+    // Nếu là admin (id = 999), trả về thông tin admin trực tiếp
+    if (userId === 999) {
+      return { 
+        user: {
+          id: 999,
+          username: 'admin',
+          role: 'admin',
+          email: 'admin@apecglobal.com',
+          is_active: true,
+          permissions: authData.permissions || { admin_access: true, portal_access: true }
+        }
+      };
+    }
+    
+    // Với user thường, query từ database
     const result = await query('SELECT * FROM users WHERE id = $1', [userId]);
     
     if (result.rows.length === 0) {
@@ -57,6 +74,9 @@ export async function requireAuth(request: Request) {
     
     const user = result.rows[0];
     const { password: _, ...userWithoutPassword } = user;
+    
+    // Thêm permissions từ cookie
+    userWithoutPassword.permissions = authData.permissions;
     
     return { user: userWithoutPassword };
   } catch (error) {

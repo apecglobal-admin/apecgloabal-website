@@ -231,23 +231,44 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     checkAllAssetsLoaded()
   }, [checkAllAssetsLoaded])
 
-  // Show loading screen until everything is ready
+  // Show loading screen until everything is ready - but allow early access
   if (!isLoaded) {
     return (
       <div className="relative min-h-screen bg-white overflow-hidden">
-
         {/* Loading Screen */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="bg-gray-50 rounded-2xl px-8 py-6 border border-gray-200 shadow-lg">
             <div className="flex flex-col items-center space-y-4">
               <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
               <div className="text-gray-800 text-lg font-medium">Đang tải trang...</div>
-              <div className="text-gray-600 text-sm">
+              <div className="text-gray-600 text-sm mb-4">
                 {loading ? 'Đang tải dữ liệu công ty...' : 
                  !logoLoaded ? 'Đang tải logo chính...' : 
                  !companyLogosLoaded ? 'Đang tải logo công ty...' : 
                  'Chuẩn bị hiển thị...'}
               </div>
+              
+              {/* Emergency navigation button during loading */}
+              {/* <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    console.log('🚨 Emergency navigation during loading')
+                    window.location.href = '/home'
+                  }}
+                  className="bg-orange-500 text-white px-3 py-1 rounded text-xs"
+                >
+                  Skip Loading → Home
+                </button>
+                <button
+                  onClick={() => {
+                    console.log('🚨 Force show splash')
+                    setIsLoaded(true)
+                  }}
+                  className="bg-green-500 text-white px-3 py-1 rounded text-xs"
+                >
+                  Force Show
+                </button>
+              </div> */}
             </div>
           </div>
         </div>
@@ -349,7 +370,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
             {/* Main Title */}
             <div className="space-y-4">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-purple-400 via-white to-blue-400 bg-clip-text text-transparent animate-glow animate-gradient">
+                <span className="bg-gradient-to-r from-blue-600 via-purple-300 to-purple-600 bg-clip-text text-transparent animate-glow animate-gradient">
                   TẬP ĐOÀN KINH TẾ
                 </span>
                 <br />
@@ -379,11 +400,57 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
             </p>
           </div>
 
+          {/* TEST BUTTON - Simple debug button */}
+          {/* <div className="mb-4">
+            <button
+              onClick={() => {
+                console.log('🧪 TEST BUTTON clicked')
+                window.location.href = '/home'
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded text-sm mr-4"
+            >
+              TEST - Direct Navigate
+            </button>
+            <button
+              onClick={() => {
+                console.log('🧪 TEST onEnterSite called')
+                if (onEnterSite) onEnterSite()
+              }}
+              className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
+            >
+              TEST - Call onEnterSite
+            </button>
+          </div> */}
+
           {/* Enhanced Enter Button */}
           <div className="relative group animate-bounce-in">
             <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-300 animate-pulse-glow"></div>
             <Button
-              onClick={onEnterSite}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                console.log('🎯 Button "Vào Trang Chính" clicked in SplashPage')
+                console.log('📋 onEnterSite function:', onEnterSite)
+                console.log('🌐 Current location:', window.location.href)
+                
+                // Test multiple navigation methods
+                if (onEnterSite) {
+                  console.log('🚀 Calling onEnterSite...')
+                  onEnterSite()
+                  
+                  // Fallback after delay
+                  setTimeout(() => {
+                    console.log('⏰ Fallback navigation after 2s...')
+                    if (window.location.pathname === '/') {
+                      console.log('🔄 Still on splash, forcing navigation...')
+                      window.location.href = '/home'
+                    }
+                  }, 2000)
+                } else {
+                  console.error('❌ onEnterSite function is undefined! Using direct navigation.')
+                  window.location.href = '/home'
+                }
+              }}
               className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 text-white px-10 py-5 text-lg md:text-xl font-semibold rounded-full transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/40 border border-white/20 backdrop-blur-sm hover-lift"
             >
               <span className="flex items-center">

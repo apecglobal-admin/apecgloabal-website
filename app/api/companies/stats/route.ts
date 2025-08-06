@@ -16,8 +16,8 @@ export async function GET(request: Request) {
       query('SELECT COUNT(*) as count FROM projects WHERE company_id = $1', [companyId]),
       // Services count
       query('SELECT COUNT(*) as count FROM services WHERE company_id = $1', [companyId]),
-      // Departments count
-      query('SELECT COUNT(*) as count FROM departments WHERE company_id = $1', [companyId]),
+      // Departments count - count departments that have employees in this company
+      query('SELECT COUNT(DISTINCT department_id) as count FROM employees WHERE company_id = $1 AND department_id IS NOT NULL', [companyId]),
       // Employees count
       query('SELECT COUNT(*) as count FROM employees WHERE company_id = $1', [companyId]),
       // Jobs count

@@ -25,7 +25,8 @@ import {
   Loader2,
   X,
   Search,
-  Filter
+  Filter,
+  Trash2
 } from "lucide-react"
 import { Service } from "@/lib/schema"
 import { Pagination, usePagination } from "@/components/ui/pagination"
@@ -86,6 +87,8 @@ function ServicesManagementContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCompany, setSelectedCompany] = useState("all")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [deletingService, setDeletingService] = useState<ServiceWithCompany | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -220,14 +223,15 @@ function ServicesManagementContent() {
     }
   }
 
-  const handleDelete = async (service: ServiceWithCompany) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa dịch vụ này?')) return
+  const handleDelete = async () => {
+    if (!deletingService) return
 
+    setDeleting(true)
     try {
       const response = await fetch('/api/services', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: service.id })
+        body: JSON.stringify({ id: deletingService.id })
       })
 
       if (!response.ok) {
@@ -235,11 +239,14 @@ function ServicesManagementContent() {
         throw new Error(errorData.error || 'Failed to delete service')
       }
 
+      setDeletingService(null)
       toast.success('Xóa dịch vụ thành công!')
       fetchServices()
     } catch (error) {
       console.error('Error deleting service:', error)
       toast.error('Không thể xóa dịch vụ')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -536,10 +543,10 @@ function ServicesManagementContent() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleDelete(service)}
+                          onClick={() => setDeletingService(service)}
                           className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                         >
-                          <X className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -757,6 +764,54 @@ function ServicesManagementContent() {
                 <>Lưu</>
               )}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingService} onOpenChange={() => setDeletingService(null)}>
+        <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Xác Nhận Xóa Dịch Vụ
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-white/80">
+              Bạn có chắc chắn muốn xóa dịch vụ <span className="font-semibold text-red-400">{deletingService?.title}</span> không?
+            </p>
+            <p className="text-sm text-red-400">
+              ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan.
+            </p>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setDeletingService(null)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                disabled={deleting}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa Dịch Vụ
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -66,15 +66,15 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
 
   return (
     <div className="w-full">
-      {/* Background Image với overlay */}
-      <div className="relative min-h-[350px] sm:min-h-[450px] md:min-h-[550px] lg:min-h-[650px] overflow-hidden group">
-        {/* Background Image với transition */}
+      {/* Background Image với overlay - CỐ ĐỊNH */}
+      <div className="relative min-h-[500px] sm:min-h-[550px] md:min-h-[600px] lg:min-h-[650px] xl:min-h-[700px] overflow-hidden group">
+        {/* Background Image - SỬ DỤNG SLIDE ĐẦU TIÊN CỐ ĐỊNH */}
         <div className="absolute inset-0">
           <Image
-            src={currentSlideData.backgroundImage}
+            src={slides[0].backgroundImage}
             alt="Hero Background"
             fill
-            className="object-cover transition-all duration-1000 ease-in-out"
+            className="object-cover"
             priority
           />
           {/* Overlay gradient */}
@@ -104,57 +104,51 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
           </>
         )}
 
-        {/* Content Layout */}
-        <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-between p-6 sm:p-8 md:p-10 lg:p-16">
-          {/* Left Side - Content */}
-          <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-8 w-full">
-            <h1 className={`hero-title font-bold mb-3 sm:mb-4 md:mb-6 bg-gradient-to-r ${currentSlideData.gradient} bg-clip-text text-transparent animate-glow text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight`}>
-              {currentSlideData.title}
+        {/* Content Layout - RESPONSIVE MOBILE IMPROVED */}
+        <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 lg:px-12 lg:py-20 xl:px-16">
+          {/* Left Side - Content CỐ ĐỊNH - SỬ DỤNG SLIDE ĐẦU TIÊN */}
+          <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-6 xl:pr-8 w-full max-w-2xl lg:max-w-none mx-auto lg:mx-0">
+            <h1 className={`hero-title font-bold mb-4 sm:mb-5 md:mb-6 lg:mb-8 bg-gradient-to-r ${slides[0].gradient} bg-clip-text text-transparent animate-glow text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight`}>
+              {slides[0].title}
             </h1>
-            <p className="hero-subtitle text-white/90 mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl">
-              {currentSlideData.subtitle}
+            <p className="hero-subtitle text-white/90 mb-6 sm:mb-7 md:mb-8 lg:mb-10 max-w-xl lg:max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl px-2 sm:px-0">
+              {slides[0].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-md sm:max-w-none mx-auto lg:mx-0">
-              <Link href={currentSlideData.primaryButton.href}>
-                <Button className={`w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white border-0 text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}>
-                  {currentSlideData.primaryButton.text}
-                  <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-sm sm:max-w-none mx-auto lg:mx-0">
+              <Link href={slides[0].primaryButton.href}>
+                <Button className={`w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white border-0 text-sm sm:text-base md:text-lg px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg`}>
+                  {slides[0].primaryButton.text}
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
-              <Link href={currentSlideData.secondaryButton.href}>
+              <Link href={slides[0].secondaryButton.href}>
                 <Button
                   variant="outline"
-                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border border-gray-300 text-white hover:bg-white hover:text-black text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}
+                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border border-gray-300 text-white hover:bg-white hover:text-black text-sm sm:text-base md:text-lg px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg`}
                 >
-                  {currentSlideData.secondaryButton.text}
-                  <ExternalLink className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  {slides[0].secondaryButton.text}
+                  <ExternalLink className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Right Side - Hero Image */}
-          <div className="flex-1 mt-6 sm:mt-8 lg:mt-0 lg:pl-8 w-full">
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
-              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl animate-float">
+          {/* Right Side - Hero Image - CHỈ SLIDE ẢNH, KHÔNG ANIMATION ĐUNG ĐƯA */}
+          <div className="flex-1 mt-8 sm:mt-10 lg:mt-0 lg:pl-6 xl:pl-8 w-full">
+            <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[480px] mx-auto">
+              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl">
                 <Image
                   src={currentSlideData.heroImage}
                   alt="Hero Image"
                   fill
-                  className="object-cover transition-all duration-1000 ease-in-out hover:scale-105"
+                  className="object-cover transition-opacity duration-500 ease-in-out"
+                  sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 380px, (max-width: 1280px) 420px, 480px"
                 />
                 {/* Subtle overlay for hero image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                {/* Glowing border effect */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-purple-500/30 animate-pulse-glow" />
+                {/* Simple border - no animation */}
+                <div className="absolute inset-0 rounded-2xl border-2 border-purple-500/30" />
               </div>
-              {/* Decorative elements - responsive sizes */}
-              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-xl animate-pulse" />
-              <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-xl animate-pulse delay-1000" />
-              {/* Additional floating elements - hidden on very small screens */}
-              <div className="hidden sm:block absolute top-1/4 -left-6 lg:-left-8 w-3 h-3 lg:w-4 lg:h-4 bg-purple-400/40 rounded-full animate-float-1" />
-              <div className="hidden sm:block absolute top-3/4 -right-4 lg:-right-6 w-2 h-2 lg:w-3 lg:h-3 bg-blue-400/40 rounded-full animate-float-2" />
-              <div className="hidden sm:block absolute bottom-1/4 -left-3 lg:-left-4 w-1.5 h-1.5 lg:w-2 lg:h-2 bg-cyan-400/40 rounded-full animate-float-3" />
             </div>
           </div>
         </div>

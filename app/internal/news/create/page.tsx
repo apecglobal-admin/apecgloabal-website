@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, Eye, X } from "lucide-react";
 import Link from "next/link";
 import InternalLayout from "@/components/internal-layout";
+import { toast } from "sonner";
 
 function CreateNewsContent() {
   const router = useRouter();
@@ -24,18 +25,20 @@ function CreateNewsContent() {
     tags: [] as string[],
     featured: false,
     published: false,
-    publishedAt: ''
+    published_at: '',
+    image_url: '',
+    author_name: ''
   });
   const [currentTag, setCurrentTag] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = [
-    { value: 'technology', label: 'Công nghệ' },
-    { value: 'business', label: 'Kinh doanh' },
-    { value: 'recruitment', label: 'Tuyển dụng' },
-    { value: 'partnership', label: 'Hợp tác' },
-    { value: 'product', label: 'Sản phẩm' },
-    { value: 'company', label: 'Công ty' }
+    { value: 'Công nghệ', label: 'Công nghệ' },
+    { value: 'Kinh doanh', label: 'Kinh doanh' },
+    { value: 'Tuyển dụng', label: 'Tuyển dụng' },
+    { value: 'Hợp tác', label: 'Hợp tác' },
+    { value: 'Sản phẩm', label: 'Sản phẩm' },
+    { value: 'Công ty', label: 'Công ty' }
   ];
 
   const handleAddTag = () => {
@@ -60,13 +63,39 @@ function CreateNewsContent() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Prepare data for API
+      const createData = {
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        category: formData.category,
+        tags: formData.tags,
+        featured: formData.featured,
+        published: formData.published,
+        published_at: formData.published && formData.published_at ? new Date(formData.published_at).toISOString() : null,
+        image_url: formData.image_url,
+        author_name: formData.author_name
+      };
+
+      const response = await fetch('/api/news', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(createData),
+      });
+
+      const result = await response.json();
       
-      // Redirect to news list
-      router.push('/internal/news');
+      if (response.ok) {
+        toast.success('Tạo tin tức thành công!');
+        router.push('/internal/news');
+      } else {
+        toast.error('Lỗi: ' + result.error);
+      }
     } catch (error) {
       console.error('Error creating news:', error);
+      toast.error('Lỗi kết nối server');
     } finally {
       setIsSubmitting(false);
     }
@@ -134,6 +163,28 @@ function CreateNewsContent() {
                   rows={3}
                   value={formData.excerpt}
                   onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="author_name" className="text-white">Tác giả</Label>
+                <Input
+                  id="author_name"
+                  placeholder="Nhập tên tác giả"
+                  value={formData.author_name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, author_name: e.target.value }))}
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="image_url" className="text-white">URL hình ảnh</Label>
+                <Input
+                  id="image_url"
+                  placeholder="Nhập URL hình ảnh đại diện"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
                   className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
                 />
               </div>
@@ -228,12 +279,12 @@ function CreateNewsContent() {
 
                 {formData.published && (
                   <div className="space-y-2">
-                    <Label htmlFor="publishedAt" className="text-white">Ngày xuất bản</Label>
+                    <Label htmlFor="published_at" className="text-white">Ngày xuất bản</Label>
                     <Input
-                      id="publishedAt"
+                      id="published_at"
                       type="datetime-local"
-                      value={formData.publishedAt}
-                      onChange={(e) => setFormData(prev => ({ ...prev, publishedAt: e.target.value }))}
+                      value={formData.published_at}
+                      onChange={(e) => setFormData(prev => ({ ...prev, published_at: e.target.value }))}
                       className="bg-white/5 border-white/20 text-white focus:border-purple-500/50"
                     />
                   </div>

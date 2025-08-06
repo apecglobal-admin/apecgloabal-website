@@ -98,6 +98,8 @@ export default function DocumentsPage() {
   const [breadcrumbs, setBreadcrumbs] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [draggedDocumentId, setDraggedDocumentId] = useState<number | null>(null)
+  const [deletingDocument, setDeletingDocument] = useState<Document | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null)
 
@@ -530,11 +532,10 @@ export default function DocumentsPage() {
   };
 
   // Handle delete document
-  const handleDeleteDocument = async (doc: Document) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa "${doc.name}"?`)) {
-      return;
-    }
-    
+  const handleDeleteDocument = async () => {
+    if (!deletingDocument) return
+
+    setDeleting(true)
     try {
       const response = await fetch('/api/documents/upload', {
         method: 'DELETE',
@@ -542,7 +543,7 @@ export default function DocumentsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          documentId: doc.id,
+          documentId: deletingDocument.id,
         }),
       });
 
@@ -551,12 +552,15 @@ export default function DocumentsPage() {
       }
 
       // Remove the document from the list
-      setDocuments(documents.filter(d => d.id !== doc.id));
+      setDocuments(documents.filter(d => d.id !== deletingDocument.id));
+      setDeletingDocument(null)
       
-      toast.success(`Đã xóa: ${doc.name}`);
+      toast.success(`Đã xóa: ${deletingDocument.name}`);
     } catch (error) {
       console.error('Delete error:', error);
       toast.error('Không thể xóa tài liệu. Vui lòng thử lại.');
+    } finally {
+      setDeleting(false)
     }
   };
   
@@ -947,7 +951,7 @@ export default function DocumentsPage() {
                                   <Share className="h-4 w-4" />
                                 </Button>
                                 <Button
-                                  onClick={() => handleDeleteDocument(doc)}
+                                  onClick={() => setDeletingDocument(doc)}
                                   variant="outline"
                                   size="sm"
                                   className="bg-transparent border-2 border-red-500/50 text-red-300 hover:bg-red-500/20 flex-1"
@@ -1272,6 +1276,54 @@ export default function DocumentsPage() {
           onDownload={handleDownloadDocument}
           onShare={handleShareDocument}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!deletingDocument} onOpenChange={() => setDeletingDocument(null)}>
+          <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-white">
+                Xác Nhận Xóa Tài Liệu
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <p className="text-white/80">
+                Bạn có chắc chắn muốn xóa tài liệu <span className="font-semibold text-red-400">{deletingDocument?.name}</span> không?
+              </p>
+              <p className="text-sm text-red-400">
+                ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan.
+              </p>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setDeletingDocument(null)}
+                  className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                  disabled={deleting}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleDeleteDocument}
+                  disabled={deleting}
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Đang xóa...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Xóa Tài Liệu
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </InternalLayout>
   )

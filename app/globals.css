@@ -99,100 +99,129 @@
   @apply font-bold text-[hsl(var(--emphasis))];
 }
 
-/* Gentle floating animations for company logos */
+/* Random floating animations for company logos - continuous movement */
 @keyframes float-1 {
-  0%, 100% { 
-    transform: translateY(0px) translateX(0px) rotate(0deg); 
+  0% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
-  25% { 
-    transform: translateY(-15px) translateX(10px) rotate(2deg); 
+  20% { 
+    transform: translate(150px, -100px) rotate(5deg); 
   }
-  50% { 
-    transform: translateY(-5px) translateX(-5px) rotate(-1deg); 
+  40% { 
+    transform: translate(-80px, -200px) rotate(-3deg); 
   }
-  75% { 
-    transform: translateY(-20px) translateX(8px) rotate(1deg); 
+  60% { 
+    transform: translate(200px, -50px) rotate(8deg); 
+  }
+  80% { 
+    transform: translate(-120px, -150px) rotate(-2deg); 
+  }
+  100% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
 }
 
 @keyframes float-2 {
-  0%, 100% { 
-    transform: translateY(0px) translateX(0px) rotate(0deg); 
+  0% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
-  30% { 
-    transform: translateY(-10px) translateX(-8px) rotate(-2deg); 
+  25% { 
+    transform: translate(-180px, -80px) rotate(-6deg); 
   }
-  60% { 
-    transform: translateY(-25px) translateX(12px) rotate(1deg); 
+  50% { 
+    transform: translate(120px, -180px) rotate(4deg); 
   }
-  80% { 
-    transform: translateY(-8px) translateX(-6px) rotate(-1deg); 
+  75% { 
+    transform: translate(-50px, -120px) rotate(-8deg); 
+  }
+  100% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
 }
 
 @keyframes float-3 {
-  0%, 100% { 
-    transform: translateY(0px) translateX(0px) rotate(0deg); 
+  0% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
-  20% { 
-    transform: translateY(-18px) translateX(6px) rotate(1deg); 
+  15% { 
+    transform: translate(90px, -160px) rotate(7deg); 
   }
-  50% { 
-    transform: translateY(-3px) translateX(-10px) rotate(-2deg); 
+  35% { 
+    transform: translate(-200px, -40px) rotate(-4deg); 
   }
-  70% { 
-    transform: translateY(-22px) translateX(4px) rotate(1deg); 
+  55% { 
+    transform: translate(160px, -220px) rotate(9deg); 
+  }
+  75% { 
+    transform: translate(-90px, -80px) rotate(-5deg); 
+  }
+  100% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
 }
 
 @keyframes float-4 {
-  0%, 100% { 
-    transform: translateY(0px) translateX(0px) rotate(0deg); 
+  0% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
-  35% { 
-    transform: translateY(-12px) translateX(-7px) rotate(-1deg); 
+  30% { 
+    transform: translate(-140px, -190px) rotate(-7deg); 
   }
-  65% { 
-    transform: translateY(-16px) translateX(9px) rotate(2deg); 
+  60% { 
+    transform: translate(220px, -60px) rotate(6deg); 
   }
   85% { 
-    transform: translateY(-6px) translateX(-4px) rotate(-1deg); 
+    transform: translate(-70px, -140px) rotate(-3deg); 
+  }
+  100% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
 }
 
 @keyframes float-5 {
-  0%, 100% { 
-    transform: translateY(0px) translateX(0px) rotate(0deg); 
+  0% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
-  40% { 
-    transform: translateY(-14px) translateX(11px) rotate(1deg); 
+  18% { 
+    transform: translate(180px, -120px) rotate(8deg); 
   }
-  70% { 
-    transform: translateY(-8px) translateX(-8px) rotate(-2deg); 
+  42% { 
+    transform: translate(-110px, -200px) rotate(-6deg); 
   }
-  90% { 
-    transform: translateY(-19px) translateX(5px) rotate(1deg); 
+  68% { 
+    transform: translate(250px, -90px) rotate(4deg); 
+  }
+  88% { 
+    transform: translate(-160px, -160px) rotate(-9deg); 
+  }
+  100% { 
+    transform: translate(0px, 0px) rotate(0deg); 
   }
 }
 
 .animate-float-1 {
-  animation: float-1 12s ease-in-out infinite;
+  animation: float-1 20s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-2 {
-  animation: float-2 14s ease-in-out infinite;
+  animation: float-2 24s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-3 {
-  animation: float-3 16s ease-in-out infinite;
+  animation: float-3 28s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-4 {
-  animation: float-4 13s ease-in-out infinite;
+  animation: float-4 22s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-5 {
-  animation: float-5 15s ease-in-out infinite;
+  animation: float-5 26s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 /* Custom animations */
@@ -370,44 +399,56 @@
 }
 
 @keyframes float-6 {
-  0%, 100% {
-    transform: translateY(0px) translateX(0px) rotate(0deg);
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
   }
-  40% {
-    transform: translateY(-12px) translateX(-11px) rotate(-0.9deg);
+  22% {
+    transform: translate(-190px, -110px) rotate(-8deg);
+  }
+  45% {
+    transform: translate(130px, -240px) rotate(5deg);
   }
   70% {
-    transform: translateY(-24px) translateX(9px) rotate(1.1deg);
+    transform: translate(-80px, -70px) rotate(-7deg);
+  }
+  100% {
+    transform: translate(0px, 0px) rotate(0deg);
   }
 }
 
 @keyframes float-7 {
-  0%, 100% {
-    transform: translateY(0px) translateX(0px) rotate(0deg);
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
   }
-  25% {
-    transform: translateY(-19px) translateX(13px) rotate(0.8deg);
+  28% {
+    transform: translate(210px, -150px) rotate(9deg);
   }
-  50% {
-    transform: translateY(-6px) translateX(-14px) rotate(-1.3deg);
+  52% {
+    transform: translate(-130px, -210px) rotate(-5deg);
   }
-  75% {
-    transform: translateY(-17px) translateX(6px) rotate(0.6deg);
+  78% {
+    transform: translate(170px, -80px) rotate(6deg);
+  }
+  100% {
+    transform: translate(0px, 0px) rotate(0deg);
   }
 }
 
 @keyframes float-8 {
-  0%, 100% {
-    transform: translateY(0px) translateX(0px) rotate(0deg);
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
   }
-  30% {
-    transform: translateY(-21px) translateX(-8px) rotate(-0.7deg);
+  25% {
+    transform: translate(-160px, -180px) rotate(-10deg);
   }
-  60% {
-    transform: translateY(-11px) translateX(16px) rotate(1.4deg);
+  50% {
+    transform: translate(240px, -120px) rotate(7deg);
   }
-  90% {
-    transform: translateY(-26px) translateX(-3px) rotate(0.3deg);
+  75% {
+    transform: translate(-200px, -60px) rotate(-4deg);
+  }
+  100% {
+    transform: translate(0px, 0px) rotate(0deg);
   }
 }
 
@@ -444,35 +485,43 @@
 }
 
 .animate-float-1 {
-  animation: float-1 12s ease-in-out infinite;
+  animation: float-1 14s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-2 {
-  animation: float-2 14s ease-in-out infinite;
+  animation: float-2 16s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-3 {
-  animation: float-3 16s ease-in-out infinite;
+  animation: float-3 18s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-4 {
-  animation: float-4 13s ease-in-out infinite;
+  animation: float-4 15s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-5 {
-  animation: float-5 15s ease-in-out infinite;
+  animation: float-5 17s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-6 {
-  animation: float-6 17s ease-in-out infinite;
+  animation: float-6 20s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-7 {
-  animation: float-7 11s ease-in-out infinite;
+  animation: float-7 12s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-float-8 {
-  animation: float-8 18s ease-in-out infinite;
+  animation: float-8 19s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
 }
 
 .animate-twinkle {

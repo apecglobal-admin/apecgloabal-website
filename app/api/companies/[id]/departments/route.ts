@@ -6,13 +6,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Departments now belong to parent company, so return all departments
+    // but can filter by employees working in specific company if needed
     const companyId = params.id;
     
     const result = await query(`
       SELECT d.*, 
-        (SELECT COUNT(*) FROM employees WHERE department_id = d.id) as employee_count
+        (SELECT COUNT(*) FROM employees WHERE department_id = d.id) as employee_count,
+        (SELECT COUNT(*) FROM employees WHERE department_id = d.id AND company_id = $1) as company_employee_count
       FROM departments d 
-      WHERE d.company_id = $1 
       ORDER BY d.name
     `, [companyId]);
     
@@ -21,7 +23,7 @@ export async function GET(
       data: result.rows
     });
   } catch (error) {
-    console.error('Error fetching company departments:', error);
+    console.error('Error fetching departments:', error);
     return NextResponse.json({ error: 'Failed to fetch departments' }, { status: 500 });
   }
 }
@@ -31,16 +33,15 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = params.id;
+    // Departments now belong to parent company, not specific company
     const data = await request.json();
     
     const result = await query(`
-      INSERT INTO departments (name, company_id, description, manager_name)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO departments (name, description, manager_name)
+      VALUES ($1, $2, $3)
       RETURNING *
     `, [
       data.name,
-      companyId,
       data.description,
       data.manager_name
     ]);

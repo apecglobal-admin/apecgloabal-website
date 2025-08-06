@@ -1,110 +1,36 @@
 "use client"
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Edit, Trash2, Eye, Search, Filter, Calendar, User } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Search, Filter, Calendar, User, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Link from "next/link";
 import InternalLayout from "@/components/internal-layout";
 import { Pagination, usePagination } from "@/components/ui/pagination";
+import { toast } from "sonner";
 
-// Mock data - sẽ thay bằng API call thực tế
-const newsData = [
-  {
-    id: 1,
-    title: "ApecGlobal ra mắt sản phẩm AI mới",
-    category: "Công nghệ",
-    author: "Nguyễn Văn A",
-    status: "published",
-    publishedAt: "2024-01-15",
-    views: 1250
-  },
-  {
-    id: 2,
-    title: "Hợp tác chiến lược với đối tác quốc tế",
-    category: "Kinh doanh",
-    author: "Trần Thị B",
-    status: "draft",
-    publishedAt: null,
-    views: 0
-  },
-  {
-    id: 3,
-    title: "Tuyển dụng 100 nhân viên IT mới",
-    category: "Tuyển dụng",
-    author: "Lê Văn C",
-    status: "published",
-    publishedAt: "2024-01-10",
-    views: 890
-  },
-  {
-    id: 4,
-    title: "Ra mắt dịch vụ cloud computing",
-    category: "Công nghệ",
-    author: "Phạm Minh D",
-    status: "published",
-    publishedAt: "2024-01-12",
-    views: 567
-  },
-  {
-    id: 5,
-    title: "Kế hoạch mở rộng thị trường Đông Nam Á",
-    category: "Kinh doanh",
-    author: "Hoàng Thị E",
-    status: "published",
-    publishedAt: "2024-01-08",
-    views: 1100
-  },
-  {
-    id: 6,
-    title: "Chương trình đào tạo nâng cao kỹ năng",
-    category: "Tuyển dụng",
-    author: "Đặng Văn F",
-    status: "draft",
-    publishedAt: null,
-    views: 0
-  },
-  {
-    id: 7,
-    title: "Giải pháp bảo mật thông tin mới",
-    category: "Công nghệ",
-    author: "Vũ Thị G",
-    status: "published",
-    publishedAt: "2024-01-05",
-    views: 780
-  },
-  {
-    id: 8,
-    title: "Hội thảo công nghệ blockchain",
-    category: "Công nghệ",
-    author: "Bùi Văn H",
-    status: "archived",
-    publishedAt: "2023-12-20",
-    views: 450
-  },
-  {
-    id: 9,
-    title: "Thành lập chi nhánh tại TP.HCM",
-    category: "Kinh doanh",
-    author: "Lương Thị I",
-    status: "published",
-    publishedAt: "2024-01-03",
-    views: 920
-  },
-  {
-    id: 10,
-    title: "Tuyển dụng chuyên gia Data Science",
-    category: "Tuyển dụng",
-    author: "Ngô Văn K",
-    status: "published",
-    publishedAt: "2024-01-01", 
-    views: 1350
-  }
-];
+// Interface cho tin tức
+interface NewsItem {
+  id: number;
+  title: string;
+  category: string;
+  author_name?: string;
+  published: boolean;
+  published_at?: string;
+  view_count: number;
+  featured?: boolean;
+  excerpt?: string;
+  content?: string;
+  image_url?: string;
+  tags?: string[];
+  created_at: string;
+  updated_at: string;
+}
 
 function NewsLoadingSkeleton() {
   return (
@@ -133,35 +59,41 @@ function NewsLoadingSkeleton() {
   );
 }
 
-function NewsContent({ searchTerm, categoryFilter, statusFilter }: { 
+function NewsContent({ 
+  searchTerm, 
+  categoryFilter, 
+  statusFilter,
+  newsData,
+  loading,
+  onRefresh,
+  setDeletingNews
+}: { 
   searchTerm: string; 
   categoryFilter: string; 
-  statusFilter: string 
+  statusFilter: string;
+  newsData: NewsItem[];
+  loading: boolean;
+  onRefresh: () => void;
+  setDeletingNews: (news: NewsItem | null) => void;
 }) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'draft': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'archived': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    }
+  const getStatusColor = (published: boolean) => {
+    return published 
+      ? 'bg-green-500/20 text-green-400 border-green-500/30'
+      : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'published': return 'Đã xuất bản';
-      case 'draft': return 'Bản nháp';
-      case 'archived': return 'Lưu trữ';
-      default: return 'Không xác định';
-    }
+  const getStatusText = (published: boolean) => {
+    return published ? 'Đã xuất bản' : 'Bản nháp';
   };
 
   // Filter news based on search and filters
   const filteredNews = newsData.filter((news) => {
     const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         news.author.toLowerCase().includes(searchTerm.toLowerCase());
+                         (news.author_name && news.author_name.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = categoryFilter === "all" || news.category === categoryFilter;
-    const matchesStatus = statusFilter === "all" || news.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || 
+                         (statusFilter === "published" && news.published) ||
+                         (statusFilter === "draft" && !news.published);
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -175,6 +107,10 @@ function NewsContent({ searchTerm, categoryFilter, statusFilter }: {
     itemsPerPage,
     goToPage
   } = usePagination(filteredNews, 5);
+
+  if (loading) {
+    return <NewsLoadingSkeleton />;
+  }
 
   return (
     <div className="space-y-4">
@@ -190,22 +126,24 @@ function NewsContent({ searchTerm, categoryFilter, statusFilter }: {
                   <Badge variant="outline" className="bg-white/10 text-white border-white/20">
                     {news.category}
                   </Badge>
-                  <div className="flex items-center gap-1 text-white/80">
-                    <User className="h-4 w-4" />
-                    <span>{news.author}</span>
-                  </div>
-                  <Badge className={getStatusColor(news.status)}>
-                    {getStatusText(news.status)}
+                  {news.author_name && (
+                    <div className="flex items-center gap-1 text-white/80">
+                      <User className="h-4 w-4" />
+                      <span>{news.author_name}</span>
+                    </div>
+                  )}
+                  <Badge className={getStatusColor(news.published)}>
+                    {getStatusText(news.published)}
                   </Badge>
-                  {news.publishedAt && (
+                  {news.published_at && (
                     <div className="flex items-center gap-1 text-white/80">
                       <Calendar className="h-4 w-4" />
-                      <span>{new Date(news.publishedAt).toLocaleDateString('vi-VN')}</span>
+                      <span>{new Date(news.published_at).toLocaleDateString('vi-VN')}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1 text-white/80">
                     <Eye className="h-4 w-4" />
-                    <span>{news.views} lượt xem</span>
+                    <span>{news.view_count || 0} lượt xem</span>
                   </div>
                 </div>
               </div>
@@ -220,7 +158,12 @@ function NewsContent({ searchTerm, categoryFilter, statusFilter }: {
                     <Edit className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Button size="sm" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 hover:text-red-400">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setDeletingNews(news)}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -255,6 +198,62 @@ function NewsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deletingNews, setDeletingNews] = useState<NewsItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [newsData, setNewsData] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch news data from API
+  const fetchNews = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/news?limit=100'); // Lấy nhiều tin tức hơn để filter
+      const data = await response.json();
+      
+      if (response.ok) {
+        setNewsData(data.news || []);
+      } else {
+        toast.error('Lỗi khi tải tin tức: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      toast.error('Lỗi kết nối server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const handleDelete = async () => {
+    if (!deletingNews) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/news/${deletingNews.id}`, {
+        method: 'DELETE'
+      })
+
+      const result = await response.json()
+      
+      if (response.ok) {
+        setDeletingNews(null)
+        toast.success('Xóa tin tức thành công!')
+        // Refresh data
+        fetchNews()
+      } else {
+        toast.error('Lỗi: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error deleting news:', error)
+      toast.error('Lỗi kết nối server')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -330,15 +329,65 @@ function NewsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<NewsLoadingSkeleton />}>
-            <NewsContent 
-              searchTerm={searchTerm}
-              categoryFilter={categoryFilter}
-              statusFilter={statusFilter}
-            />
-          </Suspense>
+          <NewsContent 
+            searchTerm={searchTerm}
+            categoryFilter={categoryFilter}
+            statusFilter={statusFilter}
+            newsData={newsData}
+            loading={loading}
+            onRefresh={fetchNews}
+            setDeletingNews={setDeletingNews}
+          />
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingNews} onOpenChange={() => setDeletingNews(null)}>
+        <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Xác Nhận Xóa Tin Tức
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-white/80">
+              Bạn có chắc chắn muốn xóa tin tức <span className="font-semibold text-red-400">{deletingNews?.title}</span> không?
+            </p>
+            <p className="text-sm text-red-400">
+              ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan.
+            </p>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setDeletingNews(null)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                disabled={deleting}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa Tin Tức
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reports Page</title>
+</head>
+<body>
+    <h1>Test Reports Page</h1>
+    <p>Trang báo cáo đã được hoàn thiện với các tính năng:</p>
+    
+    <h2>✅ Tính năng đã hoàn thành:</h2>
+    <ul>
+        <li><strong>Xem báo cáo:</strong> Trang chi tiết tại /internal/reports/[id]</li>
+        <li><strong>Phân tích báo cáo:</strong> Trang phân tích tại /internal/reports/[id]/analyze</li>
+        <li><strong>Tải xuống:</strong> Chức năng download với tracking</li>
+        <li><strong>Bộ lọc nâng cao:</strong> Tìm kiếm, lọc theo thời gian, phòng ban, loại, trạng thái</li>
+        <li><strong>Dữ liệu thật:</strong> Kết nối database với API hoàn chỉnh</li>
+        <li><strong>Dashboard tổng quan:</strong> Trang /internal/reports/dashboard</li>
+        <li><strong>Tạo báo cáo mới:</strong> Form tạo báo cáo với validation</li>
+        <li><strong>Responsive design:</strong> Tối ưu cho mobile và desktop</li>
+    </ul>
+
+    <h2>🔗 Các đường dẫn:</h2>
+    <ul>
+        <li><a href="/internal/reports">Danh sách báo cáo</a></li>
+        <li><a href="/internal/reports/dashboard">Dashboard tổng quan</a></li>
+        <li><a href="/internal/reports/1">Chi tiết báo cáo #1</a></li>
+        <li><a href="/internal/reports/1/analyze">Phân tích báo cáo #1</a></li>
+    </ul>
+
+    <h2>🛠️ API Endpoints:</h2>
+    <ul>
+        <li>GET /api/reports - Danh sách báo cáo</li>
+        <li>GET /api/reports/stats - Thống kê tổng quan</li>
+        <li>GET /api/reports/[id] - Chi tiết báo cáo</li>
+        <li>POST /api/reports - Tạo báo cáo mới</li>
+        <li>POST /api/reports/[id]/download - Tải xuống</li>
+    </ul>
+
+    <script>
+        // Test API calls
+        console.log('Testing Reports API...');
+        
+        fetch('/api/reports?page=1&limit=5')
+            .then(res => res.json())
+            .then(data => {
+                console.log('Reports API:', data);
+                document.getElementById('reports-count').textContent = data.pagination.total;
+            });
+            
+        fetch('/api/reports/stats')
+            .then(res => res.json())
+            .then(data => {
+                console.log('Stats API:', data);
+                document.getElementById('total-downloads').textContent = data.overview.totalDownloads.value;
+            });
+    </script>
+    
+    <div style="margin-top: 20px; padding: 10px; background: #f0f0f0;">
+        <p><strong>Tổng số báo cáo:</strong> <span id="reports-count">Loading...</span></p>
+        <p><strong>Tổng lượt tải:</strong> <span id="total-downloads">Loading...</span></p>
+    </div>
+</body>
+</html>

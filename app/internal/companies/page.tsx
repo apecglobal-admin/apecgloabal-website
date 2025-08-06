@@ -22,7 +22,8 @@ import {
   TrendingUp,
   BarChart3,
   Loader2,
-  X
+  X,
+  Trash2
 } from "lucide-react"
 import { Company } from "@/lib/schema"
 import Image from "next/image"
@@ -53,6 +54,8 @@ function CompaniesManagementContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isCreateMode, setIsCreateMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [deletingCompany, setDeletingCompany] = useState<Company | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -121,9 +124,9 @@ function CompaniesManagementContent() {
       const departments = await departmentsRes.json()
 
       const companiesData = companies.data || []
-      const projectsData = projects.data || []
-      const employeesData = employees.data || []
-      const departmentsData = departments.data || []
+      const projectsData = Array.isArray(projects.data) ? projects.data : []
+      const employeesData = Array.isArray(employees.data?.employees) ? employees.data.employees : []
+      const departmentsData = Array.isArray(departments.data) ? departments.data : []
 
       // Calculate stats for each company
       const stats = companiesData.map((company: Company) => {
@@ -150,6 +153,9 @@ function CompaniesManagementContent() {
       setCompaniesStats(stats)
     } catch (error) {
       console.error('Error fetching companies stats:', error)
+      setCompaniesStats([])
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -297,7 +303,32 @@ function CompaniesManagementContent() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!deletingCompany) return
 
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/companies/${deletingCompany.id}`, {
+        method: 'DELETE'
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setDeletingCompany(null)
+        fetchCompanies()
+        fetchCompaniesStats()
+        toast.success('Xóa công ty thành công!')
+      } else {
+        toast.error('Lỗi: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error deleting company:', error)
+      toast.error('Lỗi kết nối server')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const handleLogoUpload = (result: { url: string; public_id: string }) => {
     setFormData(prev => ({ ...prev, logo_url: result.url }))
@@ -539,6 +570,14 @@ function CompaniesManagementContent() {
                             className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
                           >
                             <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeletingCompany(companies.find(c => c.id === company.id)!)}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -962,6 +1001,54 @@ function CompaniesManagementContent() {
                 isCreateMode ? 'Tạo Công Ty' : 'Lưu Thay Đổi'
               )}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingCompany} onOpenChange={() => setDeletingCompany(null)}>
+        <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Xác Nhận Xóa Công Ty
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-white/80">
+              Bạn có chắc chắn muốn xóa công ty <span className="font-semibold text-red-400">{deletingCompany?.name}</span> không?
+            </p>
+            <p className="text-sm text-red-400">
+              ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan (phòng ban, nhân viên, v.v.).
+            </p>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setDeletingCompany(null)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                disabled={deleting}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa Công Ty
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

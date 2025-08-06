@@ -101,15 +101,15 @@ export default function HeroCarousel() {
 
   return (
     <div className="w-full">
-      {/* Background Image với overlay */}
-      <div className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] overflow-hidden group">
-        {/* Background Image với transition */}
+      {/* Background Image với overlay - CỐ ĐỊNH */}
+      <div className="relative min-h-[550px] sm:min-h-[650px] md:min-h-[750px] lg:min-h-[800px] xl:min-h-[850px] overflow-hidden group">
+        {/* Background Image - SỬ DỤNG SLIDE ĐẦU TIÊN CỐ ĐỊNH */}
         <div className="absolute inset-0">
           <Image
-            src={currentSlideData.backgroundImage}
+            src={heroSlides[0].backgroundImage}
             alt="APEC Global Background"
             fill
-            className="object-cover transition-all duration-1000 ease-in-out"
+            className="object-cover"
             priority
           />
           {/* Overlay gradient */}
@@ -135,57 +135,51 @@ export default function HeroCarousel() {
           <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6" />
         </button>
 
-        {/* Content Layout */}
-        <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-between p-4 sm:p-6 md:p-8 lg:p-16">
-          {/* Left Side - Content */}
-          <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-8 w-full">
-            <h1 className={`hero-title font-bold mb-3 sm:mb-4 md:mb-6 bg-gradient-to-r ${currentSlideData.gradient} bg-clip-text text-transparent animate-glow text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight`}>
-              {currentSlideData.title}
+        {/* Content Layout - RESPONSIVE MOBILE IMPROVED */}
+        <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between px-4 py-10 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-12 lg:py-24 xl:px-16">
+          {/* Left Side - Content CỐ ĐỊNH - SỬ DỤNG SLIDE ĐẦU TIÊN */}
+          <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-6 xl:pr-8 w-full max-w-2xl lg:max-w-none mx-auto lg:mx-0">
+            <h1 className={`hero-title font-bold mb-5 sm:mb-6 md:mb-7 lg:mb-8 xl:mb-10 bg-gradient-to-r ${heroSlides[0].gradient} bg-clip-text text-transparent animate-glow text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight`}>
+              {heroSlides[0].title}
             </h1>
-            <p className="hero-subtitle text-white/90 mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl">
-              {currentSlideData.subtitle}
+            <p className="hero-subtitle text-white/90 mb-7 sm:mb-8 md:mb-9 lg:mb-10 xl:mb-12 max-w-xl lg:max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl px-2 sm:px-0">
+              {heroSlides[0].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-md sm:max-w-none mx-auto lg:mx-0">
-              <Link href={currentSlideData.primaryButton.href}>
-                <Button className={`w-full sm:w-auto bg-gradient-to-r ${currentSlideData.primaryButton.gradient} hover:${currentSlideData.primaryButton.hoverGradient} text-white border-0 text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}>
-                  {currentSlideData.primaryButton.text}
-                  <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center lg:justify-start max-w-sm sm:max-w-none mx-auto lg:mx-0">
+              <Link href={heroSlides[0].primaryButton.href}>
+                <Button className={`w-full sm:w-auto bg-gradient-to-r ${heroSlides[0].primaryButton.gradient} hover:${heroSlides[0].primaryButton.hoverGradient} text-white border-0 text-sm sm:text-base md:text-lg lg:text-xl px-6 sm:px-7 md:px-8 lg:px-10 py-3 sm:py-3.5 md:py-4 lg:py-5 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg`}>
+                  {heroSlides[0].primaryButton.text}
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 </Button>
               </Link>
-              <Link href={currentSlideData.secondaryButton.href}>
+              <Link href={heroSlides[0].secondaryButton.href}>
                 <Button
                   variant="outline"
-                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border-2 ${currentSlideData.secondaryButton.borderColor} text-white hover:${currentSlideData.secondaryButton.hoverBg} hover:${currentSlideData.secondaryButton.hoverBorder} hover:text-white text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl`}
+                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border-2 ${heroSlides[0].secondaryButton.borderColor} text-white hover:${heroSlides[0].secondaryButton.hoverBg} hover:${heroSlides[0].secondaryButton.hoverBorder} hover:text-white text-sm sm:text-base md:text-lg lg:text-xl px-6 sm:px-7 md:px-8 lg:px-10 py-3 sm:py-3.5 md:py-4 lg:py-5 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg`}
                 >
-                  {currentSlideData.secondaryButton.text}
-                  <ExternalLink className="ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  {heroSlides[0].secondaryButton.text}
+                  <ExternalLink className="ml-2 h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Right Side - Hero Image */}
-          <div className="flex-1 mt-6 sm:mt-8 lg:mt-0 lg:pl-8 w-full">
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
-              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl animate-float">
+          {/* Right Side - Hero Image - CHỈ SLIDE ẢNH, KHÔNG ANIMATION ĐUNG ĐƯA */}
+          <div className="flex-1 mt-10 sm:mt-12 lg:mt-0 lg:pl-6 xl:pl-8 w-full">
+            <div className="relative w-full max-w-[300px] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[450px] xl:max-w-[500px] mx-auto">
+              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl">
                 <Image
                   src={currentSlideData.heroImage}
                   alt="APEC Global Technology"
                   fill
-                  className="object-cover transition-all duration-1000 ease-in-out hover:scale-105"
+                  className="object-cover transition-opacity duration-500 ease-in-out"
+                  sizes="(max-width: 640px) 300px, (max-width: 768px) 350px, (max-width: 1024px) 400px, (max-width: 1280px) 450px, 500px"
                 />
                 {/* Subtle overlay for hero image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                {/* Glowing border effect */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-purple-500/30 animate-pulse-glow" />
+                {/* Simple border - no animation */}
+                <div className="absolute inset-0 rounded-2xl border-2 border-purple-500/30" />
               </div>
-              {/* Decorative elements - responsive sizes */}
-              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-xl animate-pulse" />
-              <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-xl animate-pulse delay-1000" />
-              {/* Additional floating elements - hidden on very small screens */}
-              <div className="hidden sm:block absolute top-1/4 -left-6 lg:-left-8 w-3 h-3 lg:w-4 lg:h-4 bg-purple-400/40 rounded-full animate-float-1" />
-              <div className="hidden sm:block absolute top-3/4 -right-4 lg:-right-6 w-2 h-2 lg:w-3 lg:h-3 bg-blue-400/40 rounded-full animate-float-2" />
-              <div className="hidden sm:block absolute bottom-1/4 -left-3 lg:-left-4 w-1.5 h-1.5 lg:w-2 lg:h-2 bg-cyan-400/40 rounded-full animate-float-3" />
             </div>
           </div>
         </div>

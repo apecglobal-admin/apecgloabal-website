@@ -3,6 +3,40 @@ import { cookies } from "next/headers";
 import { query } from "@/lib/db";
 import { createDefaultPermissions } from "@/lib/permissions";
 
+// Helper function to check if position is a manager role and update department
+async function updateDepartmentManagerIfNeeded(positionTitle: string, employeeName: string, departmentId: number) {
+  try {
+    // Check if this position is a manager position
+    const positionCheck = await query(`
+      SELECT is_manager_position, title 
+      FROM positions 
+      WHERE title ILIKE $1 AND is_active = true
+    `, [positionTitle]);
+
+    const isManagerPosition = positionCheck.rows.length > 0 && positionCheck.rows[0].is_manager_position;
+    
+    // Also check by common manager keywords if not found in positions table
+    const managerKeywords = ['trưởng phòng', 'quản lý', 'giám đốc', 'manager', 'director', 'head'];
+    const hasManagerKeyword = managerKeywords.some(keyword => 
+      positionTitle.toLowerCase().includes(keyword)
+    );
+
+    if (isManagerPosition || hasManagerKeyword) {
+      // Update the department's manager_name
+      await query(`
+        UPDATE departments 
+        SET manager_name = $1, updated_at = NOW() 
+        WHERE id = $2
+      `, [employeeName, departmentId]);
+
+      console.log(`✅ Updated department ${departmentId} manager to: ${employeeName} (position: ${positionTitle})`);
+    }
+  } catch (error) {
+    console.error('Error updating department manager:', error);
+    // Don't throw error here - employee creation should still succeed
+  }
+}
+
 // GET - Lấy danh sách employees
 export async function GET(request: Request) {
   try {
@@ -48,7 +82,6 @@ export async function GET(request: Request) {
     const employeesQuery = `
       SELECT 
         e.*,
-        c.name as company_name,
         d.name as department_name,
         u.username,
         u.is_active as user_active,
@@ -56,7 +89,6 @@ export async function GET(request: Request) {
         r.name as role_name,
         r.display_name as role_display_name
       FROM employees e
-      LEFT JOIN companies c ON e.company_id = c.id
       LEFT JOIN departments d ON e.department_id = d.id
       LEFT JOIN users u ON e.id = u.employee_id
       LEFT JOIN roles r ON u.role_id = r.id
@@ -117,12 +149,14 @@ export async function POST(request: Request) {
     } = body;
 
     // Validate dữ liệu bắt buộc
-    if (!name || !email || !company_id) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: "Name, email, and company_id are required" },
+        { error: "Name and email are required" },
         { status: 400 }
       );
     }
+
+
 
     // Kiểm tra email đã tồn tại chưa
     const existingEmployee = await query(
@@ -140,17 +174,22 @@ export async function POST(request: Request) {
     // Tạo employee
     const employeeResult = await query(`
       INSERT INTO employees (
-        name, email, phone, position, department_id, company_id, 
+        name, email, phone, position, department_id, 
         salary, join_date, status, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', NOW(), NOW())
       RETURNING *
     `, [
-      name, email, phone, position, department_id, company_id, 
+      name, email, phone, position, department_id, 
       salary, join_date || new Date().toISOString().split('T')[0]
     ]);
 
     const newEmployee = employeeResult.rows[0];
+
+    // Auto-update department manager if position indicates management role
+    if (position && department_id) {
+      await updateDepartmentManagerIfNeeded(position, name, department_id);
+    }
 
     // Tạo user account nếu được yêu cầu
     if (create_user_account) {

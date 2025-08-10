@@ -241,3 +241,14 @@ export interface UserWithPermissions extends User {
   department_name: string;
   permissions: UserPermission[];
 }
+
+export interface Position {
+  id: number;
+  title: string;
+  description?: string;
+  level: string;
+  is_manager_position: boolean;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}

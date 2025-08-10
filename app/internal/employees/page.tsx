@@ -38,9 +38,7 @@ interface Employee {
   position: string
   department_id: number
   department_name: string
-  company_id: number
-  company_name: string
-  company_logo: string
+
   join_date: string
   status: string
   avatar_url: string
@@ -54,26 +52,21 @@ interface Employee {
   bio: string
 }
 
-interface Company {
-  id: number
-  name: string
-  logo_url: string
-}
+
 
 interface Department {
   id: number
   name: string
-  company_id: number
-  company_name: string
 }
 
 function EmployeesManagementContent() {
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [companies, setCompanies] = useState<Company[]>([])
+
   const [departments, setDepartments] = useState<Department[]>([])
+  const [positions, setPositions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCompany, setSelectedCompany] = useState("all")
+
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
@@ -87,7 +80,6 @@ function EmployeesManagementContent() {
     phone: "",
     position: "",
     department_id: "",
-    company_id: "",
     join_date: "",
     status: "active",
     salary: "",
@@ -101,8 +93,9 @@ function EmployeesManagementContent() {
 
   useEffect(() => {
     fetchEmployees()
-    fetchCompanies()
+
     fetchDepartments()
+    fetchPositions()
   }, [])
 
   const fetchEmployees = async () => {
@@ -121,17 +114,7 @@ function EmployeesManagementContent() {
     }
   }
 
-  const fetchCompanies = async () => {
-    try {
-      const response = await fetch('/api/companies')
-      const result = await response.json()
-      if (result.success) {
-        setCompanies(result.data)
-      }
-    } catch (error) {
-      console.error('Error fetching companies:', error)
-    }
-  }
+
 
   const fetchDepartments = async () => {
     try {
@@ -145,6 +128,18 @@ function EmployeesManagementContent() {
     }
   }
 
+  const fetchPositions = async () => {
+    try {
+      const response = await fetch('/api/positions?limit=100')
+      const result = await response.json()
+      if (result.success) {
+        setPositions(result.data.positions || [])
+      }
+    } catch (error) {
+      console.error('Error fetching positions:', error)
+    }
+  }
+
   const handleCreate = () => {
     setEditingEmployee(null)
     setFormData({
@@ -153,7 +148,6 @@ function EmployeesManagementContent() {
       phone: "",
       position: "",
       department_id: "",
-      company_id: "",
       join_date: "",
       status: "active",
       salary: "",
@@ -175,7 +169,7 @@ function EmployeesManagementContent() {
       phone: employee.phone || "",
       position: employee.position || "",
       department_id: employee.department_id?.toString() || "",
-      company_id: employee.company_id.toString(),
+
       join_date: employee.join_date ? employee.join_date.split('T')[0] : "",
       status: employee.status,
       salary: employee.salary?.toString() || "",
@@ -190,8 +184,8 @@ function EmployeesManagementContent() {
   }
 
   const handleSave = async () => {
-    if (!formData.name || !formData.email || !formData.company_id) {
-      toast.error('Vui lòng nhập tên, email và chọn công ty')
+    if (!formData.name || !formData.email) {
+      toast.error('Vui lòng nhập tên và email')
       return
     }
 
@@ -209,7 +203,7 @@ function EmployeesManagementContent() {
           ...formData,
           salary: parseFloat(formData.salary) || null,
           department_id: formData.department_id ? parseInt(formData.department_id) : null,
-          company_id: parseInt(formData.company_id),
+
           manager_id: formData.manager_id ? parseInt(formData.manager_id) : null
         })
       })
@@ -262,13 +256,12 @@ function EmployeesManagementContent() {
     const matchesSearch = 
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (employee.position && employee.position.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    const matchesCompany = selectedCompany === "all" || employee.company_id.toString() === selectedCompany
+
     const matchesStatus = selectedStatus === "all" || employee.status === selectedStatus
     
-    return matchesSearch && matchesCompany && matchesStatus
+    return matchesSearch && matchesStatus
   })
 
   // Pagination
@@ -380,19 +373,7 @@ function EmployeesManagementContent() {
               />
             </div>
             
-            <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-              <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
-                <SelectValue placeholder="Chọn công ty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả công ty</SelectItem>
-                {companies.map((company) => (
-                  <SelectItem key={company.id} value={company.id.toString()}>
-                    {company.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
             
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[180px]">
@@ -421,7 +402,6 @@ function EmployeesManagementContent() {
             <TableHeader>
               <TableRow className="border-b border-purple-500/30">
                 <TableHead className="text-white">Nhân Viên</TableHead>
-                <TableHead className="text-white">Công Ty</TableHead>
                 <TableHead className="text-white">Phòng Ban</TableHead>
                 <TableHead className="text-white">Chức Vụ</TableHead>
                 <TableHead className="text-white">Liên Hệ</TableHead>
@@ -454,22 +434,7 @@ function EmployeesManagementContent() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        {employee.company_logo && (
-                          <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                            <Image
-                              src={employee.company_logo}
-                              alt={employee.company_name}
-                              width={24}
-                              height={24}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <span className="text-white">{employee.company_name}</span>
-                      </div>
-                    </TableCell>
+
                     <TableCell className="text-white/80">
                       {employee.department_name || 'Chưa phân công'}
                     </TableCell>
@@ -524,7 +489,7 @@ function EmployeesManagementContent() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-white/60">
+                  <TableCell colSpan={6} className="text-center py-8 text-white/60">
                     Không tìm thấy nhân viên nào
                   </TableCell>
                 </TableRow>
@@ -596,35 +561,33 @@ function EmployeesManagementContent() {
               
               <div>
                 <Label htmlFor="position" className="text-white">Chức Vụ</Label>
-                <Input
-                  id="position"
-                  placeholder="Nhập chức vụ"
-                  value={formData.position}
-                  onChange={(e) => setFormData({...formData, position: e.target.value})}
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="company" className="text-white">Công Ty *</Label>
-                <Select
-                  value={formData.company_id}
-                  onValueChange={(value) => setFormData({...formData, company_id: value, department_id: ""})}
+                <Select 
+                  value={formData.position} 
+                  onValueChange={(value) => setFormData({...formData, position: value})}
                 >
                   <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn công ty" />
+                    <SelectValue placeholder="Chọn chức vụ" />
                   </SelectTrigger>
                   <SelectContent>
-                    {companies.map((company) => (
-                      <SelectItem key={company.id} value={company.id.toString()}>
-                        {company.name}
+                    {positions.filter(p => p.is_active).map((position) => (
+                      <SelectItem key={position.id} value={position.title}>
+                        <div className="flex items-center gap-2">
+                          {position.title}
+                          {position.is_manager_position && (
+                            <span className="text-xs bg-orange-500/20 text-orange-400 px-1 rounded">
+                              Manager
+                            </span>
+                          )}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
 
               <div>
                 <Label htmlFor="department" className="text-white">Phòng Ban</Label>
@@ -637,9 +600,7 @@ function EmployeesManagementContent() {
                     <SelectValue placeholder="Chọn phòng ban" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments
-                      .filter(dept => dept.company_id && dept.company_id.toString() === formData.company_id)
-                      .map((department) => (
+                    {departments.map((department) => (
                         <SelectItem key={department.id} value={department.id.toString()}>
                           {department.name}
                         </SelectItem>

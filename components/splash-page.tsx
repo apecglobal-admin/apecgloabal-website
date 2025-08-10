@@ -22,11 +22,16 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [logoLoaded, setLogoLoaded] = useState(false)
   const [companyLogosLoaded, setCompanyLogosLoaded] = useState(false)
-  const [logoPositions, setLogoPositions] = useState<Array<{
-    left: number;
-    top: number;
+  const [racePositions, setRacePositions] = useState<Array<{
+    id: number;
+    position: number;
+    speed: number;
+    lane: number;
   }>>([])
-  const [isTeleporting, setIsTeleporting] = useState(false)
+  const [isRacing, setIsRacing] = useState(false)
+  const [raceKey, setRaceKey] = useState(0)
+  const [raceStatus, setRaceStatus] = useState<'preparing' | 'ready' | 'racing' | 'finished'>('preparing')
+
   
   // Fallback companies data nếu API fails
   
@@ -53,9 +58,9 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   // Sử dụng fallback data nếu API không có data
   const allCompanies = Array.isArray(apiCompanies) ? apiCompanies : []
   
-  // Tách parent company và client companies
-  const parentCompany = allCompanies.find(company => company.is_parent_company === true)
-  const clientCompanies = allCompanies.filter(company => company.is_parent_company !== true)
+  // Lấy company đầu tiên làm parent company, còn lại là client companies
+  const parentCompany = allCompanies.length > 0 ? allCompanies[0] : null
+  const clientCompanies = allCompanies.slice(1) // Tất cả company từ thứ 2 trở đi là client companies
 
   // Auto-refresh data every 5 minutes to catch new companies
   useEffect(() => {
@@ -74,95 +79,106 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     }
   }, [logoLoaded, loading])
 
-  // Generate random starting positions for logos - distributed evenly across screen
-  const generateRandomStartingPositions = useCallback((count: number) => {
-    const positions: Array<{ left: number; top: number }> = []
-    
-    if (count === 0) return positions
-    
-    // Chia màn hình thành lưới để phân bố đều
-    const gridCols = Math.ceil(Math.sqrt(count * 1.5)) // Tăng số cột để rải rộng hơn
-    const gridRows = Math.ceil(count / gridCols)
-    
-    // Tạo danh sách các ô lưới có sẵn
-    const availableCells: Array<{ col: number; row: number }> = []
-    for (let row = 0; row < gridRows; row++) {
-      for (let col = 0; col < gridCols; col++) {
-        availableCells.push({ col, row })
-      }
-    }
-    
-    // Trộn ngẫu nhiên danh sách các ô
-    for (let i = availableCells.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[availableCells[i], availableCells[j]] = [availableCells[j], availableCells[i]]
-    }
-    
-    // Tạo vị trí cho từng logo trong các ô đã trộn
-    for (let i = 0; i < count; i++) {
-      const cell = availableCells[i]
-      
-      // Tính toán vị trí cơ bản của ô
-      const cellWidth = 80 / gridCols  // 80% để tránh viền
-      const cellHeight = 80 / gridRows
-      
-      const baseCellLeft = 10 + cell.col * cellWidth  // 10% offset từ viền
-      const baseCellTop = 10 + cell.row * cellHeight
-      
-      // Thêm random trong ô để không quá cứng nhắc
-      const randomOffsetX = (Math.random() - 0.5) * cellWidth * 0.8  // Random trong 80% ô
-      const randomOffsetY = (Math.random() - 0.5) * cellHeight * 0.8
-      
-      const position = {
-        left: Math.max(5, Math.min(90, baseCellLeft + cellWidth/2 + randomOffsetX)),
-        top: Math.max(5, Math.min(90, baseCellTop + cellHeight/2 + randomOffsetY))
-      }
-      
-      positions.push(position)
-    }
-    
-    return positions
-  }, [])
-
-  // Generate random starting positions when client companies data changes
-  useEffect(() => {
-    if (clientCompanies && clientCompanies.length > 0) {
-      console.log(`Splash Page: Generating random starting positions for ${clientCompanies.length} client companies:`, clientCompanies.map(c => c.name))
-      const positions = generateRandomStartingPositions(clientCompanies.length)
-      setLogoPositions(positions)
-      console.log(`Splash Page: Generated ${positions.length} random starting positions`)
-    }
-    
-    setIsTeleporting(false)
-  }, [clientCompanies, generateRandomStartingPositions])
-
-  // Continuously update logo positions for dynamic movement
-  useEffect(() => {
+  // Racing logic
+  const initializeRace = useCallback(() => {
     if (!clientCompanies || clientCompanies.length === 0) return
 
-    const updatePositions = () => {
-      const newPositions = generateRandomStartingPositions(clientCompanies.length)
-      setLogoPositions(newPositions)
-    }
-
-    // Update positions every 15-25 seconds with random interval
-    const getRandomInterval = () => Math.random() * 10000 + 15000 // 15-25 seconds
+    console.log('🏁 Initializing new race...')
     
-    let timeoutId: NodeJS.Timeout
-    const scheduleNextUpdate = () => {
-      timeoutId = setTimeout(() => {
-        updatePositions()
-        scheduleNextUpdate() // Schedule next update
-      }, getRandomInterval())
-    }
+    // Tạo lanes ngẫu nhiên cho mỗi logo (tránh trùng lặp)
+    const availableLanes = Array.from({ length: clientCompanies.length }, (_, i) => i)
+    const shuffledLanes = availableLanes.sort(() => Math.random() - 0.5)
 
-    // Start the cycle
-    scheduleNextUpdate()
+    const initialPositions = clientCompanies.map((company, index) => ({
+      id: company.id,
+      position: 0, // Bắt đầu từ vị trí 0%
+      speed: Math.random() * 0.5 + 0.3, // Tốc độ từ 0.3 đến 0.8
+      lane: shuffledLanes[index]
+    }))
 
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId)
+    // Reset về vạch xuất phát
+    setRacePositions(initialPositions)
+    setRaceStatus('preparing')
+    setRaceKey(prev => prev + 1) // Force re-render để reset animation
+    setIsRacing(false)
+
+    // Sequence: preparing -> ready -> racing
+    setTimeout(() => {
+      console.log('🚦 Race ready...')
+      setRaceStatus('ready')
+      
+      setTimeout(() => {
+        console.log('🏃 Race started!')
+        setRaceStatus('racing')
+        setIsRacing(true)
+      }, 1500) // 1.5s để hiển thị "Ready"
+    }, 1000) // 1s để hiển thị "Preparing"
+  }, [clientCompanies])
+
+  // Start race when companies are loaded
+  useEffect(() => {
+    if (clientCompanies && clientCompanies.length > 0 && isLoaded) {
+      // Delay để trang load xong rồi mới bắt đầu đua
+      const timer = setTimeout(() => {
+        initializeRace()
+      }, 2000)
+      
+      return () => clearTimeout(timer)
     }
-  }, [clientCompanies, generateRandomStartingPositions])
+  }, [clientCompanies, isLoaded, initializeRace])
+
+  // Race animation loop
+  useEffect(() => {
+    if (!isRacing || racePositions.length === 0) return
+
+    const raceInterval = setInterval(() => {
+      setRacePositions(prevPositions => {
+        const newPositions = prevPositions.map(racer => {
+          // Thêm yếu tố ngẫu nhiên vào tốc độ để tạo sự bất ngờ
+          const speedVariation = (Math.random() - 0.5) * 0.2 // ±0.1 variation
+          let currentSpeed = Math.max(0.1, racer.speed + speedVariation)
+          
+          // 🚀 SPRINT CUỐI: Tăng tốc mạnh khi gần đích
+          if (racer.position > 70) {
+            // Tăng tốc dần từ 70% đến 100%
+            const sprintMultiplier = 1 + ((racer.position - 70) / 30) * 2 // Tăng gấp đôi tốc độ ở cuối
+            currentSpeed *= sprintMultiplier
+          }
+          
+          // 🏃‍♂️ CATCH-UP MECHANISM: Logo chậm sẽ được boost
+          const averagePosition = prevPositions.reduce((sum, p) => sum + p.position, 0) / prevPositions.length
+          if (racer.position < averagePosition - 20) {
+            // Nếu chậm hơn trung bình 20%, boost tốc độ
+            currentSpeed *= 1.5
+          }
+          
+          return {
+            ...racer,
+            position: Math.min(100, racer.position + currentSpeed),
+            speed: currentSpeed
+          }
+        })
+
+        // Kiểm tra xem tất cả đã về đích chưa
+        const allFinished = newPositions.every(racer => racer.position >= 100)
+        
+        if (allFinished) {
+          console.log('🏆 Race finished!')
+          setIsRacing(false)
+          setRaceStatus('finished')
+          
+          // Bắt đầu race mới sau 3 giây
+          setTimeout(() => {
+            initializeRace()
+          }, 3000)
+        }
+
+        return newPositions
+      })
+    }, 50) // Update mỗi 50ms để animation mượt
+
+    return () => clearInterval(raceInterval)
+  }, [isRacing, racePositions.length, initializeRace])
 
   useEffect(() => {
     // Preload main logo for faster display
@@ -278,60 +294,91 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
 
   return (
     <div className="relative min-h-screen bg-white overflow-hidden">
-      {/* Floating Client Company Logos with random movement - mờ hơn */}
-      <div className="absolute inset-0" style={{ padding: '100px' }}>
-        {clientCompanies && clientCompanies.length > 0 && logoPositions.length > 0 && clientCompanies.map((company, index) => {
-          const position = logoPositions[index]
-          if (!position) return null
-          
-          // Assign different float animations to each logo - only smooth floating
-          const floatAnimations = [
-            "animate-float-1", 
-            "animate-float-2", 
-            "animate-float-3", 
-            "animate-float-4", 
-            "animate-float-5",
-            "animate-float-6",
-            "animate-float-7",
-            "animate-float-8"
-          ]
-          const animationClass = floatAnimations[index % floatAnimations.length]
-          
-          // Tạo delay khác nhau cho mỗi logo để không bị đồng bộ
-          const animationDelay = `${(index * 0.8)}s`
-          
-          return (
-            <div
-              key={company.id}
-              className={`absolute hover:opacity-70 hover:scale-110 cursor-pointer opacity-40 ${animationClass}`}
-              style={{
-                left: `${position.left}%`,
-                top: `${position.top}%`,
-                animationDelay: animationDelay,
-                transition: 'left 3s cubic-bezier(0.4, 0, 0.6, 1), top 3s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.5s ease, transform 0.5s ease',
-              }}
-            >
-              <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 filter drop-shadow-lg">
-                {company.logo_url ? (
-                  <Image
-                    src={company.logo_url}
-                    alt={`${company.name} logo`}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 640px) 56px, (max-width: 768px) 64px, (max-width: 1024px) 80px, 96px"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-white/10 rounded-xl backdrop-blur-md border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
-                    <div className="text-white/60 text-xs font-medium text-center px-2">
-                      {company.name.split(' ').map(word => word[0]).join('').toUpperCase()}
+      {/* Racing Track Background */}
+      {clientCompanies && clientCompanies.length > 0 && (
+        <div className="absolute inset-0 pointer-events-none opacity-20" style={{ zIndex: 1 }}>
+          {/* Race Track */}
+          <div className="absolute top-0 left-0 w-full h-full">
+
+          </div>
+
+          {/* Racing Logos */}
+          {racePositions.map((racer) => {
+            const company = clientCompanies.find(c => c.id === racer.id)
+            if (!company) return null
+
+            return (
+              <div
+                key={`racer-${racer.id}-${raceKey}`}
+                className={`absolute hover:scale-110 hover:z-10 ${
+                  raceStatus === 'racing' ? 'transition-all duration-75 ease-linear' : 
+                  raceStatus === 'ready' ? 'animate-bounce' :
+                  'transition-all duration-500 ease-out'
+                }`}
+                style={{
+                  left: `${racer.position}%`,
+                  top: `${15 + (racer.lane * (70 / clientCompanies.length)) + (70 / clientCompanies.length / 2)}%`,
+                  transform: 'translateY(-50%)',
+                  zIndex: Math.floor(racer.position) + 10 // Logo ở phía trước có z-index cao hơn
+                }}
+              >
+                <div className="relative w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20">
+                  {/* Racing effect - speed lines */}
+                  {isRacing && racer.position > 5 && (
+                    <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 opacity-60">
+                      <div className="flex space-x-1">
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-4 h-0.5 bg-blue-400 animate-pulse"
+                            style={{
+                              animationDelay: `${i * 0.1}s`,
+                              animationDuration: '0.3s'
+                            }}
+                          ></div>
+                        ))}
+                      </div>
                     </div>
+                  )}
+
+                  {/* Logo container */}
+                  <div className="relative w-full h-full bg-white rounded-full shadow-lg border-2 border-gray-200 p-1 hover:border-purple-300 transition-all duration-200">
+                    {company.logo_url ? (
+                      <Image
+                        src={company.logo_url}
+                        alt={`${company.name} racing`}
+                        fill
+                        className="object-contain p-1 rounded-full"
+                        sizes="(max-width: 768px) 48px, (max-width: 1024px) 64px, 80px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
+                        <div className="text-purple-600 text-xs font-bold">
+                          {company.name.split(' ').map(word => word[0]).join('').toUpperCase()}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Position indicator */}
+                    {racer.position >= 100 && (
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-yellow-800 animate-bounce">
+                        🏆
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  {/* Company name tooltip */}
+                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-30">
+                    {company.name}
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            )
+          })}
+
+
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8">
@@ -343,8 +390,8 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
             <div className="mb-8 flex justify-center">
               <div className="relative group">
                 
-                {/* Logo container - minimal styling */}
-                <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-56 lg:h-56 transition-all duration-500 hover:scale-105">
+                {/* Logo container - minimal styling - Larger on mobile for focus */}
+                <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 transition-all duration-500 hover:scale-105">
                   
                   {!logoLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -358,7 +405,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
                     className={`object-contain transition-opacity duration-500 relative z-10 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     style={{ 
                     }}
-                    sizes="(max-width: 768px) 144px, (max-width: 1024px) 192px, 224px"
+                    sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, (max-width: 1024px) 192px, 224px"
                     priority
                     onLoad={() => setLogoLoaded(true)}
                     onError={() => setLogoLoaded(true)}
@@ -391,14 +438,67 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
           </div>
 
           {/* Enhanced Tagline */}
-          <div className="mb-16">
+          <div className="mb-12">
             <p className="text-xl md:text-2xl lg:text-3xl text-gray-700 mb-4 font-light leading-relaxed">
               Thống nhất hệ sinh thái công nghệ tương lai
             </p>
-            <p className="text-sm md:text-base text-white/60 font-light italic">
+            <p className="text-sm md:text-base text-gray-700 font-light italic">
               Kết nối • Đổi mới • Phát triển bền vững
             </p>
           </div>
+
+          {/* Client Companies Section */}
+          {clientCompanies && clientCompanies.length > 0 && (
+            <div className="mb-16">
+              <div className="text-center mb-8">
+                <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">
+                  Các Công Ty Thành Viên
+                </h3>
+                <div className="w-20 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto rounded-full"></div>
+              </div>
+              
+              {/* Company Logos Grid */}
+              <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 max-w-4xl mx-auto">
+                {clientCompanies.map((company, index) => (
+                  <div
+                    key={company.id}
+                    className="group relative transition-all duration-300 hover:scale-110"
+                    style={{
+                      animationDelay: `${index * 0.1}s`
+                    }}
+                  >
+                    <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-purple-200 p-2">
+                      {company.logo_url ? (
+                        <Image
+                          src={company.logo_url}
+                          alt={`${company.name} logo`}
+                          fill
+                          className="object-contain p-1"
+                          sizes="(max-width: 768px) 64px, (max-width: 1024px) 80px, 96px"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
+                          <div className="text-purple-600 text-xs md:text-sm font-bold text-center">
+                            {company.name.split(' ').map(word => word[0]).join('').toUpperCase()}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Hover tooltip */}
+                      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-20">
+                        {company.name}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Decorative line */}
+              <div className="flex justify-center items-center mt-8">
+                <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-purple-300 to-transparent rounded-full"></div>
+              </div>
+            </div>
+          )}
 
           {/* TEST BUTTON - Simple debug button */}
           {/* <div className="mb-4">
@@ -516,21 +616,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
         
         .animate-shooting-star {
           animation: shootingStar linear infinite;
-        }
-        
-        @keyframes gentleFloat {
-          0%, 100% { 
-            transform: translateY(0px) rotate(0deg); 
-          }
-          25% { 
-            transform: translateY(-20px) rotate(5deg); 
-          }
-          50% { 
-            transform: translateY(-10px) rotate(-5deg); 
-          }
-          75% { 
-            transform: translateY(-30px) rotate(3deg); 
-          }
         }
       `}</style>
     </div>

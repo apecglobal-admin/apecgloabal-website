@@ -1,6 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 
+// Helper function to check if position is a manager role and update department
+async function updateDepartmentManagerIfNeeded(positionTitle: string, employeeName: string, departmentId: number) {
+  try {
+    // Check if this position is a manager position
+    const positionCheck = await query(`
+      SELECT is_manager_position, title 
+      FROM positions 
+      WHERE title ILIKE $1 AND is_active = true
+    `, [positionTitle]);
+
+    const isManagerPosition = positionCheck.rows.length > 0 && positionCheck.rows[0].is_manager_position;
+    
+    // Also check by common manager keywords if not found in positions table
+    const managerKeywords = ['trưởng phòng', 'quản lý', 'giám đốc', 'manager', 'director', 'head'];
+    const hasManagerKeyword = managerKeywords.some(keyword => 
+      positionTitle.toLowerCase().includes(keyword)
+    );
+
+    if (isManagerPosition || hasManagerKeyword) {
+      // Update the department's manager_name
+      await query(`
+        UPDATE departments 
+        SET manager_name = $1, updated_at = NOW() 
+        WHERE id = $2
+      `, [employeeName, departmentId]);
+
+      console.log(`✅ Updated department ${departmentId} manager to: ${employeeName} (position: ${positionTitle})`);
+    }
+  } catch (error) {
+    console.error('Error updating department manager:', error);
+    // Don't throw error here - employee update should still succeed
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -143,6 +177,11 @@ export async function PUT(
       data.avatar_url || null,
       employeeId
     ])
+
+    // Auto-update department manager if position indicates management role
+    if (data.position && data.department_id) {
+      await updateDepartmentManagerIfNeeded(data.position, data.name, data.department_id);
+    }
 
     return NextResponse.json({
       success: true,

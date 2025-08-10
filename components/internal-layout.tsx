@@ -85,6 +85,12 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       color: "text-pink-400",
     },
     {
+      name: "Chức Vụ",
+      href: "/internal/positions",
+      icon: Shield,
+      color: "text-indigo-400",
+    },
+    {
       name: "Dịch Vụ",
       href: "/internal/services",
       icon: Package,

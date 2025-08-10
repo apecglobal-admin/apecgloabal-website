@@ -66,29 +66,18 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
 
   return (
     <div className="w-full">
-      {/* Background Image với overlay - CỐ ĐỊNH */}
-      <div className="relative min-h-[500px] sm:min-h-[550px] md:min-h-[600px] lg:min-h-[650px] xl:min-h-[700px] overflow-hidden group">
-        {/* Background Image - SỬ DỤNG SLIDE ĐẦU TIÊN CỐ ĐỊNH */}
-        <div className="absolute inset-0">
-          <Image
-            src={slides[0].backgroundImage}
-            alt="Hero Background"
-            fill
-            className="object-cover"
-            priority
-          />
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70" />
-        </div>
+      {/* Background trắng - CỐ ĐỊNH */}
+      <div className="relative min-h-[500px] sm:min-h-[550px] md:min-h-[600px] lg:min-h-[650px] xl:min-h-[700px] overflow-hidden group bg-white" style={{backgroundColor: '#ffffff', backgroundImage: 'none'}}>
+        {/* Background hoàn toàn trắng - không có image */}
 
-        {/* Navigation Buttons - Only show if more than 1 slide */}
+        {/* Navigation Buttons - Only show if more than 1 slide - Responsive positioning */}
         {slides.length > 1 && (
           <>
             <button
               onClick={prevSlide}
               onMouseEnter={() => setIsAutoPlay(false)}
               onMouseLeave={() => setIsAutoPlay(true)}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 sm:p-3 text-white transition-all duration-300 opacity-70 sm:opacity-0 group-hover:opacity-100"
+              className="absolute left-2 sm:left-4 lg:top-1/2 lg:-translate-y-1/2 top-[75%] -translate-y-1/2 z-20 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full p-2 sm:p-3 text-gray-700 transition-all duration-300 opacity-70 sm:opacity-0 group-hover:opacity-100 shadow-md"
             >
               <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6" />
             </button>
@@ -97,7 +86,7 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
               onClick={nextSlide}
               onMouseEnter={() => setIsAutoPlay(false)}
               onMouseLeave={() => setIsAutoPlay(true)}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 sm:p-3 text-white transition-all duration-300 opacity-70 sm:opacity-0 group-hover:opacity-100"
+              className="absolute right-2 sm:right-4 lg:top-1/2 lg:-translate-y-1/2 top-[75%] -translate-y-1/2 z-20 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full p-2 sm:p-3 text-gray-700 transition-all duration-300 opacity-70 sm:opacity-0 group-hover:opacity-100 shadow-md"
             >
               <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6" />
             </button>
@@ -108,10 +97,10 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
         <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 lg:px-12 lg:py-20 xl:px-16">
           {/* Left Side - Content CỐ ĐỊNH - SỬ DỤNG SLIDE ĐẦU TIÊN */}
           <div className="flex-1 text-center lg:text-left animate-fade-in-up lg:pr-6 xl:pr-8 w-full max-w-2xl lg:max-w-none mx-auto lg:mx-0">
-            <h1 className={`hero-title font-bold mb-4 sm:mb-5 md:mb-6 lg:mb-8 bg-gradient-to-r ${slides[0].gradient} bg-clip-text text-transparent animate-glow text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight`}>
+            <h1 className={`hero-title font-bold mb-4 sm:mb-5 md:mb-6 lg:mb-8 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-glow text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight`}>
               {slides[0].title}
             </h1>
-            <p className="hero-subtitle text-white/90 mb-6 sm:mb-7 md:mb-8 lg:mb-10 max-w-xl lg:max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl px-2 sm:px-0">
+            <p className="hero-subtitle text-gray-700 mb-6 sm:mb-7 md:mb-8 lg:mb-10 max-w-xl lg:max-w-2xl mx-auto lg:mx-0 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl px-2 sm:px-0">
               {slides[0].subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-sm sm:max-w-none mx-auto lg:mx-0">
@@ -124,7 +113,7 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
               <Link href={slides[0].secondaryButton.href}>
                 <Button
                   variant="outline"
-                  className={`w-full sm:w-auto bg-white/10 backdrop-blur-sm border border-gray-300 text-white hover:bg-white hover:text-black text-sm sm:text-base md:text-lg px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg`}
+                  className={`w-full sm:w-auto bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 text-sm sm:text-base md:text-lg px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg`}
                 >
                   {slides[0].secondaryButton.text}
                   <ExternalLink className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -133,19 +122,19 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
             </div>
           </div>
 
-          {/* Right Side - Hero Image - CHỈ SLIDE ẢNH, KHÔNG ANIMATION ĐUNG ĐƯA */}
+          {/* Right Side - Hero Image - CHỈ SLIDE ẢNH, KHÔNG ANIMATION ĐUNG ĐƯA - TO HƠN */}
           <div className="flex-1 mt-8 sm:mt-10 lg:mt-0 lg:pl-6 xl:pl-8 w-full">
-            <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[480px] mx-auto">
+            <div className="relative w-full max-w-[320px] sm:max-w-[380px] md:max-w-[450px] lg:max-w-[500px] xl:max-w-[580px] mx-auto">
               <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl">
                 <Image
                   src={currentSlideData.heroImage}
                   alt="Hero Image"
                   fill
                   className="object-cover transition-opacity duration-500 ease-in-out"
-                  sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 380px, (max-width: 1280px) 420px, 480px"
+                  sizes="(max-width: 640px) 320px, (max-width: 768px) 380px, (max-width: 1024px) 450px, (max-width: 1280px) 500px, 580px"
                 />
                 {/* Subtle overlay for hero image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
                 {/* Simple border - no animation */}
                 <div className="absolute inset-0 rounded-2xl border-2 border-purple-500/30" />
               </div>
@@ -164,8 +153,8 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
                 onMouseLeave={() => setIsAutoPlay(true)}
                 className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? 'bg-white shadow-lg scale-125'
-                    : 'bg-white/50 hover:bg-white/70'
+                    ? 'bg-red-600 shadow-lg scale-125'
+                    : 'bg-gray-400 hover:bg-gray-600'
                 }`}
               />
             ))}
@@ -174,7 +163,7 @@ export default function PageHeroCarousel({ slides, autoPlayInterval = 5000 }: Pa
 
         {/* Slide counter - Only show if more than 1 slide */}
         {slides.length > 1 && (
-          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-white text-xs sm:text-sm">
+          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20 bg-gray-100/90 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-gray-700 text-xs sm:text-sm shadow-md">
             {currentSlide + 1} / {slides.length}
           </div>
         )}

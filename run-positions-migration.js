@@ -13,20 +13,22 @@ const pool = new Pool({
 });
 
 async function runMigration() {
-  const migrationPath = path.join(__dirname, 'migrations', '011_remove_company_fields.sql');
-  
   try {
     console.log('Reading migration file...');
+    const migrationPath = path.join(__dirname, 'migrations', '010_create_positions_simple.sql');
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
     
-    console.log('Running migration...');
+    console.log('Running positions migration...');
+    
+    // Execute the migration
     await pool.query(migrationSQL);
     
-    console.log('✅ Migration completed successfully!');
+    console.log('✅ Positions migration completed successfully!');
     console.log('Changes applied:');
-    console.log('- Removed company_id field from employees table');
-    console.log('- Removed is_parent_company field from companies table');
-    console.log('- Simplified structure: single parent company');
+    console.log('- Created positions table');
+    console.log('- Added sample positions data');
+    console.log('- Created indexes and triggers');
+    
   } catch (error) {
     console.error('❌ Migration failed:', error.message);
     console.error('Full error:', error);

@@ -22,6 +22,7 @@ import {
   Shield,
   Settings,
   Building2,
+  Briefcase,
 } from "lucide-react"
 
 export default function InternalDashboard() {
@@ -322,12 +323,39 @@ export default function InternalDashboard() {
               </Card>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
               <Link href="/internal/companies">
                 <Card className="bg-indigo-500/10 border-indigo-500/30 hover:border-indigo-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
                   <CardContent className="p-4 text-center">
                     <Building2 className="h-8 w-8 mx-auto text-indigo-400 mb-2" />
-                    <p className="text-white text-sm font-medium">Quản lý Công ty</p>
+                    <p className="text-white text-sm font-medium">Công ty</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/internal/employees">
+                <Card className="bg-blue-500/10 border-blue-500/30 hover:border-blue-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <Users className="h-8 w-8 mx-auto text-blue-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Nhân viên</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/internal/departments">
+                <Card className="bg-pink-500/10 border-pink-500/30 hover:border-pink-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <Building2 className="h-8 w-8 mx-auto text-pink-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Phòng ban</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/internal/positions">
+                <Card className="bg-purple-500/10 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                  <CardContent className="p-4 text-center">
+                    <Briefcase className="h-8 w-8 mx-auto text-purple-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Chức vụ</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -336,25 +364,16 @@ export default function InternalDashboard() {
                 <Card className="bg-yellow-500/10 border-yellow-500/30 hover:border-yellow-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
                   <CardContent className="p-4 text-center">
                     <FileText className="h-8 w-8 mx-auto text-yellow-400 mb-2" />
-                    <p className="text-white text-sm font-medium">Quản lý Tin tức</p>
+                    <p className="text-white text-sm font-medium">Tin tức</p>
                   </CardContent>
                 </Card>
               </Link>
 
               <Link href="/internal/settings">
-                <Card className="bg-blue-500/10 border-blue-500/30 hover:border-blue-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                <Card className="bg-gray-500/10 border-gray-500/30 hover:border-gray-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
                   <CardContent className="p-4 text-center">
-                    <Settings className="h-8 w-8 mx-auto text-blue-400 mb-2" />
-                    <p className="text-white text-sm font-medium">Cấu hình System</p>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link href="/internal/permissions">
-                <Card className="bg-purple-500/10 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
-                  <CardContent className="p-4 text-center">
-                    <Shield className="h-8 w-8 mx-auto text-purple-400 mb-2" />
-                    <p className="text-white text-sm font-medium">Phân quyền</p>
+                    <Settings className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-white text-sm font-medium">Cài đặt</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -362,42 +381,45 @@ export default function InternalDashboard() {
           </div>
         )}
 
-        {/* Quick Actions */}
+        {/* Quick Actions for all users */}
         <div className="mt-8">
-          <h3 className="text-xl font-bold text-white mb-4">Thao Tác Nhanh</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/internal/employees">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+          <div className="flex items-center gap-3 mb-4">
+            <Activity className="h-6 w-6 text-green-400" />
+            <h3 className="text-xl font-bold text-white">Thao tác nhanh</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Link href="/internal/documents">
+              <Card className="bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
                 <CardContent className="p-4 text-center">
-                  <Users className="h-8 w-8 mx-auto text-blue-400 mb-2" />
-                  <p className="text-white text-sm font-medium">Quản Lý Nhân Viên</p>
+                  <FileText className="h-8 w-8 mx-auto text-emerald-400 mb-2" />
+                  <p className="text-white text-sm font-medium">Tài liệu</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/internal/projects">
+              <Card className="bg-cyan-500/10 border-cyan-500/30 hover:border-cyan-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <BarChart3 className="h-8 w-8 mx-auto text-cyan-400 mb-2" />
+                  <p className="text-white text-sm font-medium">Dự án</p>
                 </CardContent>
               </Card>
             </Link>
 
             <Link href="/internal/reports">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+              <Card className="bg-orange-500/10 border-orange-500/30 hover:border-orange-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
                 <CardContent className="p-4 text-center">
-                  <FileText className="h-8 w-8 mx-auto text-green-400 mb-2" />
-                  <p className="text-white text-sm font-medium">Tạo Báo Cáo</p>
+                  <BarChart3 className="h-8 w-8 mx-auto text-orange-400 mb-2" />
+                  <p className="text-white text-sm font-medium">Báo cáo</p>
                 </CardContent>
               </Card>
             </Link>
 
-            <Link href="/internal/documents">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
+            <Link href="/internal/jobs">
+              <Card className="bg-amber-500/10 border-amber-500/30 hover:border-amber-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
                 <CardContent className="p-4 text-center">
-                  <FileText className="h-8 w-8 mx-auto text-orange-400 mb-2" />
-                  <p className="text-white text-sm font-medium">Tài Liệu</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/internal/settings">
-              <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
-                <CardContent className="p-4 text-center">
-                  <Calendar className="h-8 w-8 mx-auto text-purple-400 mb-2" />
-                  <p className="text-white text-sm font-medium">Cài Đặt</p>
+                  <Users className="h-8 w-8 mx-auto text-amber-400 mb-2" />
+                  <p className="text-white text-sm font-medium">Tuyển dụng</p>
                 </CardContent>
               </Card>
             </Link>

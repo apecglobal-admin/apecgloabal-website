@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Switch } from "@/components/ui/switch"
 import { 
   Plus, 
   Search, 
@@ -73,6 +74,17 @@ function EmployeesManagementContent() {
   const [creating, setCreating] = useState(false)
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null)
   const [deleting, setDeleting] = useState(false)
+  
+  // Position management states
+  const [showPositionModal, setShowPositionModal] = useState(false)
+  const [creatingPosition, setCreatingPosition] = useState(false)
+  const [positionFormData, setPositionFormData] = useState({
+    title: "",
+    description: "",
+    level: "staff",
+    is_manager_position: false,
+    is_active: true
+  })
 
   const [formData, setFormData] = useState({
     name: "",
@@ -137,6 +149,52 @@ function EmployeesManagementContent() {
       }
     } catch (error) {
       console.error('Error fetching positions:', error)
+    }
+  }
+
+  const handleCreatePosition = () => {
+    setPositionFormData({
+      title: "",
+      description: "",
+      level: "staff",
+      is_manager_position: false,
+      is_active: true
+    })
+    setShowPositionModal(true)
+  }
+
+  const handleSavePosition = async () => {
+    if (!positionFormData.title.trim()) {
+      toast.error('Vui lòng nhập tên chức vụ')
+      return
+    }
+
+    setCreatingPosition(true)
+    try {
+      const response = await fetch('/api/positions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(positionFormData)
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setShowPositionModal(false)
+        fetchPositions()
+        // Auto-select the newly created position
+        setFormData({...formData, position: positionFormData.title})
+        toast.success('Tạo chức vụ thành công!')
+      } else {
+        toast.error('Lỗi: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error creating position:', error)
+      toast.error('Lỗi kết nối server')
+    } finally {
+      setCreatingPosition(false)
     }
   }
 
@@ -299,13 +357,23 @@ function EmployeesManagementContent() {
           </h1>
           <p className="text-white/80">Quản lý thông tin nhân viên của tất cả các công ty</p>
         </div>
-        <Button
-          onClick={handleCreate}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm Nhân Viên
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => window.location.href = '/internal/positions'}
+            variant="outline"
+            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+          >
+            <Briefcase className="h-4 w-4 mr-2" />
+            Quản Lý Chức Vụ
+          </Button>
+          <Button
+            onClick={handleCreate}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm Nhân Viên
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -560,7 +628,29 @@ function EmployeesManagementContent() {
               </div>
               
               <div>
-                <Label htmlFor="position" className="text-white">Chức Vụ</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="position" className="text-white">Chức Vụ</Label>
+                  <div className="flex gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => fetchPositions()}
+                      className="text-white/60 hover:text-white text-xs p-1 h-auto"
+                    >
+                      🔄
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCreatePosition}
+                      className="text-green-400 hover:text-green-300 text-xs p-1 h-auto"
+                    >
+                      + Thêm mới
+                    </Button>
+                  </div>
+                </div>
                 <Select 
                   value={formData.position} 
                   onValueChange={(value) => setFormData({...formData, position: value})}
@@ -569,44 +659,94 @@ function EmployeesManagementContent() {
                     <SelectValue placeholder="Chọn chức vụ" />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.filter(p => p.is_active).map((position) => (
-                      <SelectItem key={position.id} value={position.title}>
-                        <div className="flex items-center gap-2">
-                          {position.title}
-                          {position.is_manager_position && (
-                            <span className="text-xs bg-orange-500/20 text-orange-400 px-1 rounded">
-                              Manager
-                            </span>
-                          )}
-                        </div>
+                    {positions.filter(p => p.is_active).length > 0 ? (
+                      positions.filter(p => p.is_active).map((position) => (
+                        <SelectItem key={position.id} value={position.title}>
+                          <div className="flex items-center gap-2">
+                            <Briefcase className="h-3 w-3 text-purple-400" />
+                            {position.title}
+                            {position.is_manager_position && (
+                              <span className="text-xs bg-orange-500/20 text-orange-400 px-1 rounded">
+                                Manager
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        Chưa có chức vụ nào
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-
               <div>
-                <Label htmlFor="department" className="text-white">Phòng Ban</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="department" className="text-white">Phòng Ban</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => fetchDepartments()}
+                    className="text-white/60 hover:text-white text-xs p-1 h-auto"
+                  >
+                    🔄
+                  </Button>
+                </div>
                 <Select
                   value={formData.department_id}
                   onValueChange={(value) => setFormData({...formData, department_id: value})}
-                  disabled={!formData.company_id}
                 >
                   <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
                     <SelectValue placeholder="Chọn phòng ban" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map((department) => (
+                    {departments.length > 0 ? (
+                      departments.map((department) => (
                         <SelectItem key={department.id} value={department.id.toString()}>
-                          {department.name}
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4 text-blue-400" />
+                            {department.name}
+                          </div>
                         </SelectItem>
-                      ))}
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        Chưa có phòng ban nào
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <Label className="text-white">Thao Tác Nhanh</Label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open('/internal/positions', '_blank')}
+                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs"
+                  >
+                    <Briefcase className="h-3 w-3 mr-1" />
+                    Quản lý chức vụ
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open('/internal/departments', '_blank')}
+                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs"
+                  >
+                    <Building2 className="h-3 w-3 mr-1" />
+                    Quản lý phòng ban
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -685,6 +825,101 @@ function EmployeesManagementContent() {
                   <>
                     <Plus className="h-4 w-4 mr-2" />
                     {editingEmployee ? 'Cập Nhật' : 'Tạo Nhân Viên'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Position Modal */}
+      <Dialog open={showPositionModal} onOpenChange={setShowPositionModal}>
+        <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Thêm Chức Vụ Mới
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="position-title" className="text-white">Tên Chức Vụ *</Label>
+              <Input
+                id="position-title"
+                placeholder="Nhập tên chức vụ"
+                value={positionFormData.title}
+                onChange={(e) => setPositionFormData({...positionFormData, title: e.target.value})}
+                className="bg-black/30 border-purple-500/30 text-white"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="position-level" className="text-white">Cấp Bậc</Label>
+              <Select
+                value={positionFormData.level}
+                onValueChange={(value) => setPositionFormData({...positionFormData, level: value})}
+              >
+                <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="intern">Thực tập sinh</SelectItem>
+                  <SelectItem value="staff">Nhân viên</SelectItem>
+                  <SelectItem value="supervisor">Giám sát</SelectItem>
+                  <SelectItem value="manager">Quản lý</SelectItem>
+                  <SelectItem value="director">Giám đốc</SelectItem>
+                  <SelectItem value="executive">Điều hành</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="position-description" className="text-white">Mô Tả</Label>
+              <Textarea
+                id="position-description"
+                placeholder="Mô tả về chức vụ này..."
+                value={positionFormData.description}
+                onChange={(e) => setPositionFormData({...positionFormData, description: e.target.value})}
+                className="bg-black/30 border-purple-500/30 text-white"
+                rows={2}
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="is-manager"
+                checked={positionFormData.is_manager_position}
+                onCheckedChange={(checked) => setPositionFormData({...positionFormData, is_manager_position: checked})}
+              />
+              <Label htmlFor="is-manager" className="text-white text-sm">
+                Đây là vị trí quản lý
+              </Label>
+            </div>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowPositionModal(false)}
+                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                disabled={creatingPosition}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSavePosition}
+                disabled={creatingPosition}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+              >
+                {creatingPosition ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang tạo...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Tạo Chức Vụ
                   </>
                 )}
               </Button>

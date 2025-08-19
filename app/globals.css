@@ -1254,6 +1254,238 @@ button[class*="border-green"] {
   @apply bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium;
 }
 
+/* Technology Card System - Redesigned */
+.tech-card {
+  @apply p-4 sm:p-5 lg:p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.tech-card-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform;
+}
+
+.tech-card-icon-inner {
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+.tech-card-title {
+  @apply text-base sm:text-lg font-semibold mb-2 text-center;
+}
+
+.tech-card-description {
+  @apply text-gray-600 text-xs sm:text-sm leading-relaxed text-center flex-grow mb-3;
+}
+
+.tech-card-tags {
+  @apply flex flex-wrap justify-center gap-1 mt-auto;
+}
+
+.tech-card-tag {
+  @apply px-2 py-1 rounded-md text-xs font-medium;
+}
+
+/* Service Card System - Unified with Tech Cards */
+.service-card {
+  @apply p-4 sm:p-5 lg:p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.service-card-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform;
+}
+
+.service-card-icon-inner {
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+.service-card-title {
+  @apply text-base sm:text-lg font-semibold mb-2 text-center;
+}
+
+.service-card-description {
+  @apply text-gray-600 text-xs sm:text-sm leading-relaxed text-center flex-grow mb-3;
+}
+
+.service-card-tags {
+  @apply flex flex-wrap justify-center gap-1 mt-auto mb-3;
+}
+
+.service-card-tag {
+  @apply px-2 py-1 rounded-md text-xs font-medium;
+}
+
+/* Value Card System - Redesigned */
+.value-card {
+  @apply p-4 sm:p-5 text-center bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.value-card-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3;
+}
+
+.value-card-icon-inner {
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+.value-card-title {
+  @apply text-base sm:text-lg font-semibold mb-2;
+}
+
+.value-card-description {
+  @apply text-gray-600 leading-relaxed text-xs sm:text-sm flex-grow;
+}
+
+/* Project Card System */
+.project-card {
+  @apply p-4 sm:p-5 lg:p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.project-card-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3;
+}
+
+.project-card-icon-inner {
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+.project-card-title {
+  @apply text-base sm:text-lg font-semibold mb-2 text-center;
+}
+
+.project-card-description {
+  @apply text-gray-600 text-xs sm:text-sm leading-relaxed text-center flex-grow mb-3;
+}
+
+.project-card-tags {
+  @apply flex flex-wrap justify-center gap-1 mb-3;
+}
+
+.project-card-tag {
+  @apply px-2 py-1 rounded-md text-xs font-medium;
+}
+
+.project-card-status {
+  @apply text-xs font-medium flex items-center justify-center mb-3;
+}
+
+/* Testimonial Card System */
+.testimonial-card {
+  @apply p-4 sm:p-5 lg:p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.testimonial-card-content {
+  @apply text-gray-600 text-sm sm:text-base leading-relaxed mb-4 flex-grow italic;
+}
+
+.testimonial-card-author {
+  @apply flex items-center mt-auto;
+}
+
+.testimonial-card-avatar {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 flex-shrink-0;
+}
+
+.testimonial-card-info {
+  @apply flex-grow;
+}
+
+.testimonial-card-name {
+  @apply text-sm sm:text-base font-semibold text-gray-900;
+}
+
+.testimonial-card-role {
+  @apply text-xs sm:text-sm text-gray-600;
+}
+
+/* Career Card System */
+.career-benefit-card {
+  @apply p-4 sm:p-5 lg:p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.career-benefit-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 flex-shrink-0;
+}
+
+.career-benefit-icon-inner {
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+.career-benefit-title {
+  @apply text-base sm:text-lg font-semibold mb-2;
+}
+
+.career-benefit-description {
+  @apply text-gray-600 text-xs sm:text-sm leading-relaxed flex-grow;
+}
+
+.job-card {
+  @apply p-4 sm:p-5 bg-white rounded-xl border border-gray-200 hover:border-red-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.job-card-header {
+  @apply flex justify-between items-start mb-3;
+}
+
+.job-card-title {
+  @apply text-base sm:text-lg font-semibold text-gray-900 flex-grow;
+}
+
+.job-card-badge {
+  @apply px-2 py-1 rounded-md text-xs font-medium flex-shrink-0 ml-2;
+}
+
+.job-card-meta {
+  @apply flex items-center text-gray-600 text-xs sm:text-sm mb-2 flex-wrap gap-2;
+}
+
+.job-card-description {
+  @apply text-gray-600 text-xs sm:text-sm mb-3 flex-grow;
+}
+
+.job-card-link {
+  @apply text-red-700 text-xs sm:text-sm hover:text-red-600 flex items-center font-medium mt-auto;
+}
+
+/* Stats Card System */
+.stats-card {
+  @apply p-4 sm:p-5 lg:p-6 text-center bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col;
+}
+
+.stats-card-icon {
+  @apply w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-3;
+}
+
+.stats-card-number {
+  @apply text-2xl sm:text-3xl font-bold text-red-700 mb-1;
+}
+
+.stats-card-label {
+  @apply text-gray-600 text-xs sm:text-sm;
+}
+
+/* Navigation Card System */
+.nav-card {
+  @apply p-4 sm:p-5 lg:p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all duration-300 h-full flex flex-col cursor-pointer;
+}
+
+.nav-card-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 flex-shrink-0;
+}
+
+.nav-card-title {
+  @apply text-base sm:text-lg font-semibold mb-2 text-center;
+}
+
+.nav-card-description {
+  @apply text-gray-600 text-xs sm:text-sm leading-relaxed text-center flex-grow mb-3;
+}
+
+.nav-card-badge {
+  @apply px-3 py-1 rounded-full text-xs font-medium mb-3 mx-auto;
+}
+
+.nav-card-link {
+  @apply flex items-center justify-center text-xs sm:text-sm font-medium mt-auto;
+}
+
 /* Responsive Typography */
 @media (max-width: 640px) {
   .heading-h1 { @apply text-2xl; }
@@ -1273,3 +1505,326 @@ button[class*="border-green"] {
   .heading-h2 { @apply text-3xl lg:text-4xl; }
   .heading-h3 { @apply text-2xl lg:text-3xl; }
 }
+
+/* Career benefits responsive at 550px */
+@media (max-width: 550px) {
+  .career-benefit-card,
+  .value-card {
+    text-align: center !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  .career-benefit-icon,
+  .value-card-icon {
+    margin: 0 auto 0.75rem auto !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  
+  .career-benefit-title,
+  .value-card-title {
+    text-align: center !important;
+    margin-bottom: 0.5rem !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  
+  .career-benefit-description,
+  .value-card-description {
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  
+  /* Force vertical layout for career section items */
+  .career-section .grid > div,
+  .value-section .grid > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  .career-section .career-benefit-card,
+  .value-section .career-benefit-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 4px solid !important;
+    padding: 1rem !important;
+  }
+  
+  .career-section .career-benefit-card > div,
+  .value-section .career-benefit-card > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+  
+  .career-section .career-benefit-icon,
+  .value-section .career-benefit-icon {
+    margin: 0 auto 0.75rem auto !important;
+  }
+  
+  .career-section .flex-grow,
+  .value-section .flex-grow {
+    width: 100% !important;
+    text-align: center !important;
+    flex-grow: 0 !important;
+  }
+  
+  /* Job cards responsive */
+  .job-card {
+    @apply text-center;
+  }
+  
+  .job-card-title {
+    @apply text-center mb-2;
+  }
+  
+  .job-card-description {
+    @apply text-center mb-3;
+  }
+  
+  .job-card-meta {
+    @apply flex-col items-center text-center gap-2;
+  }
+  
+  .job-card-badge {
+    @apply mx-auto;
+  }
+  
+  .job-card-link {
+    @apply justify-center mt-3;
+  }
+}
+
+/* Testimonial responsive at 480px */
+@media (max-width: 480px) {
+  .testimonial-card-author {
+    @apply flex-col items-center text-center;
+  }
+  
+  .testimonial-card-avatar {
+    @apply mx-auto mb-2;
+  }
+  
+  .testimonial-card-info {
+    @apply text-center;
+  }
+}
+
+/* Footer responsive */
+@media (max-width: 640px) {
+  footer .grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  footer .text-center {
+    text-align: center !important;
+  }
+}
+
+/* Small Screen Optimizations */
+@media (max-width: 400px) {
+  /* Keep 2 items per row but make content vertical */
+  .section-standard {
+    @apply py-8 px-3;
+  }
+  
+  .container-standard {
+    @apply px-3;
+  }
+  
+  /* Compact cards with vertical layout */
+  .tech-card,
+  .service-card,
+  .value-card,
+  .member-card,
+  .project-card,
+  .testimonial-card,
+  .career-benefit-card,
+  .job-card,
+  .stats-card,
+  .nav-card {
+    @apply p-3 text-center;
+    flex-direction: column !important;
+  }
+  
+  /* Center icons */
+  .tech-card-icon,
+  .service-card-icon,
+  .value-card-icon,
+  .career-benefit-icon,
+  .nav-card-icon {
+    @apply mx-auto mb-3;
+  }
+  
+  /* Smaller text */
+  .tech-card-title,
+  .service-card-title,
+  .value-card-title,
+  .project-card-title,
+  .testimonial-card-name,
+  .career-benefit-title,
+  .job-card-title,
+  .nav-card-title {
+    @apply text-sm text-center;
+  }
+  
+  .tech-card-description,
+  .service-card-description,
+  .value-card-description,
+  .project-card-description,
+  .testimonial-card-content,
+  .career-benefit-description,
+  .job-card-description,
+  .nav-card-description {
+    @apply text-xs text-center;
+  }
+  
+  /* Testimonial cards vertical layout */
+  .testimonial-card-author {
+    @apply flex-col items-center text-center;
+  }
+  
+  .testimonial-card-avatar {
+    @apply mx-auto mb-2;
+  }
+  
+  .testimonial-card-info {
+    @apply text-center;
+  }
+  
+  /* Job cards vertical layout */
+  .job-card-meta {
+    @apply flex-col items-center text-center gap-1;
+  }
+  
+  .job-card-link {
+    @apply justify-center;
+  }
+  
+  /* Project card status center */
+  .project-card-status {
+    @apply justify-center;
+  }
+  
+  /* Nav card links center */
+  .nav-card-link {
+    @apply justify-center;
+  }
+}
+
+@media (max-width: 350px) {
+  .section-standard {
+    @apply py-6 px-2;
+  }
+  
+  .container-standard {
+    @apply px-2;
+  }
+  
+  .heading-h1 { @apply text-xl; }
+  .heading-h2 { @apply text-lg; }
+  .heading-h3 { @apply text-base; }
+  
+  /* Ultra compact cards - still vertical */
+  .tech-card,
+  .service-card,
+  .value-card,
+  .member-card,
+  .project-card,
+  .testimonial-card,
+  .career-benefit-card,
+  .job-card,
+  .stats-card,
+  .nav-card {
+    @apply p-2 text-center;
+    flex-direction: column !important;
+  }
+  
+  /* Ultra small icons */
+  .tech-card-icon,
+  .service-card-icon,
+  .value-card-icon,
+  .career-benefit-icon,
+  .nav-card-icon {
+    @apply w-8 h-8 mx-auto mb-2;
+  }
+  
+  .tech-card-icon-inner,
+  .service-card-icon-inner,
+  .value-card-icon-inner,
+  .career-benefit-icon-inner {
+    @apply w-4 h-4;
+  }
+  
+  /* Minimal text */
+  .tech-card-title,
+  .service-card-title,
+  .value-card-title,
+  .project-card-title,
+  .testimonial-card-name,
+  .career-benefit-title,
+  .job-card-title,
+  .nav-card-title {
+    @apply text-xs font-medium text-center;
+  }
+  
+  .tech-card-description,
+  .service-card-description,
+  .value-card-description,
+  .project-card-description,
+  .testimonial-card-content,
+  .career-benefit-description,
+  .job-card-description,
+  .nav-card-description {
+    @apply text-xs leading-tight text-center;
+  }
+  
+  /* Smaller stats */
+  .stats-card-number {
+    @apply text-lg text-center;
+  }
+  
+  /* Ultra compact testimonial layout */
+  .testimonial-card-author {
+    @apply flex-col items-center text-center;
+  }
+  
+  .testimonial-card-avatar {
+    @apply w-6 h-6 mx-auto mb-1;
+  }
+  
+  .testimonial-card-avatar .w-5 {
+    @apply w-3 h-3;
+  }
+  
+  /* Ultra compact job cards */
+  .job-card-meta {
+    @apply flex-col items-center text-center gap-1;
+  }
+  
+  .job-card-link {
+    @apply justify-center text-xs;
+  }
+  
+  /* Ultra compact project cards */
+  .project-card-status {
+    @apply justify-center text-xs;
+  }
+  
+  /* Ultra compact nav cards */
+  .nav-card-link {
+    @apply justify-center text-xs;
+  }
+}
+

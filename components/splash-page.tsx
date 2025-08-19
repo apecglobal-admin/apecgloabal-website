@@ -21,20 +21,7 @@ interface SplashPageProps {
 export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [logoLoaded, setLogoLoaded] = useState(false)
-  const [companyLogosLoaded, setCompanyLogosLoaded] = useState(false)
-  const [racePositions, setRacePositions] = useState<Array<{
-    id: number;
-    position: number;
-    speed: number;
-    lane: number;
-  }>>([])
-  const [isRacing, setIsRacing] = useState(false)
-  const [raceKey, setRaceKey] = useState(0)
-  const [raceStatus, setRaceStatus] = useState<'preparing' | 'ready' | 'racing' | 'finished'>('preparing')
 
-  
-  // Fallback companies data nếu API fails
-  
   // Tạo fetch function stable để tránh re-render vô hạn
   const fetchCompanies = useCallback(async () => {
     const response = await fetch('/api/companies')
@@ -49,7 +36,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const { data: apiResponse, loading, error, refetch } = useApiCache<any>(
     'companies',
     fetchCompanies,
-    2 * 60 * 1000 // Cache 2 phút (ngắn hơn để cập nhật nhanh hơn)
+    2 * 60 * 1000 // Cache 2 phút
   )
 
   // Extract companies array from API response
@@ -62,15 +49,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const parentCompany = allCompanies.length > 0 ? allCompanies[0] : null
   const clientCompanies = allCompanies.slice(1) // Tất cả company từ thứ 2 trở đi là client companies
 
-  // Auto-refresh data every 5 minutes to catch new companies
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch()
-    }, 5 * 60 * 1000) // 5 phút
-
-    return () => clearInterval(interval)
-  }, [refetch])
-
   const checkAllAssetsLoaded = useCallback(() => {
     // Đơn giản hóa điều kiện - chỉ cần logo chính load xong và API không loading
     if (logoLoaded && !loading) {
@@ -79,106 +57,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
     }
   }, [logoLoaded, loading])
 
-  // Racing logic
-  const initializeRace = useCallback(() => {
-    if (!clientCompanies || clientCompanies.length === 0) return
 
-    console.log('🏁 Initializing new race...')
-    
-    // Tạo lanes ngẫu nhiên cho mỗi logo (tránh trùng lặp)
-    const availableLanes = Array.from({ length: clientCompanies.length }, (_, i) => i)
-    const shuffledLanes = availableLanes.sort(() => Math.random() - 0.5)
-
-    const initialPositions = clientCompanies.map((company, index) => ({
-      id: company.id,
-      position: 0, // Bắt đầu từ vị trí 0%
-      speed: Math.random() * 0.5 + 0.3, // Tốc độ từ 0.3 đến 0.8
-      lane: shuffledLanes[index]
-    }))
-
-    // Reset về vạch xuất phát
-    setRacePositions(initialPositions)
-    setRaceStatus('preparing')
-    setRaceKey(prev => prev + 1) // Force re-render để reset animation
-    setIsRacing(false)
-
-    // Sequence: preparing -> ready -> racing
-    setTimeout(() => {
-      console.log('🚦 Race ready...')
-      setRaceStatus('ready')
-      
-      setTimeout(() => {
-        console.log('🏃 Race started!')
-        setRaceStatus('racing')
-        setIsRacing(true)
-      }, 1500) // 1.5s để hiển thị "Ready"
-    }, 1000) // 1s để hiển thị "Preparing"
-  }, [clientCompanies])
-
-  // Start race when companies are loaded
-  useEffect(() => {
-    if (clientCompanies && clientCompanies.length > 0 && isLoaded) {
-      // Delay để trang load xong rồi mới bắt đầu đua
-      const timer = setTimeout(() => {
-        initializeRace()
-      }, 2000)
-      
-      return () => clearTimeout(timer)
-    }
-  }, [clientCompanies, isLoaded, initializeRace])
-
-  // Race animation loop
-  useEffect(() => {
-    if (!isRacing || racePositions.length === 0) return
-
-    const raceInterval = setInterval(() => {
-      setRacePositions(prevPositions => {
-        const newPositions = prevPositions.map(racer => {
-          // Thêm yếu tố ngẫu nhiên vào tốc độ để tạo sự bất ngờ
-          const speedVariation = (Math.random() - 0.5) * 0.2 // ±0.1 variation
-          let currentSpeed = Math.max(0.1, racer.speed + speedVariation)
-          
-          // 🚀 SPRINT CUỐI: Tăng tốc mạnh khi gần đích
-          if (racer.position > 70) {
-            // Tăng tốc dần từ 70% đến 100%
-            const sprintMultiplier = 1 + ((racer.position - 70) / 30) * 2 // Tăng gấp đôi tốc độ ở cuối
-            currentSpeed *= sprintMultiplier
-          }
-          
-          // 🏃‍♂️ CATCH-UP MECHANISM: Logo chậm sẽ được boost
-          const averagePosition = prevPositions.reduce((sum, p) => sum + p.position, 0) / prevPositions.length
-          if (racer.position < averagePosition - 20) {
-            // Nếu chậm hơn trung bình 20%, boost tốc độ
-            currentSpeed *= 1.5
-          }
-          
-          return {
-            ...racer,
-            position: Math.min(100, racer.position + currentSpeed),
-            speed: currentSpeed
-          }
-        })
-
-        // Kiểm tra xem tất cả đã về đích chưa
-        const allFinished = newPositions.every(racer => racer.position >= 100)
-        
-        if (allFinished) {
-          console.log('🏆 Race finished!')
-          setIsRacing(false)
-          setRaceStatus('finished')
-          
-          // Bắt đầu race mới sau 3 giây
-          setTimeout(() => {
-            initializeRace()
-          }, 3000)
-        }
-
-        return newPositions
-      })
-    }, 50) // Update mỗi 50ms để animation mượt
-
-    return () => clearInterval(raceInterval)
-  }, [isRacing, racePositions.length, initializeRace])
 
   useEffect(() => {
     // Preload main logo for faster display
@@ -196,51 +75,14 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
       checkAllAssetsLoaded()
     }
     
-    // Safety timeout - force load after 10 seconds maximum
+    // Safety timeout - force load after 5 seconds maximum
     const safetyTimeout = setTimeout(() => {
       console.log('Safety timeout triggered - forcing page load')
       setIsLoaded(true)
-    }, 10000)
+    }, 5000)
     
     return () => clearTimeout(safetyTimeout)
-  }, [parentCompany])
-
-  const preloadCompanyLogos = useCallback(async (companyList: Company[]) => {
-    if (!companyList || companyList.length === 0) {
-      setCompanyLogosLoaded(true)
-      return
-    }
-
-    const logoPromises = companyList
-      .filter(company => company.logo_url) // Chỉ preload những logo có URL
-      .map(company => {
-        return new Promise<void>((resolve) => {
-          const img = new window.Image()
-          img.src = company.logo_url!
-          img.onload = () => resolve()
-          img.onerror = () => resolve() // Resolve ngay cả khi lỗi
-        })
-      })
-    
-    // Chờ tất cả logo tải xong (hoặc timeout sau 5 giây)
-    try {
-      await Promise.race([
-        Promise.all(logoPromises),
-        new Promise(resolve => setTimeout(resolve, 5000)) // 5 giây timeout
-      ])
-    } catch (error) {
-      console.log('Some logos failed to load, but continuing...')
-    }
-    
-    setCompanyLogosLoaded(true)
-  }, [])
-
-  // Preload company logos when client companies data is available
-  useEffect(() => {
-    if (clientCompanies && clientCompanies.length > 0) {
-      preloadCompanyLogos(clientCompanies)
-    }
-  }, [clientCompanies, preloadCompanyLogos])
+  }, [parentCompany, checkAllAssetsLoaded])
 
   // Check if all assets are loaded whenever dependencies change
   useEffect(() => {
@@ -260,7 +102,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
               <div className="text-gray-600 text-sm mb-4">
                 {loading ? 'Đang tải dữ liệu công ty...' : 
                  !logoLoaded ? 'Đang tải logo chính...' : 
-                 !companyLogosLoaded ? 'Đang tải logo công ty...' : 
                  'Chuẩn bị hiển thị...'}
               </div>
               
@@ -294,91 +135,6 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
 
   return (
     <div className="relative min-h-screen bg-white overflow-hidden">
-      {/* Racing Track Background */}
-      {clientCompanies && clientCompanies.length > 0 && (
-        <div className="absolute inset-0 pointer-events-none opacity-20" style={{ zIndex: 1 }}>
-          {/* Race Track */}
-          <div className="absolute top-0 left-0 w-full h-full">
-
-          </div>
-
-          {/* Racing Logos */}
-          {racePositions.map((racer) => {
-            const company = clientCompanies.find(c => c.id === racer.id)
-            if (!company) return null
-
-            return (
-              <div
-                key={`racer-${racer.id}-${raceKey}`}
-                className={`absolute hover:scale-110 hover:z-10 ${
-                  raceStatus === 'racing' ? 'transition-all duration-75 ease-linear' : 
-                  raceStatus === 'ready' ? 'animate-bounce' :
-                  'transition-all duration-500 ease-out'
-                }`}
-                style={{
-                  left: `${racer.position}%`,
-                  top: `${15 + (racer.lane * (70 / clientCompanies.length)) + (70 / clientCompanies.length / 2)}%`,
-                  transform: 'translateY(-50%)',
-                  zIndex: Math.floor(racer.position) + 10 // Logo ở phía trước có z-index cao hơn
-                }}
-              >
-                <div className="relative w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20">
-                  {/* Racing effect - speed lines */}
-                  {isRacing && racer.position > 5 && (
-                    <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 opacity-60">
-                      <div className="flex space-x-1">
-                        {[...Array(3)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-4 h-0.5 bg-blue-400 animate-pulse"
-                            style={{
-                              animationDelay: `${i * 0.1}s`,
-                              animationDuration: '0.3s'
-                            }}
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Logo container */}
-                  <div className="relative w-full h-full bg-white rounded-full shadow-lg border-2 border-gray-200 p-1 hover:border-purple-300 transition-all duration-200">
-                    {company.logo_url ? (
-                      <Image
-                        src={company.logo_url}
-                        alt={`${company.name} racing`}
-                        fill
-                        className="object-contain p-1 rounded-full"
-                        sizes="(max-width: 768px) 48px, (max-width: 1024px) 64px, 80px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-                        <div className="text-purple-600 text-xs font-bold">
-                          {company.name.split(' ').map(word => word[0]).join('').toUpperCase()}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Position indicator */}
-                    {racer.position >= 100 && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-yellow-800 animate-bounce">
-                        🏆
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Company name tooltip */}
-                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-30">
-                    {company.name}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-
-
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8">

@@ -166,20 +166,7 @@ export default function InternalPortal() {
             <p className="text-white/60">Truy cập cổng thông tin nội bộ ApecGlobal</p>
           </CardHeader>
           <CardContent>
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-              <h4 className="text-blue-300 font-medium mb-2">Thông tin đăng nhập:</h4>
-              <div className="text-white/80 text-sm space-y-1">
-                <p>
-                  <strong>Admin:</strong> admin / 123456
-                </p>
-                <p>
-                  <strong>Nhân viên:</strong> Email / Số điện thoại
-                </p>
-                <p className="text-xs text-blue-300 mt-2">
-                  * Nhân viên đăng nhập bằng email và số điện thoại từ hệ thống
-                </p>
-              </div>
-            </div>
+          
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Input
@@ -206,37 +193,7 @@ export default function InternalPortal() {
                 Đăng Nhập
               </Button>
             </form>
-            
-{/* Debug buttons - Uncomment if needed for debugging
-            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <p className="text-red-300 text-xs mb-2">Debug Mode:</p>
-              <div className="space-y-2">
-                <Button
-                  onClick={() => {
-                    console.log('Force setting logged in state and redirecting...')
-                    localStorage.setItem("internal_logged_in", "true")
-                    localStorage.setItem("internal_user", "admin")
-                    window.location.replace('/internal/dashboard')
-                  }}
-                  className="w-full bg-red-500 hover:bg-red-600 text-white text-sm"
-                >
-                  [DEBUG] Force Login & Redirect
-                </Button>
-                <Button
-                  onClick={() => {
-                    console.log('Clearing localStorage...')
-                    localStorage.removeItem("internal_logged_in")
-                    localStorage.removeItem("internal_user")
-                    setIsLoggedIn(false)
-                    setLoginForm({ username: "", password: "" })
-                  }}
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white text-sm"
-                >
-                  [DEBUG] Clear Storage
-                </Button>
-              </div>
-            </div>
-            */}
+          
           </CardContent>
         </Card>
       </div>

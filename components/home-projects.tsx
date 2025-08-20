@@ -153,19 +153,43 @@ export default function HomeProjects() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-8 animate-pulse">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-pulse">
             {[1, 2, 3, 4].map((_, index) => (
               <div key={index} className="bg-white rounded-xl p-4 shadow-sm">
-                <div className="flex items-center mb-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg mr-3"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                {/* Màn hình nhỏ (dưới 350px) - Loading state */}
+                <div className="xs:hidden">
+                  <div className="flex justify-center mb-3">
+                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                  <div className="h-4 bg-gray-200 rounded mb-3 w-3/4 mx-auto"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-3 w-1/2 mx-auto"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-3 w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-3 w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-3 w-3/4 mx-auto"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-3 w-1/2 mx-auto"></div>
+                  <div className="flex justify-between mt-3 pt-2 border-t border-gray-100">
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
                   </div>
                 </div>
-                <div className="h-3 bg-gray-200 rounded mb-2 w-full"></div>
-                <div className="h-3 bg-gray-200 rounded mb-2 w-full"></div>
-                <div className="h-3 bg-gray-200 rounded mb-2 w-3/4"></div>
+                
+                {/* Màn hình lớn (trên 350px) - Loading state */}
+                <div className="hidden xs:block">
+                  <div className="flex items-center mb-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg mr-3"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                  <div className="h-3 bg-gray-200 rounded mb-2 w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-2 w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-2 w-3/4"></div>
+                  <div className="flex justify-between mt-3 pt-2 border-t border-gray-100">
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -203,7 +227,7 @@ export default function HomeProjects() {
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {projects.slice(0, 4).map((project, index) => {
             const IconComponent = getTechIcon(project.technologies || []);
             const colors = [
@@ -219,7 +243,55 @@ export default function HomeProjects() {
                 <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient} rounded-2xl transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} group-hover:${index % 2 === 0 ? 'rotate-2' : '-rotate-2'} transition-transform opacity-20`}></div>
                 
                 <div className="relative card-feature p-3 sm:p-4 bg-white rounded-2xl h-full">
-                  <div className="flex flex-col h-full">
+                  {/* Màn hình nhỏ (dưới 350px) - Hiển thị theo chiều dọc */}
+                  <div className="flex flex-col h-full md:hidden">
+                    {/* Project Icon - Centered on top */}
+                    <div className="flex justify-center mb-3">
+                      <div className={`w-12 h-12 ${color.bg} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500`}>
+                        <IconComponent className={`h-6 w-6 ${color.text}`} />
+                      </div>
+                    </div>
+                    
+                    {/* Project Name - Centered */}
+                    <h3 className="text-center text-sm font-bold text-red-600 group-hover:text-red-700 transition-colors duration-300 mb-1">
+                      {project.name}
+                    </h3>
+                    
+                    {/* Project Status - Centered */}
+                    <div className="flex justify-center mb-2">
+                      <div className="flex items-center bg-gray-100 py-1 px-2 rounded-full">
+                        {getStatusIcon(project.status || '')}
+                        <span className="text-gray-600 text-xs ml-1">{project.status}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Project Description */}
+                    <p className="text-gray-600 text-xs text-center line-clamp-2 mb-3 flex-grow">{project.description}</p>
+                    
+                    {/* Project Company */}
+                    <div className="flex justify-center mb-2">
+                      <div className="inline-flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+                        {project.company_name || 'ApecTech'}
+                      </div>
+                    </div>
+                    
+                    {/* Project Technologies */}
+                    <div className="flex flex-wrap justify-center gap-1 mb-3">
+                      {(project.technologies || []).slice(0, 2).map((tech, idx) => (
+                        <div key={idx} className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs">
+                          {tech}
+                        </div>
+                      ))}
+                      {(project.technologies || []).length > 2 && (
+                        <div className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs">
+                          +{(project.technologies || []).length - 2}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Màn hình lớn (trên 350px) - Hiển thị theo bố cục ban đầu */}
+                  <div className="hidden md:flex md:flex-col h-full">
                     {/* Project Header */}
                     <div className="flex items-center mb-2 sm:mb-3">
                       <div className={`w-10 h-10 sm:w-12 sm:h-12 ${color.bg} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-500 mr-3`}>
@@ -256,11 +328,24 @@ export default function HomeProjects() {
                       )}
                     </div>
                     
-                    {/* Project Footer */}
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 mt-auto">
+                    {/* Project Footer - Màn hình nhỏ */}
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 mt-auto xs:hidden">
+                      <div className="flex items-center">
+                        <Users className="w-3 h-3 text-gray-500 mr-1" />
+                        <span className="text-gray-600 text-xs">{project.team_size || 0} người</span>
+                      </div>
+                      
+                      <Link href={`/projects/${project.slug}`} className="text-red-600 hover:text-red-700 text-xs font-medium flex items-center">
+                        Chi tiết
+                        <ArrowRight className="ml-1 w-3 h-3" />
+                      </Link>
+                    </div>
+                    
+                    {/* Project Footer - Màn hình lớn */}
+                    <div className="hidden xs:flex items-center justify-between pt-2 border-t border-gray-100 mt-auto">
                       <div className="flex items-center">
                         <Users className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mr-1" />
-                        <span className="text-gray-600 text-xs">{project.team_size || 0}</span>
+                        <span className="text-gray-600 text-xs">{project.team_size || 0} người</span>
                       </div>
                       
                       <Link href={`/projects/${project.slug}`} className="text-red-600 hover:text-red-700 text-xs sm:text-sm font-medium flex items-center">

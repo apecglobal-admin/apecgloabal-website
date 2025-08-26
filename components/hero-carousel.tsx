@@ -105,11 +105,11 @@ export default function HeroCarousel() {
         <div className="relative z-10 h-full flex flex-col lg:flex-row items-center justify-center lg:justify-between px-0 lg:px-12 py-0 lg:py-24 gap-0 lg:gap-8">
           
           {/* Left Content */}
-          <div className="w-full lg:w-1/2 text-center lg:text-left px-6 py-16 lg:p-0 z-20">
-            <h1 className="font-bold lg:mb-6 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 bg-clip-text text-transparent text-4xl lg:text-6xl leading-tight">
+          <div className="w-full lg:w-1/2 text-center lg:text-left lg:px-6 pt-8 pb-2 lg:py-16 lg:p-0 z-20">
+            <h1 className="font-bold lg:mb-6 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 bg-clip-text text-transparent text-2xl sm:text-4xl lg:text-6xl leading-tight">
               {heroData.title}
             </h1>
-            <p className="text-gray-700 mb-8 text-lg hidden lg:block">
+            <p className="text-gray-700 mb-8 text-sm sm:text-lg hidden lg:block">
               {heroData.subtitle}
             </p>
 
@@ -219,8 +219,8 @@ export default function HeroCarousel() {
 
 
     {/* Buttons overlay mobile */}
-    <div className="absolute top-14 left-0 right-0 block gap-4 lg:hidden">
-      <p className="text-white text-center mb-4 px-4">
+    <div className="absolute top-4 left-0 right-0 block gap-4 lg:hidden">
+      <p className="text-white text-center mb-2 sm:mb-4 px-4">
         {heroData.subtitle}
       </p>
       <div className="flex flex-row gap-3 justify-center px-3">

@@ -66,8 +66,15 @@ export async function PUT(
 
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
+        let value = data[field]
+
+        // Convert empty strings for date fields to null to satisfy Postgres DATE type
+        if ((field === 'start_date' || field === 'end_date') && value === '') {
+          value = null
+        }
+
         updateFields.push(`${field} = $${paramIndex}`)
-        values.push(data[field])
+        values.push(value)
         paramIndex++
       }
     }

@@ -4,26 +4,69 @@ import { getAllProjects, query } from '@/lib/db'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const companyId = searchParams.get('company_id')
-    
+    const params = searchParams instanceof URLSearchParams
+      ? Object.fromEntries(searchParams.entries())
+      : {}
+
+    const companyId = params.company_id
+    const featured = params.featured
+    const limitParam = params.limit
+    const statusParam = params.status
+
     let projects
-    if (companyId) {
-      // Lấy dự án theo company_id
-      const result = await query(`
-        SELECT p.*, c.name as company_name, c.logo_url as company_logo, c.slug as company_slug
-        FROM projects p
-        LEFT JOIN companies c ON p.company_id = c.id
-        WHERE p.company_id = $1
-        ORDER BY p.created_at DESC
-      `, [companyId])
+    if (companyId && companyId !== 'undefined' && companyId !== 'null') {
+      const result = await query(
+        `
+          SELECT p.*, c.name as company_name, c.logo_url as company_logo, c.slug as company_slug
+          FROM projects p
+          LEFT JOIN companies c ON p.company_id = c.id
+          WHERE p.company_id = $1
+          ORDER BY p.created_at DESC
+        `,
+        [companyId]
+      )
+      projects = result.rows
+    } else if (featured === 'true') {
+      const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 4, 12) : 4
+      const result = await query(
+        `
+          SELECT p.*, c.name AS company_name, c.logo_url AS company_logo, c.slug AS company_slug
+          FROM projects p
+          LEFT JOIN companies c ON p.company_id = c.id
+          WHERE p.is_featured = true
+          ORDER BY COALESCE(p.display_order, EXTRACT(EPOCH FROM p.start_date)) DESC, p.start_date DESC
+          LIMIT $1
+        `,
+        [limit]
+      )
       projects = result.rows
     } else {
-      // Lấy tất cả dự án
-      projects = await getAllProjects()
+      const allParams = new URLSearchParams()
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '' && value !== 'undefined' && value !== 'null') {
+          allParams.append(key, value)
+        }
+      })
+
+      projects = await getAllProjects(allParams)
     }
-    
-    // Transform data for API response
-    const projectsData = projects.map((project) => ({
+
+    let filteredProjects = projects
+    if (statusParam) {
+      const normalizedStatuses = statusParam
+        .split(',')
+        .map((status) => status.trim().toLowerCase())
+        .filter(Boolean)
+
+      if (normalizedStatuses.length > 0) {
+        filteredProjects = projects.filter((project) => {
+          const projectStatus = (project.status || '').toLowerCase()
+          return normalizedStatuses.some((status) => projectStatus.includes(status))
+        })
+      }
+    }
+
+    const projectsData = filteredProjects.map((project) => ({
       id: project.id,
       name: project.name,
       slug: project.slug,
@@ -43,6 +86,7 @@ export async function GET(request: NextRequest) {
       solutions: project.solutions,
       results: project.results,
       testimonials: project.testimonials,
+      is_featured: project.is_featured,
       company_id: project.company_id,
       company_name: project.company_name,
       company_logo: project.company_logo,

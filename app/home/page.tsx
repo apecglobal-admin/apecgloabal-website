@@ -5,18 +5,209 @@ import Footer from "@/components/footer"
 import HeroCarousel from "@/components/hero-carousel"
 import MemberCompanies from "@/components/member-companies"
 import HomeProjects from "@/components/home-projects"
-import { 
-  Star, Quote, ArrowRight, Rocket, Shield, Brain, Network, Cloud, Cpu, Atom, 
-  Zap, Target, Building2, History, Crown, Users, Code, Database, 
+import type { LucideIcon } from "lucide-react"
+import {
+  Star, Quote, ArrowRight, Rocket, Shield, Brain, Network, Cloud, Cpu, Atom,
+  Zap, Target, Building2, History, Crown, Users, Code, Database,
   Smartphone, Server, Briefcase, UserCheck, MapPin,
   Award, CheckCircle, ExternalLink, Phone, Clock, DollarSign,
   TrendingUp, BarChart3, Activity, Settings,
-  Wrench, Headphones, GraduationCap, Coffee, Heart, MessageSquare, User
+  Wrench, Headphones, GraduationCap, Coffee, Heart, MessageSquare, User,
+  Globe
 } from "lucide-react"
-import { getAllProjects } from "@/lib/db"
+import { getAllProjects, getAllServices } from "@/lib/db"
+
+// Helper function to get icon component from icon name
+const getServiceIcon = (iconName: string | null) => {
+  const iconMap: Record<string, LucideIcon> = {
+    code: Code,
+    database: Database,
+    smartphone: Smartphone,
+    server: Server,
+    briefcase: Briefcase,
+    shield: Shield,
+    brain: Brain,
+    cloud: Cloud,
+    cpu: Cpu,
+    barchart3: BarChart3,
+    settings: Settings,
+    wrench: Wrench,
+    headphones: Headphones
+  }
+  return iconMap[iconName?.toLowerCase() || ''] || Code
+}
+
+// Helper function to get color classes based on index
+const getServiceColorClasses = (index: number) => {
+  const colors = [
+    { border: 'border-blue-100 hover:border-blue-300', bg: 'bg-blue-50', iconBg: 'bg-blue-100', text: 'text-blue-700', tag: 'bg-blue-100 text-blue-700', hover: 'hover:from-blue-50/50' },
+    { border: 'border-green-100 hover:border-green-300', bg: 'bg-green-50', iconBg: 'bg-green-100', text: 'text-green-700', tag: 'bg-green-100 text-green-700', hover: 'hover:from-green-50/50' },
+    { border: 'border-purple-100 hover:border-purple-300', bg: 'bg-purple-50', iconBg: 'bg-purple-100', text: 'text-purple-700', tag: 'bg-purple-100 text-purple-700', hover: 'hover:from-purple-50/50' },
+    { border: 'border-orange-100 hover:border-orange-300', bg: 'bg-orange-50', iconBg: 'bg-orange-100', text: 'text-orange-700', tag: 'bg-orange-100 text-orange-700', hover: 'hover:from-orange-50/50' },
+    { border: 'border-red-100 hover:border-red-300', bg: 'bg-red-50', iconBg: 'bg-red-100', text: 'text-red-700', tag: 'bg-red-100 text-red-700', hover: 'hover:from-red-50/50' },
+    { border: 'border-indigo-100 hover:border-indigo-300', bg: 'bg-indigo-50', iconBg: 'bg-indigo-100', text: 'text-indigo-700', tag: 'bg-indigo-100 text-indigo-700', hover: 'hover:from-indigo-50/50' }
+  ]
+  return colors[index % colors.length]
+}
+
+const sectionHeadingClass = "text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-gray-900"
+const sectionDescriptionClass = "text-body-lg text-gray-600 max-w-3xl mx-auto"
+const badgeClass = "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium"
+const cardGridClass = "grid gap-4 sm:gap-6 lg:gap-8"
+const gradientRingClass = "absolute inset-0 rounded-3xl bg-gradient-to-br from-red-100/60 via-white to-purple-100/60 blur-0"
+const metricValueClass = "text-2xl font-semibold text-gray-900"
+
+const infoHighlights = [
+  {
+    icon: Building2,
+    title: "Quy mô & Vốn hóa",
+    description: (
+      <>
+        Vốn hoạt động <span className="font-semibold text-red-600">2.868 tỷ đồng</span>,<br className="hidden xl:block" />
+        thuộc hệ sinh thái <span className="font-semibold text-red-600">IMP Holding Hoa Kỳ</span>.
+      </>
+    ),
+    accent: "red"
+  },
+  {
+    icon: Building2,
+    title: "Lĩnh vực trọng điểm",
+    description: "Tài chính, công nghệ, thương mại, kinh tế cộng đồng và kinh tế tuần hoàn.",
+    accent: "blue"
+  },
+  {
+    icon: MapPin,
+    title: "Trụ sở & Liên hệ",
+    description: "04 Lê Tuấn Mậu, Q6, TP. HCM · Hotline: 1900 3165 · info@apecglobal.vn",
+    accent: "green"
+  },
+  {
+    icon: Globe,
+    title: "Hệ sinh thái thương hiệu",
+    description: "Apec BCI, Life Care, Ecoop, Queency, Nam Thiên Long Security, Kangaroo I-On…",
+    accent: "purple"
+  }
+]
+
+const quickFacts = [
+  {
+    icon: History,
+    label: "2004 - 2024",
+    description: "Hành trình mở rộng từ bảo vệ tới công nghệ",
+    accent: "red"
+  },
+  {
+    icon: Building2,
+    label: "Đa ngành",
+    description: "Tài chính, công nghệ, thương mại, cộng đồng",
+    accent: "blue"
+  },
+  {
+    icon: Users,
+    label: "Cộng đồng mạnh",
+    description: "Hỗ trợ doanh nghiệp, phát triển thẻ Apec",
+    accent: "green"
+  },
+  {
+    icon: Crown,
+    label: "Đối tác chiến lược",
+    description: "ASI, EDEN, ARIC, HappyLand, METTITECH, SST",
+    accent: "purple"
+  }
+]
+
+const valuePillars = [
+  {
+    icon: Target,
+    title: "Tầm Nhìn",
+    description: "10 năm trở thành tập đoàn đầu tư đa quốc gia với hệ sinh thái khỏe mạnh.",
+    accent: "red"
+  },
+  {
+    icon: Building2,
+    title: "Sứ Mệnh",
+    description: "Đầu tư, tái thiết doanh nghiệp, nâng tầm thương hiệu và tri thức hiện đại.",
+    accent: "blue"
+  },
+  {
+    icon: History,
+    title: "Giá Trị Cốt Lõi",
+    description: "TÂM sáng, TÂM bảo, TÂM huyết, TÂM khởi, TÂM thục, TÂM đạo.",
+    accent: "green"
+  },
+  {
+    icon: Crown,
+    title: "Định Hướng",
+    description: "Chứng tỏ kiến tạo giá trị, tạo nền tảng bền vững cho cộng đồng.",
+    accent: "purple"
+  }
+]
+
+const careerBenefits = [
+  {
+    icon: Heart,
+    title: "Môi trường tuyệt vời",
+    description: "Văn hóa tích cực, đồng nghiệp thân thiện, hỗ trợ nhiệt tình.",
+    accent: "red"
+  },
+  {
+    icon: TrendingUp,
+    title: "Cơ hội phát triển",
+    description: "Đào tạo liên tục, thăng tiến rõ ràng, dự án công nghệ tiên tiến.",
+    accent: "blue"
+  },
+  {
+    icon: DollarSign,
+    title: "Lương thưởng hấp dẫn",
+    description: "Lương cạnh tranh, thưởng hiệu suất, phúc lợi đầy đủ.",
+    accent: "green"
+  },
+  {
+    icon: Coffee,
+    title: "Work-life balance",
+    description: "Linh hoạt, remote, nhiều hoạt động kết nối đội nhóm.",
+    accent: "purple"
+  }
+]
+
+const ctaMetrics = [
+  { value: "5+", label: "Công ty thành viên" },
+  { value: "100+", label: "Dự án thành công" },
+  { value: "1000+", label: "Khách hàng tin tưởng" },
+  { value: "24/7", label: "Hỗ trợ khách hàng" }
+]
+
+interface ShowcaseCardProps {
+  icon: LucideIcon
+  title: string
+  description: string
+  primaryColor: string
+  tags: string[]
+  status?: {
+    label: string
+    icon: LucideIcon
+    color: string
+  }
+}
+
+const sectionBadgeMap: Record<string, string> = {
+  red: "bg-red-100 text-red-700",
+  blue: "bg-blue-100 text-blue-700",
+  green: "bg-green-100 text-green-700",
+  purple: "bg-purple-100 text-purple-700",
+  orange: "bg-orange-100 text-orange-700",
+  indigo: "bg-indigo-100 text-indigo-700"
+}
+
+const pillarCardClass = "group rounded-2xl border border-gray-100 bg-white/70 backdrop-blur p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+const highlightCardClass = "flex items-start space-x-4 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
+const factCardClass = "group rounded-2xl bg-white/80 backdrop-blur p-6 border border-gray-100 hover:border-transparent hover:shadow-xl transition-all duration-300"
+
+export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   let dbProjects = []
+  let dbServices = []
   
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
@@ -36,6 +227,16 @@ export default async function HomePage() {
     dbProjects = await getAllProjects()
   }
 
+  // Fetch services from database
+  try {
+    dbServices = await getAllServices()
+    // Limit to 6 services for home page
+    dbServices = dbServices.slice(0, 6)
+  } catch (error) {
+    console.error('Error fetching services:', error)
+    dbServices = []
+  }
+
   return (
     <div className="min-h-screen bg-white text-black">
       <Header />
@@ -51,101 +252,149 @@ export default async function HomePage() {
       {/* Projects Section */}
       <HomeProjects />
 
-      {/* Giới thiệu công ty */}
-      <section className="section-standard bg-gradient-to-br from-gray-50/50 to-red-50/30">
-        <div className="container-standard">
+      {/* Giới thiệu công ty - REDESIGNED */}
+      <section className="section-standard bg-gradient-to-br from-gray-50/50 via-white to-red-50/30 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-red-100/20 rounded-full blur-3xl -z-0"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-0"></div>
+        
+        <div className="container-standard relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+            <div className="space-y-8">
+              <div className={`${badgeClass} bg-gradient-to-r from-red-100 to-red-50 text-red-700 w-fit shadow-sm`}>                      
                 <Building2 className="w-4 h-4 mr-2" />
                 Về Chúng Tôi
               </div>
               
-              <h2 className="heading-h2 leading-tight">
-                Dẫn đầu trong <br />
-                <span className="text-red-600 relative">
-                  Công nghệ AI
-                  <div className="absolute -bottom-2 left-0 w-full h-1 bg-red-200 rounded-full"></div>
-                </span>
-              </h2>
-              
-              <p className="text-body-lg text-gray-600 leading-relaxed">
-                ApecGlobal là tập đoàn công nghệ hàng đầu Việt Nam, được thành lập năm 2020 với sứ mệnh 
-                kết nối và thống nhất hệ sinh thái công nghệ. Chúng tôi tập trung vào việc phát triển 
-                các <span className="text-red-600 font-semibold">giải pháp công nghệ tiên tiến</span>, từ AI, Blockchain đến IoT và Cloud Computing.
-              </p>
-              
-              <div className="flex items-center space-x-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-6 h-6 text-red-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-1">Đội ngũ chuyên nghiệp</h4>
-                  <p className="text-gray-600 text-sm">
-                    Hơn <span className="font-semibold text-red-600">500 chuyên gia công nghệ</span> và 5 công ty thành viên, 
-                    phục vụ hơn 1000 khách hàng trên toàn quốc.
-                  </p>
-                </div>
+              <div className="space-y-4">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-gray-900">
+                  Kiến tạo hệ sinh thái{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">
+                    Công nghệ - Thương mại - Cộng đồng
+                  </span>
+                </h2>
+                
+                <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full"></div>
               </div>
               
-              <div className="flex flex-row gap-2 sm:gap-4 pt-4 flex-nowrap">
-                <Link href="/about" className="flex items-center btn-primary group flex-1 justify-center text-sm sm:text-base">
+              <p className="text-lg text-gray-600 leading-relaxed">
+                <span className="font-semibold text-gray-900">Tập Đoàn Kinh Tế ApecGlobal</span> với slogan{" "}
+                <span className="text-red-600 font-semibold italic">"Kiến Tạo Giá Trị - Làm Chủ Tương Lai"</span>{" "}
+                hướng tới nền kinh tế tuần hoàn bền vững, kết nối doanh nghiệp và cộng đồng
+                thông qua chuyển đổi số, thương mại thông minh và chuỗi giá trị nhân văn.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {infoHighlights.map((item, index) => {
+                  const accentColors = {
+                    red: { bg: 'bg-red-100', text: 'text-red-600', border: 'border-red-200', hover: 'hover:border-red-300' },
+                    blue: { bg: 'bg-blue-100', text: 'text-blue-600', border: 'border-blue-200', hover: 'hover:border-blue-300' },
+                    green: { bg: 'bg-green-100', text: 'text-green-600', border: 'border-green-200', hover: 'hover:border-green-300' },
+                    purple: { bg: 'bg-purple-100', text: 'text-purple-600', border: 'border-purple-200', hover: 'hover:border-purple-300' }
+                  }
+                  const colors = accentColors[item.accent as keyof typeof accentColors]
+                  
+                  return (
+                    <div
+                      key={item.title}
+                      className={`group p-5 bg-white rounded-2xl border-2 ${colors.border} ${colors.hover} shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${colors.bg} group-hover:scale-110 transition-transform duration-300`}>                      
+                          <item.icon className={`w-6 h-6 ${colors.text}`} />
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <h4 className="font-semibold text-gray-900 text-base">{item.title}</h4>
+                          <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="flex flex-row gap-3 sm:gap-4 pt-2">
+                <Link href="/about" className="flex items-center btn-primary group flex-1 justify-center text-sm sm:text-base shadow-lg hover:shadow-xl">
                   <span className="hidden sm:inline">Tìm Hiểu Thêm</span>
                   <span className="sm:hidden">Tìm Hiểu</span>
                   <ArrowRight className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link href="/contact" className="flex items-center btn-outline group flex-1 justify-center text-sm sm:text-base">
+                <Link href="/contact" className="flex items-center btn-outline group flex-1 justify-center text-sm sm:text-base shadow-md hover:shadow-lg">
                   <span className="hidden sm:inline">Liên Hệ Ngay</span>
                   <span className="sm:hidden">Liên Hệ</span>
                   <Phone className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform" />
                 </Link>
               </div>
             </div>
-            
+
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl transform rotate-3"></div>
-              <div className="relative card-elevated p-8 bg-white rounded-2xl">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">Thành tựu nổi bật</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center group hover:scale-105 transition-transform">
-                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <History className="w-8 h-8 text-red-600" />
-                    </div>
-                    <div className="heading-h3 text-red-600 mb-1">2020</div>
-                    <div className="text-muted text-body-sm">Năm thành lập</div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-100/60 via-purple-100/40 to-blue-100/60 rounded-3xl blur-xl"></div>
+                <div className="relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+                  <div className="bg-gradient-to-r from-red-600 to-red-500 p-6 text-center">
+                    <h3 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+                      <Award className="w-6 h-6" />
+                      Thông tin nhanh
+                    </h3>
                   </div>
-                  <div className="text-center group hover:scale-105 transition-transform">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Building2 className="w-8 h-8 text-blue-600" />
+                  
+                  <div className="p-8">
+                    <div className={`${cardGridClass} grid-cols-2 gap-6`}>
+                      {quickFacts.map((fact, index) => {
+                        const accentColors = {
+                          red: { bg: 'bg-red-100', text: 'text-red-600', ring: 'ring-red-200' },
+                          blue: { bg: 'bg-blue-100', text: 'text-blue-600', ring: 'ring-blue-200' },
+                          green: { bg: 'bg-green-100', text: 'text-green-600', ring: 'ring-green-200' },
+                          purple: { bg: 'bg-purple-100', text: 'text-purple-600', ring: 'ring-purple-200' }
+                        }
+                        const colors = accentColors[fact.accent as keyof typeof accentColors]
+                        
+                        return (
+                          <div
+                            key={fact.label}
+                            className="group text-center p-4 rounded-2xl bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${colors.bg} group-hover:scale-110 transition-transform duration-300 ring-4 ${colors.ring} ring-opacity-30`}>
+                              <fact.icon className={`w-8 h-8 ${colors.text}`} />
+                            </div>
+                            <div className={`text-xl font-bold ${colors.text} mb-2`}>{fact.label}</div>
+                            <p className="text-gray-600 text-xs leading-relaxed">{fact.description}</p>
+                          </div>
+                        )
+                      })}
                     </div>
-                    <div className="heading-h3 text-blue-600 mb-1">5+</div>
-                    <div className="text-muted text-body-sm">Công ty thành viên</div>
-                  </div>
-                  <div className="text-center group hover:scale-105 transition-transform">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Users className="w-8 h-8 text-green-600" />
+
+                    <div className="mt-8 bg-gradient-to-br from-red-50 via-red-50/50 to-orange-50/50 rounded-2xl p-6 border-2 border-red-100 shadow-inner">
+                      <h4 className="text-red-700 font-bold mb-4 flex items-center justify-center gap-2 text-lg">
+                        <Star className="w-5 h-5 fill-red-600" />
+                        Tuyên ngôn giá trị
+                      </h4>
+                      <ul className="text-gray-700 text-sm space-y-3">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-red-600 font-semibold">"Kiến tạo giá trị, dựng xây tương lai bền vững."</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-red-600 font-semibold">"Đồng hành cùng doanh nghiệp và cộng đồng phát triển."</span>
+                        </li>
+                        <li className="flex items-center justify-center gap-2 pt-2 border-t border-red-200">
+                          <Globe className="w-4 h-4 text-red-600" />
+                          <Link
+                            href="https://www.apecglobal.vn"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-red-600 hover:text-red-700 font-semibold hover:underline inline-flex items-center gap-1"
+                          >
+                            www.apecglobal.vn
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        </li>
+                      </ul>
                     </div>
-                    <div className="heading-h3 text-green-600 mb-1">500+</div>
-                    <div className="text-muted text-body-sm">Chuyên gia</div>
                   </div>
-                  <div className="text-center group hover:scale-105 transition-transform">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Heart className="w-8 h-8 text-purple-600" />
-                    </div>
-                    <div className="heading-h3 text-purple-600 mb-1">1000+</div>
-                    <div className="text-muted text-body-sm">Khách hàng</div>
-                  </div>
-                </div>
-                <div className="mt-8 card-standard p-4">
-                  <h4 className="text-primary font-semibold mb-2 flex items-center">
-                    <Award className="icon-standard mr-2" />
-                    Thành tựu nổi bật
-                  </h4>
-                  <ul className="text-muted text-body-sm space-y-1">
-                    <li>• <span className="text-primary font-medium">Top 10 công ty công nghệ hàng đầu Việt Nam</span></li>
-                    <li>• <span className="text-primary font-medium">Giải thưởng Sao Khuê 2023</span></li>
-                    <li>• Chứng nhận ISO 27001:2013</li>
-                  </ul>
                 </div>
               </div>
             </div>
@@ -153,121 +402,86 @@ export default async function HomePage() {
         </div>
       </section>
 
-        {/* Technology Showcase */}
-        <section className="section-standard">
+      {/* Technology Showcase - IMPROVED */}
+      <section className="section-standard bg-white">
           <div className="container-standard">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
+              <div className={`${badgeClass} bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 mx-auto w-fit shadow-sm mb-4`}>
                 <Cpu className="w-4 h-4 mr-2" />
                 Công Nghệ Của Chúng Tôi
               </div>
-              <h2 className="heading-h2 mb-4">
-                Giải pháp <span className="text-red-600">Công nghệ Tiên tiến</span>
+              <h2 className={sectionHeadingClass}>
+                Giải pháp <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">đột phá cho chuyển đổi số</span>
               </h2>
-              <p className="text-body-lg text-gray-600 max-w-2xl mx-auto">
-                Chúng tôi áp dụng những công nghệ mới nhất để tạo ra các giải pháp đột phá, 
-                giúp doanh nghiệp chuyển đổi số thành công.
+              <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full mx-auto mt-4 mb-6"></div>
+              <p className={sectionDescriptionClass}>
+                Chúng tôi xây dựng hệ sinh thái giải pháp toàn diện từ chiến lược, thiết kế tới vận hành, giúp doanh nghiệp tăng tốc chuyển đổi số bền vững.
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <div className={`${cardGridClass} grid-cols-2 lg:grid-cols-4`}>
               {/* AI & Machine Learning */}
               <div className="group">
-                <div className="tech-card border-l-4 border-red-500">
-                  <div className="tech-card-icon bg-red-50">
+                <div className="tech-card border-2 border-red-100 hover:border-red-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-red-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                  <div className="tech-card-icon bg-red-50 group-hover:bg-red-100 transition-colors duration-300">
                     <Brain className="tech-card-icon-inner text-red-600" />
                   </div>
-                  <h3 className="tech-card-title text-red-700">AI & Machine Learning</h3>
-                  <p className="tech-card-description">
-                    Trí tuệ nhân tạo và học máy tối ưu hóa quy trình doanh nghiệp
+                  <h3 className="tech-card-title text-red-700 font-bold">AI & Machine Learning</h3>
+                  <p className="tech-card-description text-gray-600">
+                    Hệ thống đề xuất thông minh, tự động hóa quy trình, tối ưu vận hành.
                   </p>
                   <div className="tech-card-tags">
-                    <span className="tech-card-tag bg-red-100 text-red-700">Deep Learning</span>
-                    <span className="tech-card-tag bg-red-100 text-red-700">NLP</span>
+                    <span className="tech-card-tag bg-red-100 text-red-700 font-medium">Deep Learning</span>
+                    <span className="tech-card-tag bg-red-100 text-red-700 font-medium">GenAI</span>
                   </div>
                 </div>
               </div>
 
               {/* Blockchain */}
               <div className="group">
-                <div className="tech-card border-l-4 border-blue-500">
-                  <div className="tech-card-icon bg-blue-50">
+                <div className="tech-card border-2 border-blue-100 hover:border-blue-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                  <div className="tech-card-icon bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
                     <Network className="tech-card-icon-inner text-blue-600" />
                   </div>
-                  <h3 className="tech-card-title text-blue-700">Blockchain</h3>
-                  <p className="tech-card-description">
-                    Công nghệ blockchain bảo mật cho giao dịch và hợp đồng thông minh
+                  <h3 className="tech-card-title text-blue-700 font-bold">Blockchain</h3>
+                  <p className="tech-card-description text-gray-600">
+                    Giải pháp blockchain cho giao dịch bảo mật và hợp đồng thông minh.
                   </p>
                   <div className="tech-card-tags">
-                    <span className="tech-card-tag bg-blue-100 text-blue-700">Smart Contracts</span>
-                    <span className="tech-card-tag bg-blue-100 text-blue-700">Web3</span>
+                    <span className="tech-card-tag bg-blue-100 text-blue-700 font-medium">Smart Contract</span>
+                    <span className="tech-card-tag bg-blue-100 text-blue-700 font-medium">Tokenization</span>
                   </div>
                 </div>
               </div>
 
               {/* Cloud Computing */}
               <div className="group">
-                <div className="tech-card border-l-4 border-green-500">
-                  <div className="tech-card-icon bg-green-50">
+                <div className="tech-card border-2 border-green-100 hover:border-green-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-green-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                  <div className="tech-card-icon bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
                     <Cloud className="tech-card-icon-inner text-green-600" />
                   </div>
-                  <h3 className="tech-card-title text-green-700">Cloud Computing</h3>
-                  <p className="tech-card-description">
-                    Hạ tầng đám mây linh hoạt và có thể mở rộng cho doanh nghiệp
+                  <h3 className="tech-card-title text-green-700 font-bold">Cloud & DevOps</h3>
+                  <p className="tech-card-description text-gray-600">
+                    Thiết kế hạ tầng hybrid cloud, bảo đảm an toàn và khả năng mở rộng linh hoạt.
                   </p>
                   <div className="tech-card-tags">
-                    <span className="tech-card-tag bg-green-100 text-green-700">AWS</span>
-                    <span className="tech-card-tag bg-green-100 text-green-700">Docker</span>
+                    <span className="tech-card-tag bg-green-100 text-green-700 font-medium">AWS</span>
+                    <span className="tech-card-tag bg-green-100 text-green-700 font-medium">Kubernetes</span>
                   </div>
                 </div>
               </div>
 
-              {/* IoT */}
               <div className="group">
-                <div className="tech-card border-l-4 border-purple-500">
-                  <div className="tech-card-icon bg-purple-50">
-                    <Cpu className="tech-card-icon-inner text-purple-600" />
+                <div className="tech-card border-2 border-purple-100 hover:border-purple-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                  <div className="tech-card-icon bg-purple-50 group-hover:bg-purple-100 transition-colors duration-300">
+                    <Database className="tech-card-icon-inner text-purple-600" />
                   </div>
-                  <h3 className="tech-card-title text-purple-700">Internet of Things</h3>
-                  <p className="tech-card-description">
-                    Kết nối thông minh thiết bị và cảm biến IoT toàn diện
+                  <h3 className="tech-card-title text-purple-700 font-bold">Big Data & Analytics</h3>
+                  <p className="tech-card-description text-gray-600">
+                    Kiến trúc dữ liệu lớn, dashboard realtime và ra quyết định dựa trên dữ liệu.
                   </p>
                   <div className="tech-card-tags">
-                    <span className="tech-card-tag bg-purple-100 text-purple-700">Sensors</span>
-                    <span className="tech-card-tag bg-purple-100 text-purple-700">5G</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Cybersecurity */}
-              <div className="group">
-                <div className="tech-card border-l-4 border-orange-500">
-                  <div className="tech-card-icon bg-orange-50">
-                    <Shield className="tech-card-icon-inner text-orange-600" />
-                  </div>
-                  <h3 className="tech-card-title text-orange-700">Bảo Mật Số</h3>
-                  <p className="tech-card-description">
-                    Hệ thống bảo mật đa lớp bảo vệ dữ liệu với độ tin cậy cao
-                  </p>
-                  <div className="tech-card-tags">
-                    <span className="tech-card-tag bg-orange-100 text-orange-700">Zero Trust</span>
-                    <span className="tech-card-tag bg-orange-100 text-orange-700">SOC</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quantum Computing */}
-              <div className="group">
-                <div className="tech-card border-l-4 border-indigo-500">
-                  <div className="tech-card-icon bg-indigo-50">
-                    <Atom className="tech-card-icon-inner text-indigo-600" />
-                  </div>
-                  <h3 className="tech-card-title text-indigo-700">Quantum Computing</h3>
-                  <p className="tech-card-description">
-                    Nghiên cứu công nghệ điện toán lượng tử cho tương lai
-                  </p>
-                  <div className="tech-card-tags">
-                    <span className="tech-card-tag bg-indigo-100 text-indigo-700">Qubits</span>
-                    <span className="tech-card-tag bg-indigo-100 text-indigo-700">Research</span>
+                    <span className="tech-card-tag bg-purple-100 text-purple-700 font-medium">Realtime</span>
+                    <span className="tech-card-tag bg-purple-100 text-purple-700 font-medium">BI</span>
                   </div>
                 </div>
               </div>
@@ -275,866 +489,226 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Dịch vụ chính */}
-        <section className="section-gray">
+        {/* Dịch vụ chính - IMPROVED */}
+        <section className="section-gray bg-gradient-to-br from-gray-50 to-gray-100/50">
           <div className="container-standard">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-4">
+              <div className={`${badgeClass} bg-gradient-to-r from-green-100 to-green-50 text-green-700 mx-auto w-fit shadow-sm mb-4`}>
                 <Settings className="w-4 h-4 mr-2" />
                 Dịch Vụ Của Chúng Tôi
               </div>
-              <h2 className="heading-h2 mb-4">
-                Giải pháp <span className="text-red-600">Toàn diện</span>
+              <h2 className={sectionHeadingClass}>
+                Giải pháp <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">Toàn diện</span>
               </h2>
-              <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
+              <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full mx-auto mt-4 mb-6"></div>
+              <p className={sectionDescriptionClass}>
                 Từ ý tưởng đến sản phẩm hoàn thiện, chúng tôi đồng hành cùng bạn trong mọi giai đoạn 
                 phát triển công nghệ với đội ngũ chuyên gia giàu kinh nghiệm.
               </p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-              {/* Phát triển phần mềm */}
-              <div className="group">
-                <div className="service-card border-l-4 border-blue-500">
-                  <div className="service-card-icon bg-blue-50">
-                    <Code className="service-card-icon-inner text-blue-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {dbServices.length > 0 ? (
+                dbServices.map((service, index) => {
+                  const IconComponent = getServiceIcon(service.icon)
+                  const colors = getServiceColorClasses(index)
+                  const features = service.features || []
+                  
+                  return (
+                    <div key={service.id} className="group">
+                      <Link href={`/services/${service.slug || service.id}`}>
+                        <div className={`service-card border-2 ${colors.border} rounded-2xl p-6 bg-white hover:bg-gradient-to-br ${colors.hover} hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer`}>
+                          <div className={`service-card-icon ${colors.bg} group-hover:${colors.iconBg} transition-colors duration-300`}>
+                            <IconComponent className={`service-card-icon-inner ${colors.text.replace('text-', 'text-').replace('-700', '-600')}`} />
+                          </div>
+                          <h3 className={`service-card-title ${colors.text} font-bold`}>{service.title}</h3>
+                          <p className="service-card-description text-gray-600">
+                            {service.description}
+                          </p>
+                          {features.length > 0 && (
+                            <div className="service-card-tags">
+                              {features.slice(0, 2).map((feature, idx) => (
+                                <span key={idx} className={`service-card-tag ${colors.tag} font-medium`}>
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    </div>
+                  )
+                })
+              ) : (
+                // Fallback content if no services in database
+                <>
+                  <div className="group">
+                    <div className="service-card border-2 border-blue-100 hover:border-blue-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                      <div className="service-card-icon bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                        <Code className="service-card-icon-inner text-blue-600" />
+                      </div>
+                      <h3 className="service-card-title text-blue-700 font-bold">Phát Triển Phần Mềm</h3>
+                      <p className="service-card-description text-gray-600">
+                        Thiết kế ứng dụng web, mobile, desktop với công nghệ hiện đại
+                      </p>
+                      <div className="service-card-tags">
+                        <span className="service-card-tag bg-blue-100 text-blue-700 font-medium">Web Apps</span>
+                        <span className="service-card-tag bg-blue-100 text-blue-700 font-medium">Mobile Apps</span>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="service-card-title text-blue-700">Phát Triển Phần Mềm</h3>
-                  <p className="service-card-description">
-                    Thiết kế ứng dụng web, mobile, desktop với công nghệ hiện đại
-                  </p>
-                  <div className="service-card-tags">
-                    <span className="service-card-tag bg-blue-100 text-blue-700">Web Apps</span>
-                    <span className="service-card-tag bg-blue-100 text-blue-700">Mobile Apps</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Tư vấn công nghệ */}
-              <div className="group">
-                <div className="service-card border-l-4 border-green-500">
-                  <div className="service-card-icon bg-green-50">
-                    <Briefcase className="service-card-icon-inner text-green-600" />
+                  <div className="group">
+                    <div className="service-card border-2 border-green-100 hover:border-green-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-green-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                      <div className="service-card-icon bg-green-50 group-hover:bg-green-100 transition-colors duration-300">
+                        <Briefcase className="service-card-icon-inner text-green-600" />
+                      </div>
+                      <h3 className="service-card-title text-green-700 font-bold">Tư Vấn Công Nghệ</h3>
+                      <p className="service-card-description text-gray-600">
+                        Tư vấn chiến lược công nghệ, chuyển đổi số và tối ưu hóa quy trình
+                      </p>
+                      <div className="service-card-tags">
+                        <span className="service-card-tag bg-green-100 text-green-700 font-medium">Digital Transform</span>
+                        <span className="service-card-tag bg-green-100 text-green-700 font-medium">Tech Strategy</span>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="service-card-title text-green-700">Tư Vấn Công Nghệ</h3>
-                  <p className="service-card-description">
-                    Tư vấn chiến lược công nghệ, chuyển đổi số và tối ưu hóa quy trình
-                  </p>
-                  <div className="service-card-tags">
-                    <span className="service-card-tag bg-green-100 text-green-700">Digital Transform</span>
-                    <span className="service-card-tag bg-green-100 text-green-700">Tech Strategy</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Cloud & DevOps */}
-              <div className="group">
-                <div className="service-card border-l-4 border-purple-500">
-                  <div className="service-card-icon bg-purple-50">
-                    <Server className="service-card-icon-inner text-purple-600" />
+                  <div className="group">
+                    <div className="service-card border-2 border-purple-100 hover:border-purple-300 rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-purple-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                      <div className="service-card-icon bg-purple-50 group-hover:bg-purple-100 transition-colors duration-300">
+                        <Server className="service-card-icon-inner text-purple-600" />
+                      </div>
+                      <h3 className="service-card-title text-purple-700 font-bold">Cloud & DevOps</h3>
+                      <p className="service-card-description text-gray-600">
+                        Triển khai và quản lý hạ tầng cloud, CI/CD và monitoring
+                      </p>
+                      <div className="service-card-tags">
+                        <span className="service-card-tag bg-purple-100 text-purple-700 font-medium">AWS/Azure</span>
+                        <span className="service-card-tag bg-purple-100 text-purple-700 font-medium">CI/CD</span>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="service-card-title text-purple-700">Cloud & DevOps</h3>
-                  <p className="service-card-description">
-                    Triển khai và quản lý hạ tầng cloud, CI/CD và monitoring
-                  </p>
-                  <div className="service-card-tags">
-                    <span className="service-card-tag bg-purple-100 text-purple-700">AWS/Azure</span>
-                    <span className="service-card-tag bg-purple-100 text-purple-700">CI/CD</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI & Data Analytics */}
-              <div className="group">
-                <div className="service-card border-l-4 border-orange-500">
-                  <div className="service-card-icon bg-orange-50">
-                    <BarChart3 className="service-card-icon-inner text-orange-600" />
-                  </div>
-                  <h3 className="service-card-title text-orange-700">AI & Data Analytics</h3>
-                  <p className="service-card-description">
-                    Phân tích dữ liệu, machine learning và trí tuệ nhân tạo
-                  </p>
-                  <div className="service-card-tags">
-                    <span className="service-card-tag bg-orange-100 text-orange-700">ML Models</span>
-                    <span className="service-card-tag bg-orange-100 text-orange-700">Data Viz</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bảo mật & Audit */}
-              <div className="group">
-                <div className="service-card border-l-4 border-red-500">
-                  <div className="service-card-icon bg-red-50">
-                    <Shield className="service-card-icon-inner text-red-600" />
-                  </div>
-                  <h3 className="service-card-title text-red-700">Bảo Mật & Audit</h3>
-                  <p className="service-card-description">
-                    Đánh giá bảo mật, penetration testing và compliance
-                  </p>
-                  <div className="service-card-tags">
-                    <span className="service-card-tag bg-red-100 text-red-700">Security Assess</span>
-                    <span className="service-card-tag bg-red-100 text-red-700">Pen Testing</span>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
+
+            {dbServices.length > 0 && (
+              <div className="text-center mt-12">
+                <Link href="/services" className="inline-flex items-center btn-primary group shadow-lg hover:shadow-xl">
+                  <span>Xem Tất Cả Dịch Vụ</span>
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
         {/* Member Companies */}
         <MemberCompanies />
 
-        {/* Company Overview */}
-        <section className="section-standard bg-gradient-to-br from-blue-50/30 to-purple-50/30">
-          <div className="container-standard">
+        {/* Company Overview - IMPROVED */}
+        <section className="section-standard bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-100/20 rounded-full blur-3xl -z-0"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-0"></div>
+          
+          <div className="container-standard relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
+              <div className={`${badgeClass} bg-gradient-to-r from-purple-100 to-purple-50 text-purple-700 mx-auto w-fit shadow-sm mb-4`}>
                 <Crown className="w-4 h-4 mr-2" />
                 Giá Trị Cốt Lõi
               </div>
-              <h2 className="heading-h2 mb-4">
-                Tại sao chọn <span className="text-red-600">ApecGlobal</span>?
+              <h2 className={sectionHeadingClass}>
+                Tại sao chọn <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">ApecGlobal</span>?
               </h2>
-              <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
-                Chúng tôi không chỉ cung cấp công nghệ, mà còn là đối tác đáng tin cậy 
-                trong hành trình chuyển đổi số của doanh nghiệp bạn.
+              <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full mx-auto mt-4 mb-6"></div>
+              <p className={sectionDescriptionClass}>
+                Hệ sinh thái đồng bộ từ tài chính, công nghệ đến thương mại giúp doanh nghiệp phát triển bền vững.
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              <div className="group">
-                <div className="value-card">
-                  <div className="value-card-icon bg-red-50">
-                    <Target className="value-card-icon-inner text-red-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+              {valuePillars.map((pillar, index) => {
+                const accentColors = {
+                  red: { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', hover: 'hover:border-red-300', iconBg: 'bg-red-100' },
+                  blue: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', hover: 'hover:border-blue-300', iconBg: 'bg-blue-100' },
+                  green: { bg: 'bg-green-50', text: 'text-green-600', border: 'border-green-200', hover: 'hover:border-green-300', iconBg: 'bg-green-100' },
+                  purple: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200', hover: 'hover:border-purple-300', iconBg: 'bg-purple-100' }
+                }
+                const colors = accentColors[pillar.accent as keyof typeof accentColors]
+                
+                return (
+                  <div key={pillar.title} className="group">
+                    <div className={`value-card border-2 ${colors.border} ${colors.hover} rounded-2xl p-6 bg-white hover:bg-gradient-to-br hover:from-${pillar.accent}-50/50 hover:to-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}>
+                      <div className={`value-card-icon ${colors.iconBg} group-hover:scale-110 transition-transform duration-300`}>
+                        <pillar.icon className={`value-card-icon-inner ${colors.text}`} />
+                      </div>
+                      <h3 className={`value-card-title ${colors.text} font-bold`}>{pillar.title}</h3>
+                      <p className="value-card-description text-gray-600">
+                        {pillar.description}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="value-card-title text-red-700">Tầm Nhìn</h3>
-                  <p className="value-card-description">
-                    Tập đoàn công nghệ hàng đầu, định hình tương lai số Việt Nam
-                  </p>
-                </div>
-              </div>
-              
-              <div className="group">
-                <div className="value-card">
-                  <div className="value-card-icon bg-blue-50">
-                    <Building2 className="value-card-icon-inner text-blue-600" />
-                  </div>
-                  <h3 className="value-card-title text-blue-700">Sứ Mệnh</h3>
-                  <p className="value-card-description">
-                    Kết nối hệ sinh thái công nghệ, tạo giải pháp đột phá
-                  </p>
-                </div>
-              </div>
-              
-              <div className="group">
-                <div className="value-card">
-                  <div className="value-card-icon bg-green-50">
-                    <History className="value-card-icon-inner text-green-600" />
-                  </div>
-                  <h3 className="value-card-title text-green-700">Lịch Sử</h3>
-                  <p className="value-card-description">
-                    Thành lập 2020, phát triển thành tập đoàn với 5 công ty thành viên
-                  </p>
-                </div>
-              </div>
-              
-              <div className="group">
-                <div className="value-card">
-                  <div className="value-card-icon bg-purple-50">
-                    <Crown className="value-card-icon-inner text-purple-600" />
-                  </div>
-                  <h3 className="value-card-title text-purple-700">Lãnh Đạo</h3>
-                  <p className="value-card-description">
-                    Đội ngũ giàu kinh nghiệm với tầm nhìn chiến lược xuất sắc
-                  </p>
-                </div>
-              </div>
+                )
+              })}
             </div>
           </div>
         </section>
 
-
-
-        {/* Dự án nổi bật */}
-        <section className="section-standard bg-gradient-to-br from-green-50/30 to-blue-50/30">
-          <div className="container-standard">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-4">
-                <Rocket className="w-4 h-4 mr-2" />
-                Dự Án Tiêu Biểu
-              </div>
-              <h2 className="heading-h2 mb-4">
-                Dự án <span className="text-red-600">Nổi bật</span>
-              </h2>
-              <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
-                Những dự án tiêu biểu thể hiện năng lực và kinh nghiệm của ApecGlobal 
-                trong việc tạo ra các giải pháp công nghệ đột phá.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-              {/* Dự án 1 - E-commerce Platform */}
-              <div className="group">
-                <div className="project-card border-l-4 border-blue-500">
-                  <div className="project-card-icon bg-blue-50">
-                    <Smartphone className="project-card-icon-inner text-blue-600" />
-                  </div>
-                  <h3 className="project-card-title text-blue-700">E-commerce Platform</h3>
-                  <p className="project-card-description">
-                    Nền tảng thương mại điện tử với AI recommendation và blockchain payment
-                  </p>
-                  <div className="project-card-tags">
-                    <span className="project-card-tag bg-blue-100 text-blue-700">React</span>
-                    <span className="project-card-tag bg-blue-100 text-blue-700">Node.js</span>
-                  </div>
-                  <div className="project-card-status text-green-600">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Hoàn thành
-                  </div>
-                </div>
-              </div>
-
-              {/* Dự án 2 - Smart City IoT */}
-              <div className="group">
-                <div className="project-card border-l-4 border-green-500">
-                  <div className="project-card-icon bg-green-50">
-                    <Network className="project-card-icon-inner text-green-600" />
-                  </div>
-                  <h3 className="project-card-title text-green-700">Smart City IoT</h3>
-                  <p className="project-card-description">
-                    Hệ thống IoT quản lý thông minh cho thành phố với 10,000+ sensors
-                  </p>
-                  <div className="project-card-tags">
-                    <span className="project-card-tag bg-green-100 text-green-700">IoT</span>
-                    <span className="project-card-tag bg-green-100 text-green-700">AWS</span>
-                  </div>
-                  <div className="project-card-status text-blue-600">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Đang triển khai
-                  </div>
-                </div>
-              </div>
-
-              {/* Dự án 3 - AI Healthcare */}
-              <div className="group">
-                <div className="project-card border-l-4 border-purple-500">
-                  <div className="project-card-icon bg-purple-50">
-                    <Brain className="project-card-icon-inner text-purple-600" />
-                  </div>
-                  <h3 className="project-card-title text-purple-700">AI Healthcare System</h3>
-                  <p className="project-card-description">
-                    Hệ thống AI chẩn đoán y tế với độ chính xác 95% và telemedicine
-                  </p>
-                  <div className="project-card-tags">
-                    <span className="project-card-tag bg-purple-100 text-purple-700">TensorFlow</span>
-                    <span className="project-card-tag bg-purple-100 text-purple-700">FastAPI</span>
-                  </div>
-                  <div className="project-card-status text-orange-600">
-                    <Settings className="w-3 h-3 mr-1" />
-                    Phát triển
-                  </div>
-                </div>
-              </div>
-
-              {/* Dự án 4 - Blockchain Finance */}
-              <div className="group">
-                <div className="project-card border-l-4 border-orange-500">
-                  <div className="project-card-icon bg-orange-50">
-                    <Database className="project-card-icon-inner text-orange-600" />
-                  </div>
-                  <h3 className="project-card-title text-orange-700">DeFi Trading Platform</h3>
-                  <p className="project-card-description">
-                    Nền tảng giao dịch DeFi với smart contracts và yield farming
-                  </p>
-                  <div className="project-card-tags">
-                    <span className="project-card-tag bg-orange-100 text-orange-700">Solidity</span>
-                    <span className="project-card-tag bg-orange-100 text-orange-700">Web3</span>
-                  </div>
-                  <div className="project-card-status text-green-600">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Hoàn thành
-                  </div>
-                </div>
-              </div>
-
-              {/* Dự án 5 - Cloud Migration */}
-              <div className="group">
-                <div className="project-card border-l-4 border-indigo-500">
-                  <div className="project-card-icon bg-indigo-50">
-                    <Cloud className="project-card-icon-inner text-indigo-600" />
-                  </div>
-                  <h3 className="project-card-title text-indigo-700">Enterprise Cloud Migration</h3>
-                  <p className="project-card-description">
-                    Migration 500+ servers sang AWS với zero downtime và cost optimization
-                  </p>
-                  <div className="project-card-tags">
-                    <span className="project-card-tag bg-indigo-100 text-indigo-700">AWS</span>
-                    <span className="project-card-tag bg-indigo-100 text-indigo-700">Kubernetes</span>
-                  </div>
-                  <div className="project-card-status text-green-600">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Hoàn thành
-                  </div>
-                </div>
-              </div>
-
-              {/* Dự án 6 - Cybersecurity SOC */}
-              <div className="group">
-                <div className="project-card border-l-4 border-red-500">
-                  <div className="project-card-icon bg-red-50">
-                    <Shield className="project-card-icon-inner text-red-600" />
-                  </div>
-                  <h3 className="project-card-title text-red-700">Security Operations Center</h3>
-                  <p className="project-card-description">
-                    SOC 24/7 với AI threat detection và incident response automation
-                  </p>
-                  <div className="project-card-tags">
-                    <span className="project-card-tag bg-red-100 text-red-700">SIEM</span>
-                    <span className="project-card-tag bg-red-100 text-red-700">AI/ML</span>
-                  </div>
-                  <div className="project-card-status text-blue-600">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Vận hành
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center mt-12">
-              <Link href="/projects" className="px-8 py-3 bg-red-700 rounded-lg text-white font-medium hover:bg-red-800 transition-all inline-flex items-center shadow-lg hover:shadow-xl min-w-[200px] justify-center">
-                Xem Tất Cả Dự Án
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Phản hồi khách hàng */}
-        <section className="section-standard bg-gradient-to-br from-purple-50/30 to-pink-50/30">
-          <div className="container-standard">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Phản Hồi Khách Hàng
-              </div>
-              <h2 className="heading-h2 mb-4">
-                Khách hàng nói gì về <span className="text-red-600">ApecGlobal</span>?
-              </h2>
-              <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
-                Những phản hồi chân thực từ khách hàng về chất lượng dịch vụ 
-                và giải pháp công nghệ của chúng tôi.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-              {/* Testimonial 1 */}
-              <div className="group">
-                <div className="testimonial-card">
-                  <p className="testimonial-card-content">
-                    "ApecGlobal đã giúp chúng tôi chuyển đổi số hoàn toàn. Hệ thống ERP mới tăng hiệu quả làm việc 40% và giảm chi phí vận hành đáng kể."
-                  </p>
-                  <div className="testimonial-card-author">
-                    <div className="testimonial-card-avatar bg-blue-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div className="testimonial-card-info">
-                      <div className="testimonial-card-name">Nguyễn Văn Minh</div>
-                      <div className="testimonial-card-role">CEO, TechCorp Vietnam</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 2 */}
-              <div className="group">
-                <div className="testimonial-card">
-                  <p className="testimonial-card-content">
-                    "Đội ngũ ApecGlobal rất chuyên nghiệp và tận tâm. Dự án AI chatbot của chúng tôi được triển khai đúng tiến độ và vượt mong đợi về chất lượng."
-                  </p>
-                  <div className="testimonial-card-author">
-                    <div className="testimonial-card-avatar bg-green-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div className="testimonial-card-info">
-                      <div className="testimonial-card-name">Trần Thị Lan</div>
-                      <div className="testimonial-card-role">CTO, FinanceHub</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 3 */}
-              <div className="group">
-                <div className="testimonial-card">
-                  <p className="testimonial-card-content">
-                    "Giải pháp cloud migration của ApecGlobal giúp chúng tôi tiết kiệm 60% chi phí IT và tăng tính bảo mật. Rất hài lòng với dịch vụ hỗ trợ 24/7."
-                  </p>
-                  <div className="testimonial-card-author">
-                    <div className="testimonial-card-avatar bg-purple-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div className="testimonial-card-info">
-                      <div className="testimonial-card-name">Lê Hoàng Nam</div>
-                      <div className="testimonial-card-role">IT Director, RetailMax</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 4 */}
-              <div className="group">
-                <div className="testimonial-card">
-                  <p className="testimonial-card-content">
-                    "Hệ thống bảo mật của ApecGlobal đã bảo vệ dữ liệu khách hàng của chúng tôi một cách tuyệt vời. Zero incident trong 2 năm qua."
-                  </p>
-                  <div className="testimonial-card-author">
-                    <div className="testimonial-card-avatar bg-orange-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <div className="testimonial-card-info">
-                      <div className="testimonial-card-name">Phạm Thị Hoa</div>
-                      <div className="testimonial-card-role">Security Manager, BankPlus</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 5 */}
-              <div className="group">
-                <div className="testimonial-card">
-                  <p className="testimonial-card-content">
-                    "Tư vấn công nghệ từ ApecGlobal rất chất lượng. Họ hiểu rõ nhu cầu doanh nghiệp và đưa ra giải pháp phù hợp nhất."
-                  </p>
-                  <div className="testimonial-card-author">
-                    <div className="testimonial-card-avatar bg-red-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-red-600" />
-                    </div>
-                    <div className="testimonial-card-info">
-                      <div className="testimonial-card-name">Võ Minh Tuấn</div>
-                      <div className="testimonial-card-role">Founder, StartupVN</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonial 6 */}
-              <div className="group">
-                <div className="testimonial-card">
-                  <p className="testimonial-card-content">
-                    "ApecGlobal là đối tác công nghệ đáng tin cậy. Dự án IoT smart factory của chúng tôi thành công vượt bậc nhờ sự hỗ trợ của họ."
-                  </p>
-                  <div className="testimonial-card-author">
-                    <div className="testimonial-card-avatar bg-indigo-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-indigo-600" />
-                    </div>
-                    <div className="testimonial-card-info">
-                      <div className="testimonial-card-name">Đặng Văn Hùng</div>
-                      <div className="testimonial-card-role">Operations Director, ManufacturingCorp</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Quick Links */}
-        <section className="py-12 sm:py-16 px-4 bg-white shadow-sm">
-          <div className="container mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4 text-red-700">
-                Khám Phá <span className="text-red-700">Thêm</span>
-              </h2>
-              <p className="text-black/70 max-w-2xl mx-auto text-lg">
-                Tìm hiểu sâu hơn về các <span className="text-black font-semibold">dịch vụ và giải pháp</span> của ApecGlobal
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              <Link href="/about" className="group">
-                <div className="nav-card border-l-4 border-blue-500">
-                  <Building2 className="nav-card-icon text-blue-600" />
-                  <h3 className="nav-card-title text-blue-700">Giới Thiệu</h3>
-                  <p className="nav-card-description">
-                    Tìm hiểu về lịch sử, tầm nhìn và sứ mệnh của ApecGlobal
-                  </p>
-                  <div className="nav-card-link text-blue-700">
-                    Khám phá <ArrowRight className="ml-2 h-3 w-3" />
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/projects" className="group">
-                <div className="nav-card border-l-4 border-orange-500">
-                  <Zap className="nav-card-icon text-orange-600" />
-                  <h3 className="nav-card-title text-orange-700">Dự Án</h3>
-                  <p className="nav-card-description">
-                    Khám phá các dự án công nghệ tiên tiến đang triển khai
-                  </p>
-                  <div className="nav-card-badge bg-orange-100 text-orange-700">
-                    {dbProjects.length}+ Dự án
-                  </div>
-                  <div className="nav-card-link text-orange-700">
-                    Xem chi tiết <ArrowRight className="ml-2 h-3 w-3" />
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/services" className="group">
-                <div className="nav-card border-l-4 border-green-500">
-                  <Wrench className="nav-card-icon text-green-600" />
-                  <h3 className="nav-card-title text-green-700">Dịch Vụ</h3>
-                  <p className="nav-card-description">
-                    Giải pháp công nghệ toàn diện cho doanh nghiệp
-                  </p>
-                  <div className="nav-card-badge bg-green-100 text-green-700">
-                    6+ Dịch vụ
-                  </div>
-                  <div className="nav-card-link text-green-700">
-                    Tìm hiểu <ArrowRight className="ml-2 h-3 w-3" />
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/careers" className="group">
-                <div className="nav-card border-l-4 border-red-500">
-                  <UserCheck className="nav-card-icon text-red-600" />
-                  <h3 className="nav-card-title text-red-700">Tuyển Dụng</h3>
-                  <p className="nav-card-description">
-                    Cơ hội nghề nghiệp tại ApecGlobal
-                  </p>
-                  <div className="nav-card-badge bg-red-100 text-red-700">
-                    Hot Jobs
-                  </div>
-                  <div className="nav-card-link text-red-700">
-                    Ứng tuyển <ArrowRight className="ml-2 h-3 w-3" />
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Tuyển dụng */}
-        <section className="py-16 px-4 bg-white career-section">
-          <div className="container mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4 text-red-700">
-                Cơ Hội <span className="text-red-700">Nghề Nghiệp</span>
-              </h2>
-              <p className="text-black/70 max-w-2xl mx-auto text-lg">
-                Gia nhập đội ngũ ApecGlobal - Nơi <span className="text-black font-semibold">tài năng được phát triển</span> và sáng tạo được khuyến khích
-              </p>
-            </div>
-            
-            <div className="mb-12 value-section">
-              <h3 className="text-2xl font-semibold mb-8 text-black text-center">Tại sao chọn <span className="text-red-700">ApecGlobal</span>?</h3>
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                <div className="group">
-                  <div className="career-benefit-card border-l-4 border-red-500">
-                    <div className="flex items-start">
-                      <div className="career-benefit-icon bg-red-50 mr-3">
-                        <Heart className="career-benefit-icon-inner text-red-600" />
-                      </div>
-                      <div className="flex-grow">
-                        <h4 className="career-benefit-title text-red-700">Môi trường tuyệt vời</h4>
-                        <p className="career-benefit-description">Văn hóa doanh nghiệp tích cực, đồng nghiệp thân thiện và hỗ trợ lẫn nhau</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="career-benefit-card border-l-4 border-blue-500">
-                    <div className="flex items-start">
-                      <div className="career-benefit-icon bg-blue-50 mr-3">
-                        <TrendingUp className="career-benefit-icon-inner text-blue-600" />
-                      </div>
-                      <div className="flex-grow">
-                        <h4 className="career-benefit-title text-blue-700">Cơ hội phát triển</h4>
-                        <p className="career-benefit-description">Đào tạo liên tục, thăng tiến rõ ràng và tham gia các dự án công nghệ tiên tiến</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="career-benefit-card border-l-4 border-green-500">
-                    <div className="flex items-start">
-                      <div className="career-benefit-icon bg-green-50 mr-3">
-                        <DollarSign className="career-benefit-icon-inner text-green-600" />
-                      </div>
-                      <div className="flex-grow">
-                        <h4 className="career-benefit-title text-green-700">Lương thưởng hấp dẫn</h4>
-                        <p className="career-benefit-description">Mức lương cạnh tranh, thưởng hiệu suất và các phúc lợi đầy đủ</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="career-benefit-card border-l-4 border-purple-500">
-                    <div className="flex items-start">
-                      <div className="career-benefit-icon bg-purple-50 mr-3">
-                        <Coffee className="career-benefit-icon-inner text-purple-600" />
-                      </div>
-                      <div className="flex-grow">
-                        <h4 className="career-benefit-title text-purple-700">Work-life balance</h4>
-                        <p className="career-benefit-description">Flexible working, remote work và các hoạt động team building thú vị</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-12">
-              <h3 className="text-xl font-semibold mb-8 text-black text-center">Vị trí đang <span className="text-red-700">tuyển</span></h3>
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                <div className="group">
-                  <div className="job-card border-l-4 border-orange-500">
-                    <div className="job-card-header">
-                      <h4 className="job-card-title text-orange-700">Senior Full-stack Developer</h4>
-                      <span className="job-card-badge bg-orange-100 text-orange-700">Hot</span>
-                    </div>
-                    <div className="job-card-meta">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        Hà Nội, TP.HCM
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Full-time
-                      </div>
-                    </div>
-                    <p className="job-card-description">React, Node.js, MongoDB, 3+ years experience</p>
-                    <Link href="/careers/senior-fullstack-developer" className="job-card-link">
-                      Xem chi tiết <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="job-card border-l-4 border-indigo-500">
-                    <div className="job-card-header">
-                      <h4 className="job-card-title text-indigo-700">DevOps Engineer</h4>
-                      <span className="job-card-badge bg-indigo-100 text-indigo-700">Urgent</span>
-                    </div>
-                    <div className="job-card-meta">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        Remote/Hybrid
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Full-time
-                      </div>
-                    </div>
-                    <p className="job-card-description">AWS, Kubernetes, Docker, CI/CD, 2+ years</p>
-                    <Link href="/careers/devops-engineer" className="job-card-link">
-                      Xem chi tiết <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="job-card border-l-4 border-purple-500">
-                    <div className="job-card-header">
-                      <h4 className="job-card-title text-purple-700">AI/ML Engineer</h4>
-                      <span className="job-card-badge bg-purple-100 text-purple-700">New</span>
-                    </div>
-                    <div className="job-card-meta">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        Hà Nội
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Full-time
-                      </div>
-                    </div>
-                    <p className="job-card-description">Python, TensorFlow, PyTorch, 2+ years</p>
-                    <Link href="/careers/ai-ml-engineer" className="job-card-link">
-                      Xem chi tiết <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="job-card border-l-4 border-green-500">
-                    <div className="job-card-header">
-                      <h4 className="job-card-title text-green-700">UI/UX Designer</h4>
-                      <span className="job-card-badge bg-green-100 text-green-700">Hot</span>
-                    </div>
-                    <div className="job-card-meta">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        TP.HCM
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Full-time
-                      </div>
-                    </div>
-                    <p className="job-card-description">Figma, Adobe XD, User Research, 2+ years</p>
-                    <Link href="/careers/ui-ux-designer" className="job-card-link">
-                      Xem chi tiết <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="job-card border-l-4 border-red-500">
-                    <div className="job-card-header">
-                      <h4 className="job-card-title text-red-700">Cybersecurity Analyst</h4>
-                      <span className="job-card-badge bg-red-100 text-red-700">Urgent</span>
-                    </div>
-                    <div className="job-card-meta">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        Hà Nội
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Full-time
-                      </div>
-                    </div>
-                    <p className="job-card-description">SIEM, Penetration Testing, Security Audit</p>
-                    <Link href="/careers/cybersecurity-analyst" className="job-card-link">
-                      Xem chi tiết <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <div className="job-card border-l-4 border-blue-500">
-                    <div className="job-card-header">
-                      <h4 className="job-card-title text-blue-700">Product Manager</h4>
-                      <span className="job-card-badge bg-blue-100 text-blue-700">New</span>
-                    </div>
-                    <div className="job-card-meta">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        Remote
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Full-time
-                      </div>
-                    </div>
-                    <p className="job-card-description">Product Strategy, Agile, Stakeholder Management</p>
-                    <Link href="/careers/product-manager" className="job-card-link">
-                      Xem chi tiết <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="text-center mt-8">
-                <Link href="/careers" className="px-6 py-3 bg-red-700 rounded-lg text-white font-medium hover:bg-red-800 transition-all inline-flex items-center shadow-lg hover:shadow-xl min-w-[180px] justify-center">
-                  Xem Tất Cả Vị Trí
-                  <UserCheck className="ml-2 h-5 w-5" />
-                </Link>
-              </div>
-            </div>
-            
-            {/* Company culture stats */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              <div className="group">
-                <div className="stats-card border-l-4 border-red-500">
-                  <Users className="stats-card-icon text-red-700" />
-                  <div className="stats-card-number">500+</div>
-                  <div className="stats-card-label">Nhân viên</div>
-                </div>
-              </div>
-              
-              <div className="group">
-                <div className="stats-card border-l-4 border-blue-500">
-                  <GraduationCap className="stats-card-icon text-blue-700" />
-                  <div className="stats-card-number text-blue-700">95%</div>
-                  <div className="stats-card-label">Hài lòng công việc</div>
-                </div>
-              </div>
-              
-              <div className="group">
-                <div className="stats-card border-l-4 border-green-500">
-                  <TrendingUp className="stats-card-icon text-green-700" />
-                  <div className="stats-card-number text-green-700">40%</div>
-                  <div className="stats-card-label">Tăng trưởng hàng năm</div>
-                </div>
-              </div>
-              
-              <div className="group">
-                <div className="stats-card border-l-4 border-purple-500">
-                  <Award className="stats-card-icon text-purple-700" />
-                  <div className="stats-card-number text-purple-700">Top 10</div>
-                  <div className="stats-card-label">Nơi làm việc tốt nhất</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Call to Action Section */}
-        <section className="py-20 px-4 relative overflow-hidden bg-white shadow-lg">
+        {/* Call to Action Section - IMPROVED */}
+        <section className="py-20 px-4 relative overflow-hidden bg-gradient-to-br from-red-600 via-red-500 to-red-600">
+          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          
           <div className="container mx-auto relative z-10 text-center">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-red-700">
-                Sẵn Sàng Cho <span className="text-red-700">Tương Lai</span>?
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white">
+                Sẵn Sàng Cho <span className="text-yellow-300">Tương Lai</span>?
               </h2>
-              <p className="text-xl sm:text-2xl text-black/80 mb-8 leading-relaxed">
-                Hãy cùng ApecGlobal tạo ra những <span className="text-black font-semibold">giải pháp công nghệ đột phá</span>, định hình tương lai số cho doanh nghiệp của bạn.
+              <p className="text-xl sm:text-2xl text-white/90 mb-8 leading-relaxed">
+                Hãy cùng ApecGlobal tạo ra những <span className="font-semibold text-yellow-300">giải pháp công nghệ đột phá</span>, định hình tương lai số cho doanh nghiệp của bạn.
               </p>
               
-              <div className="flex flex-row gap-6 justify-center items-center mb-12 flex-wrap">
-                <Link href="/contact" className="px-8 py-4 bg-red-700 hover:bg-red-800 text-white text-lg rounded-full border-0 hover:scale-110 transform transition-all duration-300 shadow-2xl min-w-[180px] text-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                <Link href="/contact" className="px-8 py-4 bg-white hover:bg-gray-50 text-red-600 text-lg font-bold rounded-full hover:scale-110 transform transition-all duration-300 shadow-2xl min-w-[200px] text-center inline-flex items-center justify-center gap-2">
                   Bắt Đầu Ngay
-                  <Rocket className="ml-3 h-6 w-6 inline" />
+                  <Rocket className="h-6 w-6" />
                 </Link>
                 
-                <Link href="/about" className="px-8 py-4 bg-white border-2 border-gray-300 text-black hover:bg-white hover:shadow-xl hover:border-red-300 text-lg rounded-full hover:scale-110 transform transition-all duration-300 shadow-2xl min-w-[180px] text-center">
+                <Link href="/about" className="px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-red-600 text-lg font-bold rounded-full hover:scale-110 transform transition-all duration-300 shadow-2xl min-w-[200px] text-center inline-flex items-center justify-center gap-2">
                   Tìm Hiểu Thêm
-                  <ArrowRight className="ml-3 h-6 w-6 inline" />
+                  <ArrowRight className="h-6 w-6" />
                 </Link>
               </div>
               
               {/* Achievement numbers */}
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-12">
-                <div className="stats-card">
-                  <div className="stats-card-number text-red-700">5+</div>
-                  <div className="stats-card-label">Công ty thành viên</div>
-                </div>
-                <div className="stats-card">
-                  <div className="stats-card-number text-red-700">100+</div>
-                  <div className="stats-card-label">Dự án thành công</div>
-                </div>
-                <div className="stats-card">
-                  <div className="stats-card-number text-red-700">1000+</div>
-                  <div className="stats-card-label">Khách hàng tin tưởng</div>
-                </div>
-                <div className="stats-card">
-                  <div className="stats-card-number text-red-700">24/7</div>
-                  <div className="stats-card-label">Hỗ trợ khách hàng</div>
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                {ctaMetrics.map((metric, index) => (
+                  <div key={index} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                    <div className="text-4xl font-bold text-white mb-2">{metric.value}</div>
+                    <div className="text-white/80 text-sm">{metric.label}</div>
+                  </div>
+                ))}
               </div>
               
               {/* Tech stack icons */}
-              <div className="flex justify-center items-center space-x-8 opacity-60">
-                <div className="text-black">
+              <div className="flex justify-center items-center space-x-8 opacity-80">
+                <div className="text-white hover:scale-125 transition-transform duration-300">
                   <Brain className="h-8 w-8" />
                 </div>
-                <div className="text-black">
+                <div className="text-white hover:scale-125 transition-transform duration-300">
                   <Network className="h-8 w-8" />
                 </div>
-                <div className="text-black">
+                <div className="text-white hover:scale-125 transition-transform duration-300">
                   <Cloud className="h-8 w-8" />
                 </div>
-                <div className="text-black">
+                <div className="text-white hover:scale-125 transition-transform duration-300">
                   <Cpu className="h-8 w-8" />
                 </div>
-                <div className="text-red-700">
+                <div className="text-yellow-300 hover:scale-125 transition-transform duration-300">
                   <Shield className="h-8 w-8" />
                 </div>
-                <div className="text-black">
+                <div className="text-white hover:scale-125 transition-transform duration-300">
                   <Atom className="h-8 w-8" />
                 </div>
               </div>

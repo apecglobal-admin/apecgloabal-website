@@ -3,11 +3,15 @@ import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
-
-  
+  title: 'ApecGlobal - Kiến Tạo Giá Trị, Làm Chủ Tương Lai',
+  description: 'Tập Đoàn Kinh Tế ApecGlobal - Hệ sinh thái công nghệ, thương mại và cộng đồng. Chuyển đổi số, AI, Blockchain, Cloud Computing.',
+  keywords: ['ApecGlobal', 'Chuyển đổi số', 'AI', 'Blockchain', 'Cloud Computing', 'Công nghệ', 'Thương mại', 'Kinh tế tuần hoàn'],
+  authors: [{ name: 'ApecGlobal' }],
+  openGraph: {
+    title: 'ApecGlobal - Kiến Tạo Giá Trị, Làm Chủ Tương Lai',
+    description: 'Hệ sinh thái công nghệ, thương mại và cộng đồng',
+    type: 'website',
+  }
 }
 
 export default function RootLayout({

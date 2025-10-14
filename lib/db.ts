@@ -68,10 +68,10 @@ export async function getParentCompany() {
   }
 }
 
-// Hàm lấy các công ty con
+// Hàm lấy các công ty con (tất cả công ty đều là công ty thành viên)
 export async function getSubsidiaryCompanies() {
   try {
-    const result = await query('SELECT * FROM companies WHERE is_parent_company = false ORDER BY display_order, name');
+    const result = await query('SELECT * FROM companies ORDER BY display_order, name');
     return result.rows;
   } catch (error) {
     console.log('Error getting subsidiary companies, returning empty array:', error);
@@ -244,18 +244,51 @@ export async function getAllJobs() {
 }
 
 // Hàm lấy tất cả dự án
-export async function getAllProjects() {
+export async function getAllProjects(searchParams?: URLSearchParams | Record<string, string>) {
   try {
-    const result = await query(`
-      SELECT p.*, c.name as company_name, c.logo_url as company_logo 
+    const params = searchParams instanceof URLSearchParams
+      ? Object.fromEntries(searchParams.entries())
+      : searchParams || {}
+
+    const filters: string[] = []
+    const values: any[] = []
+    let paramIndex = 1
+
+    if (params.featured === 'true') {
+      filters.push(`p.is_featured = true`)
+    }
+
+    if (params.company_id) {
+      filters.push(`p.company_id = $${paramIndex}`)
+      values.push(params.company_id)
+      paramIndex++
+    }
+
+    const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : ''
+
+    const orderBy = params.order_by === 'created_at'
+      ? `p.created_at DESC`
+      : `COALESCE(p.display_order, extract(epoch from p.start_date)::int) DESC, p.start_date DESC`
+
+    const limit = params.limit ? Math.min(parseInt(params.limit, 10) || 0, 24) : undefined
+    if (limit && limit > 0) {
+      values.push(limit)
+    }
+
+    const queryText = `
+      SELECT p.*, c.name as company_name, c.logo_url as company_logo, c.slug as company_slug
       FROM projects p
       LEFT JOIN companies c ON p.company_id = c.id
-      ORDER BY p.start_date DESC
-    `);
-    return result.rows;
+      ${whereClause}
+      ORDER BY ${orderBy}
+      ${limit && limit > 0 ? `LIMIT $${values.length}` : ''}
+    `
+
+    const result = await query(queryText, values)
+    return result.rows
   } catch (error) {
-    console.log('Error getting all projects, returning empty array:', error);
-    return [];
+    console.log('Error getting all projects, returning empty array:', error)
+    return []
   }
 }
 

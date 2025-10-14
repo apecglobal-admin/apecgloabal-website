@@ -16,6 +16,7 @@ export async function GET() {
     const servicesData = services.map((service) => ({
       id: service.id,
       title: service.title,
+      slug: service.slug || service.id.toString(),
       description: service.description,
       icon: service.icon,
       category: service.category,
@@ -61,14 +62,27 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // Generate slug from title if not provided
+    let slug = data.slug
+    if (!slug) {
+      slug = data.title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[đĐ]/g, 'd')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+    }
+    
     const result = await query(`
       INSERT INTO services (
-        title, description, features, icon, category, price_range, is_featured, company_id
+        title, slug, description, features, icon, category, price_range, is_featured, company_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `, [
       data.title,
+      slug,
       data.description || '',
       JSON.stringify(data.features || []),
       data.icon || 'Package',
@@ -109,15 +123,28 @@ export async function PUT(request: NextRequest) {
       )
     }
     
+    // Generate slug from title if not provided
+    let slug = data.slug
+    if (!slug) {
+      slug = data.title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[đĐ]/g, 'd')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+    }
+    
     const result = await query(`
       UPDATE services 
-      SET title = $1, description = $2, features = $3, icon = $4, 
-          category = $5, price_range = $6, is_featured = $7, company_id = $8,
+      SET title = $1, slug = $2, description = $3, features = $4, icon = $5, 
+          category = $6, price_range = $7, is_featured = $8, company_id = $9,
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = $9
+      WHERE id = $10
       RETURNING *
     `, [
       data.title,
+      slug,
       data.description || '',
       JSON.stringify(data.features || []),
       data.icon || 'Package',

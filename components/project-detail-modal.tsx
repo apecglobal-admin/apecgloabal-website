@@ -463,7 +463,10 @@ export function ProjectDetailModal({ isOpen, onClose, projectId, editMode = fals
                               <SelectContent>
                                 {employees && Array.isArray(employees)
                                   ? employees
-                                      .filter(emp => emp.company_id.toString() === formData.company_id)
+                                      .filter((emp) => {
+                                        if (emp?.company_id == null || formData.company_id == null) return false
+                                        return emp.company_id.toString() === formData.company_id.toString()
+                                      })
                                       .map((employee) => (
                                         <SelectItem key={employee.id} value={employee.id.toString()}>
                                           {employee.name}
@@ -759,7 +762,10 @@ export function ProjectDetailModal({ isOpen, onClose, projectId, editMode = fals
                 <SelectContent>
                   {employees && Array.isArray(employees)
                     ? employees
-                        .filter(emp => emp.company_id.toString() === formData.company_id)
+                        .filter((emp) => {
+                          if (emp?.company_id == null || !formData.company_id) return false
+                          return emp.company_id.toString() === formData.company_id.toString()
+                        })
                         .map((employee) => (
                           <SelectItem key={employee.id} value={employee.id.toString()}>
                             {employee.name} - {employee.email}

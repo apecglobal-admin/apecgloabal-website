@@ -123,66 +123,90 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const relatedProjects = await getRelatedProjects(projectData.id, projectData.company_id, 3)
   
   // Mô tả chi tiết dự án
-  const detailedDescription = `
-    ${projectData.description}
-    
-    Dự án này được phát triển bởi đội ngũ chuyên gia của ${projectData.company_name} với mục tiêu tạo ra giải pháp công nghệ tiên tiến 
-    ứng dụng trí tuệ nhân tạo và tự động hóa để giải quyết các thách thức kinh doanh hiện đại.
-    
-    Với sự kết hợp giữa công nghệ AI tiên tiến và kinh nghiệm chuyên môn trong ngành, dự án đã đạt được những kết quả đáng kể, 
-    mang lại giá trị thực tế cho khách hàng và đối tác.
-  `
+  const detailedDescription = projectData.detailed_description || projectData.description || ''
   
-  // Các tính năng dự án (nếu không có dữ liệu thực, sử dụng dữ liệu mẫu)
-  const projectFeatures = projectData.features || [
-    "Tích hợp trí tuệ nhân tạo để phân tích dữ liệu và đưa ra dự đoán chính xác",
-    "Giao diện người dùng hiện đại, thân thiện và dễ sử dụng",
-    "Khả năng xử lý hàng triệu giao dịch mỗi giây với độ trễ thấp",
-    "Hệ thống bảo mật đa lớp bảo vệ dữ liệu người dùng",
-    "Tích hợp liền mạch với các hệ thống hiện có",
-    "Khả năng mở rộng để đáp ứng nhu cầu tăng trưởng"
-  ]
+  const projectFeatures = Array.isArray(projectData.features) ? projectData.features : []
+  const projectChallenges = Array.isArray(projectData.challenges) ? projectData.challenges : []
+  const projectSolutions = Array.isArray(projectData.solutions) ? projectData.solutions : []
+  const projectResults = Array.isArray(projectData.results) ? projectData.results : []
+  const testimonials = Array.isArray(projectData.testimonials) ? projectData.testimonials : []
+
+  const hasProjectDetails =
+    projectFeatures.length > 0 ||
+    projectChallenges.length > 0 ||
+    projectSolutions.length > 0 ||
+    projectResults.length > 0 ||
+    testimonials.length > 0
   
-  // Các thách thức dự án
-  const projectChallenges = projectData.challenges || [
-    "Xử lý khối lượng dữ liệu lớn với yêu cầu thời gian thực",
-    "Đảm bảo tính bảo mật và tuân thủ quy định về dữ liệu",
-    "Tích hợp với các hệ thống legacy đang hoạt động",
-    "Tối ưu hóa hiệu suất trên nhiều nền tảng khác nhau"
-  ]
-  
-  // Các giải pháp
-  const projectSolutions = projectData.solutions || [
-    "Phát triển kiến trúc microservices để tăng khả năng mở rộng",
-    "Áp dụng các thuật toán AI tiên tiến để xử lý và phân tích dữ liệu",
-    "Sử dụng công nghệ container để đảm bảo triển khai nhất quán",
-    "Thiết kế hệ thống bảo mật đa lớp với mã hóa end-to-end"
-  ]
-  
-  // Các kết quả dự án
-  const projectResults = projectData.results || [
-    "Tăng 45% hiệu suất xử lý so với hệ thống cũ",
-    "Giảm 30% chi phí vận hành hàng tháng",
-    "Tăng 25% tỷ lệ chuyển đổi người dùng",
-    "Giảm 60% thời gian phản hồi hệ thống"
-  ]
-  
-  // Đánh giá từ khách hàng
-  const testimonials = projectData.testimonials || [
-    {
-      name: "Nguyễn Văn A",
-      position: "Giám đốc Công nghệ",
-      company: "Công ty XYZ",
-      content: "Dự án đã vượt xa mong đợi của chúng tôi. Đội ngũ phát triển đã làm việc chuyên nghiệp và đưa ra giải pháp sáng tạo cho các thách thức phức tạp."
-    },
-    {
-      name: "Trần Thị B",
-      position: "Giám đốc Điều hành",
-      company: "Tập đoàn ABC",
-      content: "Giải pháp AI được phát triển đã giúp chúng tôi tự động hóa nhiều quy trình, tiết kiệm thời gian và nguồn lực đáng kể."
+  const shouldShowOverviewHighlights = detailedDescription.trim().length > 0
+
+  const renderListWithFallback = (
+    items: string[],
+    fallbackContent: React.ReactNode,
+    emptyMessage?: string
+  ) => {
+    if (!items.length) {
+      if (emptyMessage) {
+        return (
+          <p className="text-gray-500 italic" role="status">
+            {emptyMessage}
+          </p>
+        )
+      }
+      return fallbackContent
     }
-  ]
-  
+
+    return (
+      <div className="space-y-6 stagger-animation">
+        {items.map((item, index) => (
+          <div key={index} className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="relative bg-white p-6 rounded-xl border border-purple-500/20 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+              <p className="text-gray-800 group-hover:text-cyan-300 transition-colors duration-300">
+                {item}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const renderTestimonials = () => {
+    if (!testimonials.length) {
+      return (
+        <p className="text-gray-500 italic" role="status">
+          Chưa có đánh giá từ khách hàng.
+        </p>
+      )
+    }
+
+    return testimonials.map((testimonial, index) => (
+      <div key={index} className="relative group">
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+        <div className="relative bg-white p-6 rounded-xl border border-purple-500/20 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-white font-semibold shadow-lg shadow-purple-900/20">
+              <MessageSquare className="h-6 w-6" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm text-gray-500">Khách hàng chia sẻ</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {testimonial?.name || 'Ẩn danh'}
+              </p>
+              {testimonial?.role && (
+                <p className="text-sm text-gray-500">{testimonial.role}</p>
+              )}
+            </div>
+          </div>
+          <p className="text-gray-800 leading-relaxed">
+            {testimonial?.feedback || testimonial?.quote || 'Chưa có nội dung đánh giá.'}
+          </p>
+        </div>
+      </div>
+    ))
+  }
+
   return (
     <div className="min-h-screen bg-white text-black">
       <Header />
@@ -439,44 +463,46 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-6 mt-16">
-                    <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
-                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                        <Rocket className="h-8 w-8 text-purple-400" />
+                  {shouldShowOverviewHighlights && (
+                    <div className="grid md:grid-cols-3 gap-6 mt-16">
+                      <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                        <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                          <Rocket className="h-8 w-8 text-purple-400" />
+                        </div>
+                        <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
+                          Hiệu Suất Cao
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Tối ưu hóa hiệu suất và tốc độ xử lý với thuật toán AI
+                          tiên tiến
+                        </p>
                       </div>
-                      <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
-                        Hiệu Suất Cao
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Tối ưu hóa hiệu suất và tốc độ xử lý với thuật toán AI
-                        tiên tiến
-                      </p>
-                    </div>
-                    <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
-                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                        <Shield className="h-8 w-8 text-cyan-400" />
+                      <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                        <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                          <Shield className="h-8 w-8 text-cyan-400" />
+                        </div>
+                        <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
+                          Bảo Mật Tối Đa
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Hệ thống bảo mật đa lớp bảo vệ dữ liệu với công nghệ mã
+                          hóa tiên tiến
+                        </p>
                       </div>
-                      <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
-                        Bảo Mật Tối Đa
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Hệ thống bảo mật đa lớp bảo vệ dữ liệu với công nghệ mã
-                        hóa tiên tiến
-                      </p>
-                    </div>
-                    <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
-                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                        <Zap className="h-8 w-8 text-green-400" />
+                      <div className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                        <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                          <Zap className="h-8 w-8 text-green-400" />
+                        </div>
+                        <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
+                          Tự Động Hóa
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Tự động hóa quy trình với công nghệ AI giúp tiết kiệm
+                          thời gian và nguồn lực
+                        </p>
                       </div>
-                      <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
-                        Tự Động Hóa
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Tự động hóa quy trình với công nghệ AI giúp tiết kiệm
-                        thời gian và nguồn lực
-                      </p>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -564,16 +590,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                       </div>
 
                       <div className="space-y-6 stagger-animation">
-                        {projectChallenges.map((challenge, index) => (
-                          <div key={index} className="relative group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600/10 to-orange-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                            <div className="relative bg-white p-6 rounded-xl border border-red-500/20 group-hover:border-orange-500/30 transition-colors duration-300 backdrop-blur-sm">
-                              <p className="text-gray-800 group-hover:text-orange-300 transition-colors duration-300">
-                                {challenge}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                        {renderListWithFallback(
+                          projectChallenges,
+                          <p className="text-gray-500 italic" role="status">
+                            Chưa có thách thức nào được cập nhật.
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -601,16 +623,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                       </div>
 
                       <div className="space-y-6 stagger-animation">
-                        {projectSolutions.map((solution, index) => (
-                          <div key={index} className="relative group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-600/10 to-blue-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                            <div className="relative bg-white p-6 rounded-xl border border-cyan-500/20 group-hover:border-blue-500/30 transition-colors duration-300 backdrop-blur-sm">
-                              <p className="text-gray-800 group-hover:text-cyan-300 transition-colors duration-300">
-                                {solution}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                        {renderListWithFallback(
+                          projectSolutions,
+                          <p className="text-gray-500 italic" role="status">
+                            Chưa có giải pháp nào được cập nhật.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -643,19 +661,25 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6 mb-12 stagger-animation">
-                    {projectResults.map((result, index) => (
-                      <div key={index} className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600/10 to-emerald-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                        <div className="relative bg-white p-6 rounded-xl border border-green-500/20 group-hover:border-emerald-500/30 transition-colors duration-300 backdrop-blur-sm flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-600/20 to-emerald-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                            <CheckCircle className="h-6 w-6 text-green-400" />
+                    {projectResults.length > 0 ? (
+                      projectResults.map((result, index) => (
+                        <div key={index} className="relative group">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600/10 to-emerald-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                          <div className="relative bg-white p-6 rounded-xl border border-green-500/20 group-hover:border-emerald-500/30 transition-colors duration-300 backdrop-blur-sm flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-600/20 to-emerald-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                              <CheckCircle className="h-6 w-6 text-green-400" />
+                            </div>
+                            <p className="text-gray-800 text-lg group-hover:text-green-300 transition-colors duration-300">
+                              {result}
+                            </p>
                           </div>
-                          <p className="text-gray-800 text-lg group-hover:text-green-300 transition-colors duration-300">
-                            {result}
-                          </p>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-gray-500 italic" role="status">
+                        Chưa có kết quả nào được cập nhật.
+                      </p>
+                    )}
                   </div>
 
                   {/* Testimonials */}

@@ -37,7 +37,6 @@ export interface Company {
   
   // SEO and display
   is_featured: boolean;
-  is_parent_company: boolean;
   display_order: number;
   meta_title?: string;
   meta_description?: string;
@@ -183,6 +182,7 @@ export interface Job {
 export interface Service {
   id: number;
   title: string;
+  slug?: string;
   company_id: number;
   description: string;
   features: string[];
@@ -191,6 +191,7 @@ export interface Service {
   price_range: string;
   is_featured: boolean;
   created_at: Date;
+  updated_at?: Date;
 }
 
 export interface User {

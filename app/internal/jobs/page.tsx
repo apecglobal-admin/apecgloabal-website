@@ -95,6 +95,7 @@ function JobsManagementContent() {
     urgent: false,
     remote_ok: false
   })
+  const [locationManuallyEdited, setLocationManuallyEdited] = useState(false)
 
   // Temporary states for adding arrays
   const [newRequirement, setNewRequirement] = useState("")
@@ -151,6 +152,24 @@ function JobsManagementContent() {
     }
   }
 
+  const handleCompanyChange = (companyId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      company_id: companyId,
+      department_id: 0,
+    }))
+
+    if (!locationManuallyEdited && companyId) {
+      const selectedCompany = companies.find((company) => company.id === companyId)
+      if (selectedCompany?.address) {
+        setFormData((prev) => ({
+          ...prev,
+          location: selectedCompany.address ?? prev.location,
+        }))
+      }
+    }
+  }
+
   const handleEdit = (job: JobWithCompany) => {
     setEditingJob(job)
     setIsCreateMode(false)
@@ -170,6 +189,7 @@ function JobsManagementContent() {
       urgent: job.urgent || false,
       remote_ok: job.remote_ok || false
     })
+    setLocationManuallyEdited(false)
     setIsDialogOpen(true)
   }
 
@@ -330,6 +350,7 @@ function JobsManagementContent() {
       urgent: false,
       remote_ok: false
     })
+    setLocationManuallyEdited(false)
     setNewRequirement("")
     setNewBenefit("")
     setNewSkill("")
@@ -708,8 +729,8 @@ function JobsManagementContent() {
               <div className="space-y-2">
                 <Label htmlFor="company_id">Công ty *</Label>
                 <Select 
-                  value={formData.company_id.toString()} 
-                  onValueChange={(value) => setFormData({...formData, company_id: parseInt(value), department_id: 0})}
+                  value={formData.company_id ? formData.company_id.toString() : ""}
+                  onValueChange={(value) => handleCompanyChange(parseInt(value))}
                 >
                   <SelectTrigger className="bg-white/5 border-white/10 text-white">
                     <SelectValue placeholder="Chọn công ty" />
@@ -750,7 +771,10 @@ function JobsManagementContent() {
                 <Input
                   id="location"
                   value={formData.location}
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  onChange={(e) => {
+                    setLocationManuallyEdited(true)
+                    setFormData({...formData, location: e.target.value})
+                  }}
                   className="bg-white/5 border-white/10 text-white"
                   placeholder="Nhập địa điểm làm việc"
                 />

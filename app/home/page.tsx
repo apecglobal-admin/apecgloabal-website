@@ -252,8 +252,8 @@ export default async function HomePage() {
       {/* Projects Section */}
       <HomeProjects />
 
-      {/* Giới thiệu công ty - REDESIGNED */}
-      <section className="section-standard bg-gradient-to-br from-gray-50/50 via-white to-red-50/30 relative overflow-hidden">
+      {/* Giới thiệu công ty - REIMAGINED */}
+      <section className="section-standard bg-white">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-red-100/20 rounded-full blur-3xl -z-0"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-0"></div>
@@ -353,14 +353,16 @@ export default async function HomePage() {
                         return (
                           <div
                             key={fact.label}
-                            className="group text-center p-4 rounded-2xl bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                            className="group flex items-start gap-3 rounded-xl border border-gray-200 bg-white/90 p-4 text-left transition-all duration-300 hover:border-gray-300 hover:shadow-lg"
                             style={{ animationDelay: `${index * 100}ms` }}
                           >
-                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${colors.bg} group-hover:scale-110 transition-transform duration-300 ring-4 ${colors.ring} ring-opacity-30`}>
-                              <fact.icon className={`w-8 h-8 ${colors.text}`} />
+                            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg ${colors.bg} group-hover:scale-105 transition-transform duration-300`}> 
+                              <fact.icon className={`h-7 w-7 ${colors.text}`} />
                             </div>
-                            <div className={`text-xl font-bold ${colors.text} mb-2`}>{fact.label}</div>
-                            <p className="text-gray-600 text-xs leading-relaxed">{fact.description}</p>
+                            <div className="space-y-1">
+                              <div className={`text-base font-semibold ${colors.text}`}>{fact.label}</div>
+                              <p className="text-sm text-gray-600 leading-relaxed">{fact.description}</p>
+                            </div>
                           </div>
                         )
                       })}

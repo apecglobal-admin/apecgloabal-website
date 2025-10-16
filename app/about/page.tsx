@@ -218,13 +218,15 @@ export default async function AboutPage() {
   
   // Map công ty con từ database với icon, hoặc dùng fallback nếu database trống
   const memberBrands = subsidiaryCompanies.length > 0 
-    ? subsidiaryCompanies.map(company => ({
-        name: company.name,
-        description: company.short_description || company.description || company.industry || 'Công ty thành viên',
-        icon: getCompanyIcon(company.name, company.industry),
-        slug: company.slug,
-        logo: company.logo_url || company.logo || company.logoUrl || null
-      }))
+    ? subsidiaryCompanies
+        .filter(company => company.slug !== 'apecglobal')
+        .map(company => ({
+          name: company.name,
+          description: company.short_description || company.description || company.industry || 'Công ty thành viên',
+          icon: getCompanyIcon(company.name, company.industry),
+          slug: company.slug,
+          logo: company.logo_url || company.logo || company.logoUrl || null
+        }))
     : defaultMemberBrands
 
   // Dự án đầu tư 2019-2024

@@ -19,7 +19,6 @@ const subsidiaryCompanies = [
     short_description: 'Thẻ Quyền Năng & Hội Thương Mại',
     industry: 'Thương mại',
     employee_count: 50,
-
     display_order: 1,
     status: 'active'
   },
@@ -107,16 +106,16 @@ async function seedCompanies() {
     console.log('🌱 Bắt đầu seed dữ liệu công ty...\n');
 
     // Kiểm tra xem đã có công ty nào chưa
-    const checkResult = await pool.query('SELECT COUNT(*) FROM companies WHERE is_parent_company = false');
+    const checkResult = await pool.query('SELECT COUNT(*) FROM companies');
     const existingCount = parseInt(checkResult.rows[0].count);
 
     if (existingCount > 0) {
-      console.log(`⚠️  Đã có ${existingCount} công ty con trong database.`);
+      console.log(`⚠️  Đã có ${existingCount} công ty trong database.`);
       console.log('Bạn có muốn xóa và seed lại không? (Ctrl+C để hủy)\n');
       
-      // Xóa các công ty con hiện tại
-      await pool.query('DELETE FROM companies WHERE is_parent_company = false');
-      console.log('✅ Đã xóa các công ty con cũ.\n');
+      // Xóa các công ty hiện tại
+      await pool.query('DELETE FROM companies');
+      console.log('✅ Đã xóa các công ty cũ.\n');
     }
 
     // Insert từng công ty
@@ -124,9 +123,9 @@ async function seedCompanies() {
       const query = `
         INSERT INTO companies (
           name, slug, description, short_description, industry, 
-          employee_count, is_parent_company, display_order, status,
+          employee_count, display_order, status,
           created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         RETURNING id, name
       `;
 
@@ -137,7 +136,6 @@ async function seedCompanies() {
         company.short_description,
         company.industry,
         company.employee_count,
-        company.is_parent_company,
         company.display_order,
         company.status
       ];
@@ -146,14 +144,14 @@ async function seedCompanies() {
       console.log(`✅ Đã thêm: ${result.rows[0].name} (ID: ${result.rows[0].id})`);
     }
 
-    console.log(`\n🎉 Hoàn thành! Đã seed ${subsidiaryCompanies.length} công ty con.`);
+    console.log(`\n🎉 Hoàn thành! Đã seed ${subsidiaryCompanies.length} công ty.`);
 
     // Hiển thị danh sách công ty
     const allCompanies = await pool.query(
-      'SELECT id, name, slug, industry, employee_count FROM companies WHERE is_parent_company = false ORDER BY display_order'
+      'SELECT id, name, slug, industry, employee_count FROM companies ORDER BY display_order'
     );
 
-    console.log('\n📋 Danh sách công ty con:');
+    console.log('\n📋 Danh sách công ty:');
     console.table(allCompanies.rows);
 
   } catch (error) {

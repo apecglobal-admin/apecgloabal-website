@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
         (SELECT COUNT(*) FROM jobs WHERE company_id = c.id) as jobs_count,
         (SELECT COUNT(DISTINCT department_id) FROM employees WHERE company_id = c.id AND department_id IS NOT NULL) as departments_count
       FROM companies c 
-      WHERE is_parent_company = false 
       ORDER BY display_order, name
     `);
     

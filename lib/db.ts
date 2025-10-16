@@ -60,10 +60,10 @@ export async function getAllCompanies() {
 // Hàm lấy công ty mẹ
 export async function getParentCompany() {
   try {
-    const result = await query('SELECT * FROM companies WHERE is_parent_company = true LIMIT 1');
-    return result.rows[0];
+    const result = await query('SELECT * FROM companies ORDER BY display_order, name LIMIT 1');
+    return result.rows[0] || null;
   } catch (error) {
-    console.log('Error getting parent company, returning null:', error);
+    console.log('Error getting primary company, returning null:', error);
     return null;
   }
 }
@@ -71,7 +71,10 @@ export async function getParentCompany() {
 // Hàm lấy các công ty con (tất cả công ty đều là công ty thành viên)
 export async function getSubsidiaryCompanies() {
   try {
-    const result = await query('SELECT * FROM companies ORDER BY display_order, name');
+    const result = await query(
+      'SELECT * FROM companies WHERE slug IS NULL OR LOWER(slug) <> $1 ORDER BY display_order, name',
+      ['apecglobal']
+    );
     return result.rows;
   } catch (error) {
     console.log('Error getting subsidiary companies, returning empty array:', error);

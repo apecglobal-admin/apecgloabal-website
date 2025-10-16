@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllServices, getAllCompanies, query } from '@/lib/db'
 
+function normalizeFeatures(rawFeatures: unknown): string[] {
+  if (Array.isArray(rawFeatures)) {
+    return rawFeatures
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+
+  if (typeof rawFeatures === 'string') {
+    try {
+      const parsed = JSON.parse(rawFeatures)
+      if (Array.isArray(parsed)) {
+        return parsed
+          .filter((item): item is string => typeof item === 'string')
+          .map((item) => item.trim())
+          .filter(Boolean)
+      }
+    } catch (error) {
+      console.warn('Failed to parse features string, defaulting to empty array:', error)
+    }
+  }
+
+  return []
+}
+
 export async function GET() {
   try {
     const services = await getAllServices()
@@ -84,7 +109,7 @@ export async function POST(request: NextRequest) {
       data.title,
       slug,
       data.description || '',
-      JSON.stringify(data.features || []),
+      normalizeFeatures(data.features),
       data.icon || 'Package',
       data.category || '',
       data.price_range || '',
@@ -146,7 +171,7 @@ export async function PUT(request: NextRequest) {
       data.title,
       slug,
       data.description || '',
-      JSON.stringify(data.features || []),
+      normalizeFeatures(data.features),
       data.icon || 'Package',
       data.category || '',
       data.price_range || '',

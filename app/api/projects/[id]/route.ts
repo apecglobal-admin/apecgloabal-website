@@ -58,7 +58,7 @@ export async function PUT(
 
     // List of allowed fields to update
     const allowedFields = [
-      'name', 'description', 'manager_id', 'status', 'priority',
+      'name', 'description', 'manager_id', 'company_id', 'status', 'priority',
       'progress', 'start_date', 'end_date', 'budget', 'spent',
       'team_size', 'technologies', 'features', 'challenges',
       'solutions', 'results', 'testimonials'
@@ -71,6 +71,16 @@ export async function PUT(
         // Convert empty strings for date fields to null to satisfy Postgres DATE type
         if ((field === 'start_date' || field === 'end_date') && value === '') {
           value = null
+        }
+
+        if (field === 'company_id') {
+          // Normalize company_id to number or null for Postgres INTEGER type
+          if (value === '' || value === null) {
+            value = null
+          } else {
+            const parsedValue = Number(value)
+            value = Number.isNaN(parsedValue) ? null : parsedValue
+          }
         }
 
         updateFields.push(`${field} = $${paramIndex}`)

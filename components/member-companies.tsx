@@ -104,7 +104,9 @@ export default function MemberCompanies() {
 
   // Extract companies array from API response
   const apiCompanies = apiResponse?.success ? apiResponse.data : null
-  const companies = Array.isArray(apiCompanies) ? apiCompanies : []
+  const companies = Array.isArray(apiCompanies)
+    ? apiCompanies.filter((company: Company) => company.slug !== 'apecglobal')
+    : []
 
   // Chuyển đổi dữ liệu API sang format hiển thị
   const memberCompanies = companies.map((company: Company) => {

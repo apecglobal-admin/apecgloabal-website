@@ -160,8 +160,37 @@ export async function POST(request: Request) {
       ON CONFLICT DO NOTHING
     `);
     
+    // Tạo bảng applications nếu chưa tồn tại
+    await query(`
+      CREATE TABLE IF NOT EXISTS applications (
+        id SERIAL PRIMARY KEY,
+        job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+        applicant_name VARCHAR(255) NOT NULL,
+        applicant_email VARCHAR(255) NOT NULL,
+        applicant_phone VARCHAR(20),
+        position_applied VARCHAR(255) NOT NULL,
+        introduction TEXT,
+        resume_url TEXT,
+        resume_public_id VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Thêm một số ứng tuyển mẫu
+    await query(`
+      INSERT INTO applications (job_id, applicant_name, applicant_email, applicant_phone, position_applied, introduction, status, created_at)
+      VALUES
+        (1, 'Nguyễn Văn A', 'nguyenvana@email.com', '0901234567', 'Frontend Developer', 'Tôi có 3 năm kinh nghiệm với React và Node.js', 'pending', NOW() - INTERVAL '2 day'),
+        (1, 'Trần Thị B', 'tranthib@email.com', '0902345678', 'Frontend Developer', 'Tôi thích làm việc với UI/UX và có portfolio đẹp', 'reviewing', NOW() - INTERVAL '1 day'),
+        (2, 'Lê Văn C', 'levanc@email.com', '0903456789', 'Backend Developer', 'Chuyên về Python và Django, đã làm việc với AWS', 'interviewed', NOW() - INTERVAL '3 day'),
+        (3, 'Phạm Thị D', 'phamthid@email.com', '0904567890', 'DevOps Engineer', 'Có kinh nghiệm với Docker, Kubernetes và CI/CD', 'accepted', NOW() - INTERVAL '5 day')
+      ON CONFLICT DO NOTHING
+    `);
+
     // Kiểm tra số lượng bản ghi trong các bảng
-    const tables = ['permissions', 'notifications', 'dashboard_widgets', 'activity_logs', 'settings', 'documents', 'reports'];
+    const tables = ['permissions', 'notifications', 'dashboard_widgets', 'activity_logs', 'settings', 'documents', 'reports', 'applications'];
     const counts = {};
     
     for (const table of tables) {

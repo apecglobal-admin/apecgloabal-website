@@ -253,3 +253,18 @@ export interface Position {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface Application {
+  id: number;
+  job_id: number;
+  applicant_name: string;
+  applicant_email: string;
+  applicant_phone?: string;
+  position_applied: string;
+  introduction?: string;
+  resume_url?: string;
+  resume_public_id?: string;
+  status: string;
+  created_at: Date;
+  updated_at: Date;
+}

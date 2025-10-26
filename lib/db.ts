@@ -238,7 +238,7 @@ export async function getAllNews() {
 // Hàm lấy tất cả việc làm
 export async function getAllJobs() {
   try {
-    const result = await query('SELECT * FROM jobs WHERE status = $1 ORDER BY created_at DESC', ['active']);
+    const result = await query('SELECT * FROM jobs ORDER BY created_at DESC');
     return result.rows;
   } catch (error) {
     console.log('Error getting all jobs, returning empty array:', error);

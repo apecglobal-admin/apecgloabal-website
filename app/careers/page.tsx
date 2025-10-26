@@ -1,3 +1,5 @@
+"use client"
+
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import PageHeroCarousel from "@/components/page-hero-carousel"
@@ -6,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useState, useEffect, useRef, ChangeEvent, FormEvent, DragEvent } from "react"
 import {
   Briefcase,
   MapPin,
@@ -32,7 +35,50 @@ import {
 import { getAllJobs, getAllCompanies } from "@/lib/db"
 import { Job, Company } from "@/lib/schema"
 
-export default async function CareersPage() {
+export default function CareersPage() {
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Application form state
+  const [applicationForm, setApplicationForm] = useState({
+    applicant_name: '',
+    applicant_email: '',
+    applicant_phone: '',
+    position_applied: '',
+    introduction: '',
+    resume: null as File | null
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitMessage, setSubmitMessage] = useState('')
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+
+        // Fetch jobs
+        const jobsResponse = await fetch(`${baseUrl}/api/jobs`)
+        if (jobsResponse.ok) {
+          const jobsResult = await jobsResponse.json()
+          setJobs(jobsResult.success ? jobsResult.data : jobsResult)
+        }
+
+        // Fetch companies
+        const companiesResponse = await fetch(`${baseUrl}/api/companies`)
+        if (companiesResponse.ok) {
+          const companiesResult = await companiesResponse.json()
+          setCompanies(companiesResult.success ? companiesResult.data : companiesResult)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
   // Hero slides data
   const heroSlides = [
     {
@@ -117,18 +163,14 @@ export default async function CareersPage() {
     }
   ]
 
-  // Lấy dữ liệu việc làm từ database
-  const dbJobs = await getAllJobs()
-  const dbCompanies = await getAllCompanies()
-  
   // Tạo map để tra cứu tên công ty dựa trên company_id
   const companyMap = new Map<number, string>()
-  dbCompanies.forEach((company: Company) => {
+  companies.forEach((company: Company) => {
     companyMap.set(company.id, company.name)
   })
-  
+
   // Chuyển đổi dữ liệu từ database sang định dạng hiển thị
-  const jobOpenings = dbJobs.map((job: Job) => {
+  const jobOpenings = jobs.map((job: Job) => {
     const companyName = companyMap.get(job.company_id) || "Unknown"
     return {
       title: job.title,
@@ -141,8 +183,115 @@ export default async function CareersPage() {
       description: job.description,
       urgent: job.urgent,
       remote: job.remote_ok,
+      id: job.id
     }
   })
+
+  // Handle application form submission
+  const MAX_FILE_SIZE_MB = 5
+  const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+
+  const handleResumeChange = (file: File | null) => {
+    if (!file) {
+      setApplicationForm(prev => ({ ...prev, resume: null }))
+      return
+    }
+
+    const fileSizeMb = file.size / (1024 * 1024)
+    if (fileSizeMb > MAX_FILE_SIZE_MB) {
+      setSubmitMessage(`File vượt quá kích thước cho phép (${MAX_FILE_SIZE_MB}MB).`)
+      return
+    }
+
+    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+      setSubmitMessage('Định dạng file không được hỗ trợ. Vui lòng chọn PDF, DOC hoặc DOCX.')
+      return
+    }
+
+    setSubmitMessage('')
+    setApplicationForm(prev => ({ ...prev, resume: file }))
+  }
+
+  const resumeInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleFormChange = (field: string, value: string) => {
+    setApplicationForm(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleApplicationSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+
+    if (!applicationForm.applicant_name || !applicationForm.applicant_email || !applicationForm.position_applied) {
+      setSubmitMessage('Vui lòng điền đầy đủ thông tin bắt buộc (Họ tên, Email, Vị trí ứng tuyển).')
+      return
+    }
+
+    const selectedJob = jobs.find(job => job.title === applicationForm.position_applied)
+    if (!selectedJob) {
+      setSubmitMessage('Vui lòng chọn vị trí tuyển dụng hợp lệ.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitMessage('')
+
+    try {
+      const formData = new FormData()
+      formData.append('applicant_name', applicationForm.applicant_name)
+      formData.append('applicant_email', applicationForm.applicant_email)
+      formData.append('applicant_phone', applicationForm.applicant_phone)
+      formData.append('position_applied', applicationForm.position_applied)
+      formData.append('introduction', applicationForm.introduction)
+      formData.append('job_id', selectedJob.id.toString())
+
+      if (applicationForm.resume) {
+        formData.append('resume', applicationForm.resume)
+      }
+
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        body: formData
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setSubmitMessage('Ứng tuyển thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.')
+        setApplicationForm({
+          applicant_name: '',
+          applicant_email: '',
+          applicant_phone: '',
+          position_applied: '',
+          introduction: '',
+          resume: null
+        })
+        if (resumeInputRef.current) {
+          resumeInputRef.current.value = ''
+        }
+      } else {
+        setSubmitMessage(result.error || 'Có lỗi xảy ra. Vui lòng thử lại.')
+      }
+    } catch (error) {
+      console.error('Error submitting application:', error)
+      setSubmitMessage('Có lỗi xảy ra. Vui lòng thử lại.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white text-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p>Đang tải...</p>
+        </div>
+      </div>
+    )
+  }
 
   const benefits = [
     {
@@ -555,12 +704,14 @@ export default async function CareersPage() {
                   <p className="text-gray-600">Gửi thông tin của bạn và chúng tôi sẽ liên hệ sớm nhất</p>
                 </div>
                 
-                <div className="space-y-6">
+                <form className="space-y-6" onSubmit={handleApplicationSubmit}>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-gray-700 text-sm mb-2">Họ và tên *</label>
                       <Input
                         placeholder="Nhập họ và tên"
+                        value={applicationForm.applicant_name}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => handleFormChange('applicant_name', event.target.value)}
                         className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
@@ -569,6 +720,8 @@ export default async function CareersPage() {
                       <Input
                         type="email"
                         placeholder="Nhập địa chỉ email"
+                        value={applicationForm.applicant_email}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => handleFormChange('applicant_email', event.target.value)}
                         className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
@@ -578,12 +731,18 @@ export default async function CareersPage() {
                       <label className="block text-gray-700 text-sm mb-2">Số điện thoại</label>
                       <Input
                         placeholder="Nhập số điện thoại"
+                        value={applicationForm.applicant_phone}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => handleFormChange('applicant_phone', event.target.value)}
                         className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
                     <div>
                       <label className="block text-gray-700 text-sm mb-2">Vị trí ứng tuyển</label>
-                      <select className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900">
+                      <select
+                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900"
+                        value={applicationForm.position_applied}
+                        onChange={(event: ChangeEvent<HTMLSelectElement>) => handleFormChange('position_applied', event.target.value)}
+                      >
                         <option value="">Chọn vị trí</option>
                         {jobOpenings.map((job, idx) => (
                           <option key={idx} value={job.title}>
@@ -598,23 +757,71 @@ export default async function CareersPage() {
                     <Textarea
                       placeholder="Chia sẻ về kinh nghiệm và động lực của bạn..."
                       rows={4}
+                      value={applicationForm.introduction}
+                      onChange={(event: ChangeEvent<HTMLTextAreaElement>) => handleFormChange('introduction', event.target.value)}
                       className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                     />
                   </div>
                   <div>
                     <label className="block text-gray-700 text-sm mb-2">CV/Resume</label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-300 transition-colors">
+                    <div
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-300 transition-colors cursor-pointer"
+                      onClick={() => resumeInputRef.current?.click()}
+                    >
+                      <input
+                        ref={resumeInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        className="hidden"
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          const file = event.target.files?.[0] || null
+                          handleResumeChange(file)
+                        }}
+                      />
                       <div className="text-gray-500">
-                        <p>Kéo thả file CV hoặc click để chọn</p>
-                        <p className="text-sm mt-1">Hỗ trợ: PDF, DOC, DOCX (Max: 5MB)</p>
+                        {applicationForm.resume ? (
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-gray-700">{applicationForm.resume.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {(applicationForm.resume.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                            <button
+                              type="button"
+                              className="text-xs text-red-600 hover:underline"
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                if (resumeInputRef.current) {
+                                  resumeInputRef.current.value = ''
+                                }
+                                handleResumeChange(null)
+                              }}
+                            >
+                              Xóa file
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p>Kéo thả file CV hoặc click để chọn</p>
+                            <p className="text-sm mt-1">Hỗ trợ: PDF, DOC, DOCX (Max: 5MB)</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <Button className="w-full btn-primary text-lg py-3">
-                    Gửi Hồ Sơ Ứng Tuyển
+                  <Button
+                    className="w-full btn-primary text-lg py-3"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Đang gửi...' : 'Gửi Hồ Sơ Ứng Tuyển'}
                     <Send className="ml-2 h-5 w-5" />
                   </Button>
-                </div>
+                  {submitMessage && (
+                    <div className="text-center text-sm text-gray-600">
+                      {submitMessage}
+                    </div>
+                  )}
+                </form>
               </div>
             </div>
           </div>

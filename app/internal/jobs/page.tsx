@@ -12,12 +12,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { 
-  Pencil, 
-  Plus, 
-  ArrowLeft, 
-  Building2, 
-  Users, 
+import {
+  Pencil,
+  Plus,
+  ArrowLeft,
+  Building2,
+  Users,
   MapPin,
   Clock,
   DollarSign,
@@ -33,6 +33,7 @@ import { Job } from "@/lib/schema"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Pagination, usePagination } from "@/components/ui/pagination"
+import { RecruitmentDetailModal } from "@/components/recruitment-detail-modal"
 
 interface JobWithCompany extends Job {
   company_name: string
@@ -61,7 +62,8 @@ const JOB_STATUS = [
   { value: "active", label: "Đang tuyển", color: "green" },
   { value: "paused", label: "Tạm dừng", color: "yellow" },
   { value: "closed", label: "Đã đóng", color: "red" },
-  { value: "filled", label: "Đã tuyển đủ", color: "blue" }
+  { value: "filled", label: "Đã tuyển đủ", color: "blue" },
+  { value: "draft", label: "Bản nháp", color: "gray" }
 ]
 
 function JobsManagementContent() {
@@ -73,6 +75,8 @@ function JobsManagementContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isCreateMode, setIsCreateMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCompany, setSelectedCompany] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
@@ -655,6 +659,17 @@ function JobsManagementContent() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => {
+                              setSelectedJobId(job.id)
+                              setIsDetailModalOpen(true)
+                            }}
+                            className="text-purple-300 hover:text-white hover:bg-purple-500/10"
+                          >
+                            <Users className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => handleEdit(job)}
                             className="text-white/60 hover:text-white hover:bg-white/10"
                           >
@@ -698,6 +713,16 @@ function JobsManagementContent() {
           </div>
         )}
       </Card>
+
+      <RecruitmentDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false)
+          setSelectedJobId(null)
+        }}
+        jobId={selectedJobId}
+        allowEditing={false}
+      />
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

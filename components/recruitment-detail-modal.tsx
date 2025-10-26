@@ -24,7 +24,9 @@ import {
   Clock,
   Eye,
   UserCheck,
-  Loader2
+  Loader2,
+  ExternalLink,
+  Download
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -33,15 +35,21 @@ interface RecruitmentDetailModalProps {
   onClose: () => void
   jobId: number | null
   editMode?: boolean
+  allowEditing?: boolean
 }
 
-export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = false }: RecruitmentDetailModalProps) {
+export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = false, allowEditing = true }: RecruitmentDetailModalProps) {
   const [job, setJob] = useState<any>(null)
   const [companies, setCompanies] = useState<any[]>([])
   const [departments, setDepartments] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [editing, setEditing] = useState(editMode)
+  const [editing, setEditing] = useState(editMode && allowEditing)
+  const [selectedApplication, setSelectedApplication] = useState<any | null>(null)
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false)
+  const [resumeViewerUrl, setResumeViewerUrl] = useState<string | null>(null)
+  const [resumeViewerLoading, setResumeViewerLoading] = useState(false)
+  const [resumeViewerError, setResumeViewerError] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -67,19 +75,25 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
       fetchCompanies()
       fetchDepartments()
     }
-    setEditing(editMode)
-  }, [isOpen, jobId, editMode])
+    setEditing(allowEditing && editMode)
+  }, [isOpen, jobId, editMode, allowEditing])
 
   const fetchJob = async () => {
     if (!jobId) return
     
     setLoading(true)
     try {
-      const response = await fetch(`/api/jobs/${jobId}`)
+      setSelectedApplication(null)
+      setResumeViewerUrl(null)
+      setResumeViewerError(null)
+      setIsResumeModalOpen(false)
+      setResumeViewerLoading(false)
+      const response = await fetch(`/api/jobs/${jobId}?include_viewer=true`)
       const result = await response.json()
       if (result.success) {
         const jobData = result.data
         setJob(jobData)
+        setSelectedApplication(jobData.applications?.[0] || null)
         setFormData({
           title: jobData.title || "",
           description: jobData.description || "",
@@ -127,6 +141,52 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
       }
     } catch (error) {
       console.error('Error fetching departments:', error)
+    }
+  }
+
+  const openResumePreview = async (application: any) => {
+    if (!application?.resume_public_id && !application?.resume_url) {
+      toast.error('Ứng viên chưa cung cấp CV/Resume')
+      return
+    }
+
+    setResumeViewerLoading(true)
+    setResumeViewerError(null)
+    setResumeViewerUrl(null)
+    setIsResumeModalOpen(true)
+
+    try {
+      const params = new URLSearchParams()
+      if (application.resume_public_id) {
+        params.set('resume_public_id', application.resume_public_id)
+      } else if (application.resume_url) {
+        params.set('resume_url', application.resume_url)
+      }
+
+      let viewerUrl: string | null = null
+
+      if (params.toString()) {
+        const response = await fetch(`/api/applications/viewer?${params.toString()}`)
+        const result = await response.json()
+
+        if (response.ok && result.success && result.data?.url) {
+          viewerUrl = result.data.url
+        } else {
+          throw new Error(result.error || 'Không thể tạo liên kết xem trực tiếp')
+        }
+      }
+
+      setResumeViewerUrl(viewerUrl)
+    } catch (error) {
+      console.error('Error opening resume preview:', error)
+      if (application?.resume_url) {
+        setResumeViewerUrl(application.resume_url)
+        setResumeViewerError('Không thể tạo liên kết xem trực tiếp. Đang sử dụng link gốc của ứng viên.')
+      } else {
+        setResumeViewerError('Không tìm thấy CV/Resume để hiển thị.')
+      }
+    } finally {
+      setResumeViewerLoading(false)
     }
   }
 
@@ -236,6 +296,109 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
     }).format(amount)
   }
 
+  const isPdfFile = (url: string | null) => {
+    if (!url) return false
+    try {
+      const cleanedUrl = url.split('?')[0]
+      return cleanedUrl.toLowerCase().endsWith('.pdf')
+    } catch (error) {
+      return false
+    }
+  }
+
+  const renderResumeModal = () => {
+    if (!selectedApplication) return null
+
+    const downloadUrl = selectedApplication.resume_url || resumeViewerUrl || '#'
+    const isPdf = isPdfFile(resumeViewerUrl || selectedApplication.resume_url || '')
+
+    return (
+      <Dialog open={isResumeModalOpen} onOpenChange={(open) => {
+        setIsResumeModalOpen(open)
+        if (!open) {
+          setResumeViewerUrl(null)
+          setResumeViewerError(null)
+        }
+      }}>
+        <DialogContent className="max-w-4xl w-[95vw] h-[85vh] bg-black/90 border-purple-500/40 text-white p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-purple-500/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-xl font-semibold">
+                  CV của {selectedApplication.applicant_name}
+                </DialogTitle>
+                <p className="text-sm text-white/60">{selectedApplication.applicant_email}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-500/40 text-white hover:bg-purple-500/20"
+                  onClick={() => downloadUrl !== '#' && window.open(downloadUrl, '_blank')}
+                  disabled={downloadUrl === '#'}
+                >
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  Mở tab mới
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-500"
+                  onClick={() => downloadUrl !== '#' && window.open(downloadUrl + (downloadUrl.includes('?') ? '&' : '?') + 'download=1', '_blank')}
+                  disabled={downloadUrl === '#'}
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  Tải xuống
+                </Button>
+              </div>
+            </div>
+            {resumeViewerError && (
+              <p className="mt-3 text-xs text-yellow-300">{resumeViewerError}</p>
+            )}
+          </DialogHeader>
+
+          <div className="h-full">
+            {resumeViewerLoading ? (
+              <div className="flex flex-col items-center justify-center h-full gap-3">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <span>Đang tải CV...</span>
+              </div>
+            ) : resumeViewerUrl ? (
+              <div className="h-full">
+                {isPdf ? (
+                  <iframe
+                    src={resumeViewerUrl}
+                    className="w-full h-full border-0"
+                    title={`CV-${selectedApplication.applicant_name}`}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center">
+                    <p className="text-white/70">
+                      Không thể hiển thị trực tiếp định dạng này. Hãy tải xuống hoặc mở trong tab mới.
+                    </p>
+                    <Button
+                      className="bg-green-600 hover:bg-green-500"
+                      onClick={() => downloadUrl !== '#' && window.open(downloadUrl, '_blank')}
+                      disabled={downloadUrl === '#'}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Mở tab mới
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center">
+                <p className="text-white/70">
+                  Không tìm thấy CV/Resume của ứng viên này. Vui lòng kiểm tra lại.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   if (!isOpen) return null
 
   return (
@@ -247,7 +410,7 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
               {job?.title || 'Chi Tiết Tuyển Dụng'}
             </DialogTitle>
             <div className="flex items-center space-x-2">
-              {!editing ? (
+              {!allowEditing ? null : !editing ? (
                 <Button
                   onClick={() => setEditing(true)}
                   size="sm"
@@ -299,6 +462,8 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
               <TabsTrigger value="analytics" className="text-white">Thống Kê</TabsTrigger>
               <TabsTrigger value="settings" className="text-white">Cài Đặt</TabsTrigger>
             </TabsList>
+
+            {renderResumeModal()}
 
             <TabsContent value="details" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -599,36 +764,53 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {job?.applications?.map((application: any) => (
-                        <TableRow key={application.id} className="border-b border-purple-500/20">
-                          <TableCell className="text-white">
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={application.avatar_url} />
-                                <AvatarFallback className="bg-purple-600 text-white text-xs">
-                                  {application.name?.charAt(0)?.toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{application.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-white/80">{application.email}</TableCell>
-                          <TableCell className="text-white/80">
-                            {new Date(application.applied_at).toLocaleDateString('vi-VN')}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(application.status)}>
-                              {application.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="outline" className="bg-transparent border-purple-500/50 text-white hover:bg-purple-500/20">
-                              <Eye className="h-4 w-4 mr-1" />
-                              Xem
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )) || (
+                      {(job?.applications?.length ? job.applications : []).map((application: any) => {
+                        const isActive = selectedApplication?.id === application.id
+                        return (
+                          <TableRow
+                            key={application.id}
+                            className={`border-b border-purple-500/20 transition-colors ${isActive ? 'bg-purple-500/10' : ''}`}
+                            onClick={() => setSelectedApplication(application)}
+                          >
+                            <TableCell className="text-white">
+                              <div className="flex items-center space-x-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={application.avatar_url} />
+                                  <AvatarFallback className="bg-purple-600 text-white text-xs">
+                                    {application.applicant_name?.charAt(0)?.toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span>{application.applicant_name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-white/80">{application.applicant_email}</TableCell>
+                            <TableCell className="text-white/80">
+                              {application.created_at ? new Date(application.created_at).toLocaleDateString('vi-VN') : '--'}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getStatusColor(application.status)}>
+                                {getStatusText(application.status)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant={isActive ? "default" : "outline"}
+                                className={`bg-transparent border-purple-500/50 text-white hover:bg-purple-500/20 ${isActive ? 'bg-purple-600/40 border-purple-400/60 hover:bg-purple-600/40' : ''}`}
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  setSelectedApplication(application)
+                                  openResumePreview(application)
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Xem
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                      {(!job?.applications || job.applications.length === 0) && (
                         <TableRow>
                           <TableCell colSpan={5} className="text-center text-white/60 py-8">
                             Chưa có ứng viên nào
@@ -639,6 +821,106 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
                   </Table>
                 </CardContent>
               </Card>
+
+              {selectedApplication && (
+                <Card className="bg-black/40 border-purple-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <UserCheck className="h-5 w-5 mr-2" />
+                      Thông Tin Ứng Viên
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-white/70 text-xs uppercase">Họ và tên</Label>
+                        <p className="text-white text-sm font-semibold">{selectedApplication.applicant_name}</p>
+                      </div>
+                      <div>
+                        <Label className="text-white/70 text-xs uppercase">Email</Label>
+                        <p className="text-white text-sm">{selectedApplication.applicant_email}</p>
+                      </div>
+                      <div>
+                        <Label className="text-white/70 text-xs uppercase">Số điện thoại</Label>
+                        <p className="text-white text-sm">{selectedApplication.applicant_phone || 'Chưa cập nhật'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-white/70 text-xs uppercase">Ngày ứng tuyển</Label>
+                        <p className="text-white text-sm">
+                          {selectedApplication.created_at ? new Date(selectedApplication.created_at).toLocaleString('vi-VN') : '--'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-white/70 text-xs uppercase">Giới thiệu</Label>
+                      <p className="text-white/80 text-sm whitespace-pre-line border border-purple-500/20 rounded-lg p-3 bg-black/30">
+                        {selectedApplication.introduction || 'Ứng viên chưa cung cấp phần giới thiệu.'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button
+                        className="btn-primary bg-purple-600 hover:bg-purple-500"
+                        disabled={!selectedApplication.resume_public_id && !selectedApplication.resume_url}
+                        onClick={() => openResumePreview(selectedApplication)}
+                      >
+                        Xem CV / Resume
+                      </Button>
+                      <Select
+                        value={selectedApplication.status || 'pending'}
+                        onValueChange={async (newStatus) => {
+                          if (!selectedApplication?.id) return
+                          try {
+                            const response = await fetch('/api/applications', {
+                              method: 'PUT',
+                              headers: {
+                                'Content-Type': 'application/json'
+                              },
+                              body: JSON.stringify({
+                                id: selectedApplication.id,
+                                status: newStatus
+                              })
+                            })
+
+                            const result = await response.json()
+
+                            if (result.success) {
+                              toast.success('Cập nhật trạng thái ứng viên thành công')
+                              setSelectedApplication((prev: any) => prev ? { ...prev, status: newStatus } : prev)
+                              setJob((prev: any) => {
+                                if (!prev || !prev.applications) return prev
+                                return {
+                                  ...prev,
+                                  applications: prev.applications.map((app: any) =>
+                                    app.id === selectedApplication.id ? { ...app, status: newStatus } : app
+                                  )
+                                }
+                              })
+                            } else {
+                              toast.error(result.error || 'Không thể cập nhật trạng thái')
+                            }
+                          } catch (error) {
+                            console.error('Error updating application status:', error)
+                            toast.error('Không thể cập nhật trạng thái')
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="bg-black/30 border-purple-500/40 text-white">
+                          <SelectValue placeholder="Chọn trạng thái" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-black/90 border-purple-500/40 text-white">
+                          <SelectItem value="pending">Đang chờ</SelectItem>
+                          <SelectItem value="reviewing">Đang review</SelectItem>
+                          <SelectItem value="interview">Phỏng vấn</SelectItem>
+                          <SelectItem value="accepted">Đã nhận</SelectItem>
+                          <SelectItem value="rejected">Từ chối</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-6">

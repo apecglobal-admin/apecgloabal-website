@@ -36,14 +36,29 @@ export async function GET(
 
     const job = jobResult.rows[0]
 
-    // Mock applications data since we don't have job_applications table yet
-    job.applications = []
-    job.application_count = 0
-    job.view_count = job.view_count || Math.floor(Math.random() * 100) + 50
-    job.interview_count = 0
-    job.hired_count = 0
+    const applicationsResult = await query(`
+      SELECT 
+        id,
+        applicant_name,
+        applicant_email,
+        applicant_phone,
+        position_applied,
+        introduction,
+        resume_url,
+        resume_public_id,
+        status,
+        created_at
+      FROM applications
+      WHERE job_id = $1
+      ORDER BY created_at DESC
+    `, [jobId])
 
-    // Calculate rates
+    job.applications = applicationsResult.rows
+    job.application_count = applicationsResult.rowCount
+    job.view_count = job.view_count || Math.floor(Math.random() * 100) + 50
+    job.interview_count = job.interview_count || 0
+    job.hired_count = job.hired_count || 0
+
     job.application_rate = job.view_count > 0 ? Math.round((job.application_count / job.view_count) * 100) : 0
     job.interview_rate = job.application_count > 0 ? Math.round((job.interview_count / job.application_count) * 100) : 0
     job.hire_rate = job.interview_count > 0 ? Math.round((job.hired_count / job.interview_count) * 100) : 0

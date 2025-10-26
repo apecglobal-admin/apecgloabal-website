@@ -112,13 +112,13 @@ export function getCloudinaryUrl(publicId: string, options: any = {}) {
 // Generate signed URL for secure access
 export function getSignedCloudinaryUrl(publicId: string, options: any = {}) {
   const signedOptions = {
-    ...options,
     sign_url: true,
-    type: 'upload', // Change from 'authenticated' to 'upload'
+    type: 'upload', // Ensure public upload resource
     secure: true,
-    resource_type: 'auto', // Let Cloudinary auto-detect
+    resource_type: 'auto', // Default to auto-detect unless overridden
+    ...options
   };
-  
+
   return cloudinary.url(publicId, signedOptions);
 }
 

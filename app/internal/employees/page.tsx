@@ -55,11 +55,21 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Pagination, usePagination } from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
-import { listEmployee } from "@/src/features/employee/employeeApi";
+import {
+  createOrUpdateEmployee,
+  listContact,
+  listEmployee,
+  listManager,
+  listSkill,
+} from "@/src/features/employee/employeeApi";
 import { listDepartment } from "@/src/features/department/departmentApi";
 import { listPosition } from "@/src/features/position/positionApi";
 import { Position } from "@/lib/schema";
 
+interface Skill {
+  skill_id: string | number;
+  value: string | number;
+}
 interface Employee {
   id: number;
   name: string;
@@ -77,9 +87,24 @@ interface Employee {
   address: string;
   birthday: string;
   education: string;
-  skills: string[];
+  skills: Skill[];
+  skill_group_id: number | null;
+  issue_date: string;
+  issue_place: string;
+  citizen_card: string;
+  birth_place: string;
+  emergency_contract: string;
   bio: string;
-  company_id: number; // ← THÊM DÒNG NÀY
+  company_id: number; 
+  gen: number;
+  degree_level: string;
+  major: string;
+  school_name: string;
+  graduation_year: string;
+  contract_type: string;
+  certificate_name: string;
+  allowance: number;
+
 }
 
 interface Department {
@@ -89,10 +114,12 @@ interface Department {
 
 function EmployeesManagementContent() {
   const dispatch = useDispatch();
-  const { employees, loading } = useSelector((state: any) => state.employee);
+  const { employees, skills, contacts, managers, loading } = useSelector(
+    (state: any) => state.employee
+  );
   const { departments } = useSelector((state: any) => state.department);
   const { positions } = useSelector((state: any) => state.position);
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -102,7 +129,6 @@ function EmployeesManagementContent() {
     null
   );
   const [deleting, setDeleting] = useState(false);
-
   // Position management states
   const [showPositionModal, setShowPositionModal] = useState(false);
   const [creatingPosition, setCreatingPosition] = useState(false);
@@ -115,10 +141,25 @@ function EmployeesManagementContent() {
   });
 
   const [formData, setFormData] = useState({
+    id: "",
     name: "",
     email: "",
+    gen: 1,
     phone: "",
     position: "",
+    birth_place: "",
+    citizen_card: "",
+    issue_date: "",
+    issue_place: "",
+    major: "",
+    school_name: "",
+    graduation_year: "",
+    certificate_name: "",
+    degree_level: "",
+    contract_type: "",
+    base_salary: "",
+    allowance: "",
+    emergency_contract: "",
     department_id: "",
     join_date: "",
     status: "active",
@@ -127,7 +168,7 @@ function EmployeesManagementContent() {
     address: "",
     birthday: "",
     education: "",
-    skills: [] as string[],
+    skills: [] as Skill[],
     bio: "",
   });
 
@@ -135,6 +176,9 @@ function EmployeesManagementContent() {
     dispatch(listEmployee() as any);
     dispatch(listDepartment() as any);
     dispatch(listPosition() as any);
+    dispatch(listSkill() as any);
+    dispatch(listContact() as any);
+    dispatch(listManager() as any);
   }, [dispatch]);
 
   const handleCreatePosition = () => {
@@ -186,33 +230,63 @@ function EmployeesManagementContent() {
   const handleCreate = () => {
     setEditingEmployee(null);
     setFormData({
+       id: "",
+      allowance:  "",
+      base_salary:  "",
+      contract_type: "",
+      certificate_name: "",
+      degree_level: "",
+      emergency_contract: "",
+      issue_date: "",
+      issue_place:  "",
+      major: "",
+      school_name: "",
+      graduation_year: "",
+      birth_place:  "",
+      citizen_card:  "",
+      gen:  1,
       name: "",
       email: "",
       phone: "",
       position: "",
-      department_id: "",
+      department_id:  "",
       join_date: "",
-      status: "active",
+      status: "",
       salary: "",
-      manager_id: "",
+      manager_id:  "",
       address: "",
-      birthday: "",
-      education: "",
-      skills: [],
-      bio: "",
+      birthday:  "",
+      education:  "",
+      skills:  [],
+      bio:"",
     });
     setShowCreateModal(true);
   };
 
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
+    console.log("Editing Employee:", employee);
     setFormData({
+      id: employee.id.toString(),
+      allowance: employee.salary?.toString() || "",
+      base_salary: employee.salary?.toString() || "",
+      contract_type: employee.contract_type || "",
+      certificate_name:  employee.certificate_name || "",
+      degree_level: employee.degree_level || "",
+      emergency_contract: employee.emergency_contract || "",
+      issue_date: employee.issue_date ? employee.issue_date.split("T")[0] : "",
+      issue_place: employee.issue_place || "",
+      major: employee.major || "",
+      school_name: employee.school_name || "",
+      graduation_year: employee.graduation_year || "",
+      birth_place: employee.birth_place || "",
+      citizen_card: employee.citizen_card || "",
+      gen: employee.gen || 1,
       name: employee.name,
       email: employee.email,
       phone: employee.phone || "",
       position: employee.position || "",
       department_id: employee.department_id?.toString() || "",
-
       join_date: employee.join_date ? employee.join_date.split("T")[0] : "",
       status: employee.status,
       salary: employee.salary?.toString() || "",
@@ -226,55 +300,42 @@ function EmployeesManagementContent() {
     setShowCreateModal(true);
   };
 
-  const handleSave = async () => {
-    if (!formData.name || !formData.email) {
-      toast.error("Vui lòng nhập tên và email");
-      return;
-    }
-
-    setCreating(true);
-    try {
-      const url = editingEmployee
-        ? `/api/employees/${editingEmployee.id}`
-        : "/api/employees";
-      const method = editingEmployee ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          salary: parseFloat(formData.salary) || null,
-          department_id: formData.department_id
-            ? parseInt(formData.department_id)
-            : null,
-
-          manager_id: formData.manager_id
-            ? parseInt(formData.manager_id)
-            : null,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setShowCreateModal(false);
-        //fetchEmployees()
-        dispatch(listEmployee() as any);
-        toast.success(
-          `${editingEmployee ? "Cập nhật" : "Tạo"} nhân viên thành công!`
-        );
-      } else {
-        toast.error("Lỗi: " + result.error);
-      }
-    } catch (error) {
-      console.error("Error saving employee:", error);
-      toast.error("Lỗi kết nối server");
-    } finally {
-      setCreating(false);
-    }
+   const handleSave = async () => {
+    // Log theo thứ tự yêu cầu
+    const employeeId = editingEmployee ? editingEmployee.id : formData.id;
+    const saveData = {
+      id: employeeId,
+      email: formData.email,
+      name: formData.name,
+      join_date: formData.join_date,
+      birthday: formData.birthday,
+      address: formData.address,
+      manager_id: formData.manager_id,
+      gen: formData.gen, 
+      birth_place: formData.birth_place,
+      citizen_card: formData.citizen_card,
+      issue_date: formData.issue_date,
+      issue_place: formData.issue_place,
+      emergency_contract: formData.emergency_contract,
+      degree_level: formData.degree_level,
+      major: formData.major,
+      school_name: formData.school_name,
+      graduation_year: formData.graduation_year,
+      base_salary: formData.base_salary,
+      allowance: formData.allowance,
+      contract_type: formData.contract_type,
+      certificate_name: formData.certificate_name,
+      skills: formData.skills.map(skill => ({
+    skill_id: parseInt(skill.skill_id.toString()), // Sửa lại
+    value: parseInt(skill.value.toString()) || 0    // Sửa lại
+  })),
+      skill_group_id: formData.skill_group_id ? parseInt(formData.skill_group_id) : null,
+      department_id: formData.department_id,
+      position_id: formData.position,
+    };
+    dispatch(createOrUpdateEmployee(saveData) as any);
+    dispatch(listEmployee() as any);
+    console.log("Save Data:", saveData);
   };
 
   const handleDelete = async () => {
@@ -605,294 +666,592 @@ function EmployeesManagementContent() {
 
       {/* Create/Edit Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-7xl h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">
               {editingEmployee ? "Chỉnh Sửa Nhân Viên" : "Thêm Nhân Viên Mới"}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name" className="text-white">
-                  Họ Tên *
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Nhập họ tên"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
+          <div className="space-y-6">
+            {/* Row 1: Thông tin cơ bản + CCCD */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Thông tin cơ bản */}
+              <div className="border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                  Thông Tin Cơ Bản
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="id" className="text-white">
+                      Mã Nhân Viên
+                    </Label>
+                    <Input
+                      id="id"
+                      placeholder="NV001"
+                      value={formData.id}
+                      onChange={(e) =>
+                        setFormData({ ...formData, id: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                      disabled={editingEmployee}
+                    />
+                  </div>
 
-              <div>
-                <Label htmlFor="email" className="text-white">
-                  Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="email@example.com"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-            </div>
+                  <div>
+                    <Label htmlFor="name" className="text-white">
+                      Họ Tên *
+                    </Label>
+                    <Input
+                      id="name"
+                      placeholder="Nhập họ tên"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="phone" className="text-white">
-                  Số Điện Thoại
-                </Label>
-                <Input
-                  id="phone"
-                  placeholder="0123456789"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
+                  <div>
+                    <Label htmlFor="email" className="text-white">
+                      Email *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="email@example.com"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="position" className="text-white">
-                    Chức Vụ
-                  </Label>
-                  <div className="flex gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => dispatch(listPosition() as any)}
-                      className="text-white/60 hover:text-white text-xs p-1 h-auto"
+                  <div>
+                    <Label htmlFor="birthday" className="text-white">
+                      Ngày Sinh
+                    </Label>
+                    <Input
+                      id="birthday"
+                      type="date"
+                      value={formData.birthday}
+                      onChange={(e) =>
+                        setFormData({ ...formData, birthday: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="gen" className="text-white">
+                      Giới Tính
+                    </Label>
+                    <Select
+                      value={formData.gen?.toString()}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, gen: parseInt(value)})
+                      }
                     >
-                      🔄
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCreatePosition}
-                      className="text-green-400 hover:text-green-300 text-xs p-1 h-auto"
-                    >
-                      + Thêm mới
-                    </Button>
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn giới tính" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Nam</SelectItem>
+                        <SelectItem value="2">Nữ</SelectItem>
+                        <SelectItem value="3">Khác</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="birth_place" className="text-white">
+                      Nơi Sinh
+                    </Label>
+                    <Input
+                      id="birth_place"
+                      placeholder="Tỉnh/Thành phố"
+                      value={formData.birth_place}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          birth_place: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address" className="text-white">
+                      Địa Chỉ
+                    </Label>
+                    <Input
+                      id="address"
+                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                      value={formData.address}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address" className="text-white">
+                      Ngày gia nhập
+                    </Label>
+                    <Input
+                      id="join_date"
+                      type="date"
+                      placeholder="2023-01-01"
+                      value={formData.join_date}
+                      onChange={(e) =>
+                        setFormData({ ...formData, join_date: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
                   </div>
                 </div>
-                <Select
-                  value={formData.position}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, position: value })
-                  }
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn chức vụ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions.filter((p: Position) => p.is_active).length > 0 ? (
-                      positions
-                        .filter((p: Position) => p.is_active)
-                        .map((position: Position) => (
-                          <SelectItem key={position.id} value={position.title}>
-                            <div className="flex items-center gap-2">
-                              <Briefcase className="h-3 w-3 text-purple-400" />
-                              {position.title}
-                              {position.is_manager_position && (
-                                <span className="text-xs bg-orange-500/20 text-orange-400 px-1 rounded">
-                                  Manager
-                                </span>
-                              )}
-                            </div>
+              </div>
+
+              {/* CCCD */}
+              <div className="border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                  Thông Tin CCCD
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label htmlFor="citizen_card" className="text-white">
+                      Số CCCD
+                    </Label>
+                    <Input
+                      id="citizen_card"
+                      placeholder="001234567890"
+                      value={formData.citizen_card}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          citizen_card: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="issue_date" className="text-white">
+                      Ngày Cấp
+                    </Label>
+                    <Input
+                      id="issue_date"
+                      type="date"
+                      value={formData.issue_date}
+                      onChange={(e) =>
+                        setFormData({ ...formData, issue_date: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="issue_place" className="text-white">
+                      Nơi Cấp
+                    </Label>
+                    <Input
+                      id="issue_place"
+                      placeholder="Cục Cảnh sát..."
+                      value={formData.issue_place}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          issue_place: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Row 2: Học vấn + Hợp đồng */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Học vấn */}
+              <div className="border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                  Thông Tin Học Vấn
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="degree_level" className="text-white">
+                      Trình Độ
+                    </Label>
+                    <Select
+                      value={formData.degree_level}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, degree_level: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn trình độ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="trung_cap">Trung cấp</SelectItem>
+                        <SelectItem value="cao_dang">Cao đẳng</SelectItem>
+                        <SelectItem value="dai_hoc">Đại học</SelectItem>
+                        <SelectItem value="thac_si">Thạc sĩ</SelectItem>
+                        <SelectItem value="tien_si">Tiến sĩ</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="major" className="text-white">
+                      Chuyên Ngành
+                    </Label>
+                    <Input
+                      id="major"
+                      placeholder="Công nghệ thông tin"
+                      value={formData.major}
+                      onChange={(e) =>
+                        setFormData({ ...formData, major: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="school_name" className="text-white">
+                      Trường
+                    </Label>
+                    <Input
+                      id="school_name"
+                      placeholder="Tên trường"
+                      value={formData.school_name}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          school_name: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="graduation_year" className="text-white">
+                      Năm Tốt Nghiệp
+                    </Label>
+                    <Input
+                      id="graduation_year"
+                      type="number"
+                      placeholder="2023"
+                      value={formData.graduation_year}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          graduation_year: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <Label htmlFor="certificate_name" className="text-white">
+                      Chứng Chỉ
+                    </Label>
+                    <Input
+                      id="certificate_name"
+                      placeholder="AWS, PMP, TOEIC..."
+                      value={formData.certificate_name}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          certificate_name: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Hợp đồng & Lương */}
+              <div className="border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                  Thông Tin Hợp Đồng & Lương
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contract_type" className="text-white">
+                      Phòng ban
+                    </Label>
+                    <Select
+                      value={formData.department_id}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, department_id: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn phòng ban" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.name}
                           </SelectItem>
-                        ))
-                    ) : (
-                      <SelectItem value="" disabled>
-                        Chưa có chức vụ nào
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="contract_type" className="text-white">
+                      Chức vụ
+                    </Label>
+                    <Select
+                      value={formData.position}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, position: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn chức vụ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {positions.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="contract_type" className="text-white">
+                      Loại Hợp Đồng
+                    </Label>
+                    <Select
+                      value={formData.contract_type}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, contract_type: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn loại hợp đồng" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {contacts.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="base_salary" className="text-white">
+                      Lương Cơ Bản (VNĐ)
+                    </Label>
+                    <Input
+                      id="base_salary"
+                      type="number"
+                      placeholder="10000000"
+                      value={formData.base_salary}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          base_salary: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="allowance" className="text-white">
+                      Phụ Cấp (VNĐ)
+                    </Label>
+                    <Input
+                      id="allowance"
+                      type="number"
+                      placeholder="2000000"
+                      value={formData.allowance}
+                      onChange={(e) =>
+                        setFormData({ ...formData, allowance: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="manager_id" className="text-white">
+                      Người duyệt
+                    </Label>
+                    <Select
+                      value={formData.manager_id}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, manager_id: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn người duyệt" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {managers.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="department" className="text-white">
-                    Phòng Ban
-                  </Label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => dispatch(listDepartment() as any)}
-                    className="text-white/60 hover:text-white text-xs p-1 h-auto"
-                  >
-                    🔄
-                  </Button>
+            {/* Row 3: Liên hệ + Skills */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Liên hệ */}
+              <div className="border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                  Thông Tin Liên Hệ
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="phone" className="text-white">
+                      Số Điện Thoại
+                    </Label>
+                    <Input
+                      id="phone"
+                      placeholder="0123456789"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="emergency_contract" className="text-white">
+                      Liên Lạc Khẩn Cấp
+                    </Label>
+                    <Input
+                      id="emergency_contract"
+                      placeholder="Tên người liên hệ - SĐT"
+                      value={formData.emergency_contract}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          emergency_contract: e.target.value,
+                        })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white"
+                    />
+                  </div>
                 </div>
-                <Select
-                  value={formData.department_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, department_id: value })
-                  }
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn phòng ban" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments?.length > 0 ? (
-                      departments?.map((department: Department) => (
-                        <SelectItem
-                          key={department.id}
-                          value={department.id.toString()}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-blue-400" />
-                            {department.name}
+              </div>
+
+              {/* Skills */}
+              <div className="border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                  Kỹ Năng
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="skill_group_id" className="text-white">
+                      Nhóm Kỹ Năng
+                    </Label>
+                    <Select
+                      value={formData.skill_group_id}
+                      onValueChange={(value) => {
+                        const selectedGroup = skills.find(
+                          (group) => group.id === Number(value)
+                        );
+
+                        setFormData({
+                          ...formData,
+                          skill_group_id: value,
+                          skills: selectedGroup
+                            ? selectedGroup.skills.map((s) => ({
+                                skill_id: s.id,
+                                value: "",
+                              }))
+                            : [],
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Chọn nhóm kỹ năng" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {skills.map((group: any) => (
+                          <SelectItem
+                            key={group.id}
+                            value={group.id.toString()}
+                          >
+                            {group.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-white mb-2 block">
+                      Danh Sách Kỹ Năng
+                    </Label>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {formData.skills?.map((skill, index) => {
+                        const group = skills.find(
+                          (g) => g.id === Number(formData.skill_group_id)
+                        );
+                        const skillName = group?.skills.find(
+                          (s) => s.id === skill.skill_id
+                        )?.name;
+
+                        return (
+                          <div key={index} className="flex gap-2 items-center">
+                            <Input
+                              disabled
+                              value={skillName || ""}
+                              className="bg-black/30 border-purple-500/30 text-white flex-1"
+                            />
+                            <Input
+                              placeholder="Giá trị"
+                              value={skill.value}
+                              onChange={(e) => {
+                                const newSkills = [...formData.skills];
+                                newSkills[index].value = e.target.value;
+                                setFormData({ ...formData, skills: newSkills });
+                              }}
+                              className="bg-black/30 border-purple-500/30 text-white flex-1"
+                            />
                           </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="" disabled>
-                        Chưa có phòng ban nào
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label className="text-white">Thao Tác Nhanh</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open("/internal/positions", "_blank")}
-                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs"
-                  >
-                    <Briefcase className="h-3 w-3 mr-1" />
-                    Quản lý chức vụ
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      window.open("/internal/departments", "_blank")
-                    }
-                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs"
-                  >
-                    <Building2 className="h-3 w-3 mr-1" />
-                    Quản lý phòng ban
-                  </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="join_date" className="text-white">
-                  Ngày Vào Làm
-                </Label>
-                <Input
-                  id="join_date"
-                  type="date"
-                  value={formData.join_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, join_date: e.target.value })
-                  }
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="status" className="text-white">
-                  Trạng Thái
-                </Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, status: value })
-                  }
-                >
-                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Hoạt động</SelectItem>
-                    <SelectItem value="inactive">Không hoạt động</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="salary" className="text-white">
-                  Lương (VND)
-                </Label>
-                <Input
-                  id="salary"
-                  type="number"
-                  placeholder="Mức lương"
-                  value={formData.salary}
-                  onChange={(e) =>
-                    setFormData({ ...formData, salary: e.target.value })
-                  }
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="bio" className="text-white">
-                Ghi Chú
-              </Label>
-              <Textarea
-                id="bio"
-                placeholder="Thông tin thêm về nhân viên..."
-                value={formData.bio}
-                onChange={(e) =>
-                  setFormData({ ...formData, bio: e.target.value })
-                }
-                className="bg-black/30 border-purple-500/30 text-white"
-                rows={3}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4">
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-purple-500/30">
               <Button
                 variant="outline"
                 onClick={() => setShowCreateModal(false)}
-                className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
+                className="border-purple-500/30 text-white hover:bg-purple-500/10"
               >
                 Hủy
               </Button>
-              <Button
-                onClick={handleSave}
-                disabled={creating}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-              >
-                {creating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Đang lưu...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-4 w-4 mr-2" />
-                    {editingEmployee ? "Cập Nhật" : "Tạo Nhân Viên"}
-                  </>
-                )}
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSave}>
+                {editingEmployee ? "Cập Nhật" : "Thêm Mới"}
               </Button>
             </div>
           </div>

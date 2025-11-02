@@ -69,13 +69,22 @@ import { Position } from "@/lib/schema";
 interface Skill {
   skill_id: string | number;
   value: string | number;
+  name: string;
+}
+
+interface Education {
+  school_name: string;
+  degree_level: string;
+  major: string;
+  graduation_year: string;
 }
 interface Employee {
   id: number;
   name: string;
   email: string;
   phone: string;
-  position: string;
+  position_id: number; // ⚠️ Thêm field này
+  position: string; // Display name
   department_id: number;
   department_name: string;
   join_date: string;
@@ -83,11 +92,28 @@ interface Employee {
   avatar_url: string;
   salary: number;
   manager_id: number;
-  manager_name: string;
   address: string;
   birthday: string;
   education: string;
-  skills: Skill[];
+  educations: {
+    degree_level: string;
+    major: string;
+    school_name: string;
+    graduation_year: number;
+  };
+  contracts: {
+    base_salary: string;
+    allowance: string;
+    contract_type: number;
+  };
+  certificates: {
+    certificate_name: string;
+  };
+  skills: Array<{
+    id: number;
+    name: string;
+    value: string;
+  }>;
   skill_group_id: number | null;
   issue_date: string;
   issue_place: string;
@@ -95,16 +121,8 @@ interface Employee {
   birth_place: string;
   emergency_contract: string;
   bio: string;
-  company_id: number; 
+  company_id: number;
   gen: number;
-  degree_level: string;
-  major: string;
-  school_name: string;
-  graduation_year: string;
-  contract_type: string;
-  certificate_name: string;
-  allowance: number;
-
 }
 
 interface Department {
@@ -170,6 +188,7 @@ function EmployeesManagementContent() {
     education: "",
     skills: [] as Skill[],
     bio: "",
+    skill_group_id: "",
   });
 
   useEffect(() => {
@@ -230,35 +249,36 @@ function EmployeesManagementContent() {
   const handleCreate = () => {
     setEditingEmployee(null);
     setFormData({
-       id: "",
-      allowance:  "",
-      base_salary:  "",
+      id: "",
+      allowance: "",
+      base_salary: "",
       contract_type: "",
       certificate_name: "",
       degree_level: "",
       emergency_contract: "",
       issue_date: "",
-      issue_place:  "",
+      issue_place: "",
       major: "",
       school_name: "",
       graduation_year: "",
-      birth_place:  "",
-      citizen_card:  "",
-      gen:  1,
+      birth_place: "",
+      citizen_card: "",
+      gen: 1,
       name: "",
       email: "",
       phone: "",
       position: "",
-      department_id:  "",
+      department_id: "",
       join_date: "",
       status: "",
       salary: "",
-      manager_id:  "",
+      manager_id: "",
       address: "",
-      birthday:  "",
-      education:  "",
-      skills:  [],
-      bio:"",
+      birthday: "",
+      education: "",
+      skills: [],
+      bio: "",
+      skill_group_id: "",
     });
     setShowCreateModal(true);
   };
@@ -266,41 +286,61 @@ function EmployeesManagementContent() {
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
     console.log("Editing Employee:", employee);
+
     setFormData({
       id: employee.id.toString(),
-      allowance: employee.salary?.toString() || "",
-      base_salary: employee.salary?.toString() || "",
-      contract_type: employee.contract_type || "",
-      certificate_name:  employee.certificate_name || "",
-      degree_level: employee.degree_level || "",
-      emergency_contract: employee.emergency_contract || "",
-      issue_date: employee.issue_date ? employee.issue_date.split("T")[0] : "",
-      issue_place: employee.issue_place || "",
-      major: employee.major || "",
-      school_name: employee.school_name || "",
-      graduation_year: employee.graduation_year || "",
-      birth_place: employee.birth_place || "",
-      citizen_card: employee.citizen_card || "",
-      gen: employee.gen || 1,
       name: employee.name,
       email: employee.email,
+      gen: employee.gen || 1,
       phone: employee.phone || "",
-      position: employee.position || "",
-      department_id: employee.department_id?.toString() || "",
-      join_date: employee.join_date ? employee.join_date.split("T")[0] : "",
-      status: employee.status,
-      salary: employee.salary?.toString() || "",
-      manager_id: employee.manager_id?.toString() || "",
+      position: employee.position_id?.toString() || "",
+      birth_place: employee.birth_place || "",
+      citizen_card: employee.citizen_card || "",
+      issue_date: employee.issue_date ? employee.issue_date.split("T")[0] : "",
+      issue_place: employee.issue_place || "",
+      emergency_contract: employee.emergency_contract || "",
       address: employee.address || "",
       birthday: employee.birthday ? employee.birthday.split("T")[0] : "",
-      education: employee.education || "",
-      skills: employee.skills || [],
+      join_date: employee.join_date ? employee.join_date.split("T")[0] : "",
+      status: employee.status || "active",
+      department_id: employee.department_id?.toString() || "",
+      manager_id: employee.manager_id?.toString() || "",
       bio: employee.bio || "",
+
+      degree_level: employee.educations?.degree_level || "",
+      major: employee.educations?.major || "",
+      school_name: employee.educations?.school_name || "",
+      graduation_year: employee.educations?.graduation_year?.toString() || "",
+
+      base_salary: employee.contracts?.base_salary?.toString() || "",
+      allowance: employee.contracts?.allowance?.toString() || "",
+      contract_type: employee.contracts?.contract_type?.toString() || "",
+
+      certificate_name: employee.certificates?.certificate_name || "",
+
+      salary:
+        employee.salary?.toString() ||
+        employee.contracts?.base_salary?.toString() ||
+        "",
+
+      skills:
+        employee.skills?.map((skill) => ({
+          skill_id: skill.id,
+          value: skill.value || "",
+          name: skill.name,
+        })) || [],
+
+      skill_group_id: employee.skill_group_id
+        ? employee.skill_group_id.toString()
+        : "",
+
+      education: employee.education || "",
     });
+
     setShowCreateModal(true);
   };
 
-   const handleSave = async () => {
+  const handleSave = async () => {
     // Log theo thứ tự yêu cầu
     const employeeId = editingEmployee ? editingEmployee.id : formData.id;
     const saveData = {
@@ -311,7 +351,7 @@ function EmployeesManagementContent() {
       birthday: formData.birthday,
       address: formData.address,
       manager_id: formData.manager_id,
-      gen: formData.gen, 
+      gen: formData.gen,
       birth_place: formData.birth_place,
       citizen_card: formData.citizen_card,
       issue_date: formData.issue_date,
@@ -325,11 +365,13 @@ function EmployeesManagementContent() {
       allowance: formData.allowance,
       contract_type: formData.contract_type,
       certificate_name: formData.certificate_name,
-      skills: formData.skills.map(skill => ({
-    skill_id: parseInt(skill.skill_id.toString()), // Sửa lại
-    value: parseInt(skill.value.toString()) || 0    // Sửa lại
-  })),
-      skill_group_id: formData.skill_group_id ? parseInt(formData.skill_group_id) : null,
+      skills: formData.skills.map((skill) => ({
+        skill_id: parseInt(skill.skill_id.toString()), // Sửa lại
+        value: parseInt(skill.value.toString()) || 0, // Sửa lại
+      })),
+      skill_group_id: formData.skill_group_id
+        ? parseInt(formData.skill_group_id)
+        : null,
       department_id: formData.department_id,
       position_id: formData.position,
     };
@@ -694,7 +736,7 @@ function EmployeesManagementContent() {
                         setFormData({ ...formData, id: e.target.value })
                       }
                       className="bg-black/30 border-purple-500/30 text-white"
-                      disabled={editingEmployee}
+                      disabled={editingEmployee !== null}
                     />
                   </div>
 
@@ -751,7 +793,7 @@ function EmployeesManagementContent() {
                     <Select
                       value={formData.gen?.toString()}
                       onValueChange={(value) =>
-                        setFormData({ ...formData, gen: parseInt(value)})
+                        setFormData({ ...formData, gen: parseInt(value) })
                       }
                     >
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
@@ -898,11 +940,11 @@ function EmployeesManagementContent() {
                         <SelectValue placeholder="Chọn trình độ" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="trung_cap">Trung cấp</SelectItem>
-                        <SelectItem value="cao_dang">Cao đẳng</SelectItem>
-                        <SelectItem value="dai_hoc">Đại học</SelectItem>
-                        <SelectItem value="thac_si">Thạc sĩ</SelectItem>
-                        <SelectItem value="tien_si">Tiến sĩ</SelectItem>
+                        <SelectItem value="Trung cấp">Trung cấp</SelectItem>
+                        <SelectItem value="Cao đẳng">Cao đẳng</SelectItem>
+                        <SelectItem value="Đại học">Đại học</SelectItem>
+                        <SelectItem value="Thạc sĩ">Thạc sĩ</SelectItem>
+                        <SelectItem value="Tiến sĩ">Tiến sĩ</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1103,7 +1145,7 @@ function EmployeesManagementContent() {
                       </SelectTrigger>
                       <SelectContent>
                         {managers.map((item: any) => (
-                          <SelectItem key={item.id} value={item.id}>
+                          <SelectItem key={item.id} value={item.id.toString()}>
                             {item.name}
                           </SelectItem>
                         ))}
@@ -1171,14 +1213,14 @@ function EmployeesManagementContent() {
                       value={formData.skill_group_id}
                       onValueChange={(value) => {
                         const selectedGroup = skills.find(
-                          (group) => group.id === Number(value)
+                          (group: any) => group.id === Number(value)
                         );
 
                         setFormData({
                           ...formData,
                           skill_group_id: value,
                           skills: selectedGroup
-                            ? selectedGroup.skills.map((s) => ({
+                            ? selectedGroup.skills.map((s: any) => ({
                                 skill_id: s.id,
                                 value: "",
                               }))
@@ -1208,18 +1250,35 @@ function EmployeesManagementContent() {
                     </Label>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {formData.skills?.map((skill, index) => {
-                        const group = skills.find(
-                          (g) => g.id === Number(formData.skill_group_id)
-                        );
-                        const skillName = group?.skills.find(
-                          (s) => s.id === skill.skill_id
-                        )?.name;
+                        let skillName = skill.name || "";
+
+                        if (!skillName) {
+                          const group = skills.find(
+                            (g: any) => g.id === Number(formData.skill_group_id)
+                          );
+                          skillName =
+                            group?.skills.find(
+                              (s: any) => s.id === skill.skill_id
+                            )?.name || "";
+                        }
+
+                        if (!skillName) {
+                          for (const group of skills) {
+                            const foundSkill = group.skills?.find(
+                              (s: any) => s.id === skill.skill_id
+                            );
+                            if (foundSkill) {
+                              skillName = foundSkill.name;
+                              break;
+                            }
+                          }
+                        }
 
                         return (
                           <div key={index} className="flex gap-2 items-center">
                             <Input
                               disabled
-                              value={skillName || ""}
+                              value={skillName || `Skill ID: ${skill.skill_id}`}
                               className="bg-black/30 border-purple-500/30 text-white flex-1"
                             />
                             <Input
@@ -1250,7 +1309,10 @@ function EmployeesManagementContent() {
               >
                 Hủy
               </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSave}>
+              <Button
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={handleSave}
+              >
                 {editingEmployee ? "Cập Nhật" : "Thêm Mới"}
               </Button>
             </div>

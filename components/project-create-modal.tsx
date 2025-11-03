@@ -273,7 +273,7 @@ export function ProjectCreateModal({ isOpen, onClose, onSuccess }: ProjectCreate
                     <SelectContent>
                       {employees && Array.isArray(employees)
                         ? employees
-                            .filter(emp => emp.company_id.toString() === formData.company_id)
+                            // .filter(emp => emp.company_id.toString() === formData.company_id)
                             .map((employee) => (
                               <SelectItem key={employee.id} value={employee.id.toString()}>
                                 <div className="flex items-center space-x-2">

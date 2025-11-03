@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
+import { Providers } from '@/src/provider'
 
 export const metadata: Metadata = {
   title: 'ApecGlobal - Kiến Tạo Giá Trị, Làm Chủ Tương Lai',
@@ -26,7 +27,7 @@ export default function RootLayout({
         <link rel="preload" href="/main-logo.png" as="image" />
       </head>
       <body className="bg-white text-black">
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

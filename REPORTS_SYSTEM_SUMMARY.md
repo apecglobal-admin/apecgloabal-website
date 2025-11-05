@@ -3,13 +3,13 @@
 ## ✅ TÍNH NĂNG ĐÃ HOÀN THIỆN
 
 ### 1. **Xem, Phân Tích, Tải Xuống**
-- ✅ **Trang chi tiết báo cáo**: `/internal/reports/[id]`
+- ✅ **Trang chi tiết báo cáo**: `/cms/reports/[id]`
   - Hiển thị thông tin đầy đủ
   - Thống kê lượt xem, tải xuống
   - Báo cáo liên quan
   - Quick actions sidebar
 
-- ✅ **Trang phân tích**: `/internal/reports/[id]/analyze`
+- ✅ **Trang phân tích**: `/cms/reports/[id]/analyze`
   - Thống kê tổng quan (lượt xem, đánh giá, tỷ lệ hoàn thành)
   - Biểu đồ xu hướng theo tháng
   - Phân bố theo phòng ban
@@ -48,7 +48,7 @@
 - ✅ **Dữ liệu mẫu**: 8 báo cáo test với đa dạng loại và trạng thái
 
 ### 4. **Giao Diện và UX**
-- ✅ **Dashboard tổng quan**: `/internal/reports/dashboard`
+- ✅ **Dashboard tổng quan**: `/cms/reports/dashboard`
   - Thống kê overview (4 cards chính)
   - Biểu đồ phân bố theo loại báo cáo
   - Thống kê theo phòng ban
@@ -73,7 +73,7 @@
 ## 🗂️ CẤU TRÚC FILE
 
 ```
-app/internal/reports/
+app/cms/reports/
 ├── page.tsx                    # Trang chính - danh sách báo cáo
 ├── dashboard/
 │   └── page.tsx               # Dashboard tổng quan
@@ -105,10 +105,10 @@ api/reports/
 ## 🚀 CÁCH SỬ DỤNG
 
 ### Truy cập hệ thống:
-1. **Danh sách báo cáo**: `/internal/reports`
-2. **Dashboard tổng quan**: `/internal/reports/dashboard`
-3. **Chi tiết báo cáo**: `/internal/reports/[id]`
-4. **Phân tích báo cáo**: `/internal/reports/[id]/analyze`
+1. **Danh sách báo cáo**: `/cms/reports`
+2. **Dashboard tổng quan**: `/cms/reports/dashboard`
+3. **Chi tiết báo cáo**: `/cms/reports/[id]`
+4. **Phân tích báo cáo**: `/cms/reports/[id]/analyze`
 
 ### Các thao tác chính:
 1. **Tạo báo cáo mới**: Click "Tạo Báo Cáo Mới"

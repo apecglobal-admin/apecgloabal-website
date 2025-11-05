@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Header from "@/components/header"
-import InternalPortal from "@/components/internal-portal"
+import InternalPortal from "@/components/cms-portal"
 import PublicPortal from "@/components/public-portal"
 import Footer from "@/components/footer"
 

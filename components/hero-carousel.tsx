@@ -25,7 +25,7 @@ export default function HeroCarousel() {
     },
     secondaryButton: {
       text: "Cổng Nội Bộ",
-      href: "/internal"
+      href: "/cms"
     }
   }
 

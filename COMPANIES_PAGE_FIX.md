@@ -63,10 +63,10 @@ const departmentsData = Array.isArray(departments.data) ? departments.data : []
 - ✅ Code robust hơn với type checking
 
 ## 🔄 Files đã sửa:
-- `app/internal/companies/page.tsx` - Fix data extraction và error handling
+- `app/cms/companies/page.tsx` - Fix data extraction và error handling
 
 ## 🎯 Impact:
-- Trang `/internal/companies` hoạt động bình thường
+- Trang `/cms/companies` hoạt động bình thường
 - Stats hiển thị đúng cho từng công ty
 - Không còn crash khi API trả về format khác
 - User experience được cải thiện

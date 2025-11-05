@@ -106,7 +106,7 @@ export default function Header() {
 
           {/* Internal Portal & Language Toggle & Mobile Menu */}
           <div className="flex items-center space-x-3 lg:space-x-4 z-50">
-            <Link href="/internal">
+            <Link href="/cms">
               <Button
                 size="sm"
                 className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 transform text-xs lg:text-sm font-semibold px-4 py-2 border-0"
@@ -199,7 +199,7 @@ export default function Header() {
               {/* Internal Portal for Mobile */}
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <Link
-                  href="/internal"
+                  href="/cms"
                   onClick={closeMenu}
                   className="block"
                 >

@@ -54,9 +54,9 @@ export async function POST(request: Request) {
     await query(`
       INSERT INTO notifications (user_id, title, content, type, is_read, action_url, created_at)
       VALUES
-        (1, 'Chào mừng đến với hệ thống nội bộ', 'Chào mừng bạn đến với hệ thống quản lý nội bộ mới của ApecGlobal. Hãy khám phá các tính năng mới!', 'welcome', false, '/internal/dashboard', NOW() - INTERVAL '1 day'),
-        (1, 'Báo cáo Q4 cần duyệt', 'Báo cáo Q4/2023 đã được tạo và đang chờ duyệt. Vui lòng xem xét và phê duyệt.', 'report', false, '/internal/reports', NOW() - INTERVAL '2 hour'),
-        (1, 'Họp team 14:00', 'Nhắc nhở: Cuộc họp team sẽ diễn ra vào lúc 14:00 hôm nay tại phòng họp chính.', 'meeting', false, '/internal/calendar', NOW() - INTERVAL '6 hour')
+        (1, 'Chào mừng đến với hệ thống nội bộ', 'Chào mừng bạn đến với hệ thống quản lý nội bộ mới của ApecGlobal. Hãy khám phá các tính năng mới!', 'welcome', false, '/cms/dashboard', NOW() - INTERVAL '1 day'),
+        (1, 'Báo cáo Q4 cần duyệt', 'Báo cáo Q4/2023 đã được tạo và đang chờ duyệt. Vui lòng xem xét và phê duyệt.', 'report', false, '/cms/reports', NOW() - INTERVAL '2 hour'),
+        (1, 'Họp team 14:00', 'Nhắc nhở: Cuộc họp team sẽ diễn ra vào lúc 14:00 hôm nay tại phòng họp chính.', 'meeting', false, '/cms/calendar', NOW() - INTERVAL '6 hour')
       ON CONFLICT DO NOTHING
     `);
     
@@ -204,7 +204,7 @@ export async function POST(request: Request) {
     }
     
     return NextResponse.json({
-      message: 'Thiết lập dữ liệu cho phần /internal thành công',
+      message: 'Thiết lập dữ liệu cho phần /cms thành công',
       counts
     });
   } catch (error) {

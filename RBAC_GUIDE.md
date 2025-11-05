@@ -41,7 +41,7 @@ Hệ thống RBAC mới thay thế hệ thống phân quyền cũ (phân quyền
 
 ### 1. Truy cập quản lý Roles
 ```
-/internal/roles
+/cms/roles
 ```
 
 ### 2. Tạo Role mới
@@ -66,7 +66,7 @@ Hệ thống RBAC mới thay thế hệ thống phân quyền cũ (phân quyền
 4. Click **"Thay đổi role"**
 
 ### 5. Tạo nhân viên mới
-- Khi tạo employee mới qua `/internal/employees`, hệ thống sẽ:
+- Khi tạo employee mới qua `/cms/employees`, hệ thống sẽ:
   - Tự động tạo user account
   - Gán **Employee role** (mặc định)
   - User chỉ có quyền xem tài liệu
@@ -153,7 +153,7 @@ ALTER TABLE users ADD COLUMN role_id INTEGER REFERENCES roles(id);
 
 ## 🎉 Migration từ hệ thống cũ
 
-Hệ thống cũ vẫn có thể truy cập qua `/internal/permissions` để tham khảo, nhưng nên sử dụng hệ thống RBAC mới cho:
+Hệ thống cũ vẫn có thể truy cập qua `/cms/permissions` để tham khảo, nhưng nên sử dụng hệ thống RBAC mới cho:
 
 - **Scalability**: Dễ quản lý với nhiều nhân viên
 - **Consistency**: Đảm bảo quyền nhất quán
@@ -163,9 +163,9 @@ Hệ thống cũ vẫn có thể truy cập qua `/internal/permissions` để th
 ## 📞 Support
 
 Nếu có vấn đề về hệ thống RBAC, liên hệ:
-- **Trang quản lý**: `/internal/roles`
+- **Trang quản lý**: `/cms/roles`
 - **API Documentation**: `/api/roles`
-- **Old System**: `/internal/permissions` (legacy)
+- **Old System**: `/cms/permissions` (legacy)
 
 ---
 

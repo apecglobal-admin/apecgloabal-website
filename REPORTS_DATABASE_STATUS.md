@@ -1,7 +1,7 @@
 # Trạng Thái Kết Nối Database - Hệ Thống Báo Cáo
 
 ## ✅ Tóm Tắt
-Hệ thống báo cáo `/internal/reports` đã được **kết nối thành công** với database PostgreSQL và hoạt động bình thường.
+Hệ thống báo cáo `/cms/reports` đã được **kết nối thành công** với database PostgreSQL và hoạt động bình thường.
 
 ## 📊 Thông Tin Database
 
@@ -79,7 +79,7 @@ CREATE TABLE reports (
 
 ## 🎯 Tính Năng Đã Hoạt Động
 
-### Trang Reports (/internal/reports)
+### Trang Reports (/cms/reports)
 - ✅ Hiển thị danh sách báo cáo
 - ✅ Thống kê tổng quan
 - ✅ Bộ lọc theo loại, phòng ban, trạng thái

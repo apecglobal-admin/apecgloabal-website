@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import InternalLayout from "@/components/internal-layout";
+import InternalLayout from "@/components/cms-layout";
 import {
   Card,
   CardContent,

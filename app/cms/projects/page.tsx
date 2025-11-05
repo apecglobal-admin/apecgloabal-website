@@ -42,13 +42,20 @@ import { Pagination, usePagination } from "@/components/ui/pagination"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useDispatch, useSelector } from "react-redux"
+import { listProjects, listStatusProject } from "@/src/features/project/projectApi"
+import { listCompanies } from "@/src/features/company/companyApi"
 
 export default function InternalProjectsPage() {
+  const dispatch = useDispatch();
+  const { projects, statusProject, loading } = useSelector(
+    (state: any) => state.project
+  );
+  const { companies } = useSelector(
+    (state: any) => state.company
+  );
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("Tất cả")
-  const [projects, setProjects] = useState([])
-  const [companies, setCompanies] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [selectedStatus, setSelectedStatus] = useState("all")
   const [selectedCompany, setSelectedCompany] = useState("all")
   
   // Modal states
@@ -67,62 +74,32 @@ export default function InternalProjectsPage() {
   const [bulkOperationLoading, setBulkOperationLoading] = useState(false)
 
   useEffect(() => {
-    fetchProjects()
-    fetchCompanies()
-  }, [])
+    dispatch(listProjects() as any);
+    dispatch(listCompanies() as any);
+    dispatch(listStatusProject() as any);
+  }, [dispatch]);
 
-  useEffect(() => {
-    fetchProjects(selectedCompany)
-  }, [selectedCompany])
-
-  const fetchProjects = async (companyId = null) => {
-    try {
-      setLoading(true)
-      let url = '/api/projects'
-      if (companyId && companyId !== 'all') {
-        url = `/api/companies/${companyId}/projects`
-      }
-      
-      const response = await fetch(url)
-      const result = await response.json()
-      if (result.success) {
-        setProjects(result.data)
-      }
-    } catch (error) {
-      console.error('Error fetching projects:', error)
-    } finally {
-      setLoading(false)
-    }
+  // Helper function to get status name by ID
+  const getStatusName = (statusId: number) => {
+    const status = statusProject.find(s => parseInt(s.id) === statusId)
+    return status ? status.name : 'Không xác định'
   }
-
-  const fetchCompanies = async () => {
-    try {
-      const response = await fetch('/api/companies')
-      const result = await response.json()
-      if (result.success) {
-        setCompanies(result.data)
-      }
-    } catch (error) {
-      console.error('Error fetching companies:', error)
-    }
-  }
-
-
 
   // Calculate stats from actual data
   const inProgressCount = projects.filter(p => 
-    p.status?.toLowerCase().includes('progress') || 
-    p.status?.toLowerCase().includes('phát triển')
+    p.project_status_id === 2 // "Đang thực hiện"
   ).length
   
   const completedCount = projects.filter(p => 
-    p.status?.toLowerCase().includes('complete') || 
-    p.status?.toLowerCase().includes('hoàn thành') ||
-    p.progress === 100
+    p.project_status_id === 4 // "Hoàn thành"
   ).length
   
-  const totalBudget = projects.reduce((sum, p) => sum + (p.budget || 0), 0)
-  const totalSpent = projects.reduce((sum, p) => sum + (p.spent || 0), 0)
+  const delayedCount = projects.filter(p =>
+    p.project_status_id === 6 // "Trễ tiến độ"
+  ).length
+  
+  const totalBudget = projects.reduce((sum, p) => sum + (parseFloat(p.budget) || 0), 0)
+  const totalSpent = projects.reduce((sum, p) => sum + (parseFloat(p.spent) || 0), 0)
   
   const stats = [
     {
@@ -148,27 +125,29 @@ export default function InternalProjectsPage() {
     },
     {
       title: "Ngân Sách",
-      value: `${(totalBudget / 1000000).toFixed(1)}M USD`,
+      value: `${(totalBudget / 1000000).toFixed(1)}M VND`,
       change: "+15%",
       icon: BarChart3,
       color: "text-orange-400",
     },
   ]
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Hoàn thành":
-        return "bg-green-600"
-      case "Beta Testing":
+  const getStatusColor = (statusId: number) => {
+    switch (statusId) {
+      case 1: // Lập kế hoạch
+        return "bg-yellow-600"
+      case 2: // Đang thực hiện
         return "bg-blue-600"
-      case "Đang phát triển":
+      case 3: // Tạm dừng
         return "bg-orange-600"
-      case "Nghiên cứu":
-        return "bg-purple-600"
-      case "Tạm dừng":
+      case 4: // Hoàn thành
+        return "bg-green-600"
+      case 5: // Hủy
         return "bg-red-600"
-      case "Lưu trữ":
-        return "bg-gray-600"
+      case 6: // Trễ tiến độ
+        return "bg-red-700"
+      case 7: // Bảo trì và nâng cấp
+        return "bg-purple-600"
       default:
         return "bg-gray-600"
     }
@@ -187,19 +166,29 @@ export default function InternalProjectsPage() {
   }
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "Cao":
+    switch (priority?.toLowerCase()) {
+      case "high":
+      case "cao":
         return "bg-red-500/20 text-red-300 border-red-500/50"
-      case "Trung bình":
+      case "medium":
+      case "trung bình":
         return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50"
-      case "Thấp":
+      case "low":
+      case "thấp":
         return "bg-green-500/20 text-green-300 border-green-500/50"
       default:
         return "bg-gray-500/20 text-gray-300 border-gray-500/50"
     }
   }
 
-
+  const getPriorityLabel = (priority: string) => {
+    const priorityMap = {
+      'high': 'Cao',
+      'medium': 'Trung bình',
+      'low': 'Thấp'
+    }
+    return priorityMap[priority?.toLowerCase()] || priority || 'Chưa xác định'
+  }
 
   const handleCreateProject = () => {
     setShowCreateModal(true)
@@ -222,102 +211,17 @@ export default function InternalProjectsPage() {
     setShowReportModal(true)
   }
 
-  // New handlers
   const handleDeleteProject = async () => {
-    if (!deletingProject) return
-    
-    setDeleting(true)
-    try {
-      const response = await fetch(`/api/projects/${deletingProject.id}`, {
-        method: 'DELETE'
-      })
-      const result = await response.json()
-      
-      if (result.success) {
-        setDeletingProject(null)
-        toast.success('Xóa dự án thành công!')
-        fetchProjects()
-      } else {
-        toast.error('Có lỗi xảy ra khi xóa dự án')
-      }
-    } catch (error) {
-      console.error('Error deleting project:', error)
-      toast.error('Có lỗi xảy ra khi xóa dự án')
-    } finally {
-      setDeleting(false)
-    }
   }
 
   const handleArchiveProject = async (projectId) => {
-    try {
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Lưu trữ' })
-      })
-      const result = await response.json()
-      
-      if (result.success) {
-        toast.success('Lưu trữ dự án thành công!')
-        fetchProjects()
-      } else {
-        toast.error('Có lỗi xảy ra khi lưu trữ dự án')
-      }
-    } catch (error) {
-      console.error('Error archiving project:', error)
-      toast.error('Có lỗi xảy ra khi lưu trữ dự án')
-    }
   }
 
   const handleCloneProject = async (project) => {
-    try {
-      const clonedProject = {
-        ...project,
-        name: `${project.name} (Copy)`,
-        status: 'Nghiên cứu',
-        progress: 0,
-        spent: 0
-      }
-      delete clonedProject.id
-      
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(clonedProject)
-      })
-      const result = await response.json()
-      
-      if (result.success) {
-        toast.success('Sao chép dự án thành công!')
-        fetchProjects()
-      } else {
-        toast.error('Có lỗi xảy ra khi sao chép dự án')
-      }
-    } catch (error) {
-      console.error('Error cloning project:', error)
-      toast.error('Có lỗi xảy ra khi sao chép dự án')
-    }
   }
 
-  const handleQuickStatusUpdate = async (projectId, status) => {
-    try {
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      })
-      const result = await response.json()
-      
-      if (result.success) {
-        toast.success('Cập nhật trạng thái thành công!')
-        fetchProjects()
-      } else {
-        toast.error('Có lỗi xảy ra khi cập nhật trạng thái')
-      }
-    } catch (error) {
-      console.error('Error updating status:', error)
-      toast.error('Có lỗi xảy ra khi cập nhật trạng thái')
-    }
+  const handleQuickStatusUpdate = async (projectId, statusId) => {
+
   }
 
   // Bulk operations handlers
@@ -339,52 +243,11 @@ export default function InternalProjectsPage() {
   }
 
   const handleBulkArchive = async () => {
-    if (selectedProjects.length === 0) return
-    
-    setBulkOperationLoading(true)
-    try {
-      const promises = selectedProjects.map(id => 
-        fetch(`/api/projects/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'Lưu trữ' })
-        })
-      )
-      
-      await Promise.all(promises)
-      toast.success(`Đã lưu trữ ${selectedProjects.length} dự án!`)
-      setSelectedProjects([])
-      setSelectAll(false)
-      fetchProjects()
-    } catch (error) {
-      console.error('Error bulk archiving:', error)
-      toast.error('Có lỗi xảy ra khi lưu trữ dự án')
-    } finally {
-      setBulkOperationLoading(false)
-    }
+    // Implement bulk archive
   }
 
   const handleBulkDelete = async () => {
-    if (selectedProjects.length === 0) return
-    if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedProjects.length} dự án đã chọn?`)) return
-    
-    setBulkOperationLoading(true)
-    try {
-      const promises = selectedProjects.map(id => 
-        fetch(`/api/projects/${id}`, { method: 'DELETE' })
-      )
-      
-      await Promise.all(promises)
-      toast.success(`Đã xóa ${selectedProjects.length} dự án!`)
-      setSelectedProjects([])
-      setSelectAll(false)
-      fetchProjects()
-    } catch (error) {
-      console.error('Error bulk deleting:', error)
-      toast.error('Có lỗi xảy ra khi xóa dự án')
-    } finally {
-      setBulkOperationLoading(false)
-    }
+    // Implement bulk delete
   }
 
   const handleExportProjects = () => {
@@ -392,10 +255,10 @@ export default function InternalProjectsPage() {
       ['Tên dự án', 'Trạng thái', 'Tiến độ', 'Ngân sách', 'Đã chi', 'Ngày bắt đầu', 'Ngày kết thúc'],
       ...filteredProjects.map(project => [
         project.name,
-        project.status,
+        getStatusName(project.project_status_id),
         `${project.progress || 0}%`,
-        formatCurrency(project.budget || 0),
-        formatCurrency(project.spent || 0),
+        formatCurrency(parseFloat(project.budget) || 0),
+        formatCurrency(parseFloat(project.spent) || 0),
         formatDate(project.start_date),
         formatDate(project.end_date)
       ])
@@ -427,10 +290,14 @@ export default function InternalProjectsPage() {
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (project.company_name && project.company_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (project.manager_name && project.manager_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesStatus = selectedStatus === "Tất cả" || project.status === selectedStatus
-    return matchesSearch && matchesStatus
+      (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (project.client_name && project.client_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesStatus = selectedStatus === "all" || project.project_status_id === parseInt(selectedStatus)
+    
+    const matchesCompany = selectedCompany === "all" || project.company_id === parseInt(selectedCompany)
+    
+    return matchesSearch && matchesStatus && matchesCompany
   })
 
   // Pagination with custom hook
@@ -501,11 +368,10 @@ export default function InternalProjectsPage() {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-5 w-5" />
             <Input
-              placeholder="Tìm kiếm dự án theo tên, công ty, quản lý..."
+              placeholder="Tìm kiếm dự án theo tên, mô tả, khách hàng..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1)
               }}
               className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
             />
@@ -527,15 +393,15 @@ export default function InternalProjectsPage() {
           
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[180px]">
-              <SelectValue />
+              <SelectValue placeholder="Trạng thái" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Tất cả">Tất cả trạng thái</SelectItem>
-              <SelectItem value="Nghiên cứu">Nghiên cứu</SelectItem>
-              <SelectItem value="Đang phát triển">Đang phát triển</SelectItem>
-              <SelectItem value="Beta Testing">Beta Testing</SelectItem>
-              <SelectItem value="Hoàn thành">Hoàn thành</SelectItem>
-              <SelectItem value="Tạm dừng">Tạm dừng</SelectItem>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              {statusProject.map((status) => (
+                <SelectItem key={status.id} value={status.id}>
+                  {status.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           
@@ -544,7 +410,7 @@ export default function InternalProjectsPage() {
             className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
             onClick={() => {
               setSearchTerm("")
-              setSelectedStatus("Tất cả")
+              setSelectedStatus("all")
               setSelectedCompany("all")
             }}
           >
@@ -557,11 +423,12 @@ export default function InternalProjectsPage() {
         <div className="flex flex-wrap gap-2 mb-6">
           <span className="text-white/60 text-sm self-center mr-2">Lọc nhanh:</span>
           {[
-            { label: "Tất cả", value: "Tất cả", count: projects.length },
-            { label: "Đang phát triển", value: "Đang phát triển", count: projects.filter(p => p.status === "Đang phát triển").length },
-            { label: "Hoàn thành", value: "Hoàn thành", count: projects.filter(p => p.status === "Hoàn thành").length },
-            { label: "Tạm dừng", value: "Tạm dừng", count: projects.filter(p => p.status === "Tạm dừng").length },
-            { label: "Nghiên cứu", value: "Nghiên cứu", count: projects.filter(p => p.status === "Nghiên cứu").length }
+            { label: "Tất cả", value: "all", count: projects.length },
+            ...statusProject.map((status) => ({
+              label: status.name,
+              value: status.id,
+              count: projects.filter((p) => p.project_status_id === parseInt(status.id)).length,
+            })),
           ].map((filter) => (
             <Button
               key={filter.value}
@@ -727,7 +594,7 @@ export default function InternalProjectsPage() {
                       <Checkbox
                         checked={selectedProjects.includes(project.id)}
                         onCheckedChange={(checked) => handleSelectProject(project.id, checked)}
-                        className="border-white/30"
+                        className="border-white/30 mt-1"
                       />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -748,11 +615,11 @@ export default function InternalProjectsPage() {
                             <Copy className="h-4 w-4 mr-2" />
                             Sao chép
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleQuickStatusUpdate(project.id, 'Đang phát triển')} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem onClick={() => handleQuickStatusUpdate(project.id, 2)} className="text-white hover:bg-white/10">
                             <Play className="h-4 w-4 mr-2" />
                             Bắt đầu
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleQuickStatusUpdate(project.id, 'Tạm dừng')} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem onClick={() => handleQuickStatusUpdate(project.id, 3)} className="text-white hover:bg-white/10">
                             <Pause className="h-4 w-4 mr-2" />
                             Tạm dừng
                           </DropdownMenuItem>
@@ -773,26 +640,34 @@ export default function InternalProjectsPage() {
                         <div>
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-xl font-bold text-white">{project.name}</h3>
-                            <Badge className={`${getCompanyColor(project.company_name)} border`}>
-                              {project.company_name}
-                            </Badge>
+                            {companies.find(c => c.id === project.company_id) && (
+                              <Badge className={`${getCompanyColor(companies.find(c => c.id === project.company_id)?.name || '')} border`}>
+                                {companies.find(c => c.id === project.company_id)?.name}
+                              </Badge>
+                            )}
                           </div>
-                          <p className="text-white/80 mb-3">{project.description}</p>
+                          <p className="text-white/80 mb-3">{project.description || 'Chưa có mô tả'}</p>
                           <div className="flex items-center space-x-4 text-white/60 text-sm">
                             <span className="flex items-center">
                               <Users className="h-4 w-4 mr-1" />
-                              {project.manager_name || 'Chưa phân công'}
+                              {project.members?.length || 0} thành viên
                             </span>
-                            <span className="flex items-center">
-                              <Users className="h-4 w-4 mr-1" />
-                              {project.team_size || 0} thành viên
-                            </span>
+                            {project.team_size > 0 && (
+                              <span className="flex items-center">
+                                <Target className="h-4 w-4 mr-1" />
+                                Quy mô: {project.team_size}
+                              </span>
+                            )}
                           </div>
                         </div>
 
                         <div className="flex items-center space-x-3">
-                          <Badge className={getStatusColor(project.status)}>{project.status}</Badge>
-                          <Badge className={`${getPriorityColor(project.priority)} border`}>{project.priority}</Badge>
+                          <Badge className={getStatusColor(project.project_status_id)}>
+                            {getStatusName(project.project_status_id)}
+                          </Badge>
+                          <Badge className={`${getPriorityColor(project.priority)} border`}>
+                            {getPriorityLabel(project.priority)}
+                          </Badge>
                         </div>
 
                         {/* Progress */}
@@ -831,11 +706,11 @@ export default function InternalProjectsPage() {
                           <div className="text-white text-sm space-y-1">
                             <div className="flex items-center">
                               <DollarSign className="h-4 w-4 mr-2 text-green-400" />
-                              <span>Tổng: {formatCurrency(project.budget || 0)}</span>
+                              <span>Tổng: {formatCurrency(parseFloat(project.budget) || 0)}</span>
                             </div>
                             <div className="flex items-center">
                               <DollarSign className="h-4 w-4 mr-2 text-red-400" />
-                              <span>Đã chi: {formatCurrency(project.spent || 0)}</span>
+                              <span>Đã chi: {formatCurrency(parseFloat(project.spent) || 0)}</span>
                             </div>
                           </div>
                         </div>
@@ -892,8 +767,6 @@ export default function InternalProjectsPage() {
           </div>
         )}
 
-
-
         {/* Quick Actions */}
         <div className="mt-12">
           <h3 className="text-xl font-bold text-white mb-6">Thao Tác Nhanh</h3>
@@ -939,7 +812,7 @@ export default function InternalProjectsPage() {
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
-            fetchProjects() // Refresh projects list
+            dispatch(listProjects() as any)
           }}
         />
 
@@ -953,7 +826,7 @@ export default function InternalProjectsPage() {
           isOpen={showImportModal}
           onClose={() => setShowImportModal(false)}
           onSuccess={() => {
-            fetchProjects() // Refresh projects list
+            dispatch(listProjects() as any)
             setShowImportModal(false)
           }}
         />

@@ -57,11 +57,7 @@ const cardGridClass = "grid gap-4 sm:gap-6 lg:gap-8"
 const gradientRingClass = "absolute inset-0 rounded-3xl bg-gradient-to-br from-red-100/60 via-white to-purple-100/60 blur-0"
 const metricValueClass = "text-2xl font-semibold text-gray-900"
 
-// Use dynamic content from database, fallback to defaults
-const infoHighlights = homeContent.infoHighlights.length > 0 ? homeContent.infoHighlights.map(item => ({
-  ...item,
-  icon: getServiceIcon(item.icon)
-})) : [
+const defaultInfoHighlights = [
   {
     icon: Building2,
     title: "Quy mô & Vốn hóa",
@@ -93,10 +89,7 @@ const infoHighlights = homeContent.infoHighlights.length > 0 ? homeContent.infoH
   }
 ]
 
-const quickFacts = homeContent.quickFacts.length > 0 ? homeContent.quickFacts.map(item => ({
-  ...item,
-  icon: getServiceIcon(item.icon)
-})) : [
+const defaultQuickFacts = [
   {
     icon: History,
     label: "2004 - 2024",
@@ -123,10 +116,7 @@ const quickFacts = homeContent.quickFacts.length > 0 ? homeContent.quickFacts.ma
   }
 ]
 
-const valuePillars = homeContent.valuePillars.length > 0 ? homeContent.valuePillars.map(item => ({
-  ...item,
-  icon: getServiceIcon(item.icon)
-})) : [
+const defaultValuePillars = [
   {
     icon: Target,
     title: "Tầm Nhìn",
@@ -153,10 +143,7 @@ const valuePillars = homeContent.valuePillars.length > 0 ? homeContent.valuePill
   }
 ]
 
-const careerBenefits = homeContent.careerBenefits.length > 0 ? homeContent.careerBenefits.map(item => ({
-  ...item,
-  icon: getServiceIcon(item.icon)
-})) : [
+const defaultCareerBenefits = [
   {
     icon: Heart,
     title: "Môi trường tuyệt vời",
@@ -183,7 +170,7 @@ const careerBenefits = homeContent.careerBenefits.length > 0 ? homeContent.caree
   }
 ]
 
-const ctaMetrics = homeContent.ctaMetrics.length > 0 ? homeContent.ctaMetrics : [
+const defaultCtaMetrics = [
   { value: "5+", label: "Công ty thành viên" },
   { value: "100+", label: "Dự án thành công" },
   { value: "1000+", label: "Khách hàng tin tưởng" },
@@ -278,6 +265,41 @@ export default async function HomePage() {
     console.error('Error fetching home content:', error)
     // Use default values if API fails
   }
+
+  // Process array-based sections
+  const infoHighlights = homeContent.infoHighlights.length > 0 ? homeContent.infoHighlights.map(item => ({
+    ...item,
+    icon: getServiceIcon(item.icon)
+  })) : defaultInfoHighlights.map(item => ({
+    ...item,
+    icon: item.icon
+  }))
+
+  const quickFacts = homeContent.quickFacts.length > 0 ? homeContent.quickFacts.map(item => ({
+    ...item,
+    icon: getServiceIcon(item.icon)
+  })) : defaultQuickFacts.map(item => ({
+    ...item,
+    icon: item.icon
+  }))
+
+  const valuePillars = homeContent.valuePillars.length > 0 ? homeContent.valuePillars.map(item => ({
+    ...item,
+    icon: getServiceIcon(item.icon)
+  })) : defaultValuePillars.map(item => ({
+    ...item,
+    icon: item.icon
+  }))
+
+  const careerBenefits = homeContent.careerBenefits.length > 0 ? homeContent.careerBenefits.map(item => ({
+    ...item,
+    icon: getServiceIcon(item.icon)
+  })) : defaultCareerBenefits.map(item => ({
+    ...item,
+    icon: item.icon
+  }))
+
+  const ctaMetrics = homeContent.ctaMetrics.length > 0 ? homeContent.ctaMetrics : defaultCtaMetrics
 
   return (
     <div className="min-h-screen bg-white text-black">

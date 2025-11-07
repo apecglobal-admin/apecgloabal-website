@@ -31,7 +31,7 @@ export default function AdminRedirect() {
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <p className="text-white/70">
-            Phần quản trị đã được tích hợp vào cổng nội bộ. 
+            Phần quản trị đã được tích hợp vào CMS. 
             Bạn sẽ được chuyển hướng tự động...
           </p>
           <div className="space-y-3">
@@ -39,7 +39,7 @@ export default function AdminRedirect() {
               onClick={() => router.push('/cms')}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white"
             >
-              Đi tới Cổng Nội Bộ
+              Đi tới CMS
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
             <p className="text-sm text-white/50">

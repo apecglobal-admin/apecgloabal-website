@@ -110,7 +110,7 @@ export default function InternalPortal() {
       
       // Kiểm tra quyền truy cập portal
       if (!data.user.permissions?.portal_access) {
-        throw new Error("Bạn không có quyền truy cập cổng nội bộ");
+        throw new Error("Bạn không có quyền truy cập CMS");
       }
       
       // Lưu trạng thái đăng nhập vào localStorage (cho khả năng tương thích ngược)

@@ -57,7 +57,11 @@ const cardGridClass = "grid gap-4 sm:gap-6 lg:gap-8"
 const gradientRingClass = "absolute inset-0 rounded-3xl bg-gradient-to-br from-red-100/60 via-white to-purple-100/60 blur-0"
 const metricValueClass = "text-2xl font-semibold text-gray-900"
 
-const infoHighlights = [
+// Use dynamic content from database, fallback to defaults
+const infoHighlights = homeContent.infoHighlights.length > 0 ? homeContent.infoHighlights.map(item => ({
+  ...item,
+  icon: getServiceIcon(item.icon)
+})) : [
   {
     icon: Building2,
     title: "Quy mô & Vốn hóa",
@@ -89,7 +93,10 @@ const infoHighlights = [
   }
 ]
 
-const quickFacts = [
+const quickFacts = homeContent.quickFacts.length > 0 ? homeContent.quickFacts.map(item => ({
+  ...item,
+  icon: getServiceIcon(item.icon)
+})) : [
   {
     icon: History,
     label: "2004 - 2024",
@@ -116,7 +123,10 @@ const quickFacts = [
   }
 ]
 
-const valuePillars = [
+const valuePillars = homeContent.valuePillars.length > 0 ? homeContent.valuePillars.map(item => ({
+  ...item,
+  icon: getServiceIcon(item.icon)
+})) : [
   {
     icon: Target,
     title: "Tầm Nhìn",
@@ -143,7 +153,10 @@ const valuePillars = [
   }
 ]
 
-const careerBenefits = [
+const careerBenefits = homeContent.careerBenefits.length > 0 ? homeContent.careerBenefits.map(item => ({
+  ...item,
+  icon: getServiceIcon(item.icon)
+})) : [
   {
     icon: Heart,
     title: "Môi trường tuyệt vời",
@@ -170,7 +183,7 @@ const careerBenefits = [
   }
 ]
 
-const ctaMetrics = [
+const ctaMetrics = homeContent.ctaMetrics.length > 0 ? homeContent.ctaMetrics : [
   { value: "5+", label: "Công ty thành viên" },
   { value: "100+", label: "Dự án thành công" },
   { value: "1000+", label: "Khách hàng tin tưởng" },
@@ -208,13 +221,25 @@ export const dynamic = 'force-dynamic'
 export default async function HomePage() {
   let dbProjects = []
   let dbServices = []
-  
+  let homeContent = {
+    infoHighlights: [],
+    quickFacts: [],
+    valuePillars: [],
+    careerBenefits: [],
+    ctaMetrics: [],
+    introSection: {},
+    techShowcaseSection: {},
+    servicesSection: {},
+    companyOverviewSection: {},
+    ctaSection: {}
+  }
+
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
     const projectsResponse = await fetch(`${baseUrl}/api/projects`, {
       cache: 'no-store'
     })
-    
+
     if (projectsResponse.ok) {
       const projectsResult = await projectsResponse.json()
       dbProjects = projectsResult.success ? projectsResult.data : projectsResult
@@ -237,6 +262,23 @@ export default async function HomePage() {
     dbServices = []
   }
 
+  // Fetch home content from database
+  try {
+    const homeContentResponse = await fetch(`${baseUrl}/api/home-content`, {
+      cache: 'no-store'
+    })
+
+    if (homeContentResponse.ok) {
+      const homeContentResult = await homeContentResponse.json()
+      if (homeContentResult.success) {
+        homeContent = homeContentResult.data
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching home content:', error)
+    // Use default values if API fails
+  }
+
   return (
     <div className="min-h-screen bg-white text-black">
       <Header />
@@ -257,31 +299,32 @@ export default async function HomePage() {
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-red-100/20 rounded-full blur-3xl -z-0"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-0"></div>
-        
+
         <div className="container-standard relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="space-y-8">
-              <div className={`${badgeClass} bg-gradient-to-r from-red-100 to-red-50 text-red-700 w-fit shadow-sm`}>                      
+              <div className={`${badgeClass} bg-gradient-to-r from-red-100 to-red-50 text-red-700 w-fit shadow-sm`}>
                 <Building2 className="w-4 h-4 mr-2" />
-                Về Chúng Tôi
+                {homeContent.introSection?.badge || "Về Chúng Tôi"}
               </div>
-              
+
               <div className="space-y-4">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-gray-900">
-                  Kiến tạo hệ sinh thái{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">
-                    Công nghệ - Thương mại - Cộng đồng
-                  </span>
+                  {homeContent.introSection?.heading || "Kiến tạo hệ sinh thái Công nghệ - Thương mại - Cộng đồng"}
                 </h2>
-                
+
                 <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full"></div>
               </div>
-              
+
               <p className="text-lg text-gray-600 leading-relaxed">
-                <span className="font-semibold text-gray-900">Tập Đoàn Kinh Tế ApecGlobal</span> với slogan{" "}
-                <span className="text-red-600 font-semibold italic">"Kiến Tạo Giá Trị - Làm Chủ Tương Lai"</span>{" "}
-                hướng tới nền kinh tế tuần hoàn bền vững, kết nối doanh nghiệp và cộng đồng
-                thông qua chuyển đổi số, thương mại thông minh và chuỗi giá trị nhân văn.
+                {homeContent.introSection?.description || (
+                  <>
+                    <span className="font-semibold text-gray-900">Tập Đoàn Kinh Tế ApecGlobal</span> với slogan{" "}
+                    <span className="text-red-600 font-semibold italic">"Kiến Tạo Giá Trị - Làm Chủ Tương Lai"</span>{" "}
+                    hướng tới nền kinh tế tuần hoàn bền vững, kết nối doanh nghiệp và cộng đồng
+                    thông qua chuyển đổi số, thương mại thông minh và chuỗi giá trị nhân văn.
+                  </>
+                )}
               </p>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -410,14 +453,18 @@ export default async function HomePage() {
             <div className="text-center mb-16">
               <div className={`${badgeClass} bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 mx-auto w-fit shadow-sm mb-4`}>
                 <Cpu className="w-4 h-4 mr-2" />
-                Công Nghệ Của Chúng Tôi
+                {homeContent.techShowcaseSection?.badge || "Công Nghệ Của Chúng Tôi"}
               </div>
               <h2 className={sectionHeadingClass}>
-                Giải pháp <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">đột phá cho chuyển đổi số</span>
+                {homeContent.techShowcaseSection?.heading || (
+                  <>
+                    Giải pháp <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">đột phá cho chuyển đổi số</span>
+                  </>
+                )}
               </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full mx-auto mt-4 mb-6"></div>
               <p className={sectionDescriptionClass}>
-                Chúng tôi xây dựng hệ sinh thái giải pháp toàn diện từ chiến lược, thiết kế tới vận hành, giúp doanh nghiệp tăng tốc chuyển đổi số bền vững.
+                {homeContent.techShowcaseSection?.description || "Chúng tôi xây dựng hệ sinh thái giải pháp toàn diện từ chiến lược, thiết kế tới vận hành, giúp doanh nghiệp tăng tốc chuyển đổi số bền vững."}
               </p>
             </div>
             <div className={`${cardGridClass} grid-cols-2 lg:grid-cols-4`}>
@@ -497,15 +544,18 @@ export default async function HomePage() {
             <div className="text-center mb-16">
               <div className={`${badgeClass} bg-gradient-to-r from-green-100 to-green-50 text-green-700 mx-auto w-fit shadow-sm mb-4`}>
                 <Settings className="w-4 h-4 mr-2" />
-                Dịch Vụ Của Chúng Tôi
+                {homeContent.servicesSection?.badge || "Dịch Vụ Của Chúng Tôi"}
               </div>
               <h2 className={sectionHeadingClass}>
-                Giải pháp <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">Toàn diện</span>
+                {homeContent.servicesSection?.heading || (
+                  <>
+                    Giải pháp <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">Toàn diện</span>
+                  </>
+                )}
               </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full mx-auto mt-4 mb-6"></div>
               <p className={sectionDescriptionClass}>
-                Từ ý tưởng đến sản phẩm hoàn thiện, chúng tôi đồng hành cùng bạn trong mọi giai đoạn 
-                phát triển công nghệ với đội ngũ chuyên gia giàu kinh nghiệm.
+                {homeContent.servicesSection?.description || "Từ ý tưởng đến sản phẩm hoàn thiện, chúng tôi đồng hành cùng bạn trong mọi giai đoạn phát triển công nghệ với đội ngũ chuyên gia giàu kinh nghiệm."}
               </p>
             </div>
             
@@ -613,19 +663,23 @@ export default async function HomePage() {
         <section className="section-standard bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-96 h-96 bg-purple-100/20 rounded-full blur-3xl -z-0"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl -z-0"></div>
-          
+
           <div className="container-standard relative z-10">
             <div className="text-center mb-16">
               <div className={`${badgeClass} bg-gradient-to-r from-purple-100 to-purple-50 text-purple-700 mx-auto w-fit shadow-sm mb-4`}>
                 <Crown className="w-4 h-4 mr-2" />
-                Giá Trị Cốt Lõi
+                {homeContent.companyOverviewSection?.badge || "Giá Trị Cốt Lõi"}
               </div>
               <h2 className={sectionHeadingClass}>
-                Tại sao chọn <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">ApecGlobal</span>?
+                {homeContent.companyOverviewSection?.heading || (
+                  <>
+                    Tại sao chọn <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">ApecGlobal</span>?
+                  </>
+                )}
               </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full mx-auto mt-4 mb-6"></div>
               <p className={sectionDescriptionClass}>
-                Hệ sinh thái đồng bộ từ tài chính, công nghệ đến thương mại giúp doanh nghiệp phát triển bền vững.
+                {homeContent.companyOverviewSection?.description || "Hệ sinh thái đồng bộ từ tài chính, công nghệ đến thương mại giúp doanh nghiệp phát triển bền vững."}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -665,20 +719,28 @@ export default async function HomePage() {
           <div className="container mx-auto relative z-10 text-center">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white">
-                Sẵn Sàng Cho <span className="text-yellow-300">Tương Lai</span>?
+                {homeContent.ctaSection?.heading || (
+                  <>
+                    Sẵn Sàng Cho <span className="text-yellow-300">Tương Lai</span>?
+                  </>
+                )}
               </h2>
               <p className="text-xl sm:text-2xl text-white/90 mb-8 leading-relaxed">
-                Hãy cùng ApecGlobal tạo ra những <span className="font-semibold text-yellow-300">giải pháp công nghệ đột phá</span>, định hình tương lai số cho doanh nghiệp của bạn.
+                {homeContent.ctaSection?.description || (
+                  <>
+                    Hãy cùng ApecGlobal tạo ra những <span className="font-semibold text-yellow-300">giải pháp công nghệ đột phá</span>, định hình tương lai số cho doanh nghiệp của bạn.
+                  </>
+                )}
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                 <Link href="/contact" className="px-8 py-4 bg-white hover:bg-gray-50 text-red-600 text-lg font-bold rounded-full hover:scale-110 transform transition-all duration-300 shadow-2xl min-w-[200px] text-center inline-flex items-center justify-center gap-2">
-                  Bắt Đầu Ngay
+                  {homeContent.ctaSection?.primaryButton || "Bắt Đầu Ngay"}
                   <Rocket className="h-6 w-6" />
                 </Link>
-                
+
                 <Link href="/about" className="px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-red-600 text-lg font-bold rounded-full hover:scale-110 transform transition-all duration-300 shadow-2xl min-w-[200px] text-center inline-flex items-center justify-center gap-2">
-                  Tìm Hiểu Thêm
+                  {homeContent.ctaSection?.secondaryButton || "Tìm Hiểu Thêm"}
                   <ArrowRight className="h-6 w-6" />
                 </Link>
               </div>

@@ -35,7 +35,7 @@ export default function Homepage() {
                   : "text-white/70 hover:text-white"
               }`}
             >
-              🔒 Cổng Nội Bộ
+              🔒 CMS
             </button>
           </div>
         </div>

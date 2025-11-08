@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 
 // Khởi tạo kết nối PostgreSQL
-const connectionString = process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_j3mTncOHAh5Z@ep-wispy-pine-a1vklngi-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_j3mTncOHAh5Z@ep-wispy-pine-a1vklngi-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
 // Tạo pool connection chỉ ở phía server
 let pool: Pool;
 
@@ -383,6 +383,195 @@ export async function updateHomeContent(section: string, content: any) {
     return result.rows[0];
   } catch (error) {
     console.log('Error updating home content:', error);
+    throw error;
+  }
+}
+
+// Client Overflow Content functions
+
+// Hàm lấy tất cả nội dung client overflow
+export async function getAllClientOverflowContent() {
+  try {
+    const result = await query(`
+      SELECT * FROM client_overflow_content
+      WHERE is_active = true
+      ORDER BY display_order ASC, created_at DESC
+    `);
+    return result.rows;
+  } catch (error) {
+    console.log('Error getting all client overflow content, returning empty array:', error);
+    return [];
+  }
+}
+
+// Hàm lấy nội dung client overflow theo ID
+export async function getClientOverflowContentById(id: number) {
+  try {
+    const result = await query('SELECT * FROM client_overflow_content WHERE id = $1', [id]);
+    return result.rows[0] || null;
+  } catch (error) {
+    console.log('Error getting client overflow content by id, returning null:', error);
+    return null;
+  }
+}
+
+// Hàm lấy nội dung client overflow nổi bật
+export async function getFeaturedClientOverflowContent(limit = 6) {
+  try {
+    const result = await query(`
+      SELECT * FROM client_overflow_content
+      WHERE is_featured = true AND is_active = true
+      ORDER BY display_order ASC, created_at DESC
+      LIMIT $1
+    `, [limit]);
+    return result.rows;
+  } catch (error) {
+    console.log('Error getting featured client overflow content, returning empty array:', error);
+    return [];
+  }
+}
+
+// Hàm tạo nội dung client overflow mới
+export async function createClientOverflowContent(data: {
+  title: string;
+  content?: string;
+  client_name?: string;
+  client_position?: string;
+  client_company?: string;
+  client_image_url?: string;
+  rating?: number;
+  category?: string;
+  is_featured?: boolean;
+  display_order?: number;
+}) {
+  try {
+    const result = await query(`
+      INSERT INTO client_overflow_content (
+        title, content, client_name, client_position, client_company,
+        client_image_url, rating, category, is_featured, display_order
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING *
+    `, [
+      data.title,
+      data.content || null,
+      data.client_name || null,
+      data.client_position || null,
+      data.client_company || null,
+      data.client_image_url || null,
+      data.rating || null,
+      data.category || null,
+      data.is_featured || false,
+      data.display_order || 0
+    ]);
+    return result.rows[0];
+  } catch (error) {
+    console.log('Error creating client overflow content:', error);
+    throw error;
+  }
+}
+
+// Hàm cập nhật nội dung client overflow
+export async function updateClientOverflowContent(id: number, data: {
+  title?: string;
+  content?: string;
+  client_name?: string;
+  client_position?: string;
+  client_company?: string;
+  client_image_url?: string;
+  rating?: number;
+  category?: string;
+  is_featured?: boolean;
+  display_order?: number;
+  is_active?: boolean;
+}) {
+  try {
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (data.title !== undefined) {
+      updateFields.push(`title = $${paramIndex}`);
+      values.push(data.title);
+      paramIndex++;
+    }
+    if (data.content !== undefined) {
+      updateFields.push(`content = $${paramIndex}`);
+      values.push(data.content);
+      paramIndex++;
+    }
+    if (data.client_name !== undefined) {
+      updateFields.push(`client_name = $${paramIndex}`);
+      values.push(data.client_name);
+      paramIndex++;
+    }
+    if (data.client_position !== undefined) {
+      updateFields.push(`client_position = $${paramIndex}`);
+      values.push(data.client_position);
+      paramIndex++;
+    }
+    if (data.client_company !== undefined) {
+      updateFields.push(`client_company = $${paramIndex}`);
+      values.push(data.client_company);
+      paramIndex++;
+    }
+    if (data.client_image_url !== undefined) {
+      updateFields.push(`client_image_url = $${paramIndex}`);
+      values.push(data.client_image_url);
+      paramIndex++;
+    }
+    if (data.rating !== undefined) {
+      updateFields.push(`rating = $${paramIndex}`);
+      values.push(data.rating);
+      paramIndex++;
+    }
+    if (data.category !== undefined) {
+      updateFields.push(`category = $${paramIndex}`);
+      values.push(data.category);
+      paramIndex++;
+    }
+    if (data.is_featured !== undefined) {
+      updateFields.push(`is_featured = $${paramIndex}`);
+      values.push(data.is_featured);
+      paramIndex++;
+    }
+    if (data.display_order !== undefined) {
+      updateFields.push(`display_order = $${paramIndex}`);
+      values.push(data.display_order);
+      paramIndex++;
+    }
+    if (data.is_active !== undefined) {
+      updateFields.push(`is_active = $${paramIndex}`);
+      values.push(data.is_active);
+      paramIndex++;
+    }
+
+    if (updateFields.length === 0) {
+      throw new Error('No fields to update');
+    }
+
+    values.push(id);
+
+    const result = await query(`
+      UPDATE client_overflow_content
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramIndex}
+      RETURNING *
+    `, values);
+
+    return result.rows[0] || null;
+  } catch (error) {
+    console.log('Error updating client overflow content:', error);
+    throw error;
+  }
+}
+
+// Hàm xóa nội dung client overflow
+export async function deleteClientOverflowContent(id: number) {
+  try {
+    const result = await query('DELETE FROM client_overflow_content WHERE id = $1 RETURNING *', [id]);
+    return result.rows[0] || null;
+  } catch (error) {
+    console.log('Error deleting client overflow content:', error);
     throw error;
   }
 }

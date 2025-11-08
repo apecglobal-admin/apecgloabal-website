@@ -20,7 +20,13 @@ import {
   Star,
   Target,
   Briefcase,
-  BarChart3
+  BarChart3,
+  Building2,
+  Cpu,
+  Settings,
+  Crown,
+  Rocket,
+  MessageSquare
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -29,6 +35,7 @@ interface HomeContentData {
   quickFacts: any[]
   valuePillars: any[]
   careerBenefits: any[]
+  clientOverflowSection: any
   ctaMetrics: any[]
   introSection: any
   techShowcaseSection: any
@@ -57,6 +64,11 @@ const SECTION_CONFIGS = {
     title: "Lợi ích nghề nghiệp",
     icon: Briefcase,
     description: "Các lợi ích khi làm việc tại công ty"
+  },
+  clientOverflowSection: {
+    title: "Nội dung Client Overflow",
+    icon: MessageSquare,
+    description: "Testimonials và feedback từ khách hàng"
   },
   ctaMetrics: {
     title: "Thống kê CTA",
@@ -96,6 +108,7 @@ export default function HomeContentPage() {
     quickFacts: [],
     valuePillars: [],
     careerBenefits: [],
+    clientOverflowSection: {},
     ctaMetrics: [],
     introSection: {},
     techShowcaseSection: {},
@@ -606,6 +619,52 @@ export default function HomeContentPage() {
                               placeholder="Ví dụ: Tìm Hiểu Thêm"
                             />
                           </div>
+                        </div>
+                      </>
+                    )}
+
+                    {editingSection === 'clientOverflowSection' && (
+                      <>
+                        <div>
+                          <Label htmlFor="overflow-badge">Badge</Label>
+                          <Input
+                            id="overflow-badge"
+                            value={editData.badge || ''}
+                            onChange={(e) => setEditData({ ...editData, badge: e.target.value })}
+                            placeholder="Ví dụ: Khách Hàng Nói Gì"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="overflow-heading">Tiêu đề</Label>
+                          <Textarea
+                            id="overflow-heading"
+                            value={editData.heading || ''}
+                            onChange={(e) => setEditData({ ...editData, heading: e.target.value })}
+                            placeholder="Ví dụ: Những gì khách hàng của chúng tôi nói"
+                            rows={2}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="overflow-description">Mô tả</Label>
+                          <Textarea
+                            id="overflow-description"
+                            value={editData.description || ''}
+                            onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                            placeholder="Mô tả về phần testimonials"
+                            rows={3}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="overflow-limit">Số lượng hiển thị</Label>
+                          <Input
+                            id="overflow-limit"
+                            type="number"
+                            value={editData.limit || 6}
+                            onChange={(e) => setEditData({ ...editData, limit: parseInt(e.target.value) || 6 })}
+                            placeholder="Số lượng testimonials hiển thị (mặc định: 6)"
+                            min={1}
+                            max={20}
+                          />
                         </div>
                       </>
                     )}

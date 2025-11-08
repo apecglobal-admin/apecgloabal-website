@@ -4,8 +4,10 @@ import departmentReducer from "./features/department/departmentSlice";
 import positionReducer from "./features/position/positionSlice";
 import projectReducer from "./features/project/projectSlice";
 import companyReducer from "./features/company/companySlice";
+import authReducer from "./features/auth/authSlice";
 const store = configureStore({
   reducer: {
+    auth: authReducer,
     employee: employeeReducer, 
     department: departmentReducer,
     position: positionReducer, 

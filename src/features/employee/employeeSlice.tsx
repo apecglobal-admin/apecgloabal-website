@@ -11,6 +11,7 @@ const employeeSlice = createSlice({
     employeeById: null,
     loading: false,
     error: null,
+    status: "idle"
   },
   reducers: {
     
@@ -19,56 +20,67 @@ const employeeSlice = createSlice({
     builder
        .addCase(listEmployee.pending, (state) => {
         state.loading = true;
+        state.status = "loading"
         state.error = null;
       })
 
       .addCase(listEmployee.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = "succeeded"
         state.employees = action.payload;
       })
 
       .addCase(listSkill.pending, (state) => {
         state.loading = true;
+        state.status = "loading"
         state.error = null;
       })
 
       .addCase(listSkill.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = "succeeded"
         state.skills = action.payload;
       })
 
       .addCase(listContact.pending, (state) => {
         state.loading = true;
+        state.status = "loading"
         state.error = null;
       })
 
       .addCase(listContact.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = "succeeded"
         state.contacts = action.payload;
       })
 
       .addCase(listManager.pending, (state) => {
         state.loading = true;
+        state.status = "loading"
         state.error = null;
       })
 
       .addCase(listManager.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = "succeeded"
         state.managers = action.payload;
       })
 
       .addCase(createOrUpdateEmployee.pending, (state) => {
         state.loading = true;
+        state.status = "loading"
         state.error = null;
       })
 
       .addCase(listEmployeeById.pending, (state) => {
         state.loading = true;
+        state.status = "loading"
         state.error = null;
       })
 
       .addCase(listEmployeeById.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = "succeeded"
         state.managers = action.payload;
       })
   },

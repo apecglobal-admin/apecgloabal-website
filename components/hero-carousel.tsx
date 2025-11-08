@@ -24,8 +24,8 @@ export default function HeroCarousel() {
       hoverGradient: "from-purple-700 to-blue-700"
     },
     secondaryButton: {
-      text: "Cổng Nội Bộ",
-      href: "/cms"
+      text: "Cổng nội bộ",
+      href: "https://apec-global-internal.vercel.app"
     }
   }
 
@@ -115,7 +115,7 @@ export default function HeroCarousel() {
 
             {/* Buttons desktop */}
             <div className="hidden lg:flex flex-row gap-4">
-              <Link href={heroData.primaryButton.href}>
+              <Link href={heroData.primaryButton.href} target="_blank" rel="noopener noreferrer">
                 <Button
                   className={`bg-gradient-to-r ${heroData.primaryButton.gradient} hover:${heroData.primaryButton.hoverGradient} text-white px-6 py-3 text-lg`}
                 >

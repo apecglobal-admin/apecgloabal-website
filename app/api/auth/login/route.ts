@@ -230,7 +230,7 @@ export async function POST(request: Request) {
     
     if (source === 'internal' && !permissions.portal_access) {
       return NextResponse.json(
-        { error: 'Bạn không có quyền truy cập cổng nội bộ' },
+        { error: 'Bạn không có quyền truy cập CMS' },
         { status: 403 }
       );
     }

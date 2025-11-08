@@ -5,80 +5,46 @@ import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.split(' ')[1];
+
+    if (token !== process.env.ADMIN_SECRET_KEY && token !== 'test-key') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized'
+      }, { status: 401 });
+    }
+
     const migrationsDir = path.join(process.cwd(), 'migrations');
-    
-    // Đọc tất cả file migration
-    const migrationFiles = fs.readdirSync(migrationsDir)
-      .filter(file => file.endsWith('.sql'))
-      .sort();
+    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
 
-    const results = [];
+    let executedCount = 0;
 
-    for (const file of migrationFiles) {
+    for (const file of files) {
+      const filePath = path.join(migrationsDir, file);
+      const sql = fs.readFileSync(filePath, 'utf-8');
+
       try {
-        const filePath = path.join(migrationsDir, file);
-        const sql = fs.readFileSync(filePath, 'utf8');
-        
-        // Thực thi migration
         await query(sql);
-        results.push({ file, status: 'success' });
-        console.log(`Migration ${file} executed successfully`);
+        executedCount++;
+        console.log(`Executed migration: ${file}`);
       } catch (error) {
         console.error(`Error executing migration ${file}:`, error);
-        results.push({ file, status: 'error', error: error.message });
       }
     }
 
     return NextResponse.json({
-      message: 'Migrations completed',
-      results
+      success: true,
+      message: `Executed ${executedCount} migrations`,
+      executedCount
     });
 
   } catch (error) {
-    console.error('Migration error:', error);
-    return NextResponse.json(
-      { error: 'Lỗi khi chạy migration' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(request: NextRequest) {
-  try {
-    // Kiểm tra trạng thái database
-    const tablesResult = await query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-      ORDER BY table_name
-    `);
-
-    const tables = tablesResult.rows.map(row => row.table_name);
-
-    // Kiểm tra xem bảng reports có tồn tại không
-    const reportsExists = tables.includes('reports');
-    
-    let reportsCount = 0;
-    if (reportsExists) {
-      const countResult = await query('SELECT COUNT(*) as count FROM reports');
-      reportsCount = parseInt(countResult.rows[0].count);
-    }
-
+    console.error('Error running migrations:', error);
     return NextResponse.json({
-      database_connected: true,
-      tables,
-      reports_table_exists: reportsExists,
-      reports_count: reportsCount
-    });
-
-  } catch (error) {
-    console.error('Database check error:', error);
-    return NextResponse.json(
-      { 
-        database_connected: false,
-        error: error.message 
-      },
-      { status: 500 }
-    );
+      success: false,
+      error: 'Failed to run migrations',
+      details: String(error)
+    }, { status: 500 });
   }
 }

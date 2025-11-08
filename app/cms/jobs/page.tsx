@@ -412,7 +412,7 @@ function JobsManagementContent() {
         <Link href="/cms">
           <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Cổng Nội Bộ
+            CMS
           </Button>
         </Link>
         <span className="text-white/40">/</span>

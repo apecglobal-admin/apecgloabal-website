@@ -331,7 +331,7 @@ export async function getProjectBySlug(slug: string) {
 export async function getRelatedProjects(projectId: number, companyId: number, limit = 3) {
   try {
     const result = await query(`
-      SELECT p.*, c.name as company_name, c.logo_url as company_logo 
+      SELECT p.*, c.name as company_name, c.logo_url as company_logo
       FROM projects p
       LEFT JOIN companies c ON p.company_id = c.id
       WHERE (p.company_id = $1 OR p.technologies && (
@@ -345,5 +345,44 @@ export async function getRelatedProjects(projectId: number, companyId: number, l
   } catch (error) {
     console.log('Error getting related projects, returning empty array:', error);
     return [];
+  }
+}
+
+// Hàm lấy nội dung trang chủ theo section
+export async function getHomeContent(section: string) {
+  try {
+    const result = await query('SELECT * FROM home_content WHERE section = $1', [section]);
+    return result.rows[0] || null;
+  } catch (error) {
+    console.log('Error getting home content, returning null:', error);
+    return null;
+  }
+}
+
+// Hàm lấy tất cả nội dung trang chủ
+export async function getAllHomeContent() {
+  try {
+    const result = await query('SELECT * FROM home_content ORDER BY section');
+    return result.rows;
+  } catch (error) {
+    console.log('Error getting all home content, returning empty array:', error);
+    return [];
+  }
+}
+
+// Hàm cập nhật nội dung trang chủ
+export async function updateHomeContent(section: string, content: any) {
+  try {
+    const result = await query(`
+      INSERT INTO home_content (section, content)
+      VALUES ($1, $2)
+      ON CONFLICT (section)
+      DO UPDATE SET content = EXCLUDED.content, updated_at = CURRENT_TIMESTAMP
+      RETURNING *
+    `, [section, JSON.stringify(content)]);
+    return result.rows[0];
+  } catch (error) {
+    console.log('Error updating home content:', error);
+    throw error;
   }
 }

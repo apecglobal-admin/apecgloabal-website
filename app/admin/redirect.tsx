@@ -12,7 +12,7 @@ export default function AdminRedirect() {
   useEffect(() => {
     // Tự động chuyển hướng sau 3 giây
     const timer = setTimeout(() => {
-      router.push('/internal');
+      router.push('/cms');
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -36,7 +36,7 @@ export default function AdminRedirect() {
           </p>
           <div className="space-y-3">
             <Button 
-              onClick={() => router.push('/internal')}
+              onClick={() => router.push('/cms')}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white"
             >
               Đi tới Cổng Nội Bộ

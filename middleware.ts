@@ -89,7 +89,7 @@ export function middleware(request: NextRequest) {
   }
   
   // Xử lý xác thực cho trang internal
-  if (pathname.startsWith('/internal/') && !pathname.includes('/internal/login')) {
+  if (pathname.startsWith('/cms/') && !pathname.includes('/cms/login')) {
     // Lấy cookie xác thực
     const authCookie = request.cookies.get('auth');
     const internalAuthCookie = request.cookies.get('internal_auth');
@@ -97,7 +97,7 @@ export function middleware(request: NextRequest) {
     // Nếu không có cookie xác thực, chuyển hướng đến trang đăng nhập
     if (!authCookie || !internalAuthCookie) {
       const url = request.nextUrl.clone();
-      url.pathname = '/internal';
+      url.pathname = '/cms';
       return NextResponse.redirect(url);
     }
     
@@ -106,13 +106,13 @@ export function middleware(request: NextRequest) {
       const authData = JSON.parse(authCookie.value);
       if (!authData.permissions?.portal_access) {
         const url = request.nextUrl.clone();
-        url.pathname = '/internal';
+        url.pathname = '/cms';
         return NextResponse.redirect(url);
       }
     } catch (error) {
       // Nếu không parse được JSON, chuyển hướng đến trang đăng nhập
       const url = request.nextUrl.clone();
-      url.pathname = '/internal';
+      url.pathname = '/cms';
       return NextResponse.redirect(url);
     }
   }
@@ -160,5 +160,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/internal/:path*', '/news/:path*'],
+  matcher: ['/admin/:path*', '/cms/:path*', '/news/:path*'],
 };

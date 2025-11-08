@@ -7,7 +7,7 @@ export default function CreateNewsRedirect() {
   const router = useRouter();
   
   useEffect(() => {
-    router.push('/internal/news/create');
+    router.push('/cms/news/create');
   }, [router]);
   
   return (

@@ -584,7 +584,9 @@ export default function InternalProjectsPage() {
                 </Button>
               </div>
             ) : (
-              paginatedProjects.map((project) => (
+              paginatedProjects
+              .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+              .map((project) => (
                 <Card
                   key={project.id}
                   className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"

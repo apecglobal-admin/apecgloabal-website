@@ -21,8 +21,11 @@ import {
   Database,
   Briefcase,
 } from "lucide-react"
+import { useDispatch } from "react-redux"
+import { loginCMS } from "@/src/features/auth/authApi"
 
 export default function InternalPortal() {
+  const dispatch = useDispatch();
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loginForm, setLoginForm] = useState({ username: "", password: "" })
   const [isLoading, setIsLoading] = useState(true)
@@ -88,45 +91,54 @@ export default function InternalPortal() {
     e.preventDefault()
     setIsLoading(true)
     
-    try {
-      // Gọi API đăng nhập
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          username: loginForm.username, 
-          password: loginForm.password,
-          source: 'internal'
-        }),
-      });
+    // try {
+    //   // Gọi API đăng nhập
+    //   const response = await fetch("/api/auth/login", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ 
+    //       username: loginForm.username, 
+    //       password: loginForm.password,
+    //       source: 'internal'
+    //     }),
+    //   });
       
-      const data = await response.json();
+    //   const data = await response.json();
       
-      if (!response.ok) {
-        throw new Error(data.error || "Đăng nhập thất bại");
-      }
+    //   if (!response.ok) {
+    //     throw new Error(data.error || "Đăng nhập thất bại");
+    //   }
       
-      // Kiểm tra quyền truy cập portal
-      if (!data.user.permissions?.portal_access) {
-        throw new Error("Bạn không có quyền truy cập CMS");
-      }
+    //   // Kiểm tra quyền truy cập portal
+    //   if (!data.user.permissions?.portal_access) {
+    //     throw new Error("Bạn không có quyền truy cập cổng nội bộ");
+    //   }
       
-      // Lưu trạng thái đăng nhập vào localStorage (cho khả năng tương thích ngược)
+    //   // Lưu trạng thái đăng nhập vào localStorage (cho khả năng tương thích ngược)
+    //   localStorage.setItem("internal_logged_in", "true");
+    //   localStorage.setItem("internal_user", loginForm.username);
+      
+    //   setIsLoggedIn(true);
+      
+    //   // Redirect immediately after successful login
+    //   console.log('Login successful, redirecting to dashboard')
+    //   window.location.replace('/cms/dashboard')
+    // } catch (error: any) {
+    //   console.error("Login error:", error);
+    //   alert(error.message || "Đăng nhập thất bại. Vui lòng thử lại.");
+    // } 
+
+     try {
+      const res = await dispatch(loginCMS(loginForm as any) as any).unwrap();
+      localStorage.setItem("userToken", res.token);
       localStorage.setItem("internal_logged_in", "true");
       localStorage.setItem("internal_user", loginForm.username);
-      
       setIsLoggedIn(true);
-      
-      // Redirect immediately after successful login
-      console.log('Login successful, redirecting to dashboard')
       window.location.replace('/cms/dashboard')
     } catch (error: any) {
-      console.error("Login error:", error);
-      alert(error.message || "Đăng nhập thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
+      console.log("Login failed:", error[0].msg);
     }
   };
 

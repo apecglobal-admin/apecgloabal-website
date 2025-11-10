@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ProjectDetailModal } from "@/components/project-detail-modal"
+import { ProjectDetailModal } from "@/app/cms/projects/project-detail-modal"
 import InternalLayout from "@/components/cms-layout"
 
 export default function ProjectTestPage() {

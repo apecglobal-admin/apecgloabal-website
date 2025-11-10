@@ -13,35 +13,35 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const checkAdminAccess = async () => {
-      try {
-        const savedUser = localStorage.getItem("internal_user");
-        const savedLoginStatus = localStorage.getItem("internal_logged_in");
+  // useEffect(() => {
+  //   const checkAdminAccess = async () => {
+  //     try {
+  //       const savedUser = localStorage.getItem("internal_user");
+  //       const savedLoginStatus = localStorage.getItem("internal_logged_in");
         
-        // Kiểm tra đăng nhập
-        if (savedLoginStatus !== "true" || !savedUser) {
-          router.push("/cms");
-          return;
-        }
+  //       // Kiểm tra đăng nhập
+  //       if (savedLoginStatus !== "true" || !savedUser) {
+  //         router.push("/cms");
+  //         return;
+  //       }
         
-        // Kiểm tra quyền admin
-        if (savedUser === "admin") {
-          setIsAuthorized(true);
-        } else {
-          // Không có quyền admin
-          setIsAuthorized(false);
-        }
-      } catch (error) {
-        console.error("Error checking admin access:", error);
-        setIsAuthorized(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //       // Kiểm tra quyền admin
+  //       if (savedUser === "admin") {
+  //         setIsAuthorized(true);
+  //       } else {
+  //         // Không có quyền admin
+  //         setIsAuthorized(false);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking admin access:", error);
+  //       setIsAuthorized(false);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    checkAdminAccess();
-  }, [router]);
+  //   checkAdminAccess();
+  // }, [router]);
 
   if (isLoading) {
     return (

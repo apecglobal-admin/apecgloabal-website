@@ -11,7 +11,10 @@ export const loginCMS = createAsyncThunk(
         username,
         password,
       });
-      return response.data;
+      return {
+        status: response.status,
+        data: response.data,
+      }
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }

@@ -9,14 +9,14 @@ import { AlertTriangle, ArrowRight } from "lucide-react";
 export default function AdminRedirect() {
   const router = useRouter();
 
-  useEffect(() => {
-    // Tự động chuyển hướng sau 3 giây
-    const timer = setTimeout(() => {
-      router.push('/cms');
-    }, 3000);
+  // useEffect(() => {
+  //   // Tự động chuyển hướng sau 3 giây
+  //   const timer = setTimeout(() => {
+  //     router.push('/cms');
+  //   }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [router]);
+  //   return () => clearTimeout(timer);
+  // }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 flex items-center justify-center p-4">

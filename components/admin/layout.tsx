@@ -50,26 +50,26 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    // Lấy thông tin người dùng từ cookie hoặc localStorage
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/users/me");
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          // Nếu không có thông tin người dùng, chuyển hướng đến trang đăng nhập
-          router.push("/admin/login");
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        router.push("/admin/login");
-      }
-    };
+  // useEffect(() => {
+  //   // Lấy thông tin người dùng từ cookie hoặc localStorage
+  //   const fetchUser = async () => {
+  //     try {
+  //       const response = await fetch("/api/users/me");
+  //       if (response.ok) {
+  //         const userData = await response.json();
+  //         setUser(userData);
+  //       } else {
+  //         // Nếu không có thông tin người dùng, chuyển hướng đến trang đăng nhập
+  //         router.push("/admin/login");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user:", error);
+  //       router.push("/admin/login");
+  //     }
+  //   };
 
-    fetchUser();
-  }, []); // Chỉ chạy một lần khi component mount
+  //   fetchUser();
+  // }, []); // Chỉ chạy một lần khi component mount
 
   const handleLogout = async () => {
     try {

@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { listPosition } from "./positionApi";
+import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
 
 const employeeSlice = createSlice({
   name: "position",
@@ -12,16 +13,7 @@ const employeeSlice = createSlice({
     
   },
   extraReducers(builder) {
-    builder
-       .addCase(listPosition.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
-      .addCase(listPosition.fulfilled, (state, action) => {
-        state.loading = false;
-        state.positions = action.payload;
-      });
+    createAsyncReducer(builder, listPosition, "positions");
   },
 });
 

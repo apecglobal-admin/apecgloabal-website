@@ -54,8 +54,8 @@ export const listEmployeeById = createAsyncThunk(
   "employee/listEmployeeById",
   async (id, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(`/employees/profile/${id}`);
-      return response.data.data;
+      const response = await apiAxiosInstance.get(`/employees?id=${id}`);
+      return response.data.data.employees[0];
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
@@ -122,7 +122,30 @@ export const createOrUpdateEmployee = createAsyncThunk(
         department_id,
         position_id,
       });
-      return response.data;
+      return {
+        status: response.status,
+        data: response.data,
+      }
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const updateSkills = createAsyncThunk(
+  "employee/updateSkills",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { id, mainGroupId, skills }: any = payload;
+      const response = await apiAxiosInstance.put(`/cms/skills/update/?id=${id}`, {
+        id,
+        mainGroupId,
+        skills,
+      });
+      return {
+        status: response.status,
+        data: response.data,
+      }
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }

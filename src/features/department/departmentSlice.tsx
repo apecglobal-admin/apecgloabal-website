@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { listDepartment } from "./departmentApi";
+import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
 
 const employeeSlice = createSlice({
   name: "department",
@@ -8,20 +9,9 @@ const employeeSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    
-  },
+  reducers: {},
   extraReducers(builder) {
-    builder
-       .addCase(listDepartment.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
-      .addCase(listDepartment.fulfilled, (state, action) => {
-        state.loading = false;
-        state.departments = action.payload;
-      });
+    createAsyncReducer(builder, listDepartment, "departments");
   },
 });
 

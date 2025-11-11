@@ -1,5 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createOrUpdateEmployee, listContact, listEmployee, listEmployeeById, listManager, listSkill } from "./employeeApi";
+import {
+  createOrUpdateEmployee,
+  listContact,
+  listEmployee,
+  listEmployeeById,
+  listManager,
+  listSkill,
+  updateSkills,
+} from "./employeeApi";
+import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
 
 const employeeSlice = createSlice({
   name: "employee",
@@ -8,82 +17,33 @@ const employeeSlice = createSlice({
     skills: [],
     contacts: [],
     managers: [],
-    employeeById: null,
+    employeeById: [],
     loading: false,
     error: null,
-    status: "idle"
+    status: "idle",
   },
-  reducers: {
-    
-  },
-  extraReducers(builder) {
+  reducers: {},
+  extraReducers: (builder) => {
     builder
-       .addCase(listEmployee.pending, (state) => {
-        state.loading = true;
-        state.status = "loading"
-        state.error = null;
-      })
-
-      .addCase(listEmployee.fulfilled, (state, action) => {
-        state.loading = false;
-        state.status = "succeeded"
-        state.employees = action.payload;
-      })
-
-      .addCase(listSkill.pending, (state) => {
-        state.loading = true;
-        state.status = "loading"
-        state.error = null;
-      })
-
-      .addCase(listSkill.fulfilled, (state, action) => {
-        state.loading = false;
-        state.status = "succeeded"
-        state.skills = action.payload;
-      })
-
-      .addCase(listContact.pending, (state) => {
-        state.loading = true;
-        state.status = "loading"
-        state.error = null;
-      })
-
-      .addCase(listContact.fulfilled, (state, action) => {
-        state.loading = false;
-        state.status = "succeeded"
-        state.contacts = action.payload;
-      })
-
-      .addCase(listManager.pending, (state) => {
-        state.loading = true;
-        state.status = "loading"
-        state.error = null;
-      })
-
-      .addCase(listManager.fulfilled, (state, action) => {
-        state.loading = false;
-        state.status = "succeeded"
-        state.managers = action.payload;
-      })
-
-      .addCase(createOrUpdateEmployee.pending, (state) => {
-        state.loading = true;
-        state.status = "loading"
-        state.error = null;
-      })
-
-      .addCase(listEmployeeById.pending, (state) => {
-        state.loading = true;
-        state.status = "loading"
-        state.error = null;
+      .addCase(updateSkills.fulfilled, (state) => {
+        (state.status = "success"), (state.loading = false);
       })
 
       .addCase(listEmployeeById.fulfilled, (state, action) => {
+        state.employeeById = action.payload;
+        state.status = "success";
         state.loading = false;
-        state.status = "succeeded"
-        state.managers = action.payload;
-      })
+      });
+
+    // Dùng helper function
+    createAsyncReducer(builder, listEmployee, "employees");
+    createAsyncReducer(builder, listSkill, "skills");
+    createAsyncReducer(builder, listContact, "contacts");
+    createAsyncReducer(builder, listManager, "managers");
+    // createAsyncReducer(builder, listEmployeeById, "employeeById");
+    createAsyncReducer(builder, createOrUpdateEmployee); // không cần stateKey nếu không set payload
   },
 });
 
 export default employeeSlice.reducer;
+

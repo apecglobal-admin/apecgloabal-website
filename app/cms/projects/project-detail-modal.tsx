@@ -51,6 +51,8 @@ import {
   MoreVertical,
   Trash2,
   ChevronsUpDown,
+  Search,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
@@ -91,6 +93,7 @@ export function ProjectDetailModal({
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showAddMilestoneModal, setShowAddMilestoneModal] = useState(false);
+  const [searchMember, setSearchMember] = useState("");
 
   // Add member form
   const [memberForm, setMemberForm] = useState({
@@ -136,6 +139,12 @@ export function ProjectDetailModal({
     requirements: "",
     deliverables: "",
   });
+
+  const filteredEmployees = employees?.filter((emp: any) =>
+    emp.name?.toLowerCase().includes(searchMember.toLowerCase()) ||
+    emp.email?.toLowerCase().includes(searchMember.toLowerCase()) ||
+    emp.department?.toLowerCase().includes(searchMember.toLowerCase())
+  ) || [];
 
   useEffect(() => {
     if (isOpen && projectId) {
@@ -308,6 +317,12 @@ export function ProjectDetailModal({
       default:
         return status;
     }
+  };
+
+  const isEmployeeAlreadyMember = (employeeId: number) => {
+    return project?.members?.some((member: any) => 
+      member.employee_id === employeeId || member.id === employeeId
+    );
   };
 
   const formatCurrency = (amount: number) => {
@@ -835,116 +850,37 @@ export function ProjectDetailModal({
 
       {/* Add Member Modal */}
       <Dialog open={showAddMemberModal} onOpenChange={setShowAddMemberModal}>
-        <DialogContent className="bg-black/90 border-blue-500/30 text-white">
+        <DialogContent className="bg-black/95 border-blue-500/30 text-white max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-white">
-              <Users className="h-5 w-5 mr-2 text-blue-400" />
+            <DialogTitle className="flex items-center text-white text-xl">
+              <Users className="h-6 w-6 mr-2 text-blue-400" />
               Thêm Thành Viên Dự Án
             </DialogTitle>
+            <p className="text-white/60 text-sm mt-1">
+              Đã chọn {memberForm.employee_ids.length} nhân viên
+            </p>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label className="text-white">Chọn nhân viên *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-between bg-black/30 border-blue-500/30 text-white"
-                  >
-                    {memberForm.employee_ids.length > 0
-                      ? `Đã chọn ${memberForm.employee_ids.length} nhân viên`
-                      : "Chọn nhân viên..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0 bg-black border-blue-500/30">
-                  <div className="max-h-64 overflow-y-auto p-2">
-                    {employees &&
-                      Array.isArray(employees) &&
-                      employees
-                        // .filter(emp => {
-                        //   // Lọc nhân viên cùng công ty và chưa là thành viên
-                        //   if (!emp?.company_id || !formData.company_id) return false;
-                        //   const isSameCompany = emp.company_id.toString() === formData.company_id.toString();
-                        //   const isAlreadyMember = project?.team_members?.some(
-                        //     (m: any) => m.employee_id === emp.id
-                        //   );
-                        //   return isSameCompany && !isAlreadyMember;
-                        // })
-                        .map((employee) => {
-                          const isSelected = memberForm.employee_ids.includes(
-                            employee.id.toString()
-                          );
-                          return (
-                            <div
-                              key={employee.id}
-                              className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
-                                isSelected
-                                  ? "bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/50"
-                                  : "hover:bg-blue-500/20"
-                              }`}
-                              onClick={() => {
-                                const empId = employee.id.toString();
-                                setMemberForm((prev) => ({
-                                  ...prev,
-                                  employee_ids: prev.employee_ids.includes(
-                                    empId
-                                  )
-                                    ? prev.employee_ids.filter(
-                                        (id) => id !== empId
-                                      )
-                                    : [...prev.employee_ids, empId],
-                                }));
-                              }}
-                            >
-                              <div
-                                className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                  isSelected
-                                    ? "bg-blue-500 border-blue-400"
-                                    : "border-gray-500"
-                                }`}
-                              >
-                                {isSelected && (
-                                  <svg
-                                    className="w-3 h-3 text-white"
-                                    fill="none"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="3"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                  </svg>
-                                )}
-                              </div>
-                              <span
-                                className={`flex-1 ${
-                                  isSelected
-                                    ? "text-blue-300 font-medium"
-                                    : "text-white"
-                                }`}
-                              >
-                                {employee.name}
-                                <span
-                                  className={`text-sm ml-2 ${
-                                    isSelected
-                                      ? "text-blue-400/80"
-                                      : "text-white/60"
-                                  }`}
-                                >
-                                  ({employee.email})
-                                </span>
-                              </span>
-                            </div>
-                          );
-                        })}
-                  </div>
-                </PopoverContent>
-              </Popover>
-              {memberForm.employee_ids.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
+
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+            {/* Search Box */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm nhân viên theo tên, email, phòng ban..."
+                value={searchMember}
+                onChange={(e) => setSearchMember(e.target.value)}
+                className="pl-10 bg-black/30 border-blue-500/30 text-white placeholder:text-white/50"
+              />
+            </div>
+
+            {/* Selected Members Display */}
+            {memberForm.employee_ids.length > 0 && (
+              <div className="bg-blue-600/10 border border-blue-500/30 rounded-lg p-4">
+                <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-400" />
+                  Đã chọn ({memberForm.employee_ids.length})
+                </h4>
+                <div className="flex flex-wrap gap-2">
                   {memberForm.employee_ids.map((empId) => {
                     const emp = employees?.find(
                       (e: any) => e.id.toString() === empId
@@ -952,11 +888,10 @@ export function ProjectDetailModal({
                     return (
                       <Badge
                         key={empId}
-                        className="bg-blue-600/20 text-blue-400 border-blue-500/30"
+                        className="bg-blue-600/30 text-blue-300 border-blue-500/50 pr-1"
                       >
                         {emp?.name}
-                        <X
-                          className="ml-1 h-3 w-3 cursor-pointer"
+                        <button
                           onClick={() => {
                             setMemberForm((prev) => ({
                               ...prev,
@@ -965,15 +900,120 @@ export function ProjectDetailModal({
                               ),
                             }));
                           }}
-                        />
+                          className="ml-2 hover:bg-red-500/30 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       </Badge>
                     );
                   })}
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* Employee List */}
+            <div className="space-y-2">
+              <h4 className="text-white/70 text-sm font-medium">
+                Danh sách nhân viên ({filteredEmployees.length})
+              </h4>
+              <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                {filteredEmployees.length === 0 ? (
+                  <p className="text-white/40 text-center py-8">
+                    Không tìm thấy nhân viên nào
+                  </p>
+                ) : (
+                  filteredEmployees.map((employee: any) => {
+                    const isSelected = memberForm.employee_ids.includes(
+                      employee.id.toString()
+                    );
+                    const isAlreadyMember = isEmployeeAlreadyMember(employee.id);
+
+                    return (
+                      <div
+                        key={employee.id}
+                        onClick={() => {
+                          if (!isAlreadyMember) {
+                            const empId = employee.id.toString();
+                            setMemberForm((prev) => ({
+                              ...prev,
+                              employee_ids: prev.employee_ids.includes(empId)
+                                ? prev.employee_ids.filter((id) => id !== empId)
+                                : [...prev.employee_ids, empId],
+                            }));
+                          }
+                        }}
+                        className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
+                          isAlreadyMember
+                            ? "bg-green-600/20 border-2 border-green-500/50 cursor-not-allowed"
+                            : isSelected
+                            ? "bg-blue-600/30 border-2 border-blue-500 cursor-pointer hover:bg-blue-600/40"
+                            : "bg-black/30 border-2 border-transparent cursor-pointer hover:border-blue-500/30 hover:bg-black/50"
+                        }`}
+                      >
+                        {/* Checkbox với tích xanh */}
+                        <div
+                          className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                            isAlreadyMember
+                              ? "bg-green-500 border-green-400"
+                              : isSelected
+                              ? "bg-blue-500 border-blue-400"
+                              : "border-white/30"
+                          }`}
+                        >
+                          {(isSelected || isAlreadyMember) && (
+                            <Check className="h-4 w-4 text-white" strokeWidth={3} />
+                          )}
+                        </div>
+
+                        {/* Employee Avatar/Icon */}
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                          {employee.name?.charAt(0).toUpperCase()}
+                        </div>
+
+                        {/* Employee Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className={`font-medium ${
+                              isAlreadyMember ? "text-green-300" : "text-white"
+                            }`}>
+                              {employee.name}
+                            </h4>
+                            {isAlreadyMember && (
+                              <Badge className="bg-green-500/20 text-green-400 border-green-500/50 text-xs">
+                                ✓ Đã là thành viên
+                              </Badge>
+                            )}
+                            {isSelected && !isAlreadyMember && (
+                              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50 text-xs">
+                                Đã chọn
+                              </Badge>
+                            )}
+                          </div>
+                          <p className={`text-sm truncate ${
+                            isAlreadyMember ? "text-green-400/70" : "text-white/60"
+                          }`}>
+                            {employee.email}
+                          </p>
+                        </div>
+
+                        {/* Department Badge */}
+                        {employee.department && (
+                          <div className="flex-shrink-0">
+                            <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50 text-xs">
+                              {employee.department}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
+
+            {/* Role Input */}
             <div>
-              <Label className="text-white">Vai trò trong dự án</Label>
+              <Label className="text-white">Vai trò trong dự án *</Label>
               <Input
                 value={memberForm.role}
                 onChange={(e) =>
@@ -983,6 +1023,8 @@ export function ProjectDetailModal({
                 className="bg-black/30 border-blue-500/30 text-white"
               />
             </div>
+
+            {/* Join Date */}
             <div>
               <Label className="text-white">Ngày tham gia</Label>
               <Input
@@ -994,25 +1036,42 @@ export function ProjectDetailModal({
                 className="bg-black/30 border-blue-500/30 text-white"
               />
             </div>
-            <div className="flex justify-end space-x-2">
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex justify-between items-center pt-4 border-t border-blue-500/30">
+            <div className="text-sm text-white/60">
+              {filteredEmployees.filter((e: any) => isEmployeeAlreadyMember(e.id)).length} nhân viên đã là thành viên
+            </div>
+            <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => setShowAddMemberModal(false)}
-                className="bg-gray-500/20 border-gray-500/50 text-gray-300"
+                onClick={() => {
+                  setShowAddMemberModal(false);
+                  setMemberForm({
+                    employee_ids: [],
+                    role: "",
+                    join_date: new Date().toISOString().split("T")[0],
+                  });
+                  setSearchMember("");
+                }}
+                className="bg-gray-500/20 border-gray-500/50 text-gray-300 hover:bg-gray-500/30"
               >
                 Hủy
               </Button>
               <Button
                 onClick={handleAddMember}
-                className="bg-blue-600 hover:bg-blue-700"
+                disabled={memberForm.employee_ids.length === 0 || !memberForm.role}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Thêm Thành Viên
+                Thêm {memberForm.employee_ids.length > 0 ? `(${memberForm.employee_ids.length})` : ""} Thành Viên
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
 
       {/* Add Task Modal */}
       <Dialog open={showAddTaskModal} onOpenChange={setShowAddTaskModal}>

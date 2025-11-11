@@ -29,13 +29,13 @@ export default function InternalDashboard() {
   const [currentUser, setCurrentUser] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("internal_user");
-    if (savedUser) {
-      setCurrentUser(savedUser);
-      setIsAdmin(savedUser === "admin");
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedUser = localStorage.getItem("internal_user");
+  //   if (savedUser) {
+  //     setCurrentUser(savedUser);
+  //     setIsAdmin(savedUser === "admin");
+  //   }
+  // }, []);
   const stats = [
     {
       title: "Tổng Nhân Viên",
@@ -427,5 +427,6 @@ export default function InternalDashboard() {
         </div>
       </div>
     </InternalLayout>
+
   )
 }

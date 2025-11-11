@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ProjectDetailModal } from "@/components/project-detail-modal"
+import { ProjectDetailModal } from "@/app/cms/projects/project-detail-modal"
 import { ProjectCreateModal } from "@/components/project-create-modal"
 import { ProjectReportModal } from "@/components/project-report-modal"
 import { ProjectImportModal } from "@/components/project-import-modal"
@@ -65,7 +65,7 @@ export default function InternalProjectsPage() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [editMode, setEditMode] = useState(false)
-  const [deletingProject, setDeletingProject] = useState(null)
+  const [deletingProject, setDeletingProject] = useState<any>(null)
   const [deleting, setDeleting] = useState(false)
   
   // Bulk operations
@@ -81,25 +81,25 @@ export default function InternalProjectsPage() {
 
   // Helper function to get status name by ID
   const getStatusName = (statusId: number) => {
-    const status = statusProject.find(s => parseInt(s.id) === statusId)
+    const status = statusProject.find((s: any) => parseInt(s.id) === statusId)
     return status ? status.name : 'Không xác định'
   }
 
   // Calculate stats from actual data
-  const inProgressCount = projects.filter(p => 
+  const inProgressCount = projects.filter((p: any) => 
     p.project_status_id === 2 // "Đang thực hiện"
   ).length
   
-  const completedCount = projects.filter(p => 
+  const completedCount = projects.filter((p: any) => 
     p.project_status_id === 4 // "Hoàn thành"
   ).length
   
-  const delayedCount = projects.filter(p =>
+  const delayedCount = projects.filter((p: any) =>
     p.project_status_id === 6 // "Trễ tiến độ"
   ).length
   
-  const totalBudget = projects.reduce((sum, p) => sum + (parseFloat(p.budget) || 0), 0)
-  const totalSpent = projects.reduce((sum, p) => sum + (parseFloat(p.spent) || 0), 0)
+  const totalBudget = projects.reduce((sum: number, p: any) => sum + (parseFloat(p.budget) || 0), 0)
+  const totalSpent = projects.reduce((sum: number, p: any) => sum + (parseFloat(p.spent) || 0), 0)
   
   const stats = [
     {
@@ -182,7 +182,7 @@ export default function InternalProjectsPage() {
   }
 
   const getPriorityLabel = (priority: string) => {
-    const priorityMap = {
+    const priorityMap: Record<string, string> = {
       'high': 'Cao',
       'medium': 'Trung bình',
       'low': 'Thấp'
@@ -194,38 +194,41 @@ export default function InternalProjectsPage() {
     setShowCreateModal(true)
   }
 
-  const handleViewProject = (project) => {
+  const handleViewProject = (project: any) => {
     setSelectedProjectId(project.id)
     setEditMode(false)
     setShowDetailModal(true)
   }
 
-  const handleEditProject = (project) => {
+  const handleEditProject = (project: any) => {
     setSelectedProjectId(project.id)
     setEditMode(true)
     setShowDetailModal(true)
   }
 
-  const handleProjectReport = (project) => {
+  const handleProjectReport = (project: any) => {
     setSelectedProjectId(project.id)
     setShowReportModal(true)
   }
 
   const handleDeleteProject = async () => {
+    // Implement delete logic
   }
 
-  const handleArchiveProject = async (projectId) => {
+  const handleArchiveProject = async (projectId: number) => {
+    // Implement archive logic
   }
 
-  const handleCloneProject = async (project) => {
+  const handleCloneProject = async (project: any) => {
+    // Implement clone logic
   }
 
-  const handleQuickStatusUpdate = async (projectId, statusId) => {
-
+  const handleQuickStatusUpdate = async (projectId: number, statusId: number) => {
+    // Implement status update logic
   }
 
   // Bulk operations handlers
-  const handleSelectProject = (projectId, checked) => {
+  const handleSelectProject = (projectId: number, checked: boolean) => {
     if (checked) {
       setSelectedProjects([...selectedProjects, projectId])
     } else {
@@ -233,10 +236,10 @@ export default function InternalProjectsPage() {
     }
   }
 
-  const handleSelectAll = (checked) => {
+  const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked)
     if (checked) {
-      setSelectedProjects(paginatedProjects.map(project => project.id))
+      setSelectedProjects(paginatedProjects.map((project: any) => project.id))
     } else {
       setSelectedProjects([])
     }
@@ -253,7 +256,7 @@ export default function InternalProjectsPage() {
   const handleExportProjects = () => {
     const csvContent = [
       ['Tên dự án', 'Trạng thái', 'Tiến độ', 'Ngân sách', 'Đã chi', 'Ngày bắt đầu', 'Ngày kết thúc'],
-      ...filteredProjects.map(project => [
+      ...filteredProjects.map((project: any) => [
         project.name,
         getStatusName(project.project_status_id),
         `${project.progress || 0}%`,
@@ -273,7 +276,7 @@ export default function InternalProjectsPage() {
     toast.success('Đã xuất danh sách dự án!')
   }
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
@@ -281,13 +284,13 @@ export default function InternalProjectsPage() {
     }).format(amount)
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return 'Chưa xác định'
     return new Date(dateString).toLocaleDateString('vi-VN')
   }
 
   // Filter projects
-  const filteredProjects = projects.filter((project) => {
+  const filteredProjects = projects.filter((project: any) => {
     const matchesSearch =
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -383,7 +386,7 @@ export default function InternalProjectsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả công ty</SelectItem>
-              {companies.map((company) => (
+              {companies.map((company: any) => (
                 <SelectItem key={company.id} value={company.id.toString()}>
                   {company.name}
                 </SelectItem>
@@ -397,7 +400,7 @@ export default function InternalProjectsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả trạng thái</SelectItem>
-              {statusProject.map((status) => (
+              {statusProject.map((status: any) => (
                 <SelectItem key={status.id} value={status.id}>
                   {status.name}
                 </SelectItem>
@@ -424,10 +427,10 @@ export default function InternalProjectsPage() {
           <span className="text-white/60 text-sm self-center mr-2">Lọc nhanh:</span>
           {[
             { label: "Tất cả", value: "all", count: projects.length },
-            ...statusProject.map((status) => ({
+            ...statusProject.map((status: any) => ({
               label: status.name,
               value: status.id,
-              count: projects.filter((p) => p.project_status_id === parseInt(status.id)).length,
+              count: projects.filter((p: any) => p.project_status_id === parseInt(status.id)).length,
             })),
           ].map((filter) => (
             <Button
@@ -586,7 +589,7 @@ export default function InternalProjectsPage() {
             ) : (
               paginatedProjects
               .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-              .map((project) => (
+              .map((project: any) => (
                 <Card
                   key={project.id}
                   className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
@@ -595,7 +598,7 @@ export default function InternalProjectsPage() {
                     <div className="flex items-start justify-between mb-4">
                       <Checkbox
                         checked={selectedProjects.includes(project.id)}
-                        onCheckedChange={(checked) => handleSelectProject(project.id, checked)}
+                        onCheckedChange={(checked) => handleSelectProject(project.id, checked as boolean)}
                         className="border-white/30 mt-1"
                       />
                       <DropdownMenu>
@@ -642,9 +645,9 @@ export default function InternalProjectsPage() {
                         <div>
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-xl font-bold text-white">{project.name}</h3>
-                            {companies.find(c => c.id === project.company_id) && (
-                              <Badge className={`${getCompanyColor(companies.find(c => c.id === project.company_id)?.name || '')} border`}>
-                                {companies.find(c => c.id === project.company_id)?.name}
+                            {companies.find((c: any) => c.id === project.company_id) && (
+                              <Badge className={`${getCompanyColor(companies.find((c: any) => c.id === project.company_id)?.name || '')} border`}>
+                                {companies.find((c: any) => c.id === project.company_id)?.name}
                               </Badge>
                             )}
                           </div>

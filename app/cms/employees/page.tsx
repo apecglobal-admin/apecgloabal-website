@@ -67,7 +67,7 @@ import { listDepartment } from "@/src/features/department/departmentApi";
 import { listPosition } from "@/src/features/position/positionApi";
 import { Position } from "@/lib/schema";
 import CreateAndEditModalEmployee from "./createAndEditModal";
-import EmployeeDetailModal from "./detailModal";
+import EmployeeDetailModal from "./detail/detailModal";
 
 interface Skill {
   skill_id: string | number;
@@ -290,7 +290,7 @@ function EmployeesManagementContent() {
 
   const handleEdit = async (employee: Employee) => {
     setEditingEmployee(employee);
-    console.log("emploeyy edit", employee)
+    console.log("emploeyy edit", employee);
 
     setFormData({
       id: employee.id.toString(),
@@ -315,7 +315,8 @@ function EmployeesManagementContent() {
       degree_level: employee.educations[0]?.degree_level || "",
       major: employee.educations[0]?.major || "",
       school_name: employee.educations[0]?.school_name || "",
-      graduation_year: employee.educations[0]?.graduation_year?.toString() || "",
+      graduation_year:
+        employee.educations[0]?.graduation_year?.toString() || "",
 
       base_salary: employee.contracts[0]?.base_salary?.toString() || "",
       allowance: employee.contracts[0]?.allowance?.toString() || "",
@@ -469,13 +470,13 @@ function EmployeesManagementContent() {
       position_id: formData.position,
     };
     try {
-      await dispatch(createOrUpdateEmployee(saveData) as any);
-      await dispatch(listEmployee() as any);
+      const res = await dispatch(createOrUpdateEmployee(saveData) as any);
+      if (res.payload.status == 200 || res.payload.status == 201) {
+        await dispatch(listEmployee() as any);
+        // setShowCreateModal(false);
+        toast.success(res.payload.data.message);
+      }
 
-      setShowCreateModal(false);
-      toast.success(
-        editingEmployee ? "Cập nhật thành công!" : "Thêm mới thành công!"
-      );
     } catch (error) {
       console.error("Error saving employee:", error);
       toast.error("Lỗi khi lưu nhân viên");
@@ -512,7 +513,7 @@ function EmployeesManagementContent() {
   };
 
   const handleViewDetails = (employee: any) => {
-    setSelectedEmployee(employee);
+    setSelectedEmployee(employee.id);
     setShowDetailModal(true);
   };
 
@@ -637,7 +638,7 @@ function EmployeesManagementContent() {
       <Card className="bg-black/50 border-purple-500/30">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
               <Input
                 placeholder="Tìm kiếm nhân viên..."
@@ -819,9 +820,10 @@ function EmployeesManagementContent() {
 
       {/* Detail Employee */}
       <EmployeeDetailModal
-        employee={selectedEmployee}
+        employeeId={selectedEmployee}
         open={showDetailModal}
         onClose={() => setShowDetailModal(false)}
+        skillsList={skills}
       />
 
       {/* Create/Edit Modal */}

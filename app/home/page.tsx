@@ -301,6 +301,23 @@ export default async function HomePage() {
 
   const ctaMetrics = homeContent.ctaMetrics.length > 0 ? homeContent.ctaMetrics : defaultCtaMetrics
 
+  // Fetch client overflow content
+  let clientOverflowContent = []
+  try {
+    const clientOverflowResponse = await fetch(`${baseUrl}/api/client-overflow-content${homeContent.clientOverflowSection?.limit ? `?limit=${homeContent.clientOverflowSection.limit}` : '?featured=true'}`, {
+      cache: 'no-store'
+    })
+
+    if (clientOverflowResponse.ok) {
+      const clientOverflowResult = await clientOverflowResponse.json()
+      if (clientOverflowResult.success) {
+        clientOverflowContent = clientOverflowResult.data
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching client overflow content:', error)
+  }
+
   return (
     <div className="min-h-screen bg-white text-black">
       <Header />
@@ -801,6 +818,78 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+      {/* Client Overflow/Testimonials Section */}
+      {clientOverflowContent.length > 0 && (
+        <section className="section-standard bg-gray-50">
+          <div className="container-standard">
+            <div className="text-center mb-12">
+              <div className={`${badgeClass} bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 w-fit mx-auto shadow-sm`}>
+                <MessageSquare className="w-4 h-4 mr-2" />
+                {homeContent.clientOverflowSection?.badge || "Khách Hàng Nói Gì"}
+              </div>
+
+              <div className="space-y-4 mt-6">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-gray-900">
+                  {homeContent.clientOverflowSection?.heading || "Những gì khách hàng của chúng tôi nói"}
+                </h2>
+
+                <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full mx-auto"></div>
+              </div>
+
+              {homeContent.clientOverflowSection?.description && (
+                <p className="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto mt-6">
+                  {homeContent.clientOverflowSection.description}
+                </p>
+              )}
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {clientOverflowContent.map((item: any, index: number) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-center mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-5 h-5 ${
+                          i < (item.rating || 5) ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <Quote className="w-8 h-8 text-blue-500 mb-4" />
+
+                  <p className="text-gray-700 mb-6 leading-relaxed italic">
+                    "{item.content || item.title}"
+                  </p>
+
+                  <div className="flex items-center">
+                    {item.client_image_url && (
+                      <img
+                        src={item.client_image_url}
+                        alt={item.client_name}
+                        className="w-12 h-12 rounded-full mr-4 object-cover"
+                      />
+                    )}
+                    <div>
+                      <div className="font-semibold text-gray-900">{item.client_name}</div>
+                      <div className="text-sm text-gray-600">{item.client_position}</div>
+                      {item.client_company && (
+                        <div className="text-sm text-blue-600 font-medium">{item.client_company}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>

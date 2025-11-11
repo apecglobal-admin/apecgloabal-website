@@ -30,6 +30,8 @@ const EmployeeProjects: React.FC<EmployeeProjectsProps> = ({
   performanceData,
   projectStatusData,
 }) => {
+
+  console.log("abc", employee.projects.project_list)
   return (
     <div className="space-y-3 sm:space-y-4 mt-0 overflow-x-hidden">
       {/* --- Biểu đồ hiệu suất và trạng thái dự án --- */}
@@ -146,35 +148,35 @@ const EmployeeProjects: React.FC<EmployeeProjectsProps> = ({
                 >
                   <div className="flex justify-between items-start mb-2 gap-2">
                     <h4 className="text-white font-semibold text-xs sm:text-base flex-1">
-                      {project.project.name}
+                      {project.name}
                     </h4>
                     <Badge
                       className={
-                        project.project_status.id === 2
+                        project.project_status_id === 2
                           ? "bg-blue-600/20 text-blue-400 border-blue-500/30 text-[10px] sm:text-xs shrink-0"
-                          : project.project_status.id === 3
+                          : project.project_status_id === 3
                           ? "bg-yellow-600/20 text-yellow-400 border-yellow-500/30 text-[10px] sm:text-xs shrink-0"
                           : "bg-green-600/20 text-green-400 border-green-500/30 text-[10px] sm:text-xs shrink-0"
                       }
                     >
-                      {project.project_status.name}
+                      {project.status}
                     </Badge>
                   </div>
                   <p className="text-white/60 text-xs sm:text-sm mb-2">
-                    {project.project.description}
+                    {project.description}
                   </p>
                   <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-white/50">
-                    <span>Team: {project.project.team_size} người</span>
-                    <span>Tiến độ: {project.project.progress}%</span>
+                    <span>Team: {project.team_size} người</span>
+                    <span>Tiến độ: {project.progress}%</span>
                     {project.role && <span>Vai trò: {project.role}</span>}
                   </div>
-                  {project.project.budget > 0 && (
+                  {project.budget > 0 && (
                     <div className="text-[10px] sm:text-xs text-white/50 mt-1">
                       Ngân sách:{" "}
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
-                      }).format(project.project.budget)}
+                      }).format(project.budget)}
                     </div>
                   )}
                 </div>

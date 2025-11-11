@@ -151,3 +151,19 @@ export const updateSkills = createAsyncThunk(
     }
   }
 );
+
+export const updateStatusCareer = createAsyncThunk(
+  "employee/updateStatusCareer",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { id, status }: any = payload;
+      const response = await apiAxiosInstance.put(`/cms/personal-requests/change?id=${id}&&status=${status}`);
+      return {
+        status: response.status,
+        data: response.data,
+      }
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);

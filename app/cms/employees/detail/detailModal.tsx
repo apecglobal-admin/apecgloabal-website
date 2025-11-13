@@ -36,6 +36,7 @@ import {
   CreditCard,
   Shield,
   DollarSign,
+  Loader2,
 } from "lucide-react";
 import EmployeeOverview from "./tabs/overview";
 import EmployeeSkills from "./tabs/skills";
@@ -49,6 +50,7 @@ import {
 } from "@/src/features/employee/employeeApi";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
+import { useEmployeeData } from "@/src/hook/employeeHook";
 
 interface EmployeeDetailModalProps {
   employeeId: any;
@@ -64,7 +66,7 @@ export default function EmployeeDetailModal({
   skillsList,
 }: EmployeeDetailModalProps) {
   const dispatch = useDispatch();
-  const { employeeById } = useSelector((state: any) => state.employee);
+  const { employeeById } = useEmployeeData();
 
   useEffect(() => {
   // Chỉ fetch khi modal mở VÀ có employeeId VÀ chưa có data hoặc data khác
@@ -75,13 +77,13 @@ export default function EmployeeDetailModal({
   console.log("deatail", employeeById);
 
   const skillsData =
-    employeeById.skills?.map((skill: any) => ({
+    employeeById?.skills?.map((skill: any) => ({
       skill: skill.name,
       value: parseInt(skill.value) || 0,
     })) || [];
 
   // Tính số lượng dự án từ project_list thay vì rada_chart
-  const projectList = employeeById.projects?.project_list || [];
+  const projectList = employeeById?.projects?.project_list || [];
   const projectStatusData = [
     {
       status: "Đang thực hiện",
@@ -97,10 +99,19 @@ export default function EmployeeDetailModal({
     },
   ];
 
-  const performanceData = employeeById.projects?.performance_chart || [];
+  const performanceData = employeeById?.projects?.performance_chart || [];
 
   // Lấy thông tin hợp đồng mới nhất
-  const latestContract = employeeById.contracts?.[0];
+  const latestContract = employeeById?.contracts?.[0];
+
+  if(!employeeById){
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <span className="ml-2 text-white">Đang tải nhân viên123...</span>
+      </div>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

@@ -1,18 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { listDepartment } from "./departmentApi";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
+interface InitState<T> {
+  data: T;
+  loading: boolean;
+  error: string | null;
+  status: number | null;
+}
 
-const employeeSlice = createSlice({
+interface DepartmentState {
+  departments: InitState<any[]>;
+}
+
+const initialState: DepartmentState = {
+  departments: { data: [], loading: false, error: null, status: null },
+};
+
+const departmentSlice = createSlice({
   name: "department",
-  initialState: {
-    departments: [],
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {},
   extraReducers(builder) {
     createAsyncReducer(builder, listDepartment, "departments");
   },
 });
 
-export default employeeSlice.reducer;
+export default departmentSlice.reducer;

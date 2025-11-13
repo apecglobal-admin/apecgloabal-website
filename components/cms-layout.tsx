@@ -57,24 +57,6 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       color: "text-blue-400",
     },
     {
-      name: "Báo Cáo",
-      href: "/cms/reports",
-      icon: BarChart3,
-      color: "text-green-400",
-    },
-    {
-      name: "Tin Tức",
-      href: "/cms/news",
-      icon: FileText,
-      color: "text-yellow-400",
-    },
-    {
-      name: "Tài Liệu",
-      href: "/cms/documents",
-      icon: FileText,
-      color: "text-orange-400",
-    },
-    {
       name: "Dự Án",
       href: "/cms/projects",
       icon: Briefcase,
@@ -91,6 +73,30 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       href: "/cms/positions",
       icon: Shield,
       color: "text-indigo-400",
+    },
+     {
+      name: "Sự kiện",
+      href: "/cms/events",
+      icon: Shield,
+      color: "text-indigo-400",
+    },
+    {
+      name: "Báo Cáo",
+      href: "/cms/reports",
+      icon: BarChart3,
+      color: "text-green-400",
+    },
+    {
+      name: "Tin Tức",
+      href: "/cms/news",
+      icon: FileText,
+      color: "text-yellow-400",
+    },
+    {
+      name: "Tài Liệu",
+      href: "/cms/documents",
+      icon: FileText,
+      color: "text-orange-400",
     },
     {
       name: "Dịch Vụ",

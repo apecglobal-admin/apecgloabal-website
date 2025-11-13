@@ -68,6 +68,9 @@ import { listPosition } from "@/src/features/position/positionApi";
 import { Position } from "@/lib/schema";
 import CreateAndEditModalEmployee from "./createAndEditModal";
 import EmployeeDetailModal from "./detail/detailModal";
+import { useEmployeeData } from "@/src/hook/employeeHook";
+import { usePositionData } from "@/src/hook/positionHook";
+import { useDepartmentData } from "@/src/hook/departmentHook";
 
 interface Skill {
   skill_id: string | number;
@@ -135,11 +138,11 @@ interface Department {
 
 function EmployeesManagementContent() {
   const dispatch = useDispatch();
-  const { employees, skills, contacts, managers, status, loading } =
-    useSelector((state: any) => state.employee);
+  const { employees, skills, contacts, managers } = useEmployeeData();
+  const { departments } = useDepartmentData();
+  const { positions } = usePositionData();
 
-  const { departments } = useSelector((state: any) => state.department);
-  const { positions } = useSelector((state: any) => state.position);
+  console.log("departments", departments)
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -552,7 +555,8 @@ function EmployeesManagementContent() {
   const companiesWithEmployees = [
     ...new Set(employees.map((e: Employee) => e.company_id).filter(Boolean)),
   ].length;
-  if (loading) {
+  
+  if (!employees) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-white" />

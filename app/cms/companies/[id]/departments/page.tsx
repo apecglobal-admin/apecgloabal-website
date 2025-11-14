@@ -175,7 +175,7 @@ function CompanyDepartmentsContent() {
               </TableHeader>
               <TableBody>
                 {departments && departments.length > 0 ? (
-                  departments.map((department) => (
+                  departments?.map((department) => (
                     <TableRow key={department.id} className="border-b border-purple-500/30 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{department.name}</TableCell>
                       <TableCell className="text-white/80 max-w-md truncate">{department.description}</TableCell>

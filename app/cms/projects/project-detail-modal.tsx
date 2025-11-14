@@ -65,6 +65,9 @@ import {
   PopoverTrigger,
 } from "@radix-ui/react-popover";
 import { Checkbox } from "@radix-ui/react-checkbox";
+import { useCompanyData } from "@/src/hook/companyHook";
+import { useEmployeeData } from "@/src/hook/employeeHook";
+import { useProjectData } from "@/src/hook/projectHook";
 
 interface ProjectDetailModalProps {
   isOpen: boolean;
@@ -80,11 +83,9 @@ export function ProjectDetailModal({
   editMode = false,
 }: ProjectDetailModalProps) {
   const dispatch = useDispatch();
-  const { project, statusProject, loading } = useSelector(
-    (state: any) => state.project
-  );
-  const { companies } = useSelector((state: any) => state.company);
-  const { employees } = useSelector((state: any) => state.employee);
+  const { project, statusProject } = useProjectData();
+  const { companies } = useCompanyData();
+  const { employees } = useEmployeeData();
 
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(editMode);
@@ -382,7 +383,7 @@ export function ProjectDetailModal({
           </div>
         </DialogHeader>
 
-        {loading ? (
+        {!project ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-white" />
             <span className="ml-2 text-white">Đang tải...</span>

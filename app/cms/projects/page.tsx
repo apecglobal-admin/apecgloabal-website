@@ -1,17 +1,28 @@
-"use client"
+"use client";
 
-import InternalLayout from "@/components/cms-layout"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ProjectDetailModal } from "@/app/cms/projects/project-detail-modal"
-import { ProjectCreateModal } from "@/components/project-create-modal"
-import { ProjectReportModal } from "@/components/project-report-modal"
-import { ProjectImportModal } from "@/components/project-import-modal"
-import Link from "next/link"
+import InternalLayout from "@/components/cms-layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ProjectDetailModal } from "@/app/cms/projects/project-detail-modal";
+import { ProjectCreateModal } from "@/app/cms/projects/project-create-modal";
+import { ProjectReportModal } from "@/components/project-report-modal";
+import { ProjectImportModal } from "@/components/project-import-modal";
+import Link from "next/link";
 import {
   Plus,
   Search,
@@ -36,42 +47,52 @@ import {
   Play,
   Pause,
   RefreshCw,
-} from "lucide-react"
-import { useState, useEffect } from "react"
-import { Pagination, usePagination } from "@/components/ui/pagination"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { toast } from "sonner"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useDispatch, useSelector } from "react-redux"
-import { listProjects, listStatusProject } from "@/src/features/project/projectApi"
-import { listCompanies } from "@/src/features/company/companyApi"
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Pagination, usePagination } from "@/components/ui/pagination";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteProject,
+  listProjects,
+  listStatusProject,
+} from "@/src/features/project/projectApi";
+import { listCompanies } from "@/src/features/company/companyApi";
+import { useCompanyData } from "@/src/hook/companyHook";
+import { useProjectData } from "@/src/hook/projectHook";
 
 export default function InternalProjectsPage() {
   const dispatch = useDispatch();
-  const { projects, statusProject, loading } = useSelector(
-    (state: any) => state.project
-  );
-  const { companies } = useSelector(
-    (state: any) => state.company
-  );
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("all")
-  const [selectedCompany, setSelectedCompany] = useState("all")
-  
+  const { projects, statusProject } = useProjectData();
+  const { companies } = useCompanyData();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
+
   // Modal states
-  const [showDetailModal, setShowDetailModal] = useState(false)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showReportModal, setShowReportModal] = useState(false)
-  const [showImportModal, setShowImportModal] = useState(false)
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
-  const [editMode, setEditMode] = useState(false)
-  const [deletingProject, setDeletingProject] = useState<any>(null)
-  const [deleting, setDeleting] = useState(false)
-  
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
+    null
+  );
+  const [editMode, setEditMode] = useState(false);
+  const [deletingProjects, setDeletingProjects] = useState<number[]>([]);
+  const [deleting, setDeleting] = useState(false);
+
   // Bulk operations
-  const [selectedProjects, setSelectedProjects] = useState<number[]>([])
-  const [selectAll, setSelectAll] = useState(false)
-  const [bulkOperationLoading, setBulkOperationLoading] = useState(false)
+  const [selectedProjectData, setSelectedProjectData] = useState<any>(null);
+  const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
 
   useEffect(() => {
     dispatch(listProjects() as any);
@@ -81,26 +102,32 @@ export default function InternalProjectsPage() {
 
   // Helper function to get status name by ID
   const getStatusName = (statusId: number) => {
-    const status = statusProject.find((s: any) => parseInt(s.id) === statusId)
-    return status ? status.name : 'Không xác định'
-  }
+    const status = statusProject.find((s: any) => parseInt(s.id) === statusId);
+    return status ? status.name : "Không xác định";
+  };
 
   // Calculate stats from actual data
-  const inProgressCount = projects.filter((p: any) => 
-    p.project_status_id === 2 // "Đang thực hiện"
-  ).length
-  
-  const completedCount = projects.filter((p: any) => 
-    p.project_status_id === 4 // "Hoàn thành"
-  ).length
-  
-  const delayedCount = projects.filter((p: any) =>
-    p.project_status_id === 6 // "Trễ tiến độ"
-  ).length
-  
-  const totalBudget = projects.reduce((sum: number, p: any) => sum + (parseFloat(p.budget) || 0), 0)
-  const totalSpent = projects.reduce((sum: number, p: any) => sum + (parseFloat(p.spent) || 0), 0)
-  
+  const inProgressCount = projects.filter(
+    (p: any) => p.project_status_id === 2 // "Đang thực hiện"
+  ).length;
+
+  const completedCount = projects.filter(
+    (p: any) => p.project_status_id === 4 // "Hoàn thành"
+  ).length;
+
+  const delayedCount = projects.filter(
+    (p: any) => p.project_status_id === 6 // "Trễ tiến độ"
+  ).length;
+
+  const totalBudget = projects.reduce(
+    (sum: number, p: any) => sum + (parseFloat(p.budget) || 0),
+    0
+  );
+  const totalSpent = projects.reduce(
+    (sum: number, p: any) => sum + (parseFloat(p.spent) || 0),
+    0
+  );
+
   const stats = [
     {
       title: "Tổng Dự Án",
@@ -130,132 +157,172 @@ export default function InternalProjectsPage() {
       icon: BarChart3,
       color: "text-orange-400",
     },
-  ]
+  ];
 
   const getStatusColor = (statusId: number) => {
     switch (statusId) {
       case 1: // Lập kế hoạch
-        return "bg-yellow-600"
+        return "bg-yellow-600";
       case 2: // Đang thực hiện
-        return "bg-blue-600"
+        return "bg-blue-600";
       case 3: // Tạm dừng
-        return "bg-orange-600"
+        return "bg-orange-600";
       case 4: // Hoàn thành
-        return "bg-green-600"
+        return "bg-green-600";
       case 5: // Hủy
-        return "bg-red-600"
+        return "bg-red-600";
       case 6: // Trễ tiến độ
-        return "bg-red-700"
+        return "bg-red-700";
       case 7: // Bảo trì và nâng cấp
-        return "bg-purple-600"
+        return "bg-purple-600";
       default:
-        return "bg-gray-600"
+        return "bg-gray-600";
     }
-  }
+  };
 
   const getCompanyColor = (companyName: string) => {
     const colors = [
       "bg-blue-500/20 text-blue-300 border-blue-500/50",
-      "bg-green-500/20 text-green-300 border-green-500/50", 
+      "bg-green-500/20 text-green-300 border-green-500/50",
       "bg-purple-500/20 text-purple-300 border-purple-500/50",
       "bg-orange-500/20 text-orange-300 border-orange-500/50",
-      "bg-pink-500/20 text-pink-300 border-pink-500/50"
-    ]
-    const hash = companyName?.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0) || 0
-    return colors[Math.abs(hash) % colors.length]
-  }
+      "bg-pink-500/20 text-pink-300 border-pink-500/50",
+    ];
+    const hash =
+      companyName?.split("").reduce((a, b) => {
+        a = (a << 5) - a + b.charCodeAt(0);
+        return a & a;
+      }, 0) || 0;
+    return colors[Math.abs(hash) % colors.length];
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {
       case "high":
       case "cao":
-        return "bg-red-500/20 text-red-300 border-red-500/50"
+        return "bg-red-500/20 text-red-300 border-red-500/50";
       case "medium":
       case "trung bình":
-        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50"
+        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50";
       case "low":
       case "thấp":
-        return "bg-green-500/20 text-green-300 border-green-500/50"
+        return "bg-green-500/20 text-green-300 border-green-500/50";
       default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/50"
+        return "bg-gray-500/20 text-gray-300 border-gray-500/50";
     }
-  }
+  };
 
   const getPriorityLabel = (priority: string) => {
     const priorityMap: Record<string, string> = {
-      'high': 'Cao',
-      'medium': 'Trung bình',
-      'low': 'Thấp'
-    }
-    return priorityMap[priority?.toLowerCase()] || priority || 'Chưa xác định'
-  }
+      high: "Cao",
+      medium: "Trung bình",
+      low: "Thấp",
+    };
+    return priorityMap[priority?.toLowerCase()] || priority || "Chưa xác định";
+  };
 
   const handleCreateProject = () => {
-    setShowCreateModal(true)
-  }
+    setSelectedProjectData(null);
+    setShowCreateModal(true);
+  };
 
   const handleViewProject = (project: any) => {
-    setSelectedProjectId(project.id)
-    setEditMode(false)
-    setShowDetailModal(true)
-  }
+    setSelectedProjectId(project.id);
+    setEditMode(false);
+    setShowDetailModal(true);
+  };
 
   const handleEditProject = (project: any) => {
-    setSelectedProjectId(project.id)
-    setEditMode(true)
-    setShowDetailModal(true)
-  }
+    setSelectedProjectData(project.id);
+    setShowCreateModal(true);
+  };
 
   const handleProjectReport = (project: any) => {
-    setSelectedProjectId(project.id)
-    setShowReportModal(true)
-  }
+    setSelectedProjectId(project.id);
+    setShowReportModal(true);
+  };
 
-  const handleDeleteProject = async () => {
-    // Implement delete logic
-  }
+  const handleDeleteProject = async (project: any) => {
+    setDeletingProjects([project.id]);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedProjects.length === 0) return;
+    setDeletingProjects(selectedProjects);
+  };
+
+  const confirmDelete = async () => {
+    if (deletingProjects.length === 0) return;
+
+    setDeleting(true);
+    try {
+      const res = await dispatch(deleteProject(deletingProjects as any) as any);
+console.log(res)
+      if (res.payload.status == 200 || res.payload.status == 201) {
+        toast.success(res.payload.data.message);
+        dispatch(listProjects() as any);
+        setDeletingProjects([]);
+        setSelectedProjects([]);
+        setSelectAll(false);
+      } else {
+        toast.error("Xóa dự án thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa project:", error);
+      toast.error("Có lỗi xảy ra khi xóa dự án!");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleArchiveProject = async (projectId: number) => {
     // Implement archive logic
-  }
+  };
 
   const handleCloneProject = async (project: any) => {
     // Implement clone logic
-  }
+  };
 
-  const handleQuickStatusUpdate = async (projectId: number, statusId: number) => {
+  const handleQuickStatusUpdate = async (
+    projectId: number,
+    statusId: number
+  ) => {
     // Implement status update logic
-  }
+  };
 
   // Bulk operations handlers
   const handleSelectProject = (projectId: number, checked: boolean) => {
     if (checked) {
-      setSelectedProjects([...selectedProjects, projectId])
+      setSelectedProjects([...selectedProjects, projectId]);
     } else {
-      setSelectedProjects(selectedProjects.filter(id => id !== projectId))
+      setSelectedProjects(selectedProjects.filter((id) => id !== projectId));
     }
-  }
+  };
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectAll(checked)
+    setSelectAll(checked);
     if (checked) {
-      setSelectedProjects(paginatedProjects.map((project: any) => project.id))
+      setSelectedProjects(paginatedProjects.map((project: any) => project.id));
     } else {
-      setSelectedProjects([])
+      setSelectedProjects([]);
     }
-  }
+  };
 
   const handleBulkArchive = async () => {
     // Implement bulk archive
-  }
-
-  const handleBulkDelete = async () => {
-    // Implement bulk delete
-  }
+  };
 
   const handleExportProjects = () => {
     const csvContent = [
-      ['Tên dự án', 'Trạng thái', 'Tiến độ', 'Ngân sách', 'Đã chi', 'Ngày bắt đầu', 'Ngày kết thúc'],
+      [
+        "Tên dự án",
+        "Trạng thái",
+        "Tiến độ",
+        "Ngân sách",
+        "Đã chi",
+        "Ngày bắt đầu",
+        "Ngày kết thúc",
+      ],
       ...filteredProjects.map((project: any) => [
         project.name,
         getStatusName(project.project_status_id),
@@ -263,45 +330,61 @@ export default function InternalProjectsPage() {
         formatCurrency(parseFloat(project.budget) || 0),
         formatCurrency(parseFloat(project.spent) || 0),
         formatDate(project.start_date),
-        formatDate(project.end_date)
-      ])
-    ].map(row => row.join(',')).join('\n')
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `projects_${new Date().toISOString().split('T')[0]}.csv`
-    link.click()
-    
-    toast.success('Đã xuất danh sách dự án!')
-  }
+        formatDate(project.end_date),
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `projects_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+
+    toast.success("Đã xuất danh sách dự án!");
+  };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0
-    }).format(amount)
-  }
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'Chưa xác định'
-    return new Date(dateString).toLocaleDateString('vi-VN')
-  }
+    if (!dateString) return "Chưa xác định";
+    return new Date(dateString).toLocaleDateString("vi-VN");
+  };
 
   // Filter projects
-  const filteredProjects = projects.filter((project: any) => {
-    const matchesSearch =
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (project.client_name && project.client_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    
-    const matchesStatus = selectedStatus === "all" || project.project_status_id === parseInt(selectedStatus)
-    
-    const matchesCompany = selectedCompany === "all" || project.company_id === parseInt(selectedCompany)
-    
-    return matchesSearch && matchesStatus && matchesCompany
-  })
+  const filteredProjects = projects
+    .filter((project: any) => {
+      const matchesSearch =
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.description &&
+          project.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) ||
+        (project.client_name &&
+          project.client_name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      const matchesStatus =
+        selectedStatus === "all" ||
+        project.project_status_id === parseInt(selectedStatus);
+
+      const matchesCompany =
+        selectedCompany === "all" ||
+        project.company_id === parseInt(selectedCompany);
+
+      return matchesSearch && matchesStatus && matchesCompany;
+    })
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return dateB - dateA; // Newest first
+    });
 
   // Pagination with custom hook
   const {
@@ -310,8 +393,8 @@ export default function InternalProjectsPage() {
     currentItems: paginatedProjects,
     totalItems,
     itemsPerPage,
-    goToPage
-  } = usePagination(filteredProjects, 6)
+    goToPage,
+  } = usePagination(filteredProjects, 6);
 
   return (
     <InternalLayout>
@@ -319,7 +402,11 @@ export default function InternalProjectsPage() {
         {/* Breadcrumb */}
         <div className="flex items-center space-x-2 mb-8">
           <Link href="/cms">
-            <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/60 hover:text-white hover:bg-white/10"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               CMS
             </Button>
@@ -331,8 +418,12 @@ export default function InternalProjectsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Quản Lý Dự Án</h1>
-            <p className="text-white/60">Theo dõi và quản lý tất cả dự án của ApecGlobal Group</p>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Quản Lý Dự Án
+            </h1>
+            <p className="text-white/60">
+              Theo dõi và quản lý tất cả dự án của ApecGlobal Group
+            </p>
           </div>
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
             <Button
@@ -348,21 +439,27 @@ export default function InternalProjectsPage() {
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => {
-            const IconComponent = stat.icon
+            const IconComponent = stat.icon;
             return (
               <Card key={index} className="bg-black/50 border-purple-500/30">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white/60 text-sm font-medium">{stat.title}</p>
-                      <p className="text-2xl font-bold text-white mt-2">{stat.value}</p>
-                      <p className="text-green-400 text-sm mt-1">{stat.change} từ tháng trước</p>
+                      <p className="text-white/60 text-sm font-medium">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold text-white mt-2">
+                        {stat.value}
+                      </p>
+                      <p className="text-green-400 text-sm mt-1">
+                        {stat.change} từ tháng trước
+                      </p>
                     </div>
                     <IconComponent className={`h-8 w-8 ${stat.color}`} />
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 
@@ -374,12 +471,12 @@ export default function InternalProjectsPage() {
               placeholder="Tìm kiếm dự án theo tên, mô tả, khách hàng..."
               value={searchTerm}
               onChange={(e) => {
-                setSearchTerm(e.target.value)
+                setSearchTerm(e.target.value);
               }}
               className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
             />
           </div>
-          
+
           <Select value={selectedCompany} onValueChange={setSelectedCompany}>
             <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
               <SelectValue placeholder="Chọn công ty" />
@@ -393,7 +490,7 @@ export default function InternalProjectsPage() {
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[180px]">
               <SelectValue placeholder="Trạng thái" />
@@ -407,14 +504,14 @@ export default function InternalProjectsPage() {
               ))}
             </SelectContent>
           </Select>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
             onClick={() => {
-              setSearchTerm("")
-              setSelectedStatus("all")
-              setSelectedCompany("all")
+              setSearchTerm("");
+              setSelectedStatus("all");
+              setSelectedCompany("all");
             }}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -424,13 +521,17 @@ export default function InternalProjectsPage() {
 
         {/* Quick Status Filters */}
         <div className="flex flex-wrap gap-2 mb-6">
-          <span className="text-white/60 text-sm self-center mr-2">Lọc nhanh:</span>
+          <span className="text-white/60 text-sm self-center mr-2">
+            Lọc nhanh:
+          </span>
           {[
             { label: "Tất cả", value: "all", count: projects.length },
             ...statusProject.map((status: any) => ({
               label: status.name,
               value: status.id,
-              count: projects.filter((p: any) => p.project_status_id === parseInt(status.id)).length,
+              count: projects.filter(
+                (p: any) => p.project_status_id === parseInt(status.id)
+              ).length,
             })),
           ].map((filter) => (
             <Button
@@ -455,32 +556,44 @@ export default function InternalProjectsPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-300 text-sm font-medium">Hoàn thành</p>
-                  <p className="text-2xl font-bold text-white">{completedCount}</p>
+                  <p className="text-green-300 text-sm font-medium">
+                    Hoàn thành
+                  </p>
+                  <p className="text-2xl font-bold text-white">
+                    {completedCount}
+                  </p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-orange-600/20 to-orange-500/20 border-orange-500/30">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-300 text-sm font-medium">Đang thực hiện</p>
-                  <p className="text-2xl font-bold text-white">{inProgressCount}</p>
+                  <p className="text-orange-300 text-sm font-medium">
+                    Đang thực hiện
+                  </p>
+                  <p className="text-2xl font-bold text-white">
+                    {inProgressCount}
+                  </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-orange-400" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-blue-600/20 to-blue-500/20 border-blue-500/30">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-300 text-sm font-medium">Tổng ngân sách</p>
-                  <p className="text-lg font-bold text-white">{formatCurrency(totalBudget)}</p>
+                  <p className="text-blue-300 text-sm font-medium">
+                    Tổng ngân sách
+                  </p>
+                  <p className="text-lg font-bold text-white">
+                    {formatCurrency(totalBudget)}
+                  </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-blue-400" />
               </div>
@@ -500,8 +613,8 @@ export default function InternalProjectsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setSelectedProjects([])
-                    setSelectAll(false)
+                    setSelectedProjects([]);
+                    setSelectAll(false);
                   }}
                   className="bg-transparent border-white/30 text-white hover:bg-white/10"
                 >
@@ -516,7 +629,11 @@ export default function InternalProjectsPage() {
                   disabled={bulkOperationLoading}
                   className="bg-transparent border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
                 >
-                  {bulkOperationLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Archive className="h-4 w-4 mr-2" />}
+                  {bulkOperationLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Archive className="h-4 w-4 mr-2" />
+                  )}
                   Lưu trữ
                 </Button>
                 <Button
@@ -526,7 +643,11 @@ export default function InternalProjectsPage() {
                   disabled={bulkOperationLoading}
                   className="bg-transparent border-red-500/50 text-red-300 hover:bg-red-500/20"
                 >
-                  {bulkOperationLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                  {bulkOperationLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
                   Xóa
                 </Button>
               </div>
@@ -567,7 +688,7 @@ export default function InternalProjectsPage() {
         </div>
 
         {/* Projects List */}
-        {loading ? (
+        {!projects ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-white" />
             <span className="ml-2 text-white">Đang tải dự án...</span>
@@ -587,9 +708,7 @@ export default function InternalProjectsPage() {
                 </Button>
               </div>
             ) : (
-              paginatedProjects
-              .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-              .map((project: any) => (
+              paginatedProjects.map((project: any) => (
                 <Card
                   key={project.id}
                   className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
@@ -598,41 +717,72 @@ export default function InternalProjectsPage() {
                     <div className="flex items-start justify-between mb-4">
                       <Checkbox
                         checked={selectedProjects.includes(project.id)}
-                        onCheckedChange={(checked) => handleSelectProject(project.id, checked as boolean)}
+                        onCheckedChange={(checked) =>
+                          handleSelectProject(project.id, checked as boolean)
+                        }
                         className="border-white/30 mt-1"
                       />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-white/60 hover:text-white hover:bg-white/10"
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="bg-black/90 border-purple-500/30">
-                          <DropdownMenuItem onClick={() => handleViewProject(project)} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem
+                            onClick={() => handleViewProject(project)}
+                            className="text-white hover:bg-white/10"
+                          >
                             <Eye className="h-4 w-4 mr-2" />
                             Chi tiết
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditProject(project)} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem
+                            onClick={() => handleEditProject(project)}
+                            className="text-white hover:bg-white/10"
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Chỉnh sửa
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCloneProject(project)} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem
+                            onClick={() => handleCloneProject(project)}
+                            className="text-white hover:bg-white/10"
+                          >
                             <Copy className="h-4 w-4 mr-2" />
                             Sao chép
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleQuickStatusUpdate(project.id, 2)} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleQuickStatusUpdate(project.id, 2)
+                            }
+                            className="text-white hover:bg-white/10"
+                          >
                             <Play className="h-4 w-4 mr-2" />
                             Bắt đầu
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleQuickStatusUpdate(project.id, 3)} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleQuickStatusUpdate(project.id, 3)
+                            }
+                            className="text-white hover:bg-white/10"
+                          >
                             <Pause className="h-4 w-4 mr-2" />
                             Tạm dừng
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleArchiveProject(project.id)} className="text-white hover:bg-white/10">
+                          <DropdownMenuItem
+                            onClick={() => handleArchiveProject(project.id)}
+                            className="text-white hover:bg-white/10"
+                          >
                             <Archive className="h-4 w-4 mr-2" />
                             Lưu trữ
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeletingProject(project)} className="text-red-400 hover:bg-red-500/20">
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteProject(project)}
+                            className="text-red-400 hover:bg-red-500/20"
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Xóa
                           </DropdownMenuItem>
@@ -644,14 +794,30 @@ export default function InternalProjectsPage() {
                       <div className="lg:col-span-2 space-y-4">
                         <div>
                           <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-xl font-bold text-white">{project.name}</h3>
-                            {companies.find((c: any) => c.id === project.company_id) && (
-                              <Badge className={`${getCompanyColor(companies.find((c: any) => c.id === project.company_id)?.name || '')} border`}>
-                                {companies.find((c: any) => c.id === project.company_id)?.name}
+                            <h3 className="text-xl font-bold text-white">
+                              {project.name}
+                            </h3>
+                            {companies.find(
+                              (c: any) => c.id === project.company_id
+                            ) && (
+                              <Badge
+                                className={`${getCompanyColor(
+                                  companies.find(
+                                    (c: any) => c.id === project.company_id
+                                  )?.name || ""
+                                )} border`}
+                              >
+                                {
+                                  companies.find(
+                                    (c: any) => c.id === project.company_id
+                                  )?.name
+                                }
                               </Badge>
                             )}
                           </div>
-                          <p className="text-white/80 mb-3">{project.description || 'Chưa có mô tả'}</p>
+                          <p className="text-white/80 mb-3">
+                            {project.description || "Chưa có mô tả"}
+                          </p>
                           <div className="flex items-center space-x-4 text-white/60 text-sm">
                             <span className="flex items-center">
                               <Users className="h-4 w-4 mr-1" />
@@ -667,10 +833,18 @@ export default function InternalProjectsPage() {
                         </div>
 
                         <div className="flex items-center space-x-3">
-                          <Badge className={getStatusColor(project.project_status_id)}>
+                          <Badge
+                            className={getStatusColor(
+                              project.project_status_id
+                            )}
+                          >
                             {getStatusName(project.project_status_id)}
                           </Badge>
-                          <Badge className={`${getPriorityColor(project.priority)} border`}>
+                          <Badge
+                            className={`${getPriorityColor(
+                              project.priority
+                            )} border`}
+                          >
                             {getPriorityLabel(project.priority)}
                           </Badge>
                         </div>
@@ -679,7 +853,9 @@ export default function InternalProjectsPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-white/60">Tiến độ</span>
-                            <span className="text-white">{project.progress || 0}%</span>
+                            <span className="text-white">
+                              {project.progress || 0}%
+                            </span>
                           </div>
                           <div className="w-full bg-gray-700 rounded-full h-3">
                             <div
@@ -693,29 +869,45 @@ export default function InternalProjectsPage() {
                       {/* Project Details */}
                       <div className="space-y-4">
                         <div>
-                          <p className="text-white/60 text-sm mb-1">Thời gian</p>
+                          <p className="text-white/60 text-sm mb-1">
+                            Thời gian
+                          </p>
                           <div className="text-white text-sm space-y-1">
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-2 text-green-400" />
-                              <span>Bắt đầu: {formatDate(project.start_date)}</span>
+                              <span>
+                                Bắt đầu: {formatDate(project.start_date)}
+                              </span>
                             </div>
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-2 text-red-400" />
-                              <span>Kết thúc: {formatDate(project.end_date)}</span>
+                              <span>
+                                Kết thúc: {formatDate(project.end_date)}
+                              </span>
                             </div>
                           </div>
                         </div>
 
                         <div>
-                          <p className="text-white/60 text-sm mb-1">Ngân sách</p>
+                          <p className="text-white/60 text-sm mb-1">
+                            Ngân sách
+                          </p>
                           <div className="text-white text-sm space-y-1">
                             <div className="flex items-center">
                               <DollarSign className="h-4 w-4 mr-2 text-green-400" />
-                              <span>Tổng: {formatCurrency(parseFloat(project.budget) || 0)}</span>
+                              <span>
+                                Tổng:{" "}
+                                {formatCurrency(
+                                  parseFloat(project.budget) || 0
+                                )}
+                              </span>
                             </div>
                             <div className="flex items-center">
                               <DollarSign className="h-4 w-4 mr-2 text-red-400" />
-                              <span>Đã chi: {formatCurrency(parseFloat(project.spent) || 0)}</span>
+                              <span>
+                                Đã chi:{" "}
+                                {formatCurrency(parseFloat(project.spent) || 0)}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -756,7 +948,7 @@ export default function InternalProjectsPage() {
                 </Card>
               ))
             )}
-            
+
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8">
@@ -776,22 +968,28 @@ export default function InternalProjectsPage() {
         <div className="mt-12">
           <h3 className="text-xl font-bold text-white mb-6">Thao Tác Nhanh</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card 
+            <Card
               className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105"
               onClick={handleCreateProject}
             >
               <CardContent className="p-6 text-center">
                 <Plus className="h-12 w-12 mx-auto text-purple-400 mb-4" />
                 <h4 className="text-white font-medium mb-2">Tạo Dự Án Mới</h4>
-                <p className="text-white/60 text-sm">Khởi tạo dự án mới với template</p>
+                <p className="text-white/60 text-sm">
+                  Khởi tạo dự án mới với template
+                </p>
               </CardContent>
             </Card>
 
             <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
               <CardContent className="p-6 text-center">
                 <BarChart3 className="h-12 w-12 mx-auto text-blue-400 mb-4" />
-                <h4 className="text-white font-medium mb-2">Báo Cáo Tổng Hợp</h4>
-                <p className="text-white/60 text-sm">Xem báo cáo tiến độ tất cả dự án</p>
+                <h4 className="text-white font-medium mb-2">
+                  Báo Cáo Tổng Hợp
+                </h4>
+                <p className="text-white/60 text-sm">
+                  Xem báo cáo tiến độ tất cả dự án
+                </p>
               </CardContent>
             </Card>
 
@@ -799,7 +997,9 @@ export default function InternalProjectsPage() {
               <CardContent className="p-6 text-center">
                 <Calendar className="h-12 w-12 mx-auto text-green-400 mb-4" />
                 <h4 className="text-white font-medium mb-2">Lịch Dự Án</h4>
-                <p className="text-white/60 text-sm">Xem timeline và milestone</p>
+                <p className="text-white/60 text-sm">
+                  Xem timeline và milestone
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -815,10 +1015,16 @@ export default function InternalProjectsPage() {
 
         <ProjectCreateModal
           isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
-            dispatch(listProjects() as any)
+          onClose={() => {
+            setShowCreateModal(false);
+            setSelectedProjectData(null);
           }}
+          onSuccess={() => {
+            dispatch(listProjects() as any);
+            setShowCreateModal(false);
+            setSelectedProjectData(null);
+          }}
+          projectId={selectedProjectData}
         />
 
         <ProjectReportModal
@@ -831,39 +1037,61 @@ export default function InternalProjectsPage() {
           isOpen={showImportModal}
           onClose={() => setShowImportModal(false)}
           onSuccess={() => {
-            dispatch(listProjects() as any)
-            setShowImportModal(false)
+            dispatch(listProjects() as any);
+            setShowImportModal(false);
           }}
         />
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={!!deletingProject} onOpenChange={() => setDeletingProject(null)}>
+        <Dialog
+          open={deletingProjects.length > 0}
+          onOpenChange={() => setDeletingProjects([])}
+        >
           <DialogContent className="bg-black/90 border-red-500/30 text-white max-w-md">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-white">
                 Xác Nhận Xóa Dự Án
               </DialogTitle>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <p className="text-white/80">
-                Bạn có chắc chắn muốn xóa dự án <span className="font-semibold text-red-400">{deletingProject?.name}</span> không?
+                {deletingProjects.length === 1 ? (
+                  <>
+                    Bạn có chắc chắn muốn xóa dự án{" "}
+                    <span className="font-semibold text-red-400">
+                      {
+                        projects.find((p: any) => p.id === deletingProjects[0])
+                          ?.name
+                      }
+                    </span>{" "}
+                    không?
+                  </>
+                ) : (
+                  <>
+                    Bạn có chắc chắn muốn xóa{" "}
+                    <span className="font-semibold text-red-400">
+                      {deletingProjects.length} dự án
+                    </span>{" "}
+                    đã chọn không?
+                  </>
+                )}
               </p>
               <p className="text-sm text-red-400">
-                ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan (task, member, v.v.).
+                ⚠️ Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu
+                liên quan (task, member, v.v.).
               </p>
-              
+
               <div className="flex justify-end space-x-3 pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setDeletingProject(null)}
+                  onClick={() => setDeletingProjects([])}
                   className="bg-transparent border-2 border-gray-500/50 text-white hover:bg-gray-500/20"
                   disabled={deleting}
                 >
                   Hủy
                 </Button>
                 <Button
-                  onClick={handleDeleteProject}
+                  onClick={confirmDelete}
                   disabled={deleting}
                   className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
                 >
@@ -875,7 +1103,11 @@ export default function InternalProjectsPage() {
                   ) : (
                     <>
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Xóa Dự Án
+                      Xóa{" "}
+                      {deletingProjects.length > 1
+                        ? `${deletingProjects.length} `
+                        : ""}
+                      Dự Án
                     </>
                   )}
                 </Button>
@@ -885,5 +1117,5 @@ export default function InternalProjectsPage() {
         </Dialog>
       </div>
     </InternalLayout>
-  )
+  );
 }

@@ -382,7 +382,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         <SelectValue placeholder="Chọn phòng ban" />
                       </SelectTrigger>
                       <SelectContent>
-                        {departments.map((item: any) => (
+                        {departments?.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.name}
                           </SelectItem>

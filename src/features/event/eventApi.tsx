@@ -1,14 +1,14 @@
 import apiAxiosInstance from "@/src/services/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import { toast } from "sonner";
 
-export const listDepartment = createAsyncThunk(
-  'department/listDepartment', 
+export const listEvent = createAsyncThunk(
+  'event/listEvent', 
   async (payload, thunkAPI) => {
     try {
       const {limit, page}: any = payload;
-      const response = await apiAxiosInstance.get(`/cms/departments?limit=${limit}&&page=${page}`);
+      const response = await apiAxiosInstance.get(`/cms/events?limit=${limit}&&page=${page}`);
+      console.log("reson api", response.data)
       return response.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
@@ -16,13 +16,13 @@ export const listDepartment = createAsyncThunk(
   }
 );
 
-export const createDepartment = createAsyncThunk(
-  "department/createDepartment",
+export const createEvent = createAsyncThunk(
+  "event/createEvent",
   async (payload: any, thunkAPI) => {
     try {
-      const { name, description, manager_id }: any = payload;
-      const response = await apiAxiosInstance.post(`/cms/departments/create`, {
-       name, description, manager_id
+      const { title, description, date, time,end_time, end_date, address, event_type_id }: any = payload;
+      const response = await apiAxiosInstance.post(`/cms/events/create`, {
+       title, description, date, time,end_time, end_date, address, event_type_id
       });
       return {
         data: response.data,
@@ -35,13 +35,13 @@ export const createDepartment = createAsyncThunk(
   }
 );
 
-export const updateDepartment = createAsyncThunk(
-  "department/updateDepartment",
+export const updateEvent = createAsyncThunk(
+  "event/updateEvent",
   async (payload: any, thunkAPI) => {
     try {
-      const { id, name, description, manager_id }: any = payload;
-      const response = await apiAxiosInstance.put(`/cms/departments/update?id=${id}`, {
-       name, description, manager_id
+      const { id, title, description, date, time,end_time, end_date, address, event_type_id }: any = payload;
+      const response = await apiAxiosInstance.put(`/cms/events/update?id=${id}`, {
+       title, description, date, time,end_time, end_date, address, event_type_id
       });
       return {
         data: response.data,
@@ -54,12 +54,12 @@ export const updateDepartment = createAsyncThunk(
   }
 );
 
-export const deleteDepartments = createAsyncThunk(
-  "event/deleteDepartments",
+export const deleteEvents = createAsyncThunk(
+  "event/deleteEvents",
   async (ids, thunkAPI) => {
     try {
       const response = await apiAxiosInstance.delete(
-        `/cms/departments/delete`,
+        `/cms/events/delete`,
         { data: { ids } } 
       );
 

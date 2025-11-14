@@ -10,10 +10,12 @@ interface InitState<T> {
 
 interface DepartmentState {
   departments: InitState<any[]>;
+  totalDepartments: InitState<any[]>;
 }
 
 const initialState: DepartmentState = {
   departments: { data: [], loading: false, error: null, status: null },
+  totalDepartments: { data: [], loading: false, error: null, status: null },
 };
 
 const departmentSlice = createSlice({
@@ -21,7 +23,7 @@ const departmentSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    createAsyncReducer(builder, listDepartment, "departments");
+    createAsyncReducer(builder, listDepartment, ["departments", "totalDepartments",]);
   },
 });
 

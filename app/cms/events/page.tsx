@@ -20,8 +20,14 @@ import Link from "next/link";
 import InternalLayout from "@/components/cms-layout";
 import { Button } from "@/components/ui/button";
 import { useEventData } from "@/src/hook/eventHook";
-import { createEvent, listEvent, updateEvent, deleteEvents } from "@/src/features/event/eventApi";
+import {
+  createEvent,
+  listEvent,
+  updateEvent,
+  deleteEvents,
+} from "@/src/features/event/eventApi";
 import { toast } from "sonner";
+import Pagination from "@/components/pagination";
 
 interface EventType {
   id: number;
@@ -85,14 +91,20 @@ export default function EventPage() {
   });
 
   useEffect(() => {
-    dispatch(listEvent({limit, page} as any) as any);
+    dispatch(listEvent({ limit, page } as any) as any);
   }, [dispatch, page, limit, total]);
 
   const totalPages = Math.ceil((total || 0) / limit);
 
   // Kiểm tra xung đột thời gian
   const conflictingEvents = useMemo(() => {
-    if (!formData.date || !formData.time || !formData.end_date || !formData.end_time || !events) {
+    if (
+      !formData.date ||
+      !formData.time ||
+      !formData.end_date ||
+      !formData.end_time ||
+      !events
+    ) {
       return [];
     }
 
@@ -106,25 +118,39 @@ export default function EventPage() {
 
     return events.filter((event: Event) => {
       // Bỏ qua sự kiện đang được chỉnh sửa
-      if (modalMode === "edit" && selectedEvent && event.id === selectedEvent.id) {
+      if (
+        modalMode === "edit" &&
+        selectedEvent &&
+        event.id === selectedEvent.id
+      ) {
         return false;
       }
 
       const eventStart = new Date(`${event.date.split("T")[0]}T${event.time}`);
-      const eventEnd = new Date(`${event.end_date.split("T")[0]}T${event.end_time}`);
+      const eventEnd = new Date(
+        `${event.end_date.split("T")[0]}T${event.end_time}`
+      );
 
       // Kiểm tra xung đột:
       // 1. Bắt đầu của sự kiện mới nằm trong khoảng thời gian của sự kiện hiện có
       // 2. Kết thúc của sự kiện mới nằm trong khoảng thời gian của sự kiện hiện có
       // 3. Sự kiện mới bao trùm hoàn toàn sự kiện hiện có
-      const hasConflict = 
+      const hasConflict =
         (startDateTime >= eventStart && startDateTime < eventEnd) ||
         (endDateTime > eventStart && endDateTime <= eventEnd) ||
         (startDateTime <= eventStart && endDateTime >= eventEnd);
 
       return hasConflict;
     });
-  }, [formData.date, formData.time, formData.end_date, formData.end_time, events, modalMode, selectedEvent]);
+  }, [
+    formData.date,
+    formData.time,
+    formData.end_date,
+    formData.end_time,
+    events,
+    modalMode,
+    selectedEvent,
+  ]);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -136,9 +162,9 @@ export default function EventPage() {
   };
 
   const handleToggleSelect = (eventId: string) => {
-    setSelectedEvents(prev => 
-      prev.includes(eventId) 
-        ? prev.filter(id => id !== eventId)
+    setSelectedEvents((prev) =>
+      prev.includes(eventId)
+        ? prev.filter((id) => id !== eventId)
         : [...prev, eventId]
     );
   };
@@ -236,13 +262,15 @@ export default function EventPage() {
           handleCloseModal();
         }
       } else if (modalMode === "edit" && selectedEvent) {
-        const res = await dispatch(updateEvent({ id: selectedEvent.id, ...formData }) as any);
+        const res = await dispatch(
+          updateEvent({ id: selectedEvent.id, ...formData }) as any
+        );
         if (res.payload.status == 200 || res.payload.status == 201) {
           toast.success(res.payload.data.message);
           handleCloseModal();
         }
       }
-      dispatch(listEvent({limit, page} as any) as any);
+      dispatch(listEvent({ limit, page } as any) as any);
     } catch (error) {
       console.error("Error submitting event:", error);
     }
@@ -250,15 +278,16 @@ export default function EventPage() {
 
   const handleDelete = async (ids?: string | string[]) => {
     const deleteIds = ids ? (Array.isArray(ids) ? ids : [ids]) : selectedEvents;
-    
+
     if (deleteIds.length === 0) {
       toast.error("Vui lòng chọn ít nhất một sự kiện để xóa");
       return;
     }
 
-    const confirmMessage = deleteIds.length === 1 
-      ? "Bạn có chắc chắn muốn xóa sự kiện này?"
-      : `Bạn có chắc chắn muốn xóa ${deleteIds.length} sự kiện đã chọn?`;
+    const confirmMessage =
+      deleteIds.length === 1
+        ? "Bạn có chắc chắn muốn xóa sự kiện này?"
+        : `Bạn có chắc chắn muốn xóa ${deleteIds.length} sự kiện đã chọn?`;
 
     if (confirm(confirmMessage)) {
       try {
@@ -266,7 +295,7 @@ export default function EventPage() {
         if (res.payload.status === 200 || res.payload.status === 201) {
           toast.success(res.payload.data.message);
           setSelectedEvents([]);
-          dispatch(listEvent({limit, page} as any) as any);
+          dispatch(listEvent({ limit, page } as any) as any);
         }
       } catch (error) {
         console.error("Error deleting events:", error);
@@ -362,12 +391,12 @@ export default function EventPage() {
                   className="w-5 h-5 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 cursor-pointer"
                 />
                 <span className="text-white/60">
-                  {selectedEvents.length > 0 
+                  {selectedEvents.length > 0
                     ? `Đã chọn ${selectedEvents.length} sự kiện`
                     : "Chọn tất cả"}
                 </span>
               </div>
-              
+
               {selectedEvents.length > 0 && (
                 <Button
                   onClick={() => handleDelete()}
@@ -384,9 +413,9 @@ export default function EventPage() {
                 <div
                   key={event.id}
                   className={`bg-white/10 backdrop-blur-lg rounded-xl p-6 border transition-all hover:shadow-2xl ${
-                    selectedEvents.includes(event.id) 
-                      ? 'border-purple-500 ring-2 ring-purple-500/50' 
-                      : 'border-white/20 hover:border-purple-500/50'
+                    selectedEvents.includes(event.id)
+                      ? "border-purple-500 ring-2 ring-purple-500/50"
+                      : "border-white/20 hover:border-purple-500/50"
                   }`}
                 >
                   <div className="flex items-start gap-3 mb-4">
@@ -397,7 +426,7 @@ export default function EventPage() {
                       className="w-5 h-5 mt-1 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
                     />
-                    
+
                     <div className="flex justify-between items-start flex-1">
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-white mb-2">
@@ -468,32 +497,14 @@ export default function EventPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-white/60 text-sm">
-                  Trang {page} / {totalPages} - Tổng {total} sự kiện
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={page === 1}
-                    variant="ghost"
-                    className="bg-white/10 hover:bg-white/20 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Button>
-
-                  <div className="flex gap-2">{renderPageNumbers()}</div>
-
-                  <Button
-                    onClick={() => handlePageChange(page + 1)}
-                    disabled={page === totalPages}
-                    variant="ghost"
-                    className="bg-white/10 hover:bg-white/20 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={total}
+                onPageChange={setPage}
+                maxVisiblePages={5}
+                itemsPerPage={limit}
+              />
             )}
           </>
         ) : (
@@ -522,7 +533,11 @@ export default function EventPage() {
                 </button>
               </div>
 
-              <div className={`grid grid-cols-1 ${conflictingEvents.length > 0 ? 'lg:grid-cols-3' : ''} gap-6`}>
+              <div
+                className={`grid grid-cols-1 ${
+                  conflictingEvents.length > 0 ? "lg:grid-cols-3" : ""
+                } gap-6`}
+              >
                 {/* Form Section */}
                 <div className="lg:col-span-2 space-y-4">
                   <div>
@@ -610,7 +625,9 @@ export default function EventPage() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-300 mb-2">Địa Điểm *</label>
+                    <label className="block text-gray-300 mb-2">
+                      Địa Điểm *
+                    </label>
                     <input
                       type="text"
                       name="address"
@@ -674,9 +691,10 @@ export default function EventPage() {
                           Cảnh báo xung đột
                         </h3>
                       </div>
-                      
+
                       <p className="text-red-300 text-sm mb-4">
-                        Có {conflictingEvents.length} sự kiện bị trùng thời gian:
+                        Có {conflictingEvents.length} sự kiện bị trùng thời
+                        gian:
                       </p>
 
                       <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -691,15 +709,23 @@ export default function EventPage() {
                             <div className="space-y-1 text-xs text-gray-300">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3 text-red-400" />
-                                <span>{formatDate(event.date)} - {formatDate(event.end_date)}</span>
+                                <span>
+                                  {formatDate(event.date)} -{" "}
+                                  {formatDate(event.end_date)}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3 text-red-400" />
-                                <span>{formatTime(event.time)} - {formatTime(event.end_time)}</span>
+                                <span>
+                                  {formatTime(event.time)} -{" "}
+                                  {formatTime(event.end_time)}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <MapPin className="w-3 h-3 text-red-400" />
-                                <span className="line-clamp-1">{event.address}</span>
+                                <span className="line-clamp-1">
+                                  {event.address}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -707,18 +733,24 @@ export default function EventPage() {
                       </div>
                     </div>
                   ) : (
-                    formData.date && formData.time && formData.end_date && formData.end_time && (
+                    formData.date &&
+                    formData.time &&
+                    formData.end_date &&
+                    formData.end_time && (
                       <div className="bg-green-900/20 border border-green-500/50 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-5 h-5 bg-green-400 rounded-full flex items-center justify-center">
-                            <span className="text-green-900 text-xs font-bold">✓</span>
+                            <span className="text-green-900 text-xs font-bold">
+                              ✓
+                            </span>
                           </div>
                           <h3 className="text-lg font-semibold text-green-400">
                             Không có xung đột
                           </h3>
                         </div>
                         <p className="text-green-300 text-sm">
-                          Thời gian sự kiện này không trùng lặp với bất kỳ sự kiện nào khác.
+                          Thời gian sự kiện này không trùng lặp với bất kỳ sự
+                          kiện nào khác.
                         </p>
                       </div>
                     )

@@ -1,6 +1,7 @@
 import apiAxiosInstance from "@/src/services/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { toast } from "sonner";
 
 export const listEmployee = createAsyncThunk(
   "employee/listEmployee",
@@ -9,6 +10,9 @@ export const listEmployee = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/employees`);
       return response.data.data.employees;
     } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -21,6 +25,9 @@ export const listSkill = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/skills`);
       return response.data.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+              position: "top-right",
+            });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -33,6 +40,9 @@ export const listContact = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/contract-types`);
       return response.data.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -45,6 +55,9 @@ export const listManager = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/employees/managers`);
       return response.data.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -57,6 +70,9 @@ export const listEmployeeById = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/employees?id=${id}`);
       return response.data.data.employees[0];
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+              position: "top-right",
+            });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -125,8 +141,11 @@ export const createOrUpdateEmployee = createAsyncThunk(
       return {
         status: response.status,
         data: response.data,
-      }
+      };
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -137,16 +156,22 @@ export const updateSkills = createAsyncThunk(
   async (payload: any, thunkAPI) => {
     try {
       const { id, mainGroupId, skills }: any = payload;
-      const response = await apiAxiosInstance.put(`/cms/skills/update/?id=${id}`, {
-        id,
-        mainGroupId,
-        skills,
-      });
+      const response = await apiAxiosInstance.put(
+        `/cms/skills/update/?id=${id}`,
+        {
+          id,
+          mainGroupId,
+          skills,
+        }
+      );
       return {
         status: response.status,
         data: response.data,
-      }
+      };
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -157,12 +182,17 @@ export const updateStatusCareer = createAsyncThunk(
   async (payload: any, thunkAPI) => {
     try {
       const { id, status }: any = payload;
-      const response = await apiAxiosInstance.put(`/cms/personal-requests/change?id=${id}&&status=${status}`);
+      const response = await apiAxiosInstance.put(
+        `/cms/personal-requests/change?id=${id}&&status=${status}`
+      );
       return {
         status: response.status,
         data: response.data,
-      }
+      };
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

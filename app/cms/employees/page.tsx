@@ -139,10 +139,10 @@ interface Department {
 function EmployeesManagementContent() {
   const dispatch = useDispatch();
   const { employees, skills, contacts, managers } = useEmployeeData();
-  const { departments } = useDepartmentData();
-  const { positions } = usePositionData();
+  const { departments, totalDepartment } = useDepartmentData();
+  const { positions, totalPosition } = usePositionData();
 
-  console.log("departments", departments)
+  console.log("departments", departments);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -201,12 +201,16 @@ function EmployeesManagementContent() {
 
   useEffect(() => {
     dispatch(listEmployee() as any);
-    dispatch(listDepartment() as any);
-    dispatch(listPosition() as any);
     dispatch(listSkill() as any);
     dispatch(listContact() as any);
     dispatch(listManager() as any);
+    
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
+    dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
+  }, [dispatch, totalPosition, totalDepartment]);
 
   const handleCreatePosition = () => {
     setPositionFormData({
@@ -239,7 +243,7 @@ function EmployeesManagementContent() {
 
       if (result.success) {
         setShowPositionModal(false);
-        dispatch(listPosition() as any);
+        dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
         // Auto-select the newly created position
         setFormData({ ...formData, position: positionFormData.title });
         toast.success("Tạo chức vụ thành công!");
@@ -479,7 +483,6 @@ function EmployeesManagementContent() {
         // setShowCreateModal(false);
         toast.success(res.payload.data.message);
       }
-
     } catch (error) {
       console.error("Error saving employee:", error);
       toast.error("Lỗi khi lưu nhân viên");
@@ -555,7 +558,7 @@ function EmployeesManagementContent() {
   const companiesWithEmployees = [
     ...new Set(employees.map((e: Employee) => e.company_id).filter(Boolean)),
   ].length;
-  
+
   if (!employees) {
     return (
       <div className="flex items-center justify-center min-h-screen">

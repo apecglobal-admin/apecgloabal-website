@@ -109,7 +109,7 @@ interface ProjectModalProps {
   projectId?: Project | null;
 }
 
-export function ProjectCreateModal({
+export function ProjectCreateUpdateModal({
   isOpen,
   onClose,
   onSuccess,

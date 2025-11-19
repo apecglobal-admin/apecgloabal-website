@@ -65,7 +65,7 @@ interface Department {
 
 function DepartmentsManagementContent() {
   const dispatch = useDispatch();
-  const { departments, total } = useDepartmentData();
+  const { departments, totalDepartment } = useDepartmentData();
   const { managers } = useEmployeeData();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -99,7 +99,7 @@ function DepartmentsManagementContent() {
     );
   }, [dispatch, page, limit]);
 
-  const totalPages = Math.ceil((total || 0) / limit);
+  const totalPages = Math.ceil((totalDepartment || 0) / limit);
 
   const handleCreate = () => {
     setEditingDepartment(null);
@@ -198,7 +198,7 @@ function DepartmentsManagementContent() {
   });
 
   // Calculate stats
-  const totalDepartments = total || 0;
+  const totalDepartments = totalDepartment || 0;
   const departmentsWithManagers = safeDepartments.filter(
     (d) => d.manager?.id !== null
   ).length;
@@ -407,7 +407,7 @@ function DepartmentsManagementContent() {
             <Pagination
               currentPage={page}
               totalPages={totalPages}
-              totalItems={total}
+              totalItems={totalDepartment}
               onPageChange={setPage}
               maxVisiblePages={5}
               itemsPerPage={limit}

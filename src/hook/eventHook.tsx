@@ -7,7 +7,7 @@ export const useEventData = () => {
   return {
     // Data 
     events: event.events.data,
-    total:  event?.totalEvents?.paginations?.total,
+    totalEvent:  event?.totalEvents?.paginations?.total,
    
  
 

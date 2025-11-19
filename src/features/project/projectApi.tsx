@@ -1,14 +1,18 @@
 import apiAxiosInstance from "@/src/services/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { toast } from "sonner";
 
 export const listProjects = createAsyncThunk(
   "project/listProjects",
   async (_, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(`/projects`);
+      const response = await apiAxiosInstance.get(`/cms/projects`);
       return response.data.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -21,6 +25,9 @@ export const listProjectById = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/cms/projects?id=${id}`);
       return response.data.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+              position: "top-right",
+            });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -33,6 +40,9 @@ export const listStatusProject = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/projects/status`);
       return response.data.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -49,6 +59,9 @@ export const inviteEmployeeProject = createAsyncThunk(
       });
       return response.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -67,6 +80,9 @@ export const createProject = createAsyncThunk(
         status: response.status,
       };
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -85,6 +101,9 @@ export const updateProject = createAsyncThunk(
         status: response.status,
       };
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -104,6 +123,65 @@ export const deleteProject = createAsyncThunk(
         status: response.status,
       };
     } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const listIssues = createAsyncThunk(
+  "project/listIssues",
+  async (payload, thunkAPI) => {
+    try {
+      const {project_id, limit, page}: any = payload;
+      const response = await apiAxiosInstance.get(`/cms/projects/issues?project_id=${project_id}&limit=${limit}&page=${page}`);
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const createIssues = createAsyncThunk(
+  "project/createIssues",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { id ,title, description }: any = payload;
+      const response = await apiAxiosInstance.post(`/cms/projects/issues/create?id=${id}`, {
+       id ,title, description
+      });
+      return {
+        data: response.data,
+        status: response.status
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const deleteIssues = createAsyncThunk(
+  "project/deleteIssues",
+  async (ids, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.delete(
+        `/cms/projects/issues/delete`,
+        { data: { ids } } 
+      );
+
+      return {
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

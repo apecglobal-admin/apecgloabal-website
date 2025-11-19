@@ -69,7 +69,7 @@ interface FormData {
 
 export default function EventPage() {
   const dispatch = useDispatch();
-  const { events, total } = useEventData();
+  const { events, totalEvent } = useEventData();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -92,9 +92,9 @@ export default function EventPage() {
 
   useEffect(() => {
     dispatch(listEvent({ limit, page } as any) as any);
-  }, [dispatch, page, limit, total]);
+  }, [dispatch, page, limit, totalEvent]);
 
-  const totalPages = Math.ceil((total || 0) / limit);
+  const totalPages = Math.ceil((totalEvent || 0) / limit);
 
   // Kiểm tra xung đột thời gian
   const conflictingEvents = useMemo(() => {
@@ -500,7 +500,7 @@ export default function EventPage() {
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
-                totalItems={total}
+                totalItems={totalEvent}
                 onPageChange={setPage}
                 maxVisiblePages={5}
                 itemsPerPage={limit}

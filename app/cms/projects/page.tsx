@@ -18,8 +18,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ProjectDetailModal } from "@/app/cms/projects/project-detail-modal";
-import { ProjectCreateModal } from "@/app/cms/projects/project-create-modal";
+import { ProjectDetailModal } from "@/app/cms/projects/detail/project-detail-modal";
+import {ProjectCreateUpdateModal } from "@/app/cms/projects/project-create-modal";
 import { ProjectReportModal } from "@/components/project-report-modal";
 import { ProjectImportModal } from "@/components/project-import-modal";
 import Link from "next/link";
@@ -1013,7 +1013,7 @@ console.log(res)
           editMode={editMode}
         />
 
-        <ProjectCreateModal
+        <ProjectCreateUpdateModal
           isOpen={showCreateModal}
           onClose={() => {
             setShowCreateModal(false);

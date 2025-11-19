@@ -11,6 +11,9 @@ export const listDepartment = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/cms/departments?limit=${limit}&&page=${page}`);
       return response.data;
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+              position: "top-right",
+            });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -29,7 +32,9 @@ export const createDepartment = createAsyncThunk(
         status: response.status
       };
     } catch (error: any) {
-      toast.error(error?.response?.data.message)
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -48,14 +53,16 @@ export const updateDepartment = createAsyncThunk(
         status: response.status
       };
     } catch (error: any) {
-      toast.error(error?.response?.data.message)
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
 );
 
 export const deleteDepartments = createAsyncThunk(
-  "event/deleteDepartments",
+  "department/deleteDepartments",
   async (ids, thunkAPI) => {
     try {
       const response = await apiAxiosInstance.delete(
@@ -68,6 +75,9 @@ export const deleteDepartments = createAsyncThunk(
         status: response.status,
       };
     } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

@@ -24,6 +24,8 @@ import {
   Package,
   UserPlus,
   Folder,
+  CalendarClock,
+  Columns4,
 } from "lucide-react";
 
 interface InternalLayoutProps {
@@ -74,10 +76,22 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       icon: Shield,
       color: "text-indigo-400",
     },
-     {
+    {
       name: "Sự kiện",
       href: "/cms/events",
-      icon: Shield,
+      icon: CalendarClock,
+      color: "text-indigo-400",
+    },
+    {
+      name: "Chính sách",
+      href: "/cms/policies",
+      icon: Columns4,
+      color: "text-indigo-400",
+    },
+    {
+      name: "Hỗ trợ",
+      href: "/cms/supports",
+      icon: Columns4,
       color: "text-indigo-400",
     },
     {

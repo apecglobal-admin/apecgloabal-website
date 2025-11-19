@@ -6,9 +6,8 @@ export const usePositionData = () => {
   return {
     // Data 
     positions: position.positions.data,
-   
- 
-
+    totalPosition: position?.totalPositions?.paginations?.total,
+  
     // Loading states
     isLoadingPositions: position.positions.loading,
    

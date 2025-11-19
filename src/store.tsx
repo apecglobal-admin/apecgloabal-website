@@ -5,16 +5,20 @@ import positionReducer from "./features/position/positionSlice";
 import projectReducer from "./features/project/projectSlice";
 import companyReducer from "./features/company/companySlice";
 import authReducer from "./features/auth/authSlice";
-import eventReducer from "./features/event/eventSlice"
+import eventReducer from "./features/event/eventSlice";
+import policyReducer from "./features/policy/policySlice";
+import supportReducer from "./features/support/supportSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    employee: employeeReducer, 
+    employee: employeeReducer,
     department: departmentReducer,
-    position: positionReducer, 
+    position: positionReducer,
     project: projectReducer,
     company: companyReducer,
-    event: eventReducer
+    event: eventReducer,
+    policy: policyReducer,
+    support: supportReducer,
   },
 });
 

@@ -8,6 +8,8 @@ export const useProjectData = () => {
     projects: projectState.projects.data,
     project: projectState.project.data,
     statusProject: projectState.statusProject.data,
+    issues: projectState.issues.data,
+    total:  projectState?.totalIssues?.paginations?.total,
 
     // Loading states
     isLoadingProjects: projectState.projects.loading,

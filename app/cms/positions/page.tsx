@@ -26,7 +26,11 @@ import {
   Shield
 } from "lucide-react"
 import { toast } from "sonner"
-import { Pagination, usePagination } from "@/components/ui/pagination"
+import { usePositionData } from "@/src/hook/positionHook"
+import { createPosition, deletePosition, listPosition, updatePosition } from "@/src/features/position/positionApi"
+import { useDispatch } from "react-redux"
+import Pagination from "@/components/pagination"
+import { de } from "date-fns/locale"
 
 interface Position {
   id: number
@@ -40,17 +44,21 @@ interface Position {
 }
 
 function PositionsManagementContent() {
-  const [positions, setPositions] = useState<Position[]>([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
+  const { positions, totalPosition } = usePositionData()
+  const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLevel, setSelectedLevel] = useState("all")
-
   const [showManagerOnly, setShowManagerOnly] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingPosition, setEditingPosition] = useState<Position | null>(null)
   const [creating, setCreating] = useState(false)
   const [deletingPosition, setDeletingPosition] = useState<Position | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   const [formData, setFormData] = useState({
     title: "",
@@ -70,23 +78,8 @@ function PositionsManagementContent() {
   ]
 
   useEffect(() => {
-    fetchPositions()
-  }, [])
-
-  const fetchPositions = async () => {
-    try {
-      const response = await fetch('/api/positions')
-      const result = await response.json()
-      if (result.success) {
-        setPositions(result.data.positions || [])
-      }
-    } catch (error) {
-      console.error('Error fetching positions:', error)
-      toast.error('Không thể tải danh sách chức vụ')
-    } finally {
-      setLoading(false)
-    }
-  }
+    dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
+  }, [dispatch])
 
   const handleCreate = () => {
     setEditingPosition(null)
@@ -118,27 +111,24 @@ function PositionsManagementContent() {
       return
     }
 
+
+    console.log('Toàn bộ dữ liệu:', formData)
     setCreating(true)
     try {
-      const url = editingPosition ? `/api/positions/${editingPosition.id}` : '/api/positions'
-      const method = editingPosition ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      })
-
-      const result = await response.json()
-      
-      if (result.success) {
-        setShowCreateModal(false)
-        fetchPositions()
-        toast.success(`${editingPosition ? 'Cập nhật' : 'Tạo'} chức vụ thành công!`)
+      if(editingPosition){
+        const res = await dispatch(updatePosition({id: editingPosition.id, title: formData.title, description: formData.description, is_manager_position: formData.is_manager_position} as any) as any)
+        if (res.payload.status == 200 || res.payload.status == 201) {
+          setShowCreateModal(false)
+          dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
+          toast.success(res.payload.data.message)
+        }
       } else {
-        toast.error('Lỗi: ' + result.error)
+        const res = await dispatch(createPosition({title: formData.title, description: formData.description, is_manager_position: formData.is_manager_position, is_active: formData.is_active} as any) as any)
+         if (res.payload.status == 200 || res.payload.status == 201) {
+           setShowCreateModal(false)
+           dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
+           toast.success(res.payload.data.message)
+         }
       }
     } catch (error) {
       console.error('Error saving position:', error)
@@ -153,19 +143,12 @@ function PositionsManagementContent() {
 
     setDeleting(true)
     try {
-      const response = await fetch(`/api/positions/${deletingPosition.id}`, {
-        method: 'DELETE'
-      })
-
-      const result = await response.json()
-      
-      if (result.success) {
+      const res = await dispatch(deletePosition([deletingPosition.id]  as any) as any)
+      if (res.payload.status == 200 || res.payload.status == 201) {
         setDeletingPosition(null)
-        fetchPositions()
+        dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
         toast.success('Xóa chức vụ thành công!')
-      } else {
-        toast.error('Lỗi: ' + result.error)
-      }
+      } 
     } catch (error) {
       console.error('Error deleting position:', error)
       toast.error('Lỗi kết nối server')
@@ -175,7 +158,7 @@ function PositionsManagementContent() {
   }
 
   // Filter positions
-  const filteredPositions = positions.filter((position) => {
+  const filteredPositions = positions.filter((position: any) => {
     const matchesSearch = 
       position.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (position.description && position.description.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -186,34 +169,35 @@ function PositionsManagementContent() {
     return matchesSearch && matchesLevel && matchesManager
   })
 
-  // Pagination
-  const {
-    currentPage,
-    totalPages,
-    currentItems: paginatedPositions,
-    totalItems,
-    itemsPerPage,
-    goToPage
-  } = usePagination(filteredPositions, 10)
+  // Pagination logic
+  const totalItems = filteredPositions.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedPositions = filteredPositions.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedLevel, showManagerOnly])
 
   // Calculate stats
   const totalPositions = positions.length
-  const managerPositions = positions.filter(p => p.is_manager_position).length
-  const activePositions = positions.filter(p => p.is_active).length
+  const managerPositions = positions.filter((p: any) => p.is_manager_position).length
+  const activePositions = positions.filter((p: any) => p.is_active).length
   const positionsByLevel = levels.map(level => ({
     ...level,
-    count: positions.filter(p => p.level === level.value).length
+    count: positions.filter((p: any) => p.level === level.value).length
   }))
 
   const getLevelInfo = (level: string) => {
     return levels.find(l => l.value === level) || { label: level, color: "bg-gray-500" }
   }
 
-
-
-  if (loading) {
+  // Show loading state
+  if (!positions || positions.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
         <Loader2 className="h-8 w-8 animate-spin text-white" />
         <span className="ml-2 text-white">Đang tải chức vụ...</span>
       </div>
@@ -222,6 +206,7 @@ function PositionsManagementContent() {
 
   return (
     <div className="space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -336,8 +321,6 @@ function PositionsManagementContent() {
                 ))}
               </SelectContent>
             </Select>
-            
-
 
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -373,7 +356,7 @@ function PositionsManagementContent() {
             </TableHeader>
             <TableBody>
               {paginatedPositions.length > 0 ? (
-                paginatedPositions.map((position) => {
+                paginatedPositions.map((position: any) => {
                   const levelInfo = getLevelInfo(position.level)
                   return (
                     <TableRow key={position.id} className="border-b border-purple-500/30 hover:bg-white/5">
@@ -441,18 +424,13 @@ function PositionsManagementContent() {
           </Table>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-4">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={goToPage}
-                showInfo={true}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-              />
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+          />
         </CardContent>
       </Card>
 
@@ -600,6 +578,7 @@ function PositionsManagementContent() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   )
 }

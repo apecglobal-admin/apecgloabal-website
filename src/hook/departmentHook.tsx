@@ -6,7 +6,7 @@ export const useDepartmentData = () => {
   return {
     // Data
     departments: department.departments.data,
-    total: department?.totalDepartments?.paginations?.total,
+    totalDepartment: department?.totalDepartments?.paginations?.total,
 
     // Loading states
     isLoadingDepartments: department.departments.loading,

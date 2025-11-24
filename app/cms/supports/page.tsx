@@ -92,7 +92,7 @@ function SupportPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   const [formData, setFormData] = useState({
     status_id: "",

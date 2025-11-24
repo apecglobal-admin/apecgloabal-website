@@ -1,11 +1,18 @@
 // src/services/api.js
-import axios from 'axios';
+import axios from "axios";
 
-const apiAxiosInstance= axios.create({
-  baseURL: 'http://192.168.1.71:5000/api/v1', 
-  headers: {
-    'Authorization': 'Bearer ' + localStorage.getItem('cmsToken'),
+const apiAxiosInstance = axios.create({
+  baseURL: "http://192.168.1.71:5000/api/v1",
+});
+
+apiAxiosInstance.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("cmsToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
+  return config;
 });
 
 export default apiAxiosInstance;

@@ -95,8 +95,14 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       color: "text-indigo-400",
     },
     {
-      name: "Báo Cáo",
-      href: "/cms/reports",
+      name: "Thông báo",
+      href: "/cms/notifications",
+      icon: BarChart3,
+      color: "text-green-400",
+    },
+    {
+      name: "Hình ảnh",
+      href: "/cms/images",
       icon: BarChart3,
       color: "text-green-400",
     },

@@ -20,7 +20,7 @@ const initialState: PositionState = {
   totalPolicy: { data: [], loading: false, error: null, status: null },
   policyTypes: { data: [], loading: false, error: null, status: null },
 };
-const positionSlice = createSlice({
+const policySlice = createSlice({
   name: "policy",
   initialState,
   reducers: {},
@@ -30,4 +30,4 @@ const positionSlice = createSlice({
   },
 });
 
-export default positionSlice.reducer;
+export default policySlice.reducer;

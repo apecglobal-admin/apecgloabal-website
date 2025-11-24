@@ -48,44 +48,54 @@ import {
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import InternalLayout from "@/components/cms-layout";
-import { usePolicyData } from "@/src/hook/policyHook";
 import { useDepartmentData } from "@/src/hook/departmentHook";
-import {
-  createPolicy,
-  listPolicy,
-  listPolicyType,
-  updatePolicy,
-} from "@/src/features/policy/policyApi";
 import { listDepartment } from "@/src/features/department/departmentApi";
+import { useNotificationData } from "@/src/hook/notificationHook";
+import {
+  createNotification,
+  listNotification,
+  listNotificationType,
+  updateNotification,
+} from "@/src/features/notification/notificationApi";
 import Pagination from "@/components/pagination";
 
-interface PolicyDocument {
+interface NotificationDocument {
   id: number;
   name: string;
   file_url: string;
 }
 
-interface PolicyDepartment {
-  id: number;
-  name: string;
+interface NotificationDepartment {
+  id: number | null;
+  name: string | null;
 }
 
-interface PolicyType {
-  id: number;
-  name: string;
-}
-
-interface Policy {
+interface NotificationType {
   id: string;
-  policy_type_id: number;
-  status: boolean;
+  name: string;
+}
+
+interface Notification {
+  id: number;
+  user_id: number | null;
+  title: string;
+  content: string;
+  type: string | null;
+  is_read: boolean;
+  action_url: string | null;
   created_at: string;
   updated_at: string;
-  title: string;
-  description?: string;
-  policy_type: PolicyType;
-  policy_departments: PolicyDepartment[];
-  policy_documents: PolicyDocument[];
+  type_id: number;
+  department_id: number | null;
+  name: string | null;
+  employee_created: string | null;
+  employee_deleted: string | null;
+  notification_type: {
+    id: number;
+    name: string;
+  };
+  department: NotificationDepartment;
+  document_notification: NotificationDocument[];
 }
 
 interface Department {
@@ -95,18 +105,19 @@ interface Department {
   created_at: string;
 }
 
-function PolicyPage() {
+function NotificationPage() {
   const dispatch = useDispatch();
-  const { policies, totalPolicy, policyTypes } = usePolicyData();
+  const { notifications, totalNotification, notificationTypes } = useNotificationData();
   const { departments, totalDepartment } = useDepartmentData();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
-  const [showActiveOnly, setShowActiveOnly] = useState(false);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
+  const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
   const [creating, setCreating] = useState(false);
-  const [deletingPolicy, setDeletingPolicy] = useState<Policy | null>(null);
+  const [deletingNotification, setDeletingNotification] = useState<Notification | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deletedDocumentIds, setDeletedDocumentIds] = useState<number[]>([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,22 +125,21 @@ function PolicyPage() {
 
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    policy_type_id: "",
-    department_ids: [] as number[],
+    content: "",
+    type_id: "",
+    department_id: "all",
     documents: [] as File[],
-    status: true,
   });
 
   useEffect(() => {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
-    dispatch(listPolicyType() as any);
   }, [dispatch, totalDepartment]);
 
   useEffect(() => {
     dispatch(
-      listPolicy({ limit: itemsPerPage, page: currentPage } as any) as any
+      listNotification({ limit: itemsPerPage, page: currentPage } as any) as any
     );
+    dispatch(listNotificationType() as any);
   }, [dispatch, currentPage]);
 
   const handlePageChange = (page: number) => {
@@ -137,38 +147,29 @@ function PolicyPage() {
   };
 
   const handleCreate = () => {
-    setEditingPolicy(null);
+    setEditingNotification(null);
     setFormData({
       title: "",
-      description: "",
-      policy_type_id: "",
-      department_ids: [],
+      content: "",
+      type_id: "",
+      department_id: "all",
       documents: [],
-      status: true,
     });
+    setDeletedDocumentIds([]);
     setShowCreateModal(true);
   };
 
-  const handleEdit = (policy: Policy) => {
-    setEditingPolicy(policy);
+  const handleEdit = (notification: Notification) => {
+    setEditingNotification(notification);
     setFormData({
-      title: policy.title,
-      description: policy.description || "",
-      policy_type_id: policy.policy_type_id.toString(),
-      department_ids: policy.policy_departments.map((d) => d.id),
+      title: notification.title,
+      content: notification.content || "",
+      type_id: notification.type_id.toString(),
+      department_id: notification.department_id?.toString() || "all",
       documents: [],
-      status: policy.status,
     });
+    setDeletedDocumentIds([]);
     setShowCreateModal(true);
-  };
-
-  const handleDepartmentToggle = (departmentId: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      department_ids: prev.department_ids.includes(departmentId)
-        ? prev.department_ids.filter((id) => id !== departmentId)
-        : [...prev.department_ids, departmentId],
-    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,19 +190,18 @@ function PolicyPage() {
     }));
   };
 
+  const handleRemoveExistingDocument = (documentId: number) => {
+    setDeletedDocumentIds((prev) => [...prev, documentId]);
+  };
+
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      toast.error("Vui lòng nhập tiêu đề chính sách");
+      toast.error("Vui lòng nhập tiêu đề thông báo");
       return;
     }
 
-    if (!formData.policy_type_id) {
-      toast.error("Vui lòng chọn loại chính sách");
-      return;
-    }
-
-    if (formData.department_ids.length === 0) {
-      toast.error("Vui lòng chọn ít nhất một phòng ban");
+    if (!formData.type_id) {
+      toast.error("Vui lòng chọn loại thông báo");
       return;
     }
 
@@ -209,36 +209,41 @@ function PolicyPage() {
     try {
       const apiFormData = new FormData();
       apiFormData.append("title", formData.title);
-      apiFormData.append("description", formData.description);
-      apiFormData.append("policy_type_id", formData.policy_type_id);
-      apiFormData.append(
-        "departments",
-        JSON.stringify(formData.department_ids)
-      );
-      apiFormData.append("status", formData.status.toString());
+      apiFormData.append("content", formData.content);
+      apiFormData.append("type_id", formData.type_id);
+      if (formData.department_id && formData.department_id !== "all") {
+        apiFormData.append("department_id", formData.department_id.toString());
+      }
 
       formData.documents.forEach((file) => {
         apiFormData.append("documents", file);
       });
 
-      if (editingPolicy) {
+      if (editingNotification) {
+        const remainingDocumentIds = editingNotification.document_notification
+          .filter((doc) => !deletedDocumentIds.includes(doc.id))
+          .map((doc) => doc.id);
+        apiFormData.append("documents", JSON.stringify(remainingDocumentIds));
+      }
+
+      if (editingNotification) {
         const res = await dispatch(
-          updatePolicy({
-            id: editingPolicy.id,
+          updateNotification({
+            id: editingNotification.id,
             data: apiFormData,
           } as any) as any
         );
         if (res.payload.status == 200 || res.payload.status == 201) {
           await dispatch(
-            listPolicy({ limit: itemsPerPage, page: currentPage } as any) as any
+            listNotification({ limit: itemsPerPage, page: currentPage } as any) as any
           );
           toast.success(res.payload.data.message);
         }
       } else {
-        const res = await dispatch(createPolicy(apiFormData as any) as any);
+        const res = await dispatch(createNotification(apiFormData as any) as any);
         if (res.payload.status == 200 || res.payload.status == 201) {
           await dispatch(
-            listPolicy({ limit: itemsPerPage, page: currentPage } as any) as any
+            listNotification({ limit: itemsPerPage, page: currentPage } as any) as any
           );
           toast.success(res.payload.data.message);
         }
@@ -246,7 +251,7 @@ function PolicyPage() {
 
       setShowCreateModal(false);
     } catch (error) {
-      console.error("Error saving policy:", error);
+      console.error("Error saving notification:", error);
       toast.error("Lỗi kết nối server");
     } finally {
       setCreating(false);
@@ -254,55 +259,59 @@ function PolicyPage() {
   };
 
   const handleDelete = async () => {
-    if (!deletingPolicy) return;
+    if (!deletingNotification) return;
 
-    console.log("Deleting policy:", deletingPolicy);
+    console.log("Deleting notification:", deletingNotification);
     setDeleting(true);
     try {
-      toast.success("Xóa chính sách thành công!");
-      setDeletingPolicy(null);
+      toast.success("Xóa thông báo thành công!");
+      setDeletingNotification(null);
     } catch (error) {
-      console.error("Error deleting policy:", error);
+      console.error("Error deleting notification:", error);
       toast.error("Lỗi kết nối server");
     } finally {
       setDeleting(false);
     }
   };
 
-  // Filter policies (chỉ filter trên dữ liệu đã được phân trang từ server)
-  const filteredPolicies = policies.filter((policy: Policy) => {
-    const matchesSearch =
-      policy.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (policy.description &&
-        policy.description.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Filter notifications (chỉ filter trên dữ liệu đã được phân trang từ server)
+  const filteredNotifications = notifications
+    .filter((notification: Notification) => {
+      const matchesSearch =
+        notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (notification.content &&
+          notification.content.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesType =
-      selectedType === "all" ||
-      policy.policy_type_id.toString() === selectedType;
-    const matchesStatus = !showActiveOnly || policy.status;
+      const matchesType =
+        selectedType === "all" ||
+        notification.type_id.toString() === selectedType;
+      const matchesUnread = !showUnreadOnly || !notification.is_read;
 
-    return matchesSearch && matchesType && matchesStatus;
-  });
+      return matchesSearch && matchesType && matchesUnread;
+    })
+    .sort((a: Notification, b: Notification) => {
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
 
-  // Tính tổng số trang từ totalPolicy (tổng số từ server)
-  const totalPages = Math.ceil(totalPolicy / itemsPerPage);
+  // Tính tổng số trang từ totalNotification (tổng số từ server)
+  const totalPages = Math.ceil(totalNotification / itemsPerPage);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedType, showActiveOnly]);
+  }, [searchTerm, selectedType, showUnreadOnly]);
 
   // Calculate stats
-  const activePolicies = policies.filter((p: Policy) => p.status).length;
-  const policiesByType = policyTypes.map((type: PolicyType) => ({
+  const unreadNotifications = notifications.filter((n: Notification) => !n.is_read).length;
+  const notificationsByType = notificationTypes?.map((type: NotificationType) => ({
     ...type,
-    count: policies.filter((p: Policy) => p.policy_type_id === type.id).length,
+    count: notifications?.filter((n: Notification) => n?.type_id?.toString() === type?.id).length,
   }));
 
   const getTypeColor = (typeId: number) => {
     const colors = [
       "bg-blue-500",
-      "bg-green-500",
+      "bg-red-500",
       "bg-purple-500",
       "bg-orange-500",
     ];
@@ -316,10 +325,10 @@ function PolicyPage() {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              Quản Lý Chính Sách
+              Quản Lý Thông Báo
             </h1>
             <p className="text-white/80">
-              Quản lý các chính sách và quy định trong tổ chức
+              Quản lý các thông báo trong tổ chức
             </p>
           </div>
           <Button
@@ -327,7 +336,7 @@ function PolicyPage() {
             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Thêm Chính Sách
+            Thêm Thông Báo
           </Button>
         </div>
 
@@ -335,14 +344,14 @@ function PolicyPage() {
         <Card className="bg-black/50 border-purple-500/30">
           <CardHeader>
             <CardTitle className="text-white">
-              Phân Bố Theo Loại Chính Sách
+              Phân Bố Theo Loại Thông Báo
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {policiesByType.map((type: any) => (
+              {notificationsByType.map((type: any) => (
                 <div key={type.id} className="text-center">
-                  <Badge className={`${getTypeColor(type.id)} text-white mb-2`}>
+                  <Badge className={`${getTypeColor(parseInt(type.id))} text-white mb-2`}>
                     {type.name}
                   </Badge>
                   <p className="text-2xl font-bold text-white">{type.count}</p>
@@ -359,7 +368,7 @@ function PolicyPage() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
                 <Input
-                  placeholder="Tìm kiếm chính sách..."
+                  placeholder="Tìm kiếm thông báo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
@@ -368,11 +377,11 @@ function PolicyPage() {
 
               <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
-                  <SelectValue placeholder="Chọn loại chính sách" />
+                  <SelectValue placeholder="Chọn loại thông báo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả loại</SelectItem>
-                  {policyTypes.map((type: PolicyType) => (
+                  {notificationTypes.map((type: NotificationType) => (
                     <SelectItem key={type.id} value={type.id.toString()}>
                       {type.name}
                     </SelectItem>
@@ -382,26 +391,26 @@ function PolicyPage() {
 
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="active-only"
-                  checked={showActiveOnly}
+                  id="unread-only"
+                  checked={showUnreadOnly}
                   onCheckedChange={(checked) =>
-                    setShowActiveOnly(checked as boolean)
+                    setShowUnreadOnly(checked as boolean)
                   }
                 />
-                <Label htmlFor="active-only" className="text-white text-sm">
-                  Chỉ hiển thị đang hoạt động
+                <Label htmlFor="unread-only" className="text-white text-sm">
+                  Chỉ hiển thị chưa đọc
                 </Label>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Policies Table */}
+        {/* Notifications Table */}
         <Card className="bg-black/50 border-purple-500/30">
           <CardHeader>
-            <CardTitle className="text-white">Danh Sách Chính Sách</CardTitle>
+            <CardTitle className="text-white">Danh Sách Thông Báo</CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {filteredPolicies.length} chính sách trên trang này - Tổng cộng {totalPolicy} chính sách
+              Hiển thị {filteredNotifications.length} thông báo trên trang này - Tổng cộng {totalNotification} thông báo
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -417,20 +426,20 @@ function PolicyPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPolicies.length > 0 ? (
-                  filteredPolicies.map((policy: Policy) => (
+                {filteredNotifications.length > 0 ? (
+                  filteredNotifications.map((notification: Notification) => (
                     <TableRow
-                      key={policy.id}
+                      key={notification.id}
                       className="border-b border-purple-500/30 hover:bg-white/5"
                     >
                       <TableCell>
                         <div>
                           <p className="font-medium text-white">
-                            {policy.title}
+                            {notification.title}
                           </p>
-                          {policy.description && (
+                          {notification.content && (
                             <p className="text-sm text-white/60 mt-1">
-                              {policy.description}
+                              {notification.content}
                             </p>
                           )}
                         </div>
@@ -438,30 +447,27 @@ function PolicyPage() {
                       <TableCell>
                         <Badge
                           className={`${getTypeColor(
-                            policy.policy_type_id
+                            notification.type_id
                           )} text-white`}
                         >
-                          {policy.policy_type.name}
+                          {notification.notification_type.name}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {policy.policy_departments.map((dept) => (
-                            <Badge
-                              key={dept.id}
-                              className="bg-blue-600/20 text-blue-400 border-blue-500/30"
-                            >
-                              {dept.name}
-                            </Badge>
-                          ))}
-                        </div>
+                        {notification.department?.name ? (
+                          <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30">
+                            {notification.department.name}
+                          </Badge>
+                        ) : (
+                          <span className="text-white/40 text-sm">Tất cả</span>
+                        )}
                       </TableCell>
                       <TableCell>
-                        {policy.policy_documents.length > 0 ? (
+                        {notification?.document_notification?.length > 0 ? (
                           <div className="flex items-center gap-2">
                             <FileText className="h-4 w-4 text-purple-400" />
                             <span className="text-white text-sm">
-                              {policy.policy_documents.length} tài liệu
+                              {notification?.document_notification?.length} tài liệu
                             </span>
                           </div>
                         ) : (
@@ -473,12 +479,12 @@ function PolicyPage() {
                       <TableCell>
                         <Badge
                           className={
-                            policy.status
-                              ? "bg-green-600/20 text-green-400 border-green-500/30"
-                              : "bg-red-600/20 text-red-400 border-red-500/30"
+                            notification.is_read
+                              ? "bg-gray-600/20 text-gray-400 border-gray-500/30"
+                              : "bg-green-600/20 text-green-400 border-green-500/30"
                           }
                         >
-                          {policy.status ? "Hoạt động" : "Không hoạt động"}
+                          {notification.is_read ? "Đã đọc" : "Chưa đọc"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -486,7 +492,7 @@ function PolicyPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleEdit(policy)}
+                            onClick={() => handleEdit(notification)}
                             className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
                           >
                             <Edit className="h-4 w-4" />
@@ -501,7 +507,7 @@ function PolicyPage() {
                       colSpan={6}
                       className="text-center py-8 text-white/60"
                     >
-                      Không tìm thấy chính sách nào
+                      Không tìm thấy thông báo nào
                     </TableCell>
                   </TableRow>
                 )}
@@ -512,7 +518,7 @@ function PolicyPage() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={totalPolicy}
+              totalItems={totalNotification}
               onPageChange={handlePageChange}
               itemsPerPage={itemsPerPage}
             />
@@ -524,7 +530,7 @@ function PolicyPage() {
           <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">
-                {editingPolicy ? "Chỉnh Sửa Chính Sách" : "Thêm Chính Sách Mới"}
+                {editingNotification ? "Chỉnh Sửa Thông Báo" : "Thêm Thông Báo Mới"}
               </DialogTitle>
             </DialogHeader>
 
@@ -540,44 +546,44 @@ function PolicyPage() {
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
                   className="bg-black/50 border-purple-500/30 text-white"
-                  placeholder="VD: Quy trình tuyển dụng nội bộ"
+                  placeholder="VD: Thông báo họp phòng ban"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description" className="text-white">
-                  Mô Tả
+                <Label htmlFor="content" className="text-white">
+                  Nội Dung
                 </Label>
                 <Textarea
-                  id="description"
-                  value={formData.description}
+                  id="content"
+                  value={formData.content}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      description: e.target.value,
+                      content: e.target.value,
                     }))
                   }
                   className="bg-black/50 border-purple-500/30 text-white"
-                  placeholder="Mô tả về chính sách này..."
+                  placeholder="Nội dung thông báo..."
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="policy_type" className="text-white">
-                  Loại Chính Sách <span className="text-red-400">*</span>
+                <Label htmlFor="notification_type" className="text-white">
+                  Loại Thông Báo <span className="text-red-400">*</span>
                 </Label>
                 <Select
-                  value={formData.policy_type_id}
+                  value={formData.type_id}
                   onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, policy_type_id: value }))
+                    setFormData((prev) => ({ ...prev, type_id: value }))
                   }
                 >
                   <SelectTrigger className="bg-black/50 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Chọn loại chính sách" />
+                    <SelectValue placeholder="Chọn loại thông báo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {policyTypes.map((type: PolicyType) => (
+                    {notificationTypes.map((type: NotificationType) => (
                       <SelectItem key={type.id} value={type.id.toString()}>
                         {type.name}
                       </SelectItem>
@@ -587,31 +593,27 @@ function PolicyPage() {
               </div>
 
               <div>
-                <Label className="text-white mb-3 block">
-                  Phòng Ban Áp Dụng <span className="text-red-400">*</span>
+                <Label htmlFor="department" className="text-white">
+                  Phòng Ban
                 </Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-black/30 p-4 rounded-lg border border-purple-500/30">
-                  {departments.map((dept: Department) => (
-                    <div key={dept.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`dept-${dept.id}`}
-                        checked={formData.department_ids.includes(dept.id)}
-                        onCheckedChange={() => handleDepartmentToggle(dept.id)}
-                      />
-                      <Label
-                        htmlFor={`dept-${dept.id}`}
-                        className="text-white text-sm cursor-pointer"
-                      >
+                <Select
+                  value={formData.department_id}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, department_id: value }))
+                  }
+                >
+                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white">
+                    <SelectValue placeholder="Chọn phòng ban (để trống = tất cả)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả phòng ban</SelectItem>
+                    {departments.map((dept: Department) => (
+                      <SelectItem key={dept.id} value={dept.id.toString()}>
                         {dept.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                {formData.department_ids.length > 0 && (
-                  <p className="text-sm text-white/60 mt-2">
-                    Đã chọn {formData.department_ids.length} phòng ban
-                  </p>
-                )}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -665,14 +667,20 @@ function PolicyPage() {
                     </div>
                   )}
 
-                  {editingPolicy &&
-                    editingPolicy.policy_documents.length > 0 && (
+                  {editingNotification &&
+                    editingNotification?.document_notification?.filter(
+                      (doc) => !deletedDocumentIds.includes(doc.id)
+                    ).length > 0 && (
                       <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/30">
                         <p className="text-blue-400 text-sm font-medium mb-2">
                           Tài liệu hiện có (
-                          {editingPolicy.policy_documents.length})
+                          {editingNotification?.document_notification?.filter(
+                            (doc) => !deletedDocumentIds.includes(doc.id)
+                          ).length})
                         </p>
-                        {editingPolicy.policy_documents.map((doc) => (
+                        {editingNotification.document_notification
+                          ?.filter((doc) => !deletedDocumentIds.includes(doc.id))
+                          ?.map((doc) => (
                           <div
                             key={doc.id}
                             className="flex items-center gap-3 bg-black/40 p-3 rounded-lg mb-2"
@@ -689,6 +697,15 @@ function PolicyPage() {
                             >
                               <Download className="h-4 w-4" />
                             </a>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveExistingDocument(doc.id)}
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         ))}
                         <p className="text-white/60 text-xs mt-2">
@@ -697,22 +714,6 @@ function PolicyPage() {
                       </div>
                     )}
                 </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="status"
-                  checked={formData.status}
-                  onCheckedChange={(checked) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      status: checked as boolean,
-                    }))
-                  }
-                />
-                <Label htmlFor="status" className="text-white">
-                  Hoạt động
-                </Label>
               </div>
             </div>
 
@@ -734,7 +735,7 @@ function PolicyPage() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Đang lưu...
                   </>
-                ) : editingPolicy ? (
+                ) : editingNotification ? (
                   "Cập nhật"
                 ) : (
                   "Tạo mới"
@@ -746,8 +747,8 @@ function PolicyPage() {
 
         {/* Delete Confirmation Modal */}
         <Dialog
-          open={!!deletingPolicy}
-          onOpenChange={() => setDeletingPolicy(null)}
+          open={!!deletingNotification}
+          onOpenChange={() => setDeletingNotification(null)}
         >
           <DialogContent className="bg-black/90 border-red-500/30 text-white">
             <DialogHeader>
@@ -756,9 +757,9 @@ function PolicyPage() {
 
             <div className="py-4">
               <p className="text-white/80">
-                Bạn có chắc chắn muốn xóa chính sách{" "}
+                Bạn có chắc chắn muốn xóa thông báo{" "}
                 <strong className="text-white">
-                  "{deletingPolicy?.title}"
+                  "{deletingNotification?.title}"
                 </strong>
                 ?
               </p>
@@ -770,7 +771,7 @@ function PolicyPage() {
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setDeletingPolicy(null)}
+                onClick={() => setDeletingNotification(null)}
                 className="bg-transparent border-white/20 text-white hover:bg-white/10"
               >
                 Hủy
@@ -797,10 +798,10 @@ function PolicyPage() {
   );
 }
 
-export default function PoliciesManagementPage() {
+export default function NotificationManagementPage() {
   return (
     <InternalLayout>
-      <PolicyPage />
+      <NotificationPage />
     </InternalLayout>
   );
 }

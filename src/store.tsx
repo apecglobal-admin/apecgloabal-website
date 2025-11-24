@@ -8,6 +8,9 @@ import authReducer from "./features/auth/authSlice";
 import eventReducer from "./features/event/eventSlice";
 import policyReducer from "./features/policy/policySlice";
 import supportReducer from "./features/support/supportSlice";
+import notificationReducer from "./features/notification/notificationSlice";
+import imageReducer from "./features/image/imageSlice";
+import roleReducer from "./features/role/roleSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -19,6 +22,9 @@ const store = configureStore({
     event: eventReducer,
     policy: policyReducer,
     support: supportReducer,
+    notification: notificationReducer,
+    image: imageReducer,
+    role: roleReducer,
   },
 });
 

@@ -10,13 +10,13 @@ export const usePolicyData = () => {
     policyTypes: policy.policyTypes.data,
   
     // Loading states
-    isLoadingPositions: policy.policies.loading,
+    isLoadingPolicy: policy.policies.loading,
    
     // Error states
-    ErrorPositions: policy.policies.error,
+    ErrorPolicy: policy.policies.error,
    
     // Status codes
-    StatusPositions: policy.policies.status,
+    StatusPolicy: policy.policies.status,
   
   };
 };

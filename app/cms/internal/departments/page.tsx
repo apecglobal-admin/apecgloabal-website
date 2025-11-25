@@ -400,7 +400,7 @@ function DepartmentsManagementContent() {
         </CardContent>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+       
           <div className="px-6 pb-6">
             <Pagination
               currentPage={page}
@@ -411,7 +411,7 @@ function DepartmentsManagementContent() {
               itemsPerPage={limit}
             />
           </div>
-        )}
+     
       </Card>
 
       {/* Create/Edit Modal */}

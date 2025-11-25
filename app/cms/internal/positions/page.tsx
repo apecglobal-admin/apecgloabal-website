@@ -365,7 +365,7 @@ function PositionsManagementContent() {
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-white">{position.title}</p>
                             {position.is_manager_position && (
-                              <Shield className="h-4 w-4 text-orange-400" title="Chức vụ quản lý" />
+                              <Shield className="h-4 w-4 text-orange-400"  />
                             )}
                           </div>
                           {position.description && (

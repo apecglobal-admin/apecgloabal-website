@@ -492,16 +492,14 @@ export default function EventPage() {
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                totalItems={totalEvent}
-                onPageChange={setPage}
-                maxVisiblePages={5}
-                itemsPerPage={limit}
-              />
-            )}
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              totalItems={totalEvent}
+              onPageChange={setPage}
+              maxVisiblePages={5}
+              itemsPerPage={limit}
+            />
           </>
         ) : (
           <div className="text-center py-16">

@@ -300,7 +300,7 @@ function RolesContent() {
 
       {/* Edit Permissions Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-[95vw] sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] p-4 sm:p-6">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-[95vw] sm:max-w-4xl max-h-[100vh]">
           <DialogHeader className="space-y-2 sm:space-y-3">
             <DialogTitle className="text-lg sm:text-2xl flex items-center gap-2 sm:gap-3">
               <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md sm:rounded-lg flex-shrink-0">
@@ -315,7 +315,7 @@ function RolesContent() {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[calc(90vh-200px)] sm:max-h-[calc(85vh-200px)] pr-2 sm:pr-4">
+          <ScrollArea className="max-h-[60vh] pr-2 sm:pr-4">
             {isLoadingPermissions ? (
               <div className="flex items-center justify-center py-8 sm:py-12">
                 <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-purple-500" />

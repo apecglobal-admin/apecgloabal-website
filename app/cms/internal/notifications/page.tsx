@@ -56,6 +56,7 @@ import {
   listNotification,
   listNotificationType,
   updateNotification,
+  deleteNotification,
 } from "@/src/features/notification/notificationApi";
 import Pagination from "@/components/pagination";
 
@@ -115,9 +116,11 @@ function NotificationPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
   const [creating, setCreating] = useState(false);
-  const [deletingNotification, setDeletingNotification] = useState<Notification | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deletedDocumentIds, setDeletedDocumentIds] = useState<number[]>([]);
+
+  // Bulk delete states
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -144,6 +147,7 @@ function NotificationPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setSelectedIds([]); // Clear selection when changing page
   };
 
   const handleCreate = () => {
@@ -258,16 +262,42 @@ function NotificationPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!deletingNotification) return;
+  // Handle select all checkbox
+  const handleSelectAll = () => {
+    if (selectedIds.length === filteredNotifications.length && filteredNotifications.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredNotifications.map((n: Notification) => n.id));
+    }
+  };
 
-    console.log("Deleting notification:", deletingNotification);
+  // Handle individual checkbox
+  const handleSelectOne = (id: number) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  const handleDelete = async (ids: number[]) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${ids.length} thông báo?`)) {
+      return;
+    }
+
     setDeleting(true);
     try {
-      toast.success("Xóa thông báo thành công!");
-      setDeletingNotification(null);
+      const res = await dispatch(deleteNotification( ids as any) as any);
+      
+      if (res.payload.status === 200 || res.payload.status === 201) {
+        toast.success(res.payload.data.message);
+        await dispatch(listNotification({ limit: itemsPerPage, page: currentPage } as any) as any);
+        setSelectedIds([]);
+      } else {
+        toast.error("Có lỗi xảy ra khi xóa thông báo");
+      }
     } catch (error) {
-      console.error("Error deleting notification:", error);
+      console.error("Error deleting notifications:", error);
       toast.error("Lỗi kết nối server");
     } finally {
       setDeleting(false);
@@ -299,6 +329,7 @@ function NotificationPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedIds([]);
   }, [searchTerm, selectedType, showUnreadOnly]);
 
   // Calculate stats
@@ -401,6 +432,22 @@ function NotificationPage() {
                   Chỉ hiển thị chưa đọc
                 </Label>
               </div>
+
+              {selectedIds.length > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleDelete(selectedIds)}
+                  disabled={deleting}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                >
+                  {deleting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Xóa ({selectedIds.length})
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -410,109 +457,142 @@ function NotificationPage() {
           <CardHeader>
             <CardTitle className="text-white">Danh Sách Thông Báo</CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {filteredNotifications.length} thông báo trên trang này - Tổng cộng {totalNotification} thông báo
+              Hiển thị {filteredNotifications.length} trên tổng số {totalNotification} thông báo
+              {selectedIds.length > 0 && (
+                <span className="ml-2 text-blue-400">
+                  (Đã chọn {selectedIds.length})
+                </span>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-purple-500/30">
-                  <TableHead className="text-white">Tiêu Đề</TableHead>
-                  <TableHead className="text-white">Loại</TableHead>
-                  <TableHead className="text-white">Phòng Ban</TableHead>
-                  <TableHead className="text-white">Tài Liệu</TableHead>
-                  <TableHead className="text-white">Trạng Thái</TableHead>
-                  <TableHead className="text-white">Thao Tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredNotifications.length > 0 ? (
-                  filteredNotifications.map((notification: Notification) => (
-                    <TableRow
-                      key={notification.id}
-                      className="border-b border-purple-500/30 hover:bg-white/5"
-                    >
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-white">
-                            {notification.title}
-                          </p>
-                          {notification.content && (
-                            <p className="text-sm text-white/60 mt-1">
-                              {notification.content}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-purple-500/30">
+                    <TableHead className="w-[50px] text-white">
+                      <Checkbox
+                        checked={
+                          selectedIds.length === filteredNotifications.length &&
+                          filteredNotifications.length > 0
+                        }
+                        onCheckedChange={handleSelectAll}
+                        className="border-white/30"
+                      />
+                    </TableHead>
+                    <TableHead className="text-white">Tiêu Đề</TableHead>
+                    <TableHead className="text-white">Loại</TableHead>
+                    <TableHead className="text-white">Phòng Ban</TableHead>
+                    <TableHead className="text-white">Tài Liệu</TableHead>
+                    <TableHead className="text-white">Trạng Thái</TableHead>
+                    <TableHead className="text-white text-right">Thao Tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredNotifications.length > 0 ? (
+                    filteredNotifications.map((notification: Notification) => (
+                      <TableRow
+                        key={notification.id}
+                        className="border-b border-purple-500/30 hover:bg-white/5"
+                      >
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedIds.includes(notification.id)}
+                            onCheckedChange={() => handleSelectOne(notification.id)}
+                            className="border-white/30"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-white">
+                              {notification.title}
                             </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={`${getTypeColor(
-                            notification.type_id
-                          )} text-white`}
-                        >
-                          {notification.notification_type.name}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {notification.department?.name ? (
-                          <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30">
-                            {notification.department.name}
-                          </Badge>
-                        ) : (
-                          <span className="text-white/40 text-sm">Tất cả</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {notification?.document_notification?.length > 0 ? (
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-purple-400" />
-                            <span className="text-white text-sm">
-                              {notification?.document_notification?.length} tài liệu
-                            </span>
+                            {notification.content && (
+                              <p className="text-sm text-white/60 mt-1">
+                                {notification.content}
+                              </p>
+                            )}
                           </div>
-                        ) : (
-                          <span className="text-white/40 text-sm">
-                            Không có
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            notification.is_read
-                              ? "bg-gray-600/20 text-gray-400 border-gray-500/30"
-                              : "bg-green-600/20 text-green-400 border-green-500/30"
-                          }
-                        >
-                          {notification.is_read ? "Đã đọc" : "Chưa đọc"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(notification)}
-                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            className={`${getTypeColor(
+                              notification.type_id
+                            )} text-white`}
                           >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </div>
+                            {notification.notification_type.name}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {notification.department?.name ? (
+                            <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30">
+                              {notification.department.name}
+                            </Badge>
+                          ) : (
+                            <span className="text-white/40 text-sm">Tất cả</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {notification?.document_notification?.length > 0 ? (
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-purple-400" />
+                              <span className="text-white text-sm">
+                                {notification?.document_notification?.length} tài liệu
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-white/40 text-sm">
+                              Không có
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            className={
+                              notification.is_read
+                                ? "bg-gray-600/20 text-gray-400 border-gray-500/30"
+                                : "bg-green-600/20 text-green-400 border-green-500/30"
+                            }
+                          >
+                            {notification.is_read ? "Đã đọc" : "Chưa đọc"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(notification)}
+                              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete([notification.id])}
+                              disabled={deleting}
+                              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center py-8 text-white/60"
+                      >
+                        Không tìm thấy thông báo nào
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-8 text-white/60"
-                    >
-                      Không tìm thấy thông báo nào
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
 
             {/* Pagination Component */}
             <Pagination
@@ -739,55 +819,6 @@ function NotificationPage() {
                   "Cập nhật"
                 ) : (
                   "Tạo mới"
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Delete Confirmation Modal */}
-        <Dialog
-          open={!!deletingNotification}
-          onOpenChange={() => setDeletingNotification(null)}
-        >
-          <DialogContent className="bg-black/90 border-red-500/30 text-white">
-            <DialogHeader>
-              <DialogTitle className="text-red-400">Xác Nhận Xóa</DialogTitle>
-            </DialogHeader>
-
-            <div className="py-4">
-              <p className="text-white/80">
-                Bạn có chắc chắn muốn xóa thông báo{" "}
-                <strong className="text-white">
-                  "{deletingNotification?.title}"
-                </strong>
-                ?
-              </p>
-              <p className="text-red-400 text-sm mt-2">
-                Hành động này không thể hoàn tác!
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setDeletingNotification(null)}
-                className="bg-transparent border-white/20 text-white hover:bg-white/10"
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                {deleting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Đang xóa...
-                  </>
-                ) : (
-                  "Xóa"
                 )}
               </Button>
             </div>

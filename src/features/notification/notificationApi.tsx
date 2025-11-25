@@ -82,21 +82,21 @@ export const updateNotification = createAsyncThunk(
   }
 );
 
-// export const deletePolicy = createAsyncThunk(
-//   "policy/deletePolicy",
-//   async (ids, thunkAPI) => {
-//     try {
-//       const response = await apiAxiosInstance.delete(
-//         `/cms/departments/delete`,
-//         { data: { ids } }
-//       );
+export const deleteNotification = createAsyncThunk(
+  "policy/deletePolicy",
+  async (ids, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.delete(
+        `/cms/notifications/delete`,
+        { data: { ids } }
+      );
 
-//       return {
-//         data: response.data,
-//         status: response.status,
-//       };
-//     } catch (error: any) {
-//       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
-//     }
-//   }
-// );
+      return {
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);

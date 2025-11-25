@@ -24,3 +24,20 @@ export const loginCMS = createAsyncThunk(
     }
   }
 );
+
+export const listSideBars = createAsyncThunk(
+  "auth/listSideBars",
+  async (_, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(
+        `/cms/sidebars`
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);

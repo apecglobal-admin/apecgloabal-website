@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 export const useEventData = () => {
   const event = useSelector((state: any) => state.event);
 
-  console.log("event", event.events.data)
   return {
     // Data 
     events: event.events.data,

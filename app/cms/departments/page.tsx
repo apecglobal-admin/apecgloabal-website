@@ -90,8 +90,6 @@ function DepartmentsManagementContent() {
     dispatch(listManager() as any);
   }, [dispatch]);
 
-  console.log(managers)
-
   useEffect(() => {
     setLoading(true);
     dispatch(listDepartment({ limit, page } as any) as any).finally(() =>

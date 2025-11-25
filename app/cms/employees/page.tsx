@@ -65,7 +65,6 @@ import {
 } from "@/src/features/employee/employeeApi";
 import { listDepartment } from "@/src/features/department/departmentApi";
 import { listPosition } from "@/src/features/position/positionApi";
-import { Position } from "@/lib/schema";
 import CreateAndEditModalEmployee from "./createAndEditModal";
 import EmployeeDetailModal from "./detail/detailModal";
 import { useEmployeeData } from "@/src/hook/employeeHook";
@@ -141,8 +140,6 @@ function EmployeesManagementContent() {
   const { employees, skills, contacts, managers } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
-
-  console.log("departments", departments);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -297,7 +294,7 @@ function EmployeesManagementContent() {
 
   const handleEdit = async (employee: Employee) => {
     setEditingEmployee(employee);
-    console.log("emploeyy edit", employee);
+    // console.log("emploeyy edit", employee);
 
     setFormData({
       id: employee.id.toString(),
@@ -488,7 +485,7 @@ function EmployeesManagementContent() {
       toast.error("Lỗi khi lưu nhân viên");
     }
 
-    console.log("Save Data:", saveData);
+    // console.log("Save Data:", saveData);
   };
 
   const handleDelete = async () => {

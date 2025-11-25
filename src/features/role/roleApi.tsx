@@ -8,7 +8,7 @@ export const listUserCMS = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const response = await apiAxiosInstance.get(
-        `/users`
+        `/cms/users`
       );
       return {
         data: response.data,

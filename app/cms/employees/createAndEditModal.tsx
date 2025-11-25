@@ -43,7 +43,6 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
   skills,
   handleSave,
 }) => {
-  console.log("fromdata", formData.major)
   return (
     <>
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>

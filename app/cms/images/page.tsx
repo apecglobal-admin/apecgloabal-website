@@ -141,7 +141,7 @@ function ImagePage() {
       reader.readAsDataURL(file);
     }
   };
-  
+
   // Handle remove preview image
   const handleRemovePreview = (isEdit: boolean = false) => {
     if (isEdit) {
@@ -154,8 +154,10 @@ function ImagePage() {
       setFormData({ ...formData, file: undefined });
     }
     // Reset file inputs
-    const createFileInput = document.getElementById('file') as HTMLInputElement;
-    const editFileInput = document.getElementById('edit-file') as HTMLInputElement;
+    const createFileInput = document.getElementById("file") as HTMLInputElement;
+    const editFileInput = document.getElementById(
+      "edit-file"
+    ) as HTMLInputElement;
     if (createFileInput) createFileInput.value = "";
     if (editFileInput) editFileInput.value = "";
   };
@@ -196,24 +198,30 @@ function ImagePage() {
       formDataToSend.append("type_image", formData.type_image);
       formDataToSend.append("page", formData.page);
       formDataToSend.append("redirect", formData.redirect || "");
-      
+
       if (formData.file) {
         formDataToSend.append("file", formData.file);
       }
 
       if (isEdit) {
-        await dispatch(updateImage({id: formData.id ,data: formDataToSend} as any) as any);
-        toast.success("Image updated successfully");
-        setIsEditDialogOpen(false);
+        const res = await dispatch(
+          updateImage({ id: formData.id, data: formDataToSend } as any) as any
+        );
+        if (res.payload.status == 200 || res.payload.status == 201) {
+          toast.success(res.payload.data.message);
+          setIsEditDialogOpen(false);
+        }
       } else {
-        await dispatch(createImage(formDataToSend) as any);
-        toast.success("Image created successfully");
-        setIsCreateDialogOpen(false);
+        const res = await dispatch(createImage(formDataToSend) as any);
+        if (res.payload.status == 200 || res.payload.status == 201) {
+          toast.success(res.payload.data.message);
+          setIsCreateDialogOpen(false);
+        }
       }
 
       // Reset form
       resetForm();
-      
+
       // Refresh list
       dispatch(listImage({ limit: 10, page: currentPage } as any) as any);
     } catch (error: any) {
@@ -234,8 +242,10 @@ function ImagePage() {
     });
     setPreviewImage(null);
     // Reset file inputs
-    const createFileInput = document.getElementById('file') as HTMLInputElement;
-    const editFileInput = document.getElementById('edit-file') as HTMLInputElement;
+    const createFileInput = document.getElementById("file") as HTMLInputElement;
+    const editFileInput = document.getElementById(
+      "edit-file"
+    ) as HTMLInputElement;
     if (createFileInput) createFileInput.value = "";
     if (editFileInput) editFileInput.value = "";
   };
@@ -257,7 +267,9 @@ function ImagePage() {
 
   // Handle delete
   const handleDelete = async (ids: string[]) => {
-    if (!window.confirm(`Are you sure you want to delete ${ids.length} image(s)?`)) {
+    if (
+      !window.confirm(`Are you sure you want to delete ${ids.length} image(s)?`)
+    ) {
       return;
     }
 
@@ -305,11 +317,11 @@ function ImagePage() {
               Quản lý hình ảnh và banner trên website
             </p>
           </div>
-          <Button 
+          <Button
             onClick={() => {
               resetForm();
               setIsCreateDialogOpen(true);
-            }} 
+            }}
             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -321,47 +333,59 @@ function ImagePage() {
         <div className="grid gap-4 md:grid-cols-4">
           <Card className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-purple-500/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-white/80">Tổng Hình Ảnh</CardTitle>
+              <CardTitle className="text-sm text-white/80">
+                Tổng Hình Ảnh
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-white">{totalImage || 0}</p>
+                <p className="text-3xl font-bold text-white">
+                  {totalImage || 0}
+                </p>
                 <ImageIcon className="h-8 w-8 text-purple-400" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-black/50 border-purple-500/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-white/80">Loại Hình Ảnh</CardTitle>
+              <CardTitle className="text-sm text-white/80">
+                Loại Hình Ảnh
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-white">{imageTypes?.length || 0}</p>
+                <p className="text-3xl font-bold text-white">
+                  {imageTypes?.length || 0}
+                </p>
                 <Layers className="h-8 w-8 text-blue-400" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-black/50 border-purple-500/30">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-white/80">Trang</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-white">{pageImages?.length || 0}</p>
+                <p className="text-3xl font-bold text-white">
+                  {pageImages?.length || 0}
+                </p>
                 <File className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-black/50 border-purple-500/30">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-white/80">Đã Chọn</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-white">{selectedImages.length}</p>
+                <p className="text-3xl font-bold text-white">
+                  {selectedImages.length}
+                </p>
                 <Trash2 className="h-8 w-8 text-red-400" />
               </div>
             </CardContent>
@@ -428,7 +452,8 @@ function ImagePage() {
           <CardHeader>
             <CardTitle className="text-white">Danh Sách Hình Ảnh</CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {filteredImages?.length || 0} trên tổng số {totalImage || 0} hình ảnh
+              Hiển thị {filteredImages?.length || 0} trên tổng số{" "}
+              {totalImage || 0} hình ảnh
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -446,19 +471,26 @@ function ImagePage() {
                         className="border-white/30"
                       />
                     </TableHead>
-                    <TableHead className="w-[120px] text-white">Hình Ảnh</TableHead>
+                    <TableHead className="w-[120px] text-white">
+                      Hình Ảnh
+                    </TableHead>
                     <TableHead className="text-white">Tiêu Đề</TableHead>
                     <TableHead className="text-white">Mô Tả</TableHead>
                     <TableHead className="text-white">Loại</TableHead>
                     <TableHead className="text-white">Trang</TableHead>
                     <TableHead className="text-white">Trạng Thái</TableHead>
-                    <TableHead className="text-white text-right">Thao Tác</TableHead>
+                    <TableHead className="text-white text-right">
+                      Thao Tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredImages?.length > 0 ? (
                     filteredImages.map((image: any) => (
-                      <TableRow key={image.id} className="border-b border-purple-500/30 hover:bg-white/5">
+                      <TableRow
+                        key={image.id}
+                        className="border-b border-purple-500/30 hover:bg-white/5"
+                      >
                         <TableCell>
                           <Checkbox
                             checked={selectedImages.includes(image.id)}
@@ -493,7 +525,9 @@ function ImagePage() {
                           <div className="flex items-center gap-2">
                             <Switch
                               checked={image.status}
-                              onCheckedChange={() => handleStatusToggle(image.id)}
+                              onCheckedChange={() =>
+                                handleStatusToggle(image.id)
+                              }
                               disabled={updatingStatusId === image.id}
                               className="data-[state=checked]:bg-green-500"
                             />
@@ -506,8 +540,10 @@ function ImagePage() {
                             >
                               {updatingStatusId === image.id ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : image.status ? (
+                                "Hoạt động"
                               ) : (
-                                image.status ? "Hoạt động" : "Tắt"
+                                "Tắt"
                               )}
                             </Badge>
                           </div>
@@ -536,7 +572,10 @@ function ImagePage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-10 text-white/60">
+                      <TableCell
+                        colSpan={8}
+                        className="text-center py-10 text-white/60"
+                      >
                         <div className="flex flex-col items-center gap-2">
                           <ImageIcon className="h-10 w-10 text-white/30" />
                           <p>Không tìm thấy hình ảnh nào</p>
@@ -561,10 +600,13 @@ function ImagePage() {
         </Card>
 
         {/* Create Dialog */}
-        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-          setIsCreateDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog
+          open={isCreateDialogOpen}
+          onOpenChange={(open) => {
+            setIsCreateDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">Thêm Hình Ảnh Mới</DialogTitle>
@@ -634,7 +676,9 @@ function ImagePage() {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">Mô Tả</Label>
+                <Label htmlFor="description" className="text-white">
+                  Mô Tả
+                </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -697,7 +741,9 @@ function ImagePage() {
 
               {/* Redirect */}
               <div className="space-y-2">
-                <Label htmlFor="redirect" className="text-white">Link Chuyển Hướng</Label>
+                <Label htmlFor="redirect" className="text-white">
+                  Link Chuyển Hướng
+                </Label>
                 <Input
                   id="redirect"
                   value={formData.redirect}
@@ -735,10 +781,13 @@ function ImagePage() {
         </Dialog>
 
         {/* Edit Dialog */}
-        <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
-          setIsEditDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog
+          open={isEditDialogOpen}
+          onOpenChange={(open) => {
+            setIsEditDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">Chỉnh Sửa Hình Ảnh</DialogTitle>
@@ -747,7 +796,8 @@ function ImagePage() {
               {/* Image Upload */}
               <div className="space-y-2">
                 <Label htmlFor="edit-file" className="text-white">
-                  Hình Ảnh <span className="text-white/60">(Click để thay đổi)</span>
+                  Hình Ảnh{" "}
+                  <span className="text-white/60">(Click để thay đổi)</span>
                 </Label>
                 <div className="border-2 border-dashed border-purple-500/30 rounded-lg p-6 bg-black/30">
                   {previewImage ? (
@@ -819,7 +869,9 @@ function ImagePage() {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="edit-description" className="text-white">Mô Tả</Label>
+                <Label htmlFor="edit-description" className="text-white">
+                  Mô Tả
+                </Label>
                 <Textarea
                   id="edit-description"
                   value={formData.description}
@@ -882,7 +934,9 @@ function ImagePage() {
 
               {/* Redirect */}
               <div className="space-y-2">
-                <Label htmlFor="edit-redirect" className="text-white">Link Chuyển Hướng</Label>
+                <Label htmlFor="edit-redirect" className="text-white">
+                  Link Chuyển Hướng
+                </Label>
                 <Input
                   id="edit-redirect"
                   value={formData.redirect}

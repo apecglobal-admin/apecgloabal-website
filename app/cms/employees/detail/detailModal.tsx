@@ -69,12 +69,10 @@ export default function EmployeeDetailModal({
   const { employeeById } = useEmployeeData();
 
   useEffect(() => {
-  // Chỉ fetch khi modal mở VÀ có employeeId VÀ chưa có data hoặc data khác
   if (open && employeeId && (!employeeById || employeeById.id !== employeeId)) {
     dispatch(listEmployeeById(employeeId as any) as any);
   }
 }, [dispatch, employeeId, open]);
-  console.log("deatail", employeeById);
 
   const skillsData =
     employeeById?.skills?.map((skill: any) => ({

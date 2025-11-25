@@ -45,13 +45,17 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import InternalLayout from "@/components/cms-layout";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import { useDispatch } from "react-redux";
 import { listEmployee } from "@/src/features/employee/employeeApi";
 import { useRoleData } from "@/src/hook/roleHook";
-import { listUserCMS, roleByUserId, updateRoleUser } from "@/src/features/role/roleApi";
+import {
+  listUserCMS,
+  roleByUserId,
+  updateRoleUser,
+} from "@/src/features/role/roleApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -71,7 +75,6 @@ function RolesContent() {
 
   useEffect(() => {
     dispatch(listUserCMS() as any);
-    dispatch(listEmployee() as any);
   }, [dispatch]);
 
   // Load permissions when employee is selected
@@ -103,7 +106,7 @@ function RolesContent() {
 
   // Filter out invalid employees and apply search
   const validEmployees = users?.filter((emp: any) => emp.name && emp.email);
-  
+
   const filteredEmployees = validEmployees?.filter((emp: any) => {
     const matchesSearch =
       emp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,25 +147,41 @@ function RolesContent() {
 
     setIsSaving(true);
     try {
-      await dispatch(
+      // Get all permission IDs from all groups
+      const allPermissionIds: number[] = [];
+      if (roleById && Array.isArray(roleById)) {
+        roleById.forEach((group: any) => {
+          if (group.permissions && Array.isArray(group.permissions)) {
+            group.permissions.forEach((permission: any) => {
+              allPermissionIds.push(permission.id);
+            });
+          }
+        });
+      }
+
+      // Format permissions: selected ones as true, unselected as false
+      const formattedPermissions = allPermissionIds.map((permissionId) => ({
+        id: permissionId,
+        status: selectedPermissions.includes(permissionId),
+      }));
+
+      const res = await dispatch(
         updateRoleUser({
           id: selectedEmployee.id,
-          permissions: selectedPermissions,
+          permissions: formattedPermissions,
         } as any) as any
       );
 
-      toast({
-        title: "Cập nhật thành công",
-        description: `Đã cập nhật quyền cho ${selectedEmployee.name}`,
-      });
+      if (res.payload.status == 200 || res.payload.status == 201) {
+        toast.success(res.payload.data.message);
 
-      setIsDialogOpen(false);
+        setIsDialogOpen(false);
+
+        // Refresh user list
+        dispatch(listUserCMS() as any);
+      }
     } catch (error) {
-      toast({
-        title: "Lỗi",
-        description: "Không thể cập nhật quyền. Vui lòng thử lại.",
-        variant: "destructive",
-      });
+      toast.error("Đã có lỗi xảy ra khi lưu phân quyền.");
     } finally {
       setIsSaving(false);
     }
@@ -193,7 +212,9 @@ function RolesContent() {
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white">Quản lý phân quyền</h1>
+            <h1 className="text-3xl font-bold text-white">
+              Quản lý phân quyền
+            </h1>
             <p className="text-gray-400">
               Cấu hình quyền truy cập cho nhân viên
             </p>
@@ -245,7 +266,6 @@ function RolesContent() {
             </div>
           </CardContent>
         </Card>
-
       </div>
 
       {/* Employee List */}
@@ -288,7 +308,6 @@ function RolesContent() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                      
                         <Button
                           variant="outline"
                           size="sm"
@@ -412,7 +431,11 @@ function RolesContent() {
 
           <div className="flex items-center justify-between pt-4">
             <div className="text-sm text-gray-400">
-              Đã chọn: <span className="text-white font-semibold">{selectedPermissions.length}</span> quyền
+              Đã chọn:{" "}
+              <span className="text-white font-semibold">
+                {selectedPermissions.length}
+              </span>{" "}
+              quyền
             </div>
             <div className="flex gap-3">
               <Button

@@ -19,6 +19,8 @@ import {
   X,
   LogOut,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Shield,
   Building2,
   Package,
@@ -27,14 +29,52 @@ import {
   CalendarClock,
   Columns4,
 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useAuthData } from "@/src/hook/authHook";
+import { listSideBars } from "@/src/features/auth/authApi";
 
 interface InternalLayoutProps {
   children: React.ReactNode;
 }
 
+// Mapping từ tên menu đến icon và màu sắc
+const iconMapping: Record<string, { icon: any; color: string }> = {
+  "Nhân viên": { icon: Users, color: "text-blue-400" },
+  "Dự án": { icon: Briefcase, color: "text-cyan-400" },
+  "Phòng ban": { icon: Folder, color: "text-pink-400" },
+  "Chức vụ": { icon: Shield, color: "text-indigo-400" },
+  "Sự kiện": { icon: CalendarClock, color: "text-indigo-400" },
+  "Chính sách": { icon: Columns4, color: "text-indigo-400" },
+  "hỗ trợ": { icon: Columns4, color: "text-indigo-400" },
+  "Thông báo": { icon: Bell, color: "text-green-400" },
+  "Hình ảnh": { icon: FileText, color: "text-green-400" },
+  "Liên hệ": { icon: Package, color: "text-green-400" },
+  "Thống kê": { icon: BarChart3, color: "text-green-400" },
+  "Hệ sinh thái": { icon: Building2, color: "text-green-400" },
+  "Phân quyền": { icon: Shield, color: "text-red-400" },
+  Dashboard: { icon: Home, color: "text-purple-400" },
+};
+
 export default function InternalLayout({ children }: InternalLayoutProps) {
+  const dispatch = useDispatch();
+  const { sidebars } = useAuthData();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    dispatch(listSideBars() as any);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (sidebars && sidebars.length > 0) {
+      const initialExpandedState: Record<number, boolean> = {};
+      sidebars.forEach((_: any, index: number) => {
+        initialExpandedState[index] = true; 
+      });
+      setExpandedGroups(initialExpandedState);
+    }
+  }, [sidebars]);
 
   useEffect(() => {
     const cmsToken = localStorage.getItem("cmsToken");
@@ -42,116 +82,16 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
       router.push("/cms");
     }
   }, []);
+
   const router = useRouter();
   const pathname = usePathname();
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      href: "/cms/dashboard",
-      icon: Home,
-      color: "text-purple-400",
-    },
-    {
-      name: "Nhân Viên",
-      href: "/cms/employees",
-      icon: Users,
-      color: "text-blue-400",
-    },
-    {
-      name: "Dự Án",
-      href: "/cms/projects",
-      icon: Briefcase,
-      color: "text-cyan-400",
-    },
-    {
-      name: "Phòng Ban",
-      href: "/cms/departments",
-      icon: Folder,
-      color: "text-pink-400",
-    },
-    {
-      name: "Chức Vụ",
-      href: "/cms/positions",
-      icon: Shield,
-      color: "text-indigo-400",
-    },
-    {
-      name: "Sự kiện",
-      href: "/cms/events",
-      icon: CalendarClock,
-      color: "text-indigo-400",
-    },
-    {
-      name: "Chính sách",
-      href: "/cms/policies",
-      icon: Columns4,
-      color: "text-indigo-400",
-    },
-    {
-      name: "Hỗ trợ",
-      href: "/cms/supports",
-      icon: Columns4,
-      color: "text-indigo-400",
-    },
-    {
-      name: "Thông báo",
-      href: "/cms/notifications",
-      icon: BarChart3,
-      color: "text-green-400",
-    },
-    {
-      name: "Hình ảnh",
-      href: "/cms/images",
-      icon: BarChart3,
-      color: "text-green-400",
-    },
-    {
-      name: "Tin Tức",
-      href: "/cms/news",
-      icon: FileText,
-      color: "text-yellow-400",
-    },
-    {
-      name: "Tài Liệu",
-      href: "/cms/documents",
-      icon: FileText,
-      color: "text-orange-400",
-    },
-    {
-      name: "Dịch Vụ",
-      href: "/cms/services",
-      icon: Package,
-      color: "text-emerald-400",
-    },
-    {
-      name: "Tuyển Dụng",
-      href: "/cms/jobs",
-      icon: UserPlus,
-      color: "text-amber-400",
-    },
-    {
-      name: "Cài Đặt",
-      href: "/cms/settings",
-      icon: Settings,
-      color: "text-gray-400",
-    },
-  ];
-
-  const adminMenuItems = [
-    {
-      name: "Công Ty",
-      href: "/cms/companies",
-      icon: Building2,
-      color: "text-indigo-400",
-    },
-    {
-      name: "Phân Quyền",
-      href: "/cms/roles",
-      icon: Shield,
-      color: "text-red-400",
-    },
-  ];
+  const toggleGroup = (groupIndex: number) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [groupIndex]: !prev[groupIndex],
+    }));
+  };
 
   if (isLoading) {
     return (
@@ -163,6 +103,7 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("cmsToken");
+    router.push("/cms");
   };
 
   return (
@@ -248,72 +189,88 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
 
           {/* Navigation Menu */}
           <nav className="space-y-2">
-            <p className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-4">
-              Menu Chính
-            </p>
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
-                  <div
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                      isActive
-                        ? "bg-purple-500/20 border border-purple-500/50 text-white"
-                        : "text-white/70 hover:text-white hover:bg-white/10"
-                    }`}
+            {sidebars && sidebars.length > 0 ? (
+              sidebars.map((group: any, groupIndex: number) => (
+                <div key={groupIndex} className="mb-6">
+                  {/* Group Header - Clickable */}
+                  <button
+                    onClick={() => toggleGroup(groupIndex)}
+                    className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200 group"
                   >
-                    <Icon
-                      className={`h-5 w-5 ${
-                        isActive ? "text-purple-400" : item.color
-                      }`}
-                    />
-                    <span className="font-medium">{item.name}</span>
-                    {isActive && (
-                      <ChevronRight className="h-4 w-4 ml-auto text-purple-400" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">
+                      {group.name}
+                    </span>
+                    {expandedGroups[groupIndex] ? (
+                      <ChevronUp className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
                     )}
-                  </div>
-                </Link>
-              );
-            })}
+                  </button>
 
-            {/* Admin menu */}
-            <p className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-4 mt-8">
-              Quản Trị
-            </p>
-            {adminMenuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
+                  {/* Group Items - Collapsible */}
                   <div
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                      isActive
-                        ? "bg-red-500/20 border border-red-500/50 text-white"
-                        : "text-white/70 hover:text-white hover:bg-white/10"
+                    className={`mt-2 space-y-1 overflow-hidden transition-all duration-300 ${
+                      expandedGroups[groupIndex]
+                        ? "max-h-[2000px] opacity-100"
+                        : "max-h-0 opacity-0"
                     }`}
                   >
-                    <Icon
-                      className={`h-5 w-5 ${
-                        isActive ? "text-red-400" : item.color
-                      }`}
-                    />
-                    <span className="font-medium">{item.name}</span>
-                    {isActive && (
-                      <ChevronRight className="h-4 w-4 ml-auto text-red-400" />
-                    )}
+                    {group.permission_groups &&
+                      group.permission_groups.map(
+                        (item: any, itemIndex: number) => {
+                          const iconData = iconMapping[item.name] || {
+                            icon: FileText,
+                            color: "text-gray-400",
+                          };
+                          const Icon = iconData.icon;
+                          const isActive = pathname === item.href;
+                          const isAdminMenu = item.name === "Phân quyền";
+
+                          return (
+                            <Link
+                              key={itemIndex}
+                              href={item.href}
+                              onClick={() => setIsSidebarOpen(false)}
+                            >
+                              <div
+                                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                                  isActive
+                                    ? isAdminMenu
+                                      ? "bg-red-500/20 border border-red-500/50 text-white"
+                                      : "bg-purple-500/20 border border-purple-500/50 text-white"
+                                    : "text-white/70 hover:text-white hover:bg-white/10"
+                                }`}
+                              >
+                                <Icon
+                                  className={`h-5 w-5 ${
+                                    isActive
+                                      ? isAdminMenu
+                                        ? "text-red-400"
+                                        : "text-purple-400"
+                                      : iconData.color
+                                  }`}
+                                />
+                                <span className="font-medium">{item.name}</span>
+                                {isActive && (
+                                  <ChevronRight
+                                    className={`h-4 w-4 ml-auto ${
+                                      isAdminMenu
+                                        ? "text-red-400"
+                                        : "text-purple-400"
+                                    }`}
+                                  />
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        }
+                      )}
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+              ))
+            ) : (
+              <p className="text-white/60 text-sm">Đang tải menu...</p>
+            )}
           </nav>
         </div>
       </div>

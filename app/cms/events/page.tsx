@@ -131,10 +131,6 @@ export default function EventPage() {
         `${event.end_date.split("T")[0]}T${event.end_time}`
       );
 
-      // Kiểm tra xung đột:
-      // 1. Bắt đầu của sự kiện mới nằm trong khoảng thời gian của sự kiện hiện có
-      // 2. Kết thúc của sự kiện mới nằm trong khoảng thời gian của sự kiện hiện có
-      // 3. Sự kiện mới bao trùm hoàn toàn sự kiện hiện có
       const hasConflict =
         (startDateTime >= eventStart && startDateTime < eventEnd) ||
         (endDateTime > eventStart && endDateTime <= eventEnd) ||

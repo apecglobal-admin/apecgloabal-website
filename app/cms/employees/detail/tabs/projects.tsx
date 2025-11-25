@@ -31,7 +31,6 @@ const EmployeeProjects: React.FC<EmployeeProjectsProps> = ({
   projectStatusData,
 }) => {
 
-  console.log("abc", employee.projects.project_list)
   return (
     <div className="space-y-3 sm:space-y-4 mt-0 overflow-x-hidden">
       {/* --- Biểu đồ hiệu suất và trạng thái dự án --- */}

@@ -11,6 +11,8 @@ import supportReducer from "./features/support/supportSlice";
 import notificationReducer from "./features/notification/notificationSlice";
 import imageReducer from "./features/image/imageSlice";
 import roleReducer from "./features/role/roleSlice";
+import contactReducer from "./features/contact/contactSlice";
+import ecoReducer from "./features/ecosystem/ecoSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -25,6 +27,8 @@ const store = configureStore({
     notification: notificationReducer,
     image: imageReducer,
     role: roleReducer,
+    contact: contactReducer,
+    ecosystem: ecoReducer,
   },
 });
 

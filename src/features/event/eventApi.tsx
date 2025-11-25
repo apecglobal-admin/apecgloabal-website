@@ -10,7 +10,6 @@ export const listEvent = createAsyncThunk(
       const response = await apiAxiosInstance.get(
         `/cms/events?limit=${limit}&&page=${page}`
       );
-      console.log("reson api", response.data);
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {

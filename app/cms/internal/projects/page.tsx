@@ -18,8 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ProjectDetailModal } from "@/app/cms/projects/detail/project-detail-modal";
-import {ProjectCreateUpdateModal } from "@/app/cms/projects/project-create-modal";
+
 import { ProjectReportModal } from "@/components/project-report-modal";
 import { ProjectImportModal } from "@/components/project-import-modal";
 import Link from "next/link";
@@ -67,6 +66,8 @@ import {
 import { listCompanies } from "@/src/features/company/companyApi";
 import { useCompanyData } from "@/src/hook/companyHook";
 import { useProjectData } from "@/src/hook/projectHook";
+import { ProjectDetailModal } from "./detail/project-detail-modal";
+import { ProjectCreateUpdateModal } from "./project-create-modal";
 
 export default function InternalProjectsPage() {
   const dispatch = useDispatch();

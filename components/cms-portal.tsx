@@ -36,7 +36,7 @@ export default function InternalPortal() {
   useEffect(() => {
     const tokenCMS = localStorage.getItem("cmsToken");
     if(tokenCMS){
-      window.location.replace("/cms/dashboard");
+      window.location.replace("/cms/internal/dashboard");
     } 
     setIsLoading(false);
   }, []);
@@ -49,7 +49,7 @@ export default function InternalPortal() {
       const res = await dispatch(loginCMS(loginForm as any) as any).unwrap();
       if (res.status == 200 || res.status == 201) {
         localStorage.setItem("cmsToken", res.data.token);
-        window.location.replace("/cms/dashboard");
+        window.location.replace("/cms/internal/dashboard");
       }
     } catch (error: any) {
       setIsLoading(false);

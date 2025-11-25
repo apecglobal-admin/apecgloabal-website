@@ -75,10 +75,10 @@ import {
 import { useCompanyData } from "@/src/hook/companyHook";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import { useProjectData } from "@/src/hook/projectHook";
-import { ProjectCreateUpdateModal } from "@/app/cms/projects/project-create-modal";
 import Pagination from "@/components/pagination";
 import ProjectDetails from "./tabs/overview";
 import { Checkbox } from "@/components/ui";
+import { ProjectCreateUpdateModal } from "../project-create-modal";
 
 interface ProjectDetailModalProps {
   isOpen: boolean;

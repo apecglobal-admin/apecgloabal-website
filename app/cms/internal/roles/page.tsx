@@ -237,37 +237,6 @@ function RolesContent() {
         </CardContent>
       </Card>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-gray-800 bg-gradient-to-br from-blue-500/10 to-blue-600/10">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Tổng nhân viên</p>
-                <p className="text-2xl font-bold text-white mt-1">
-                  {validEmployees?.length || 0}
-                </p>
-              </div>
-              <UsersIcon className="w-8 h-8 text-blue-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-gray-800 bg-gradient-to-br from-green-500/10 to-green-600/10">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Đã phân quyền</p>
-                <p className="text-2xl font-bold text-white mt-1">
-                  {validEmployees?.filter((e: any) => e.role_id).length || 0}
-                </p>
-              </div>
-              <UserCheck className="w-8 h-8 text-green-400" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Employee List */}
       <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
         <CardHeader>
@@ -329,7 +298,7 @@ function RolesContent() {
 
       {/* Edit Permissions Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl max-h-[80vh]">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl max-h-[100vh]">
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
@@ -342,7 +311,7 @@ function RolesContent() {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[50vh] pr-4">
+          <ScrollArea className="max-h-[70vh] pr-4">
             {isLoadingPermissions ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-purple-500" />

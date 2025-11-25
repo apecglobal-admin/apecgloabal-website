@@ -1,9 +1,18 @@
 // src/services/api.js
-import axios from 'axios';
+import axios from "axios";
 
-const apiAxiosInstance= axios.create({
-  baseURL: 'https://apec-global-backend.vercel.app/api/v1', 
-  
+const apiAxiosInstance = axios.create({
+  baseURL: "https://apec-global-backend.vercel.app/api/v1",
+});
+
+apiAxiosInstance.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("cmsToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 export default apiAxiosInstance;

@@ -11,17 +11,19 @@ interface InitState<T> {
 
 interface PositionState {
   positions: InitState<any[]>;
+  totalPositions: InitState<any[]>;
 }
 
 const initialState: PositionState = {
   positions: { data: [], loading: false, error: null, status: null },
+  totalPositions: { data: [], loading: false, error: null, status: null },
 };
 const positionSlice = createSlice({
   name: "position",
   initialState,
   reducers: {},
   extraReducers(builder) {
-    createAsyncReducer(builder, listPosition, "positions");
+    createAsyncReducer(builder, listPosition, ["positions", "totalPositions",]);
   },
 });
 

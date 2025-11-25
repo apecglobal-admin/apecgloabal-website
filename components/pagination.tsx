@@ -53,8 +53,6 @@ export default function Pagination({
     return pages;
   };
 
-  if (totalPages <= 1) return null;
-
   return (
     <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="text-white/60 text-sm">

@@ -77,7 +77,7 @@ export default function EventPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(6);
+  const [limit] = useState(12);
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -96,57 +96,62 @@ export default function EventPage() {
 
   const totalPages = Math.ceil((totalEvent || 0) / limit);
 
-  // Kiểm tra xung đột thời gian
   const conflictingEvents = useMemo(() => {
+  if (
+    !formData.date ||
+    !formData.time ||
+    !formData.end_date ||
+    !formData.end_time ||
+    !events
+  ) {
+    return [];
+  }
+
+  // Parse form input (user nhập giờ local)
+  const startDateTime = new Date(`${formData.date}T${formData.time}:00`);
+  const endDateTime = new Date(`${formData.end_date}T${formData.end_time}:00`);
+
+  // Kiểm tra tính hợp lệ của thời gian
+  if (endDateTime <= startDateTime) {
+    return [];
+  }
+
+  return events.filter((event: Event) => {
+    // Bỏ qua sự kiện đang được chỉnh sửa
     if (
-      !formData.date ||
-      !formData.time ||
-      !formData.end_date ||
-      !formData.end_time ||
-      !events
+      modalMode === "edit" &&
+      selectedEvent &&
+      event.id === selectedEvent.id
     ) {
-      return [];
+      return false;
     }
 
-    const startDateTime = new Date(`${formData.date}T${formData.time}`);
-    const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+    // API trả về date dạng UTC: "2025-11-28T17:00:00.000Z"
+    // Cần chuyển về local date
+    const eventDateUTC = new Date(event.date);
+    const eventEndDateUTC = event.end_date ? new Date(event.end_date) : eventDateUTC;
+    
+    // Format về local date string YYYY-MM-DD
+    const eventDateLocal = eventDateUTC.toLocaleDateString("en-CA"); // en-CA returns YYYY-MM-DD
+    const eventEndDateLocal = eventEndDateUTC.toLocaleDateString("en-CA");
 
-    // Kiểm tra tính hợp lệ của thời gian
-    if (endDateTime <= startDateTime) {
-      return [];
-    }
+    // Ghép với time (time đã là local time từ API: "07:50:00")
+    const eventStart = new Date(`${eventDateLocal}T${event.time}`);
+    const eventEnd = new Date(`${eventEndDateLocal}T${event.end_time}`);
 
-    return events.filter((event: Event) => {
-      // Bỏ qua sự kiện đang được chỉnh sửa
-      if (
-        modalMode === "edit" &&
-        selectedEvent &&
-        event.id === selectedEvent.id
-      ) {
-        return false;
-      }
-
-      const eventStart = new Date(`${event.date.split("T")[0]}T${event.time}`);
-      const eventEnd = new Date(
-        `${event.end_date.split("T")[0]}T${event.end_time}`
-      );
-
-      const hasConflict =
-        (startDateTime >= eventStart && startDateTime < eventEnd) ||
-        (endDateTime > eventStart && endDateTime <= eventEnd) ||
-        (startDateTime <= eventStart && endDateTime >= eventEnd);
-
-      return hasConflict;
-    });
-  }, [
-    formData.date,
-    formData.time,
-    formData.end_date,
-    formData.end_time,
-    events,
-    modalMode,
-    selectedEvent,
-  ]);
+    // Kiểm tra overlap
+    const hasConflict = startDateTime < eventEnd && endDateTime > eventStart;
+    return hasConflict;
+  });
+}, [
+  formData.date,
+  formData.time,
+  formData.end_date,
+  formData.end_time,
+  events,
+  modalMode,
+  selectedEvent,
+]);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -241,14 +246,6 @@ export default function EventPage() {
       if (endDateTime <= startDateTime) {
         toast.error("Thời gian kết thúc phải sau thời gian bắt đầu!");
         return;
-      }
-
-      // Cảnh báo nếu có xung đột nhưng vẫn cho phép tạo
-      if (conflictingEvents.length > 0) {
-        const confirmCreate = confirm(
-          `Có ${conflictingEvents.length} sự kiện bị trùng thời gian. Bạn có chắc chắn muốn tiếp tục?`
-        );
-        if (!confirmCreate) return;
       }
 
       if (modalMode === "create") {

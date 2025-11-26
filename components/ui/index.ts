@@ -46,7 +46,6 @@ export * from "./switch";
 export * from "./table";
 export * from "./tabs";
 export * from "./toast";
-export * from "./toaster";
 export * from "./toggle-group";
 export * from "./toggle";
 export * from "./tooltip";

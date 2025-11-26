@@ -9,20 +9,20 @@ interface InitState<T> {
   status: number | null;
 }
 
-interface PositionState {
+interface ImageState {
   images: InitState<any[]>;
   totalImage: InitState<any[]>;
   imageTypes: InitState<any[]>;
   pageImages: InitState<any[]>;
 }
 
-const initialState: PositionState = {
+const initialState: ImageState = {
   images: { data: [], loading: false, error: null, status: null },
   totalImage: { data: [], loading: false, error: null, status: null },
   imageTypes: { data: [], loading: false, error: null, status: null },
   pageImages: { data: [], loading: false, error: null, status: null },
 };
-const positionSlice = createSlice({
+const imageSlice = createSlice({
   name: "image",
   initialState,
   reducers: {},
@@ -33,4 +33,4 @@ const positionSlice = createSlice({
   },
 });
 
-export default positionSlice.reducer;
+export default imageSlice.reducer;

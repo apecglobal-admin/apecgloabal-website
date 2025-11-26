@@ -11,13 +11,13 @@ export const useImageData = () => {
     pageImages: image.pageImages.data,
   
     // Loading states
-    isLoadingPolicy: image.images.loading,
+    isLoadingImages: image.images.loading,
    
     // Error states
-    ErrorPolicy: image.images.error,
+    ErrorImages: image.images.error,
    
     // Status codes
-    StatusPolicy: image.images.status,
+    StatusImages: image.images.status,
   
   };
 };

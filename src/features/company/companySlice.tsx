@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listCompanies } from "./companyApi";
+import { listCompanies, listIndustry } from "./companyApi";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
 
 interface InitState<T> {
@@ -11,10 +11,14 @@ interface InitState<T> {
 
 interface CompanyState {
   companies: InitState<any[]>;
+  totalCompany: InitState<any[]>;
+  industries: InitState<any[]>;
 }
 
 const initialState: CompanyState = {
   companies: { data: [], loading: false, error: null, status: null },
+  totalCompany: { data: [], loading: false, error: null, status: null },
+  industries: { data: [], loading: false, error: null, status: null },
 };
 
 const companySlice = createSlice({
@@ -22,7 +26,8 @@ const companySlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    createAsyncReducer(builder, listCompanies, "companies");
+    createAsyncReducer(builder, listCompanies, [ "companies", "totalCompany"]);
+    createAsyncReducer(builder, listIndustry, "industries");
   },
 });
 

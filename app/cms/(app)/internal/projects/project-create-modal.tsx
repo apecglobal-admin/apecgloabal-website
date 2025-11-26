@@ -117,7 +117,7 @@ export function ProjectCreateUpdateModal({
 }: ProjectModalProps) {
   const dispatch = useDispatch();
   const { employees, managers } = useEmployeeData();
-  const { companies } = useCompanyData();
+  const { companies, totalCompany } = useCompanyData();
   const { departments } = useDepartmentData();
   const { statusProject } = useProjectData();
   const { project } = useProjectData();
@@ -209,7 +209,7 @@ export function ProjectCreateUpdateModal({
     if (isOpen) {
       dispatch(listEmployee() as any);
       dispatch(listManager() as any);
-      dispatch(listCompanies() as any);
+    dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
       dispatch(listDepartment() as any);
       dispatch(listStatusProject() as any);
     }

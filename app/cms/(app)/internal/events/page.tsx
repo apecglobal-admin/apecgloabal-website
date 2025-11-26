@@ -17,7 +17,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
-import InternalLayout from "@/components/cms-layout";
 import { Button } from "@/components/ui/button";
 import { useEventData } from "@/src/hook/eventHook";
 import {

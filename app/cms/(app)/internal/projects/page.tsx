@@ -72,7 +72,7 @@ import { ProjectCreateUpdateModal } from "./project-create-modal";
 export default function InternalProjectsPage() {
   const dispatch = useDispatch();
   const { projects, statusProject } = useProjectData();
-  const { companies } = useCompanyData();
+  const { companies, totalCompany } = useCompanyData();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedCompany, setSelectedCompany] = useState("all");
@@ -97,7 +97,7 @@ export default function InternalProjectsPage() {
 
   useEffect(() => {
     dispatch(listProjects() as any);
-    dispatch(listCompanies() as any);
+    dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
     dispatch(listStatusProject() as any);
   }, [dispatch]);
 

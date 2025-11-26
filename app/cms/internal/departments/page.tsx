@@ -63,7 +63,7 @@ interface Department {
   created_at: string;
 }
 
-function DepartmentsManagementContent() {
+export default function DepartmentsManagementContent() {
   const dispatch = useDispatch();
   const { departments, totalDepartment } = useDepartmentData();
   const { managers } = useEmployeeData();
@@ -624,10 +624,4 @@ function DepartmentsManagementContent() {
   );
 }
 
-export default function DepartmentsManagementPage() {
-  return (
-    <InternalLayout>
-      <DepartmentsManagementContent />
-    </InternalLayout>
-  );
-}
+

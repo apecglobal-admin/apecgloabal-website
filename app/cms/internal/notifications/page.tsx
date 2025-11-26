@@ -106,7 +106,7 @@ interface Department {
   created_at: string;
 }
 
-function NotificationPage() {
+export default function NotificationPage() {
   const dispatch = useDispatch();
   const { notifications, totalNotification, notificationTypes } = useNotificationData();
   const { departments, totalDepartment } = useDepartmentData();
@@ -826,13 +826,5 @@ function NotificationPage() {
         </Dialog>
       </div>
     </div>
-  );
-}
-
-export default function NotificationManagementPage() {
-  return (
-    <InternalLayout>
-      <NotificationPage />
-    </InternalLayout>
   );
 }

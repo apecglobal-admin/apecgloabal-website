@@ -77,7 +77,7 @@ interface ImageFormData {
   status?: boolean;
 }
 
-function ImagePage() {
+export default function ImagePage() {
   const dispatch = useDispatch();
   const { images, totalImage, imageTypes, pageImages } = useImageData();
 
@@ -974,13 +974,5 @@ function ImagePage() {
         </Dialog>
       </div>
     </div>
-  );
-}
-
-export default function ImageManagementPage() {
-  return (
-    <InternalLayout>
-      <ImagePage />
-    </InternalLayout>
   );
 }

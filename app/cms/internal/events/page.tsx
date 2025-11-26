@@ -337,7 +337,6 @@ export default function EventPage() {
   };
 
   return (
-    <InternalLayout>
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center space-x-2 mb-8">
@@ -865,6 +864,5 @@ export default function EventPage() {
           </div>
         )}
       </div>
-    </InternalLayout>
   );
 }

@@ -9,8 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import {
   Dialog,
   DialogContent,
@@ -22,20 +21,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+
 import {
   Search,
   Edit,
   Shield,
   User,
-  UserCheck,
   Users as UsersIcon,
   Crown,
   Settings,
@@ -46,10 +37,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import InternalLayout from "@/components/cms-layout";
-import { useEmployeeData } from "@/src/hook/employeeHook";
 import { useDispatch } from "react-redux";
-import { listEmployee } from "@/src/features/employee/employeeApi";
 import { useRoleData } from "@/src/hook/roleHook";
 import {
   listUserCMS,
@@ -59,9 +47,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { list } from "postcss";
 
-function RolesContent() {
+export default function RolesContent() {
   const dispatch = useDispatch();
   const { roleById, users } = useRoleData();
 
@@ -440,13 +427,5 @@ function RolesContent() {
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-export default function RolesPage() {
-  return (
-    <InternalLayout>
-      <RolesContent />
-    </InternalLayout>
   );
 }

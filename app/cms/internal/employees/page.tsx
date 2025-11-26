@@ -135,7 +135,7 @@ interface Department {
   name: string;
 }
 
-function EmployeesManagementContent() {
+export default function EmployeesManagementContent() {
   const dispatch = useDispatch();
   const { employees, skills, contacts, managers } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
@@ -1019,13 +1019,5 @@ function EmployeesManagementContent() {
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-export default function EmployeesManagementPage() {
-  return (
-    <InternalLayout>
-      <EmployeesManagementContent />
-    </InternalLayout>
   );
 }

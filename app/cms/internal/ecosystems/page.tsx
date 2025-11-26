@@ -67,7 +67,7 @@ interface EcoSystemItemFormData {
   content: string;
 }
 
-function EcoSystemManagementContent() {
+export default function EcoSystemManagementContent() {
   const dispatch = useDispatch();
   const { listEcoSystem } = useEcoSystemData();
 
@@ -567,13 +567,5 @@ function EcoSystemManagementContent() {
         </Dialog>
       </div>
     </div>
-  );
-}
-
-export default function EcoSystemManagementPage() {
-  return (
-    <InternalLayout>
-      <EcoSystemManagementContent />
-    </InternalLayout>
   );
 }

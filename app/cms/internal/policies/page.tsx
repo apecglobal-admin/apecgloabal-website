@@ -47,7 +47,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import InternalLayout from "@/components/cms-layout";
 import { usePolicyData } from "@/src/hook/policyHook";
 import { useDepartmentData } from "@/src/hook/departmentHook";
 import {
@@ -95,7 +94,7 @@ interface Department {
   created_at: string;
 }
 
-function PolicyPage() {
+export default function PolicyPage() {
   const dispatch = useDispatch();
   const { policies, totalPolicy, policyTypes } = usePolicyData();
   const { departments, totalDepartment } = useDepartmentData();
@@ -122,7 +121,9 @@ function PolicyPage() {
   });
 
   useEffect(() => {
-    dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
+    if (totalDepartment){
+      dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
+    }
     dispatch(listPolicyType() as any);
   }, [dispatch, totalDepartment]);
 
@@ -794,13 +795,5 @@ function PolicyPage() {
         </Dialog>
       </div>
     </div>
-  );
-}
-
-export default function PoliciesManagementPage() {
-  return (
-    <InternalLayout>
-      <PolicyPage />
-    </InternalLayout>
   );
 }

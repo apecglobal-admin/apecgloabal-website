@@ -43,7 +43,7 @@ interface Position {
   updated_at: string
 }
 
-function PositionsManagementContent() {
+export default function PositionsManagementContent() {
   const dispatch = useDispatch()
   const { positions, totalPosition } = usePositionData()
   const [loading, setLoading] = useState(false)
@@ -580,13 +580,5 @@ function PositionsManagementContent() {
       </Dialog>
       </div>
     </div>
-  )
-}
-
-export default function PositionsManagement() {
-  return (
-    <InternalLayout>
-      <PositionsManagementContent />
-    </InternalLayout>
   )
 }

@@ -97,9 +97,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     } else {
       setIsLoading(false);
     }
-  }, [dispatch, router]); // Chỉ phụ thuộc vào dispatch và router
-
-  // Tự động expand tất cả các group khi sidebars được load
+  }, [dispatch, router]); 
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {
       const initialExpandedState: Record<number, boolean> = {};
@@ -108,7 +106,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       });
       setExpandedGroups(initialExpandedState);
     }
-  }, [sidebars]); // Chỉ phụ thuộc vào sidebars
+  }, [sidebars]);
 
   const toggleGroup = (groupIndex: number) => {
     setExpandedGroups((prev) => ({

@@ -47,7 +47,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import InternalLayout from "@/components/cms-layout";
 import { usePolicyData } from "@/src/hook/policyHook";
 import { useDepartmentData } from "@/src/hook/departmentHook";
 import {
@@ -95,7 +94,7 @@ interface Department {
   created_at: string;
 }
 
-function PolicyPage() {
+export default function PolicyPage() {
   const dispatch = useDispatch();
   const { policies, totalPolicy, policyTypes } = usePolicyData();
   const { departments, totalDepartment } = useDepartmentData();
@@ -155,7 +154,7 @@ function PolicyPage() {
       title: policy.title,
       description: policy.description || "",
       policy_type_id: policy.policy_type_id.toString(),
-      department_ids: policy.policy_departments.map((d) => d.id),
+      department_ids: policy?.policy_departments?.map((d) => d.id),
       documents: [],
       status: policy.status,
     });
@@ -200,7 +199,7 @@ function PolicyPage() {
       return;
     }
 
-    if (formData.department_ids.length === 0) {
+    if (formData?.department_ids?.length === 0) {
       toast.error("Vui lòng chọn ít nhất một phòng ban");
       return;
     }
@@ -401,7 +400,8 @@ function PolicyPage() {
           <CardHeader>
             <CardTitle className="text-white">Danh Sách Chính Sách</CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {filteredPolicies.length} chính sách trên trang này - Tổng cộng {totalPolicy} chính sách
+              Hiển thị {filteredPolicies.length} chính sách trên trang này -
+              Tổng cộng {totalPolicy} chính sách
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -446,7 +446,7 @@ function PolicyPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {policy.policy_departments.map((dept) => (
+                          {policy?.policy_departments?.map((dept) => (
                             <Badge
                               key={dept.id}
                               className="bg-blue-600/20 text-blue-400 border-blue-500/30"
@@ -457,11 +457,11 @@ function PolicyPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {policy.policy_documents.length > 0 ? (
+                        {policy?.policy_documents?.length > 0 ? (
                           <div className="flex items-center gap-2">
                             <FileText className="h-4 w-4 text-purple-400" />
                             <span className="text-white text-sm">
-                              {policy.policy_documents.length} tài liệu
+                              {policy?.policy_documents?.length} tài liệu
                             </span>
                           </div>
                         ) : (
@@ -595,7 +595,7 @@ function PolicyPage() {
                     <div key={dept.id} className="flex items-center space-x-2">
                       <Checkbox
                         id={`dept-${dept.id}`}
-                        checked={formData.department_ids.includes(dept.id)}
+                        checked={formData?.department_ids?.includes(dept.id)}
                         onCheckedChange={() => handleDepartmentToggle(dept.id)}
                       />
                       <Label
@@ -607,9 +607,9 @@ function PolicyPage() {
                     </div>
                   ))}
                 </div>
-                {formData.department_ids.length > 0 && (
+                {formData?.department_ids?.length > 0 && (
                   <p className="text-sm text-white/60 mt-2">
-                    Đã chọn {formData.department_ids.length} phòng ban
+                    Đã chọn {formData?.department_ids?.length} phòng ban
                   </p>
                 )}
               </div>
@@ -666,13 +666,13 @@ function PolicyPage() {
                   )}
 
                   {editingPolicy &&
-                    editingPolicy.policy_documents.length > 0 && (
+                    editingPolicy?.policy_documents?.length > 0 && (
                       <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/30">
                         <p className="text-blue-400 text-sm font-medium mb-2">
                           Tài liệu hiện có (
-                          {editingPolicy.policy_documents.length})
+                          {editingPolicy?.policy_documents?.length})
                         </p>
-                        {editingPolicy.policy_documents.map((doc) => (
+                        {editingPolicy?.policy_documents?.map((doc) => (
                           <div
                             key={doc.id}
                             className="flex items-center gap-3 bg-black/40 p-3 rounded-lg mb-2"
@@ -794,13 +794,5 @@ function PolicyPage() {
         </Dialog>
       </div>
     </div>
-  );
-}
-
-export default function PoliciesManagementPage() {
-  return (
-    <InternalLayout>
-      <PolicyPage />
-    </InternalLayout>
   );
 }

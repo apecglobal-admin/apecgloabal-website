@@ -49,7 +49,7 @@ interface ContactFormData {
   work_day_to: string;
 }
 
-function ContactManagementContent() {
+export default function ContactManagementContent() {
   const dispatch = useDispatch();
   const { contacts } = useContactData();
 
@@ -427,13 +427,5 @@ function ContactManagementContent() {
         </Dialog>
       </div>
     </div>
-  );
-}
-
-export default function ContactManagementPage() {
-  return (
-    <InternalLayout>
-      <ContactManagementContent />
-    </InternalLayout>
   );
 }

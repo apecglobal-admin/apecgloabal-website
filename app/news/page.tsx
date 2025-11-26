@@ -65,6 +65,8 @@ export default async function NewsPage() {
     image: featuredNewsItem.image_url || "/placeholder.svg?height=400&width=800",
   }
 
+  // console.log("Featured News:", featuredNewsItem);
+
   // Chuyển đổi dữ liệu tin tức còn lại
   const news = dbNews
     .filter((item: News) => item.id !== featuredNewsItem.id)

@@ -13,6 +13,7 @@ import imageReducer from "./features/image/imageSlice";
 import roleReducer from "./features/role/roleSlice";
 import contactReducer from "./features/contact/contactSlice";
 import ecoReducer from "./features/ecosystem/ecoSlice";
+import newsReducer from "./features/news/newsSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -29,6 +30,7 @@ const store = configureStore({
     role: roleReducer,
     contact: contactReducer,
     ecosystem: ecoReducer,
+    news: newsReducer,
   },
 });
 

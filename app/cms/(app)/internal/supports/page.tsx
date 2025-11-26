@@ -78,7 +78,7 @@ interface Support {
   status: SupportStatus;
 }
 
-function SupportPage() {
+export default function SupportPage() {
   const dispatch = useDispatch();
   const { supports, totalSupport, supportTypes } = useSupportData();
   const [loading, setLoading] = useState(false);
@@ -634,10 +634,3 @@ function SupportPage() {
   );
 }
 
-export default function SupportManagementPage() {
-  return (
-    <InternalLayout>
-      <SupportPage />
-    </InternalLayout>
-  );
-}

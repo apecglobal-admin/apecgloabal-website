@@ -95,7 +95,7 @@ export function ProjectDetailModal({
 }: ProjectDetailModalProps) {
   const dispatch = useDispatch();
   const { project, statusProject, issues, total } = useProjectData();
-  const { companies } = useCompanyData();
+  const { companies , totalCompany} = useCompanyData();
   const { employees } = useEmployeeData();
 
   const [saving, setSaving] = useState(false);
@@ -173,7 +173,7 @@ export function ProjectDetailModal({
   useEffect(() => {
     if (isOpen && projectId) {
       dispatch(listProjectById(projectId as any) as any);
-      dispatch(listCompanies() as any);
+    dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
       dispatch(listEmployee() as any);
       dispatch(listIssues({ project_id: projectId, projectId, limit, page } as any) as any);
     }

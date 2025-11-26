@@ -6,6 +6,8 @@ export const useCompanyData = () => {
   return {
     // Data 
     companies: company.companies.data,
+    totalCompany: company?.totalCompany?.paginations?.total,
+    industries: company.industries.data,
 
     // Loading states
     isLoadingCompanies: company.companies.loading,

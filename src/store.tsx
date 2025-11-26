@@ -14,6 +14,7 @@ import roleReducer from "./features/role/roleSlice";
 import contactReducer from "./features/contact/contactSlice";
 import ecoReducer from "./features/ecosystem/ecoSlice";
 import newsReducer from "./features/news/newsSlice";
+import statisticReducer from "./features/statistics/statisticsSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -31,6 +32,7 @@ const store = configureStore({
     contact: contactReducer,
     ecosystem: ecoReducer,
     news: newsReducer,
+    statistic: statisticReducer
   },
 });
 

@@ -26,10 +26,8 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // ✅ Reset về initial state khi logout
     logout: () => initialState,
     
-    // ✅ Optional: Clear specific data
     clearSidebars: (state) => {
       state.sidebars = initialState.sidebars;
     },

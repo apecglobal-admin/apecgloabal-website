@@ -63,43 +63,33 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
+  const [isMounted, setIsMounted] = useState(false);
+
 
   const router = useRouter();
   const pathname = usePathname();
 
-  // Load data một lần duy nhất khi layout mount
   useEffect(() => {
-    const cmsToken = localStorage.getItem("cmsToken");
-    if (!cmsToken) {
-      router.push("/cms");
-      return;
-    }
+  setIsMounted(true);
+}, []);
 
-    // Kiểm tra nếu đã có data trong Redux thì không cần load lại
-    const hasData = userInfo;
+useEffect(() => {
+  if (!isMounted) return; // chỉ chạy effect trên client
 
-    console.log("hasData:", hasData);
-    
-    if (!hasData) {
-      const loadData = async () => {
-        setIsLoading(true);
-        try {
-          await Promise.all([
-            dispatch(listSideBars() as any),
-            dispatch(userInfoCMS() as any),
-          ]);
-        } catch (error) {
-          console.error("Error loading data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+  const cmsToken = localStorage.getItem("cmsToken");
+  if (!cmsToken) {
+    router.push("/cms");
+    return;
+  }
 
-      loadData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [dispatch, router, userInfo]); 
+  if (!userInfo) {
+    setIsLoading(true);
+    dispatch(listSideBars() as any);
+    dispatch(userInfoCMS() as any).finally(() => setIsLoading(false));
+  } else {
+    setIsLoading(false);
+  }
+}, [dispatch, router, userInfo, isMounted]);
   
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {

@@ -67,9 +67,15 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Load data một lần duy nhất khi layout mount
   useEffect(() => {
+  if (typeof window === "undefined") return; // đảm bảo chỉ chạy trên client
+
   const cmsToken = localStorage.getItem("cmsToken");
-  if (!cmsToken) router.push("/cms");
+  if (!cmsToken) {
+    router.push("/cms");
+    return;
+  }
 
   if (!userInfo) {
     setIsLoading(true);
@@ -78,8 +84,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   } else {
     setIsLoading(false);
   }
-}, [dispatch, router]);
-
+}, [dispatch, router, userInfo]);
+ 
   
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {

@@ -30,7 +30,7 @@ const persistConfig = {
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["sidebars", "userInfo"], // Chỉ persist sidebars và userInfo
+  whitelist: ["sidebars", "userInfo"], 
 };
 
 // ✅ Combine tất cả reducers

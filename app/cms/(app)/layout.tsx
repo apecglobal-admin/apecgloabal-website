@@ -58,7 +58,7 @@ const iconMapping: Record<string, { icon: any; color: string }> = {
 
 export default function CMSLayout({ children }: CMSLayoutProps) {
   const dispatch = useDispatch();
-  const { sidebars,  } = useAuthData();
+  const { sidebars, userInfo } = useAuthData();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -67,12 +67,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const userInfo = {
-    "id": 18,
-    "username": "admin2",
-    "email": "longhoang882001@gmail.com",
-    "avatar_url": "https://res.cloudinary.com/digowtlf1/image/upload/v1762418438/avatars/avatar_2.jpg"
-}
   // Load data một lần duy nhất khi layout mount
   useEffect(() => {
     const cmsToken = localStorage.getItem("cmsToken");
@@ -82,7 +76,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     }
 
     // Kiểm tra nếu đã có data trong Redux thì không cần load lại
-    const hasData =  userInfo;
+    const hasData = userInfo;
 
     console.log("hasData:", hasData);
     
@@ -105,7 +99,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     } else {
       setIsLoading(false);
     }
-  }, [dispatch, router, sidebars, userInfo]); 
+  }, [dispatch, router, userInfo]); 
   
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {

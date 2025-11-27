@@ -67,7 +67,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Load data một lần duy nhất khi layout mount
   useEffect(() => {
     const cmsToken = localStorage.getItem("cmsToken");
     if (!cmsToken) {
@@ -75,7 +74,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       return;
     }
 
-    // Kiểm tra nếu đã có data trong Redux thì không cần load lại
     const hasData = sidebars && sidebars.length > 0 && userInfo;
     
     if (!hasData) {
@@ -97,9 +95,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     } else {
       setIsLoading(false);
     }
-  }, [dispatch, router]); // Chỉ phụ thuộc vào dispatch và router
+  }, [dispatch, router]); 
 
-  // Tự động expand tất cả các group khi sidebars được load
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {
       const initialExpandedState: Record<number, boolean> = {};
@@ -108,7 +105,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       });
       setExpandedGroups(initialExpandedState);
     }
-  }, [sidebars]); // Chỉ phụ thuộc vào sidebars
+  }, [sidebars]); 
 
   const toggleGroup = (groupIndex: number) => {
     setExpandedGroups((prev) => ({
@@ -182,7 +179,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
           <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
             <div className="text-center">
               <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-purple-500 mx-auto mb-4" />
-              <p className="text-white text-sm sm:text-base">Đang tải dữ liệu....</p>
+              <p className="text-white text-sm sm:text-base">Đang tải dữ liệu...</p>
             </div>
           </div>
         </div>

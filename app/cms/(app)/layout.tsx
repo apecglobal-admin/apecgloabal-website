@@ -76,19 +76,28 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       return;
     }
 
-    const hasData = sidebars && sidebars.length > 0 && userInfo;
-
-    console.log("CMSLayout - hasData:", hasData);
-
-    if (!hasData) {
-      setIsLoading(true);
-      Promise.all([
-        dispatch(listSideBars() as any),
-        dispatch(userInfoCMS() as any),
-      ]).finally(() => setIsLoading(false));
-    } else {
+    // Đã có data → không cần fetch lại
+    if (sidebars?.length > 0 && userInfo) {
       setIsLoading(false);
+      return;
     }
+
+    // Nếu chưa có thì fetch
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        await Promise.all([
+          dispatch(listSideBars() as any),
+          dispatch(userInfoCMS() as any),
+        ]);
+      } catch (err) {
+        console.error("Load CMS data error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
   }, [dispatch, router, sidebars, userInfo]);
 
   useEffect(() => {

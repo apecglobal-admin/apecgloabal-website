@@ -293,6 +293,8 @@ export default function CareersPage() {
     )
   }
 
+  console.log("asd", jobOpenings)
+
   const benefits = [
     {
       icon: DollarSign,

@@ -62,7 +62,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>(
+    {}
+  );
 
   const router = useRouter();
   const pathname = usePathname();
@@ -75,37 +77,33 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     }
 
     const hasData = sidebars && sidebars.length > 0 && userInfo;
-    
-    if (!hasData) {
-      const loadData = async () => {
-        setIsLoading(true);
-        try {
-          await Promise.all([
-            dispatch(listSideBars() as any),
-            dispatch(userInfoCMS() as any),
-          ]);
-        } catch (error) {
-          console.error("Error loading data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
 
-      loadData();
+    console.log("CMSLayout - hasData:", hasData);
+
+    if (!hasData) {
+      setIsLoading(true);
+      Promise.all([
+        dispatch(listSideBars() as any),
+        dispatch(userInfoCMS() as any),
+      ]).finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
     }
-  }, [dispatch, router]); 
+  }, [dispatch, router, sidebars, userInfo]);
 
   useEffect(() => {
-    if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {
+    if (
+      sidebars &&
+      sidebars.length > 0 &&
+      Object.keys(expandedGroups).length === 0
+    ) {
       const initialExpandedState: Record<number, boolean> = {};
       sidebars.forEach((_: any, index: number) => {
         initialExpandedState[index] = true;
       });
       setExpandedGroups(initialExpandedState);
     }
-  }, [sidebars]); 
+  }, [sidebars]);
 
   const toggleGroup = (groupIndex: number) => {
     setExpandedGroups((prev) => ({
@@ -179,7 +177,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
           <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
             <div className="text-center">
               <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-purple-500 mx-auto mb-4" />
-              <p className="text-white text-sm sm:text-base">Đang tải dữ liệu 123...</p>
+              <p className="text-white text-sm sm:text-base">
+                Đang tải dữ liệu 123...
+              </p>
             </div>
           </div>
         </div>
@@ -208,7 +208,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-xs sm:text-sm">A</span>
+                <span className="text-white font-bold text-xs sm:text-sm">
+                  A
+                </span>
               </div>
               <span className="text-sm sm:text-lg font-bold text-white truncate">
                 ApecGlobal Internal
@@ -262,7 +264,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 <p className="text-white font-medium text-sm truncate">
                   {userInfo ? userInfo.username : "Administrator"}
                 </p>
-                <Badge className="bg-green-600 text-white text-xs">Online</Badge>
+                <Badge className="bg-green-600 text-white text-xs">
+                  Online
+                </Badge>
               </div>
             </div>
             <Button
@@ -373,7 +377,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
             ) : (
               <div className="text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-purple-500 mx-auto mb-2" />
-                <p className="text-white/60 text-xs sm:text-sm">Đang tải menu...</p>
+                <p className="text-white/60 text-xs sm:text-sm">
+                  Đang tải menu...
+                </p>
               </div>
             )}
           </nav>

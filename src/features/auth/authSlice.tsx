@@ -1,7 +1,8 @@
+// src/features/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import { listSideBars, loginCMS, userInfoCMS } from "./authApi";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
-import { create } from "domain";
+import { REHYDRATE } from "redux-persist";
 
 interface InitState<T> {
   data: T;
@@ -9,20 +10,30 @@ interface InitState<T> {
   error: string | null;
   status: number | null;
 }
+
 interface AuthState {
-sidebars: InitState<any[]>;
-userInfo: InitState<any | null>;
+  sidebars: InitState<any[]>;
+  userInfo: InitState<any | null>;
 }
+
 const initialState: AuthState = {
   sidebars: { data: [], loading: false, error: null, status: null },
   userInfo: { data: null, loading: false, error: null, status: null },
-}
+};
+
 // Tạo slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     logout: () => initialState,
+    
+    clearSidebars: (state) => {
+      state.sidebars = initialState.sidebars;
+    },
+    clearUserInfo: (state) => {
+      state.userInfo = initialState.userInfo;
+    },
   },
   extraReducers: (builder) => {
     createAsyncReducer(builder, userInfoCMS, "userInfo");
@@ -32,5 +43,5 @@ const authSlice = createSlice({
 });
 
 // Export actions & reducer
-export const { logout } = authSlice.actions;
+export const { logout, clearSidebars, clearUserInfo } = authSlice.actions;
 export default authSlice.reducer;

@@ -51,7 +51,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import InternalLayout from "@/components/cms-layout";
 import Pagination from "@/components/pagination";
 import { useSupportData } from "@/src/hook/supportHook";
 import {

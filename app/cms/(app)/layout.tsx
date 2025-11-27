@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -63,22 +63,20 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
-
+  
+  const hasLoadedData = useRef(false); 
   const router = useRouter();
   const pathname = usePathname();
 
-  // Load data một lần duy nhất khi layout mount
   useEffect(() => {
-    // const cmsToken = localStorage.getItem("cmsToken");
-    // if (!cmsToken) {
-    //   router.push("/cms");
-    //   return;
-    // }
+    const cmsToken = localStorage.getItem("cmsToken");
+    if (!cmsToken) {
+      router.push("/cms");
+      return;
+    }
 
-    // Kiểm tra nếu đã có data trong Redux thì không cần load lại
-    const hasData =  userInfo;
-    
-    if (!hasData) {
+    // Chỉ load 1 lần duy nhất
+    if (!hasLoadedData.current) {
       const loadData = async () => {
         setIsLoading(true);
         try {
@@ -86,6 +84,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
             dispatch(listSideBars() as any),
             dispatch(userInfoCMS() as any),
           ]);
+          hasLoadedData.current = true; // ✅ Đánh dấu đã load
         } catch (error) {
           console.error("Error loading data:", error);
         } finally {
@@ -97,7 +96,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     } else {
       setIsLoading(false);
     }
-  }, [dispatch, router]); 
+  }, []);
   
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {

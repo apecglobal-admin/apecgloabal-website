@@ -182,7 +182,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
           <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
             <div className="text-center">
               <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-purple-500 mx-auto mb-4" />
-              <p className="text-white text-sm sm:text-base">Đang tải dữ liệu...</p>
+              <p className="text-white text-sm sm:text-base">Đang tải dữ liệu....</p>
             </div>
           </div>
         </div>

@@ -220,9 +220,11 @@ export default async function HomePage() {
     companyOverviewSection: {},
     ctaSection: {}
   }
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+    
     const projectsResponse = await fetch(`${baseUrl}/api/projects`, {
       cache: 'no-store'
     })

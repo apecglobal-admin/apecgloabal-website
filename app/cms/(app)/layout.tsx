@@ -33,6 +33,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useAuthData } from "@/src/hook/authHook";
 import { listSideBars, userInfoCMS } from "@/src/features/auth/authApi";
+import { logout } from "@/src/features/auth/authSlice";
 
 interface CMSLayoutProps {
   children: React.ReactNode;
@@ -75,29 +76,37 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       return;
     }
 
-    // Chỉ load 1 lần duy nhất
+    // ✅ Kiểm tra nếu đã có data trong Redux (từ persist)
+    if (sidebars && sidebars.length > 0 && userInfo) {
+      console.log("✅ Data loaded from Redux Persist");
+      setIsLoading(false);
+      hasLoadedData.current = true;
+      return;
+    }
+
+    // Chỉ load 1 lần nếu chưa có data
     if (!hasLoadedData.current) {
       const loadData = async () => {
+        console.log("🔄 Loading fresh data from API...");
         setIsLoading(true);
         try {
           await Promise.all([
             dispatch(listSideBars() as any),
             dispatch(userInfoCMS() as any),
           ]);
-          hasLoadedData.current = true; // ✅ Đánh dấu đã load
+          hasLoadedData.current = true;
+          console.log("✅ Data loaded successfully");
         } catch (error) {
-          console.error("Error loading data:", error);
+          console.error("❌ Error loading data:", error);
         } finally {
           setIsLoading(false);
         }
       };
 
       loadData();
-    } else {
-      setIsLoading(false);
     }
-  }, []);
-  
+  }, []); // ✅ Empty dependency - chỉ chạy 1 lần
+
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {
       const initialExpandedState: Record<number, boolean> = {};
@@ -106,7 +115,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       });
       setExpandedGroups(initialExpandedState);
     }
-  }, [sidebars]); // Chỉ phụ thuộc vào sidebars
+  }, [sidebars]);
 
   const toggleGroup = (groupIndex: number) => {
     setExpandedGroups((prev) => ({
@@ -115,16 +124,25 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     }));
   };
 
-  const handleLogout = async () => {
+   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      // ✅ Clear localStorage
       localStorage.removeItem("cmsToken");
+      
+      // ✅ Clear Redux Persist
+      dispatch(logout());
+      
+      // ✅ Optional: Clear persist storage manually
+      // await persistor.purge();
+      
       router.push("/cms");
     } catch (error) {
       console.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };
+
 
   // Loading Screen
   if (isLoading) {

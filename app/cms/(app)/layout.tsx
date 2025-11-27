@@ -69,23 +69,35 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
   // Load data một lần duy nhất khi layout mount
   useEffect(() => {
-  if (typeof window === "undefined") return; // đảm bảo chỉ chạy trên client
+    // const cmsToken = localStorage.getItem("cmsToken");
+    // if (!cmsToken) {
+    //   router.push("/cms");
+    //   return;
+    // }
 
-  const cmsToken = localStorage.getItem("cmsToken");
-  if (!cmsToken) {
-    router.push("/cms");
-    return;
-  }
+    // Kiểm tra nếu đã có data trong Redux thì không cần load lại
+    const hasData =  userInfo;
+    
+    if (!hasData) {
+      const loadData = async () => {
+        setIsLoading(true);
+        try {
+          await Promise.all([
+            dispatch(listSideBars() as any),
+            dispatch(userInfoCMS() as any),
+          ]);
+        } catch (error) {
+          console.error("Error loading data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-  if (!userInfo) {
-    setIsLoading(true);
-    dispatch(listSideBars() as any);
-    dispatch(userInfoCMS() as any).finally(() => setIsLoading(false));
-  } else {
-    setIsLoading(false);
-  }
-}, [dispatch, router, userInfo]);
- 
+      loadData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [dispatch, router]); 
   
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {

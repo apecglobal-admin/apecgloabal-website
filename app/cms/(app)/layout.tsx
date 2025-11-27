@@ -76,9 +76,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     }
 
     // Kiểm tra nếu đã có data trong Redux thì không cần load lại
-    const hasData = sidebars;
+    const hasData =  userInfo;
 
-    console.log("CMSLayout - hasData:", hasData);
+    console.log("hasData:", hasData);
     
     if (!hasData) {
       const loadData = async () => {
@@ -99,8 +99,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     } else {
       setIsLoading(false);
     }
-  }, [dispatch, router, sidebars]); 
-
+  }, [dispatch, router, sidebars, userInfo]); 
+  
   useEffect(() => {
     if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {
       const initialExpandedState: Record<number, boolean> = {};

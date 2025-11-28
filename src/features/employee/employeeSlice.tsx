@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  createOrUpdateEmployee,
   listContact,
   listEmployee,
   listEmployeeById,
+  listEmployeeStatus,
   listManager,
   listSkill,
   updateSkills,
@@ -25,6 +25,7 @@ interface EmployeeState {
   contacts: InitState<any[]>;
   managers: InitState<any[]>;
   employeeById: InitState<any | null>;
+  statuses: InitState<any[]>;
 }
 
 // Trạng thái khởi tạo
@@ -34,6 +35,7 @@ const initialState: EmployeeState = {
   contacts: { data: [], loading: false, error: null, status: null },
   managers: { data: [], loading: false, error: null, status: null },
   employeeById: { data: null, loading: false, error: null, status: null },
+  statuses: { data: [], loading: false, error: null, status: null },
 };
 
 const employeeSlice = createSlice({
@@ -48,9 +50,9 @@ const employeeSlice = createSlice({
     createAsyncReducer(builder, listContact, "contacts");
     createAsyncReducer(builder, listManager, "managers");
     createAsyncReducer(builder, listEmployeeById, "employeeById");
+    createAsyncReducer(builder, listEmployeeStatus, "statuses");
 
     // Dùng helper cho API chỉ cần status (không cần lưu payload)
-    createAsyncReducer(builder, createOrUpdateEmployee);
     createAsyncReducer(builder, updateSkills);
   },
 });

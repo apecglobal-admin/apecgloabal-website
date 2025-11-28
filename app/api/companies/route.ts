@@ -81,8 +81,6 @@ export async function GET(request: Request) {
         created_at: company.created_at,
         updated_at: company.updated_at
       }))
-
-      console.log("Fetched companies:", companiesData);
       
       return NextResponse.json({
         success: true,

@@ -78,8 +78,81 @@ export const listEmployeeById = createAsyncThunk(
   }
 );
 
-export const createOrUpdateEmployee = createAsyncThunk(
-  "employee/createOrUpdateEmployee",
+export const createEmployee = createAsyncThunk(
+  "employee/createEmployee",
+  async (payload: any, thunkAPI) => {
+    try {
+      const {
+       
+        email,
+        name,
+        phone,
+        join_date,
+        birthday,
+        address,
+        manager_id,
+        gen,
+        birth_place,
+        citizen_card,
+        issue_date,
+        issue_place,
+        emergency_contract,
+        degree_level,
+        major,
+        school_name,
+        graduation_year,
+        base_salary,
+        allowance,
+        contract_type,
+        certificate_name,
+        skills,
+        skill_group_id,
+        department_id,
+        position_id,
+      }: any = payload;
+      const response = await apiAxiosInstance.post(`/cms/employees/create`, {
+        
+        email,
+        name,
+        phone,
+        join_date,
+        birthday,
+        address,
+        manager_id,
+        gen,
+        birth_place,
+        citizen_card,
+        issue_date,
+        issue_place,
+        emergency_contract,
+        degree_level,
+        major,
+        school_name,
+        graduation_year,
+        base_salary,
+        allowance,
+        contract_type,
+        certificate_name,
+        skills,
+        skill_group_id,
+        department_id,
+        position_id,
+      });
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const updateEmployee = createAsyncThunk(
+  "employee/updateEmployee",
   async (payload: any, thunkAPI) => {
     try {
       const {
@@ -110,7 +183,7 @@ export const createOrUpdateEmployee = createAsyncThunk(
         department_id,
         position_id,
       }: any = payload;
-      const response = await apiAxiosInstance.put(`/cms/employees/info`, {
+      const response = await apiAxiosInstance.put(`/cms/employees/update?id=${id}`, {
         id,
         email,
         name,
@@ -183,7 +256,43 @@ export const updateStatusCareer = createAsyncThunk(
     try {
       const { id, status }: any = payload;
       const response = await apiAxiosInstance.put(
-        `/cms/personal-requests/change?id=${id}&&status=${status}`
+        `/cms/personal-requests/change?id=${id}&status=${status}`
+      );
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message,{
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const listEmployeeStatus = createAsyncThunk(
+  "employee/listEmployeeStatus",
+  async (_, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(`/employees/status`);
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const updateStatusEmployee = createAsyncThunk(
+  "employee/updateStatusEmployee",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { id, status }: any = payload;
+      const response = await apiAxiosInstance.put(
+        `/cms/employees/status?id=${id}&status=${status}`
       );
       return {
         status: response.status,

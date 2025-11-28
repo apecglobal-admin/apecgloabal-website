@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import InternalLayout from "@/components/cms-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -76,7 +75,7 @@ const ICONS = [
   "Package"
 ]
 
-function ServicesManagementContent() {
+export default function ServicesManagementContent() {
   const [services, setServices] = useState<ServiceWithCompany[]>([])
   const [companies, setCompanies] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -217,7 +216,6 @@ function ServicesManagementContent() {
       fetchServices()
     } catch (error) {
       console.error(`Error ${isCreateMode ? 'creating' : 'updating'} service:`, error)
-      toast.error(`Không thể ${isCreateMode ? 'tạo' : 'cập nhật'} dịch vụ: ${error.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -816,13 +814,5 @@ function ServicesManagementContent() {
         </DialogContent>
       </Dialog>
     </div>
-  )
-}
-
-export default function InternalServicesPage() {
-  return (
-    <InternalLayout>
-      <ServicesManagementContent />
-    </InternalLayout>
   )
 }

@@ -1,4 +1,3 @@
-// src/store.ts
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; 
@@ -18,22 +17,21 @@ import contactReducer from "./features/contact/contactSlice";
 import ecoReducer from "./features/ecosystem/ecoSlice";
 import newsReducer from "./features/news/newsSlice";
 import statisticReducer from "./features/statistics/statisticsSlice";
-
-// ✅ Config persist cho auth reducer
+import servicesReducer from "./features/service/serviceSlice";
+import jobsReducer from "./features/jobs/jobSlice";
+import applicationRecuder from "./features/application/applicationSlice"
 const persistConfig = {
   key: "cms-root",
   storage,
-  whitelist: ["auth"], // Chỉ persist auth reducer
+  whitelist: ["auth"], 
 };
 
-// ✅ Config riêng cho auth để chỉ persist một số fields
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["sidebars", "userInfo"], // Chỉ persist sidebars và userInfo
+  whitelist: ["sidebars", "userInfo"], 
 };
 
-// ✅ Combine tất cả reducers
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   employee: employeeReducer,
@@ -51,12 +49,13 @@ const rootReducer = combineReducers({
   ecosystem: ecoReducer,
   news: newsReducer,
   statistic: statisticReducer,
+  services: servicesReducer,
+  jobs: jobsReducer,
+  application: applicationRecuder
 });
 
-// ✅ Tạo persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// ✅ Configure store với persisted reducer
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -73,10 +72,8 @@ const store = configureStore({
     }),
 });
 
-// ✅ Export persistor
 export const persistor = persistStore(store);
 export default store;
 
-// Export types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

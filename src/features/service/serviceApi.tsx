@@ -3,13 +3,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
 
-export const listNotification = createAsyncThunk(
-  "notification/listNotification",
-  async (payload, thunkAPI) => {
+export const listServices = createAsyncThunk(
+  "services/listServices",
+  async (_, thunkAPI) => {
     try {
-      const { limit, page }: any = payload;
       const response = await apiAxiosInstance.get(
-        `/cms/notifications?limit=${limit}&page=${page}`
+        `/cms/services`
       );
       return response.data;
     } catch (error: any) {
@@ -21,11 +20,11 @@ export const listNotification = createAsyncThunk(
   }
 );
 
-export const listNotificationType = createAsyncThunk(
-  "notification/listNotificationType",
+export const listServicesType = createAsyncThunk(
+  "services/listServicesType",
   async (_, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(`/notifications/types`);
+      const response = await apiAxiosInstance.get(`/services/category`);
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {
@@ -36,12 +35,12 @@ export const listNotificationType = createAsyncThunk(
   }
 );
 
-export const createNotification = createAsyncThunk(
-  "notification/createNotification",
+export const createServices = createAsyncThunk(
+  "services/createServices",
   async (formData: FormData, thunkAPI) => {
     try {
       const response = await apiAxiosInstance.post(
-        "/cms/notifications/create",
+        "/cms/services/create",
         formData
       );
       return {
@@ -57,8 +56,8 @@ export const createNotification = createAsyncThunk(
   }
 );
 
-export const updateNotification = createAsyncThunk(
-  "notification/updateNotification",
+export const updateServices = createAsyncThunk(
+  "services/updateServices",
   async ({ id, data }: { id: string | number; data: FormData }, thunkAPI) => {
 //     console.log("FormData content:");
 // for (let [key, value] of data.entries()) {
@@ -66,7 +65,7 @@ export const updateNotification = createAsyncThunk(
 // }
     try {
       const response = await apiAxiosInstance.put(
-        `/cms/notifications/update?id=${id}`,
+        `/cms/services/update?id=${id}`,
         data 
       );
       return {
@@ -82,12 +81,12 @@ export const updateNotification = createAsyncThunk(
   }
 );
 
-export const deleteNotification = createAsyncThunk(
-  "notification/deleteNotification",
+export const deleteServices = createAsyncThunk(
+  "services/deleteServices",
   async (ids, thunkAPI) => {
     try {
       const response = await apiAxiosInstance.delete(
-        `/cms/notifications/delete`,
+        `/cms/services/delete`,
         { data: { ids } }
       );
 

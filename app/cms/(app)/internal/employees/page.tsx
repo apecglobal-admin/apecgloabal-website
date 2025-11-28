@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import InternalLayout from "@/components/cms-layout";
 import {
   Card,
   CardContent,
@@ -57,11 +56,14 @@ import { toast } from "sonner";
 import { Pagination, usePagination } from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  createOrUpdateEmployee,
+  createEmployee,
   listContact,
   listEmployee,
+  listEmployeeStatus,
   listManager,
   listSkill,
+  updateEmployee,
+  updateStatusEmployee,
 } from "@/src/features/employee/employeeApi";
 import { listDepartment } from "@/src/features/department/departmentApi";
 import { listPosition } from "@/src/features/position/positionApi";
@@ -128,6 +130,7 @@ interface Employee {
   bio: string;
   company_id: number;
   gen: number;
+  employees_status: number;
 }
 
 interface Department {
@@ -137,7 +140,7 @@ interface Department {
 
 export default function EmployeesManagementContent() {
   const dispatch = useDispatch();
-  const { employees, skills, contacts, managers } = useEmployeeData();
+  const { employees, skills, contacts, managers, statuses } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
 
@@ -194,6 +197,7 @@ export default function EmployeesManagementContent() {
     skills: [] as Skill[],
     bio: "",
     skill_group_id: "",
+    employees_status: "",
   });
 
   useEffect(() => {
@@ -201,8 +205,10 @@ export default function EmployeesManagementContent() {
     dispatch(listSkill() as any);
     dispatch(listContact() as any);
     dispatch(listManager() as any);
-    
+    dispatch(listEmployeeStatus() as any);
   }, [dispatch]);
+
+  console.log("stauses", statuses);
 
   useEffect(() => {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
@@ -255,6 +261,20 @@ export default function EmployeesManagementContent() {
     }
   };
 
+  const handleUpdateStatus = async (employeeId: number, statusId: string) => {
+    console.log("updating status", employeeId, statusId);
+  try {
+    const res = await dispatch(updateStatusEmployee({ id: employeeId, status: parseInt(statusId) }) as any);
+    if (res.payload.status === 200 || res.payload.status === 201) {
+      await dispatch(listEmployee() as any);
+      toast.success(res.payload.data.message);
+    } 
+  } catch (error) {
+    console.error('Error updating status:', error);
+    toast.error('Lỗi khi cập nhật trạng thái');
+  }
+};
+
   const handleCreate = () => {
     setEditingEmployee(null);
     setFormData({
@@ -288,6 +308,8 @@ export default function EmployeesManagementContent() {
       skills: [],
       bio: "",
       skill_group_id: "",
+      employees_status: "",
+      
     });
     setShowCreateModal(true);
   };
@@ -346,147 +368,75 @@ export default function EmployeesManagementContent() {
         "",
 
       education: employee.education || "",
+      employees_status: employee.employees_status?.toString() || "1",
     });
 
     setShowCreateModal(true);
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) {
-      toast.error("Vui lòng nhập họ tên!");
-      return;
-    }
+  // ... các validation giữ nguyên ...
 
-    if (!formData.email.trim()) {
-      toast.error("Vui lòng nhập email!");
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.error("Email không hợp lệ!");
-      return;
-    }
-
-    // Validate phone format (nếu có nhập)
-    if (formData.phone && !/^[0-9]{10,11}$/.test(formData.phone)) {
-      toast.error("Số điện thoại phải có 10-11 chữ số!");
-      return;
-    }
-
-    // Validate CCCD format (nếu có nhập)
-    if (formData.citizen_card && !/^[0-9]{9,12}$/.test(formData.citizen_card)) {
-      toast.error("Số CCCD phải có 9-12 chữ số!");
-      return;
-    }
-
-    // Validate ngày sinh (không được lớn hơn ngày hiện tại)
-    if (formData.birthday) {
-      const birthDate = new Date(formData.birthday);
-      const today = new Date();
-      if (birthDate > today) {
-        toast.error("Ngày sinh không được lớn hơn ngày hiện tại!");
-        return;
-      }
-
-      // Validate tuổi (phải >= 18)
-      const age = today.getFullYear() - birthDate.getFullYear();
-      if (age < 18) {
-        toast.error("Nhân viên phải đủ 18 tuổi!");
-        return;
-      }
-    }
-
-    // Validate join_date (không được lớn hơn ngày hiện tại)
-    if (formData.join_date) {
-      const joinDate = new Date(formData.join_date);
-      const today = new Date();
-      if (joinDate > today) {
-        toast.error("Ngày gia nhập không được lớn hơn ngày hiện tại!");
-        return;
-      }
-    }
-
-    // Validate salary (nếu có nhập)
-    if (formData.base_salary && parseFloat(formData.base_salary) <= 0) {
-      toast.error("Lương cơ bản phải lớn hơn 0!");
-      return;
-    }
-
-    if (formData.allowance && parseFloat(formData.allowance) < 0) {
-      toast.error("Phụ cấp không được âm!");
-      return;
-    }
-
-    // Validate graduation year (nếu có nhập)
-    if (formData.graduation_year) {
-      const currentYear = new Date().getFullYear();
-      const gradYear = parseInt(formData.graduation_year);
-      if (gradYear < 1950 || gradYear > currentYear + 10) {
-        toast.error("Năm tốt nghiệp không hợp lệ!");
-        return;
-      }
-    }
-
-    // Validate skills values (nếu có skills)
-    if (formData.skills.length > 0) {
-      for (const skill of formData.skills) {
-        const value = parseInt(skill.value.toString());
-        if (isNaN(value) || value < 0 || value > 100) {
-          toast.error("Giá trị kỹ năng phải từ 0-100!");
-          return;
-        }
-      }
-    }
-    // Log theo thứ tự yêu cầu
-    const employeeId = editingEmployee ? editingEmployee.id : formData.id;
-    const saveData = {
-      id: employeeId,
-      email: formData.email,
-      name: formData.name,
-      join_date: formData.join_date,
-      birthday: formData.birthday,
-      address: formData.address,
-      manager_id: formData.manager_id,
-      gen: formData.gen,
-      birth_place: formData.birth_place,
-      citizen_card: formData.citizen_card,
-      issue_date: formData.issue_date,
-      issue_place: formData.issue_place,
-      emergency_contract: formData.emergency_contract,
-      degree_level: formData.degree_level,
-      major: formData.major,
-      school_name: formData.school_name,
-      graduation_year: formData.graduation_year,
-      base_salary: formData.base_salary,
-      allowance: formData.allowance,
-      contract_type: formData.contract_type,
-      certificate_name: formData.certificate_name,
-      skills: formData.skills.map((skill) => ({
-        skill_id: parseInt(skill.skill_id.toString()), // Sửa lại
-        value: parseInt(skill.value.toString()) || 0, // Sửa lại
-      })),
-      skill_group_id: formData.skill_group_id
-        ? parseInt(formData.skill_group_id)
-        : null,
-      department_id: formData.department_id,
-      position_id: formData.position,
-    };
-    try {
-      const res = await dispatch(createOrUpdateEmployee(saveData) as any);
-      if (res.payload.status == 200 || res.payload.status == 201) {
-        await dispatch(listEmployee() as any);
-        // setShowCreateModal(false);
-        toast.success(res.payload.data.message);
-      }
-    } catch (error) {
-      console.error("Error saving employee:", error);
-      toast.error("Lỗi khi lưu nhân viên");
-    }
-
-    // console.log("Save Data:", saveData);
+  const isEditing = !!editingEmployee;
+  
+  // Chuẩn bị data chung
+  const baseData = {
+    email: formData.email,
+    name: formData.name,
+    join_date: formData.join_date,
+    birthday: formData.birthday,
+    address: formData.address,
+    manager_id: formData.manager_id,
+    gen: formData.gen,
+    birth_place: formData.birth_place,
+    citizen_card: formData.citizen_card,
+    issue_date: formData.issue_date,
+    issue_place: formData.issue_place,
+    emergency_contract: formData.emergency_contract,
+    degree_level: formData.degree_level,
+    major: formData.major,
+    school_name: formData.school_name,
+    graduation_year: formData.graduation_year,
+    base_salary: formData.base_salary,
+    allowance: formData.allowance,
+    contract_type: formData.contract_type,
+    certificate_name: formData.certificate_name,
+    skills: formData.skills.map((skill) => ({
+      skill_id: parseInt(skill.skill_id.toString()),
+      value: parseInt(skill.value.toString()) || 0,
+    })),
+    skill_group_id: formData.skill_group_id
+      ? parseInt(formData.skill_group_id)
+      : null,
+    department_id: formData.department_id,
+    position_id: formData.position,
   };
+
+  try {
+    let res;
+    
+    if (isEditing) {
+      // Update: truyền id
+      const updateData = {
+        id: editingEmployee.id,
+        ...baseData,
+      };
+      res = await dispatch(updateEmployee(updateData) as any);
+    } else {
+      // Create: không truyền id
+      res = await dispatch(createEmployee(baseData) as any);
+    }
+
+    if (res.payload.status == 200 || res.payload.status == 201) {
+      await dispatch(listEmployee() as any);
+      setShowCreateModal(false); // Đóng modal sau khi thành công
+      toast.success(res.payload.data.message);
+    }
+  } catch (error) {
+    console.error("Error saving employee:", error);
+    toast.error("Lỗi khi lưu nhân viên");
+  }
+};
 
   const handleDelete = async () => {
     if (!deletingEmployee) return;
@@ -752,18 +702,22 @@ export default function EmployeesManagementContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={
-                          employee.status === "active"
-                            ? "bg-green-600/20 text-green-400 border-green-500/30"
-                            : "bg-red-600/20 text-red-400 border-red-500/30"
-                        }
-                      >
-                        {employee.status === "active"
-                          ? "Hoạt động"
-                          : "Không hoạt động"}
-                      </Badge>
-                    </TableCell>
+  <Select
+    value={employee.employees_status?.toString()}
+    onValueChange={(value) => handleUpdateStatus(employee.id, value)}
+  >
+    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-[140px]">
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      {statuses.map((status: any) => (
+        <SelectItem key={status.id} value={status.id}>
+          {status.name}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button

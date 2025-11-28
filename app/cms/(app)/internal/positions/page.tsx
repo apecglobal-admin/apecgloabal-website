@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import InternalLayout from "@/components/cms-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -190,10 +189,6 @@ export default function PositionsManagementContent() {
     count: positions.filter((p: any) => p.level === level.value).length
   }))
 
-  const getLevelInfo = (level: string) => {
-    return levels.find(l => l.value === level) || { label: level, color: "bg-gray-500" }
-  }
-
   // Show loading state
   if (!positions || positions.length === 0) {
     return (
@@ -262,37 +257,9 @@ export default function PositionsManagementContent() {
           </CardContent>
         </Card>
 
-        <Card className="bg-black/50 border-blue-500/30">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/60 text-sm">Cấp Bậc</p>
-                <p className="text-2xl font-bold text-white">{levels.length}</p>
-              </div>
-              <Building2 className="h-8 w-8 text-blue-400" />
-            </div>
-          </CardContent>
-        </Card>
+        
       </div>
 
-      {/* Level breakdown */}
-      <Card className="bg-black/50 border-purple-500/30">
-        <CardHeader>
-          <CardTitle className="text-white">Phân Bố Theo Cấp Bậc</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {positionsByLevel.map((level) => (
-              <div key={level.value} className="text-center">
-                <Badge className={`${level.color} text-white mb-2`}>
-                  {level.label}
-                </Badge>
-                <p className="text-2xl font-bold text-white">{level.count}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Filters */}
       <Card className="bg-black/50 border-purple-500/30">
@@ -308,19 +275,7 @@ export default function PositionsManagementContent() {
               />
             </div>
             
-            <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-              <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[150px]">
-                <SelectValue placeholder="Chọn cấp bậc" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả cấp bậc</SelectItem>
-                {levels.map((level) => (
-                  <SelectItem key={level.value} value={level.value}>
-                    {level.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+           
 
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -349,7 +304,6 @@ export default function PositionsManagementContent() {
             <TableHeader>
               <TableRow className="border-b border-purple-500/30">
                 <TableHead className="text-white">Chức Vụ</TableHead>
-                <TableHead className="text-white">Cấp Bậc</TableHead>
                 <TableHead className="text-white">Trạng Thái</TableHead>
                 <TableHead className="text-white">Thao Tác</TableHead>
               </TableRow>
@@ -357,7 +311,6 @@ export default function PositionsManagementContent() {
             <TableBody>
               {paginatedPositions.length > 0 ? (
                 paginatedPositions.map((position: any) => {
-                  const levelInfo = getLevelInfo(position.level)
                   return (
                     <TableRow key={position.id} className="border-b border-purple-500/30 hover:bg-white/5">
                       <TableCell>
@@ -375,11 +328,7 @@ export default function PositionsManagementContent() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge className={`${levelInfo.color} text-white`}>
-                          {levelInfo.label}
-                        </Badge>
-                      </TableCell>
+                      
                       <TableCell>
                         <Badge 
                           className={position.is_active 
@@ -469,24 +418,7 @@ export default function PositionsManagementContent() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="level" className="text-white">Cấp Bậc</Label>
-              <Select 
-                value={formData.level} 
-                onValueChange={(value) => setFormData(prev => ({...prev, level: value}))}
-              >
-                <SelectTrigger className="bg-black/50 border-purple-500/30 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {levels.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
-                      {level.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            
 
             <div className="flex items-center space-x-2">
               <Checkbox

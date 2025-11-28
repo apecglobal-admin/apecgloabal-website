@@ -47,7 +47,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import InternalLayout from "@/components/cms-layout";
 import { useDepartmentData } from "@/src/hook/departmentHook";
 import { listDepartment } from "@/src/features/department/departmentApi";
 import { useNotificationData } from "@/src/hook/notificationHook";

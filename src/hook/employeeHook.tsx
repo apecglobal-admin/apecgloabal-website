@@ -10,6 +10,7 @@ export const useEmployeeData = () => {
     contacts: employee.contacts.data,
     managers: employee.managers.data,
     employeeById: employee.employeeById.data,
+    statuses: employee.statuses.data,
  
 
     // Loading states

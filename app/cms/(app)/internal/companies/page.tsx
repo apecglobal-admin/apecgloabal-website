@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import InternalLayout from "@/components/cms-layout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,7 +44,7 @@ interface CompanyStats {
   active_projects: number
 }
 
-function CompaniesManagementContent() {
+export default function CompaniesManagementContent() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [companiesStats, setCompaniesStats] = useState<CompanyStats[]>([])
   const [loading, setLoading] = useState(true)
@@ -297,7 +296,6 @@ function CompaniesManagementContent() {
       fetchCompaniesStats()
     } catch (error) {
       console.error(`Error ${isCreateMode ? 'creating' : 'updating'} company:`, error)
-      toast.error(`Không thể ${isCreateMode ? 'tạo' : 'cập nhật'} công ty: ${error.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -1056,10 +1054,3 @@ function CompaniesManagementContent() {
   )
 }
 
-export default function CompaniesManagementPage() {
-  return (
-    <InternalLayout>
-      <CompaniesManagementContent />
-    </InternalLayout>
-  )
-}

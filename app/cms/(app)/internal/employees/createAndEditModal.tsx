@@ -568,7 +568,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         });
                       }}
                       disabled={
-                        editingEmployee !== null && formData.skills.length > 0
+                        editingEmployee !== null && formData?.skills?.length > 0
                       }
                     >
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">

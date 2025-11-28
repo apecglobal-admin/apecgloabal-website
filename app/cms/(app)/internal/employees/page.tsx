@@ -116,7 +116,6 @@ interface Employee {
     value: string;
   }>;
   skill_group_id: number | null;
-  // ⚠️ THÊM DÒNG NÀY
   skill_groups?: Array<{
     id: number;
     name: string;
@@ -208,8 +207,6 @@ export default function EmployeesManagementContent() {
     dispatch(listEmployeeStatus() as any);
   }, [dispatch]);
 
-  console.log("stauses", statuses);
-
   useEffect(() => {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
     dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
@@ -262,18 +259,22 @@ export default function EmployeesManagementContent() {
   };
 
   const handleUpdateStatus = async (employeeId: number, statusId: string) => {
-    console.log("updating status", employeeId, statusId);
-  try {
-    const res = await dispatch(updateStatusEmployee({ id: employeeId, status: parseInt(statusId) }) as any);
-    if (res.payload.status === 200 || res.payload.status === 201) {
-      await dispatch(listEmployee() as any);
-      toast.success(res.payload.data.message);
-    } 
-  } catch (error) {
-    console.error('Error updating status:', error);
-    toast.error('Lỗi khi cập nhật trạng thái');
-  }
-};
+    try {
+      const res = await dispatch(
+        updateStatusEmployee({
+          id: employeeId,
+          status: parseInt(statusId),
+        }) as any
+      );
+      if (res.payload.status === 200 || res.payload.status === 201) {
+        await dispatch(listEmployee() as any);
+        toast.success(res.payload.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Lỗi khi cập nhật trạng thái");
+    }
+  };
 
   const handleCreate = () => {
     setEditingEmployee(null);
@@ -309,7 +310,6 @@ export default function EmployeesManagementContent() {
       bio: "",
       skill_group_id: "",
       employees_status: "",
-      
     });
     setShowCreateModal(true);
   };
@@ -373,70 +373,135 @@ export default function EmployeesManagementContent() {
 
     setShowCreateModal(true);
   };
-
-  const handleSave = async () => {
-  // ... các validation giữ nguyên ...
-
-  const isEditing = !!editingEmployee;
-  
-  // Chuẩn bị data chung
-  const baseData = {
-    email: formData.email,
-    name: formData.name,
-    join_date: formData.join_date,
-    birthday: formData.birthday,
-    address: formData.address,
-    manager_id: formData.manager_id,
-    gen: formData.gen,
-    birth_place: formData.birth_place,
-    citizen_card: formData.citizen_card,
-    issue_date: formData.issue_date,
-    issue_place: formData.issue_place,
-    emergency_contract: formData.emergency_contract,
-    degree_level: formData.degree_level,
-    major: formData.major,
-    school_name: formData.school_name,
-    graduation_year: formData.graduation_year,
-    base_salary: formData.base_salary,
-    allowance: formData.allowance,
-    contract_type: formData.contract_type,
-    certificate_name: formData.certificate_name,
-    skills: formData.skills.map((skill) => ({
-      skill_id: parseInt(skill.skill_id.toString()),
-      value: parseInt(skill.value.toString()) || 0,
-    })),
-    skill_group_id: formData.skill_group_id
-      ? parseInt(formData.skill_group_id)
-      : null,
-    department_id: formData.department_id,
-    position_id: formData.position,
+  const validateForm = () => {
+  const requiredFields = {
+    email: "Email",
+    name: "Họ tên",
+    join_date: "Ngày vào làm",
+    birthday: "Ngày sinh",
+    address: "Địa chỉ",
+    manager_id: "Quản lý trực tiếp",
+    gen: "Giới tính",
+    birth_place: "Nơi sinh",
+    citizen_card: "CCCD",
+    issue_date: "Ngày cấp CCCD",
+    issue_place: "Nơi cấp CCCD",
+    emergency_contract: "Liên hệ khẩn cấp",
+    degree_level: "Trình độ học vấn",
+    major: "Chuyên ngành",
+    school_name: "Trường học",
+    graduation_year: "Năm tốt nghiệp",
+    base_salary: "Lương cơ bản",
+    allowance: "Phụ cấp",
+    contract_type: "Loại hợp đồng",
+    certificate_name: "Chứng chỉ",
+    skill_group_id: "Nhóm kỹ năng",
+    department_id: "Phòng ban",
+    position: "Chức vụ",
   };
 
-  try {
-    let res;
-    
-    if (isEditing) {
-      // Update: truyền id
-      const updateData = {
-        id: editingEmployee.id,
-        ...baseData,
-      };
-      res = await dispatch(updateEmployee(updateData) as any);
-    } else {
-      // Create: không truyền id
-      res = await dispatch(createEmployee(baseData) as any);
+  type RequiredFormField = keyof typeof requiredFields;
+
+  for (const key in requiredFields) {
+    const typedKey = key as RequiredFormField;
+
+    if (!formData[typedKey] || formData[typedKey] === "") {
+      toast.error(`${requiredFields[typedKey]} không được để trống`);
+      return false;
+    }
+  }
+
+  // Validate skills
+  if (!formData.skills || formData.skills.length === 0) {
+    toast.error("Vui lòng chọn ít nhất 1 kỹ năng");
+    return false;
+  }
+
+  for (const skill of formData.skills) {
+    if (!skill.skill_id) {
+      toast.error("Kỹ năng không hợp lệ");
+      return false;
     }
 
-    if (res.payload.status == 200 || res.payload.status == 201) {
-      await dispatch(listEmployee() as any);
-      setShowCreateModal(false); // Đóng modal sau khi thành công
-      toast.success(res.payload.data.message);
+   if (Number(skill.value) < 0 || Number(skill.value) > 100) {
+      toast.error("Điểm kỹ năng phải từ 0–100");
+      return false;
     }
-  } catch (error) {
-    console.error("Error saving employee:", error);
-    toast.error("Lỗi khi lưu nhân viên");
   }
+
+  // Validate email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(formData.email)) {
+    toast.error("Email không hợp lệ");
+    return false;
+  }
+
+  return true;
 };
+
+
+  const handleSave = async () => {
+    const isEditing = !!editingEmployee;
+
+    if (!validateForm()) return;
+    // Chuẩn bị data chung
+    const baseData = {
+      email: formData.email,
+      name: formData.name,
+      join_date: formData.join_date,
+      birthday: formData.birthday,
+      address: formData.address,
+      manager_id: formData.manager_id,
+      gen: formData.gen,
+      birth_place: formData.birth_place,
+      citizen_card: formData.citizen_card,
+      issue_date: formData.issue_date,
+      issue_place: formData.issue_place,
+      emergency_contract: formData.emergency_contract,
+      degree_level: formData.degree_level,
+      major: formData.major,
+      school_name: formData.school_name,
+      graduation_year: formData.graduation_year,
+      base_salary: formData.base_salary,
+      allowance: formData.allowance,
+      contract_type: formData.contract_type,
+      certificate_name: formData.certificate_name,
+      skills: formData.skills.map((skill) => ({
+        skill_id: parseInt(skill.skill_id.toString()),
+        value: parseInt(skill.value.toString()) || 0,
+      })),
+      skill_group_id: formData.skill_group_id
+        ? parseInt(formData.skill_group_id)
+        : null,
+      department_id: formData.department_id,
+      position_id: formData.position,
+    };
+
+    try {
+      let res;
+
+      if (isEditing) {
+        // Update: truyền id
+        const updateData = {
+          id: editingEmployee.id,
+          ...baseData,
+        };
+        res = await dispatch(updateEmployee(updateData) as any);
+      } else {
+        // Create: không truyền id
+        res = await dispatch(createEmployee(baseData) as any);
+      }
+
+      if (res.payload.status == 200 || res.payload.status == 201) {
+        await dispatch(listEmployee() as any);
+        setShowCreateModal(false); // Đóng modal sau khi thành công
+        toast.success(res.payload.data.message);
+      }
+    } catch (error) {
+      console.error("Error saving employee:", error);
+      toast.error("Lỗi khi lưu nhân viên");
+    }
+  };
 
   const handleDelete = async () => {
     if (!deletingEmployee) return;
@@ -702,22 +767,24 @@ export default function EmployeesManagementContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-  <Select
-    value={employee.employees_status?.toString()}
-    onValueChange={(value) => handleUpdateStatus(employee.id, value)}
-  >
-    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-[140px]">
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent>
-      {statuses.map((status: any) => (
-        <SelectItem key={status.id} value={status.id}>
-          {status.name}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-</TableCell>
+                      <Select
+                        value={employee.employees_status?.toString()}
+                        onValueChange={(value) =>
+                          handleUpdateStatus(employee.id, value)
+                        }
+                      >
+                        <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statuses.map((status: any) => (
+                            <SelectItem key={status.id} value={status.id}>
+                              {status.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button

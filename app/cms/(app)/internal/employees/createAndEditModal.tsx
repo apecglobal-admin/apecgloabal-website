@@ -113,7 +113,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="birthday" className="text-white">
-                      Ngày Sinh
+                      Ngày Sinh *
                     </Label>
                     <Input
                       id="birthday"
@@ -128,7 +128,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="gen" className="text-white">
-                      Giới Tính
+                      Giới Tính *
                     </Label>
                     <Select
                       value={formData.gen?.toString()}
@@ -149,7 +149,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="birth_place" className="text-white">
-                      Nơi Sinh
+                      Nơi Sinh *
                     </Label>
                     <Input
                       id="birth_place"
@@ -167,7 +167,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="address" className="text-white">
-                      Địa Chỉ
+                      Địa Chỉ *
                     </Label>
                     <Input
                       id="address"
@@ -182,7 +182,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="address" className="text-white">
-                      Ngày gia nhập
+                      Ngày gia nhập *
                     </Label>
                     <Input
                       id="join_date"
@@ -201,12 +201,12 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
               {/* CCCD */}
               <div className="border border-purple-500/30 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-purple-400 mb-3">
-                  Thông Tin CCCD
+                  Thông Tin CCCD *
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <Label htmlFor="citizen_card" className="text-white">
-                      Số CCCD
+                      Số CCCD *
                     </Label>
                     <Input
                       id="citizen_card"
@@ -224,7 +224,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="issue_date" className="text-white">
-                      Ngày Cấp
+                      Ngày Cấp *
                     </Label>
                     <Input
                       id="issue_date"
@@ -239,7 +239,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="issue_place" className="text-white">
-                      Nơi Cấp
+                      Nơi Cấp *
                     </Label>
                     <Input
                       id="issue_place"
@@ -263,12 +263,12 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
               {/* Học vấn */}
               <div className="border border-purple-500/30 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-purple-400 mb-3">
-                  Thông Tin Học Vấn
+                  Thông Tin Học Vấn *
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="degree_level" className="text-white">
-                      Trình Độ
+                      Trình Độ *
                     </Label>
                     <Select
                       value={formData.degree_level}
@@ -291,7 +291,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="major" className="text-white">
-                      Chuyên Ngành
+                      Chuyên Ngành *
                     </Label>
                     <Input
                       id="major"
@@ -306,7 +306,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="school_name" className="text-white">
-                      Trường
+                      Trường *
                     </Label>
                     <Input
                       id="school_name"
@@ -324,7 +324,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="graduation_year" className="text-white">
-                      Năm Tốt Nghiệp
+                      Năm Tốt Nghiệp *
                     </Label>
                     <Input
                       id="graduation_year"
@@ -343,7 +343,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div className="md:col-span-2">
                     <Label htmlFor="certificate_name" className="text-white">
-                      Chứng Chỉ
+                      Chứng Chỉ *
                     </Label>
                     <Input
                       id="certificate_name"
@@ -364,7 +364,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
               {/* Hợp đồng & Lương */}
               <div className="border border-purple-500/30 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-purple-400 mb-3">
-                  Thông Tin Hợp Đồng & Lương
+                  Thông Tin Hợp Đồng & Lương *
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -391,7 +391,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                   </div>
                   <div>
                     <Label htmlFor="contract_type" className="text-white">
-                      Chức vụ
+                      Chức vụ *
                     </Label>
                     <Select
                       value={formData.position}
@@ -414,7 +414,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="contract_type" className="text-white">
-                      Loại Hợp Đồng
+                      Loại Hợp Đồng *
                     </Label>
                     <Select
                       value={formData.contract_type}
@@ -437,7 +437,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="base_salary" className="text-white">
-                      Lương Cơ Bản (VNĐ)
+                      Lương Cơ Bản (VNĐ) *
                     </Label>
                     <Input
                       id="base_salary"
@@ -456,7 +456,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="allowance" className="text-white">
-                      Phụ Cấp (VNĐ)
+                      Phụ Cấp (VNĐ) *
                     </Label>
                     <Input
                       id="allowance"
@@ -472,7 +472,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="manager_id" className="text-white">
-                      Người duyệt
+                      Người duyệt *
                     </Label>
                     <Select
                       value={formData.manager_id}
@@ -501,12 +501,12 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
               {/* Liên hệ */}
               <div className="border border-purple-500/30 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-purple-400 mb-3">
-                  Thông Tin Liên Hệ
+                  Thông Tin Liên Hệ *
                 </h3>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <Label htmlFor="phone" className="text-white">
-                      Số Điện Thoại
+                      Số Điện Thoại *
                     </Label>
                     <Input
                       id="phone"
@@ -521,7 +521,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label htmlFor="emergency_contract" className="text-white">
-                      Liên Lạc Khẩn Cấp
+                      Liên Lạc Khẩn Cấp *
                     </Label>
                     <Input
                       id="emergency_contract"
@@ -542,12 +542,12 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
               {/* Skills */}
               <div className="border border-purple-500/30 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-purple-400 mb-3">
-                  Kỹ Năng
+                  Kỹ Năng *
                 </h3>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="skill_group_id" className="text-white">
-                      Nhóm Kỹ Năng
+                      Nhóm Kỹ Năng *
                     </Label>
                     <Select
                       value={formData.skill_group_id}
@@ -589,7 +589,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
 
                   <div>
                     <Label className="text-white mb-2 block">
-                      Danh Sách Kỹ Năng
+                      Danh Sách Kỹ Năng *
                     </Label>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {formData.skills?.map((skill: any, index: any) => {

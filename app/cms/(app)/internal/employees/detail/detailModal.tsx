@@ -102,15 +102,6 @@ export default function EmployeeDetailModal({
   // Lấy thông tin hợp đồng mới nhất
   const latestContract = employeeById?.contracts?.[0];
 
-  if(!employeeById){
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-white" />
-        <span className="ml-2 text-white">Đang tải nhân viên123...</span>
-      </div>
-    );
-  }
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <style>{`
@@ -130,11 +121,11 @@ export default function EmployeeDetailModal({
             </div>
             <div className="flex flex-col gap-1 flex-1 min-w-0 overflow-x-hidden">
               <span className="truncate text-base sm:text-2xl">
-                {employeeById.name}
+                {employeeById?.name}
               </span>
               <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 text-[10px] sm:text-xs w-fit px-1.5 py-0.5 sm:px-2 max-w-full truncate">
-                Level {employeeById.level} | EXP: {employeeById.exp}/
-                {employeeById.next_exp}
+                Level {employeeById?.level} | EXP: {employeeById?.exp}/
+                {employeeById?.next_exp}
               </Badge>
             </div>
           </DialogTitle>

@@ -917,7 +917,7 @@ export default function InternalProjectsPage() {
                         <Edit className="h-4 w-4 mr-2" />
                         Chỉnh Sửa
                       </Button>
-                      <Button
+                      {/* <Button
                         variant="outline"
                         size="sm"
                         className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
@@ -925,7 +925,7 @@ export default function InternalProjectsPage() {
                       >
                         <BarChart3 className="h-4 w-4 mr-2" />
                         Báo Cáo
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </CardContent>

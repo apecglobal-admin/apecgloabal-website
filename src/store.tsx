@@ -18,6 +18,8 @@ import ecoReducer from "./features/ecosystem/ecoSlice";
 import newsReducer from "./features/news/newsSlice";
 import statisticReducer from "./features/statistics/statisticsSlice";
 import servicesReducer from "./features/service/serviceSlice";
+import jobsReducer from "./features/jobs/jobSlice";
+import applicationRecuder from "./features/application/applicationSlice"
 const persistConfig = {
   key: "cms-root",
   storage,
@@ -48,6 +50,8 @@ const rootReducer = combineReducers({
   news: newsReducer,
   statistic: statisticReducer,
   services: servicesReducer,
+  jobs: jobsReducer,
+  application: applicationRecuder
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

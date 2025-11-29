@@ -146,7 +146,6 @@ export default function StatisticsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
       <div className="flex items-center space-x-2 mb-8">
         <Link href="/cms">
           <Button
@@ -165,7 +164,7 @@ export default function StatisticsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">
-          Dashboard Thống Kê
+          Thống Kê Dashboard 
         </h1>
         <p className="text-white/60">
           Tổng quan hiệu suất và hoạt động của doanh nghiệp

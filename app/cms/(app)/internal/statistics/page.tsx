@@ -165,7 +165,7 @@ export default function StatisticsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">
-          Dashboard Thống Kê
+          Thống Kê Dashboard 
         </h1>
         <p className="text-white/60">
           Tổng quan hiệu suất và hoạt động của doanh nghiệp

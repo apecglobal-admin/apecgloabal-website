@@ -146,7 +146,6 @@ export default function StatisticsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
       <div className="flex items-center space-x-2 mb-8">
         <Link href="/cms">
           <Button

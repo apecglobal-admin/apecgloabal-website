@@ -2,8 +2,9 @@
 import axios from "axios";
 
 const apiAxiosInstance = axios.create({
-  baseURL: "https://apec-global-backend.vercel.app/api/v1",
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL
 });
+
 
 apiAxiosInstance.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {

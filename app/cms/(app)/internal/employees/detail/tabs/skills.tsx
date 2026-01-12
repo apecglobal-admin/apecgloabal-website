@@ -166,8 +166,6 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
     }
   };
 
-  console.log("ở modal",employee)
-
   return (
     <div className="space-y-3 sm:space-y-4 mt-0 overflow-x-hidden">
       {/* --- Nút chỉnh sửa nhóm kỹ năng --- */}

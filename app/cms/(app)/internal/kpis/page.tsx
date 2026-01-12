@@ -1,0 +1,522 @@
+"use client";
+import {
+  listKPI,
+  listKPIChild,
+  listUnitKpi,
+  createKPI,
+  updateKPI,
+  createKPIChild,
+  updateKPIChild,
+} from "@/src/features/kpi/kpiApi";
+import { useKpiData } from "@/src/hook/kpiHook";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
+import Pagination from "@/components/pagination";
+import { toast } from "sonner";
+
+export default function KpiPage() {
+  const dispatch = useDispatch();
+  const { kpis, totalKpi, kpiChild, totalKpiChild, units } = useKpiData();
+
+  // States cho KPI
+  const [selectedKpiId, setSelectedKpiId] = useState<string | null>(null);
+  const [showKpiModal, setShowKpiModal] = useState(false);
+  const [editingKpi, setEditingKpi] = useState<any>(null);
+  const [kpiForm, setKpiForm] = useState({ name: "", description: "" });
+  const [kpiPage, setKpiPage] = useState(1);
+  const kpiLimit = 10;
+
+  // States cho KPI Child
+  const [showKpiChildModal, setShowKpiChildModal] = useState(false);
+  const [editingKpiChild, setEditingKpiChild] = useState<any>(null);
+  const [kpiChildForm, setKpiChildForm] = useState({
+    name: "",
+    description: "",
+    unit_id: "",
+    kpi_id: "",
+  });
+  const [kpiChildPage, setKpiChildPage] = useState(1);
+  const kpiChildLimit = 10;
+
+  useEffect(() => {
+    dispatch(listUnitKpi() as any);
+    dispatch(listKPI({ limit: kpiLimit, page: kpiPage } as any) as any);
+    dispatch(
+      listKPIChild({ limit: kpiChildLimit, page: kpiChildPage } as any) as any
+    );
+  }, [dispatch, kpiPage, kpiChildPage]);
+
+  // Lọc KPI Child theo KPI được chọn
+  const filteredKpiChildren = selectedKpiId
+    ? kpiChild?.filter((child: any) => child.kpi.id === parseInt(selectedKpiId))
+    : [];
+
+  // Handlers cho KPI
+  const handleCreateKpi = () => {
+    setEditingKpi(null);
+    setKpiForm({ name: "", description: "" });
+    setShowKpiModal(true);
+  };
+
+  const handleEditKpi = (kpi: any) => {
+    setEditingKpi(kpi);
+    setKpiForm({ name: kpi.name, description: kpi.description || "" });
+    setShowKpiModal(true);
+  };
+
+  const handleSaveKpi = async () => {
+    if (!kpiForm.name.trim()) {
+      alert("Vui lòng nhập tên KPI");
+      return;
+    }
+
+    try {
+      if (editingKpi) {
+        const res = await dispatch(
+          updateKPI({
+            id: editingKpi.id,
+            name: kpiForm.name,
+            description: kpiForm.description,
+          } as any) as any
+        );
+
+        if(res && res.payload && res.payload.status === 200){
+          toast.success(res.payload.data.message, { position: "top-right" });
+        }
+      } else {
+        const res = await dispatch(
+          createKPI({
+            name: kpiForm.name,
+            description: kpiForm.description,
+          } as any) as any
+        );
+
+        if(res && res.payload && res.payload.status === 200){
+          toast.success(res.payload.data.message, { position: "top-right" });
+        }
+      }
+      setShowKpiModal(false);
+      dispatch(listKPI({ limit: kpiLimit, page: kpiPage } as any) as any);
+    } catch (error) {
+      console.error("Error saving KPI:", error);
+      alert("Có lỗi xảy ra khi lưu KPI");
+    }
+  };
+
+  const handleDeleteKpi = async (id: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa KPI này?")) {
+      try {
+        // await dispatch(deleteKPI(id as any) as any);
+        if (selectedKpiId === id) setSelectedKpiId(null);
+        dispatch(listKPI({ limit: kpiLimit, page: kpiPage } as any) as any);
+      } catch (error) {
+        console.error("Error deleting KPI:", error);
+        alert("Có lỗi xảy ra khi xóa KPI");
+      }
+    }
+  };
+
+  const handleToggleKpi = (kpiId: string) => {
+    if (selectedKpiId === kpiId) {
+      setSelectedKpiId(null);
+    } else {
+      setSelectedKpiId(kpiId);
+    }
+  };
+
+  // Handlers cho KPI Child
+  const handleCreateKpiChild = () => {
+    if (!selectedKpiId) {
+      alert("Vui lòng chọn một KPI trước!");
+      return;
+    }
+    setEditingKpiChild(null);
+    setKpiChildForm({
+      name: "",
+      description: "",
+      unit_id: "",
+      kpi_id: selectedKpiId,
+    });
+    setShowKpiChildModal(true);
+  };
+
+  const handleEditKpiChild = (kpiChild: any) => {
+    setEditingKpiChild(kpiChild);
+    setKpiChildForm({
+      name: kpiChild.name,
+      description: kpiChild.description || "",
+      unit_id: kpiChild.unit_id || "",
+      kpi_id: kpiChild.kpi.id.toString(),
+    });
+    setShowKpiChildModal(true);
+  };
+
+  const handleSaveKpiChild = async () => {
+    if (!kpiChildForm.name.trim()) {
+      alert("Vui lòng nhập tên KPI Child");
+      return;
+    }
+    if (!kpiChildForm.unit_id) {
+      alert("Vui lòng chọn đơn vị");
+      return;
+    }
+
+    try {
+      if (editingKpiChild) {
+        const res =await dispatch(
+          updateKPIChild({
+            id: editingKpiChild.id,
+            name: kpiChildForm.name,
+            description: kpiChildForm.description,
+            unit_id: kpiChildForm.unit_id,
+          } as any) as any
+        );
+        if(res && res.payload && res.payload.status === 200){
+          toast.success(res.payload.data.message, { position: "top-right" });
+        }
+      } else {
+        const res =await dispatch(
+          createKPIChild({
+            kpi_id: kpiChildForm.kpi_id,
+            name: kpiChildForm.name,
+            description: kpiChildForm.description,
+            unit_id: kpiChildForm.unit_id,
+          } as any) as any
+        );
+        if(res && res.payload && res.payload.status === 200){
+          toast.success(res.payload.data.message, { position: "top-right" });
+        }
+      }
+      setShowKpiChildModal(false);
+      dispatch(
+        listKPIChild({ limit: kpiChildLimit, page: kpiChildPage } as any) as any
+      );
+    } catch (error) {
+      console.error("Error saving KPI Child:", error);
+      alert("Có lỗi xảy ra khi lưu KPI Child");
+    }
+  };
+
+  const handleDeleteKpiChild = async (id: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa KPI Child này?")) {
+      try {
+        // await dispatch(deleteKPIChild(id as any) as any);
+        dispatch(
+          listKPIChild({
+            limit: kpiChildLimit,
+            page: kpiChildPage,
+          } as any) as any
+        );
+      } catch (error) {
+        console.error("Error deleting KPI Child:", error);
+        alert("Có lỗi xảy ra khi xóa KPI Child");
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Quản lý KPI</h1>
+          <p className="text-white/60">Quản lý các chỉ số đánh giá hiệu suất</p>
+        </div>
+
+        {/* KPI Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-white">Danh sách KPI</h2>
+            <button
+              onClick={handleCreateKpi}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+            >
+              <Plus className="w-5 h-5" />
+              Thêm KPI
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {kpis?.map((kpi: any) => (
+              <div
+                key={kpi.id}
+                className="bg-white/5 rounded-xl overflow-hidden"
+              >
+                <div className="flex items-center justify-between p-4 hover:bg-white/10 transition cursor-pointer">
+                  <div
+                    className="flex items-center gap-3 flex-1"
+                    onClick={() => handleToggleKpi(kpi.id)}
+                  >
+                    {selectedKpiId === kpi.id ? (
+                      <ChevronDown className="w-5 h-5 text-purple-400" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-white/60" />
+                    )}
+                    <div>
+                      <h3 className="text-white font-medium">{kpi.name}</h3>
+                      {kpi.description && (
+                        <p className="text-white/60 text-sm">
+                          {kpi.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditKpi(kpi);
+                      }}
+                      className="p-2 hover:bg-white/10 rounded-lg transition"
+                    >
+                      <Edit2 className="w-4 h-4 text-blue-400" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteKpi(kpi.id);
+                      }}
+                      className="p-2 hover:bg-white/10 rounded-lg transition"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* KPI Child List */}
+                {selectedKpiId === kpi.id && (
+                  <div className="bg-white/5 p-4 border-t border-white/10">
+                    <div className="flex justify-between items-center mb-4">
+                      <h4 className="text-white font-medium">Chi tiết KPI</h4>
+                      <button
+                        onClick={handleCreateKpiChild}
+                        className="flex items-center gap-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Thêm chi tiết
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {filteredKpiChildren?.length > 0 ? (
+                        filteredKpiChildren.map((child: any) => (
+                          <div
+                            key={child.id}
+                            className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition"
+                          >
+                            <div>
+                              <p className="text-white">{child.name}</p>
+                              {child.description && (
+                                <p className="text-white/60 text-sm">
+                                  {child.description}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleEditKpiChild(child)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition"
+                              >
+                                <Edit2 className="w-4 h-4 text-blue-400" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteKpiChild(child.id)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-400" />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-white/60 text-center py-4">
+                          Chưa có chi tiết KPI
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination cho KPI */}
+          {totalKpi > kpiLimit && (
+            <Pagination
+              currentPage={kpiPage}
+              totalPages={Math.ceil(totalKpi / kpiLimit)}
+              totalItems={totalKpi}
+              onPageChange={setKpiPage}
+              itemsPerPage={kpiLimit}
+            />
+          )}
+        </div>
+
+        {/* KPI Modal */}
+        {showKpiModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-semibold text-white">
+                  {editingKpi ? "Chỉnh sửa KPI" : "Thêm KPI mới"}
+                </h3>
+                <button
+                  onClick={() => setShowKpiModal(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-white mb-2">Tên KPI *</label>
+                  <input
+                    type="text"
+                    value={kpiForm.name}
+                    onChange={(e) =>
+                      setKpiForm({ ...kpiForm, name: e.target.value })
+                    }
+                    className="w-full bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none"
+                    placeholder="Nhập tên KPI"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white mb-2">Mô tả</label>
+                  <textarea
+                    value={kpiForm.description}
+                    onChange={(e) =>
+                      setKpiForm({ ...kpiForm, description: e.target.value })
+                    }
+                    className="w-full bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none h-24 resize-none"
+                    placeholder="Nhập mô tả"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setShowKpiModal(false)}
+                    className="flex-1 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={handleSaveKpi}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+                  >
+                    {editingKpi ? "Cập nhật" : "Tạo mới"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* KPI Child Modal */}
+        {showKpiChildModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-semibold text-white">
+                  {editingKpiChild
+                    ? "Chỉnh sửa chi tiết KPI"
+                    : "Thêm chi tiết KPI"}
+                </h3>
+                <button
+                  onClick={() => setShowKpiChildModal(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-white mb-2">
+                    Tên chi tiết KPI *
+                  </label>
+                  <input
+                    type="text"
+                    value={kpiChildForm.name}
+                    onChange={(e) =>
+                      setKpiChildForm({ ...kpiChildForm, name: e.target.value })
+                    }
+                    className="w-full bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none"
+                    placeholder="Nhập tên chi tiết KPI"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white mb-2">Đơn vị *</label>
+                  <select
+                    value={kpiChildForm.unit_id}
+                    onChange={(e) =>
+                      setKpiChildForm({
+                        ...kpiChildForm,
+                        unit_id: e.target.value,
+                      })
+                    }
+                    className="w-full bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none"
+                  >
+                    <option value="" className="text-black">
+                      Chọn đơn vị
+                    </option>
+
+                    {units?.map((unit: any) => (
+                      <option
+                        key={unit.id}
+                        value={unit.id}
+                        className="text-black"
+                      >
+                        {unit.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-white mb-2">Mô tả</label>
+                  <textarea
+                    value={kpiChildForm.description}
+                    onChange={(e) =>
+                      setKpiChildForm({
+                        ...kpiChildForm,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none h-24 resize-none"
+                    placeholder="Nhập mô tả"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setShowKpiChildModal(false)}
+                    className="flex-1 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={handleSaveKpiChild}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+                  >
+                    {editingKpiChild ? "Cập nhật" : "Tạo mới"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -114,7 +114,7 @@ export default function EmployeeDetailModal({
           scrollbar-width: none;
         }
       `}</style>
-      <DialogContent className="bg-black/95 border-purple-500/30 text-white max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[95vw] sm:w-full p-3 sm:p-6">
+      <DialogContent className="bg-black/95 border-purple-500/30 text-white max-w-8xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[95vw] sm:w-full p-3 sm:p-6">
         <DialogHeader className="overflow-x-hidden">
           <DialogTitle className="text-lg sm:text-2xl font-bold text-white flex flex-row items-center gap-2 sm:gap-3 overflow-x-hidden">
             <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center shrink-0">

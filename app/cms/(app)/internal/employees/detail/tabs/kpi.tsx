@@ -12,7 +12,12 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import { updateKPIEmployees } from "@/src/features/kpi/kpiApi";
+import {
+  updateKPIBalance,
+  updateKPIEmployees,
+} from "@/src/features/kpi/kpiApi";
+import { listEmployeeById } from "@/src/features/employee/employeeApi";
+import { RotateCcw } from "lucide-react";
 
 interface EmployeeKpi {
   id: number;
@@ -37,20 +42,20 @@ interface EmployeeKpisProps {
 const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
   const dispatch = useDispatch();
 
-  const [kpisData, setKpisData] = useState<{ 
-    id: number;
-    kpi: string; 
-    weight: number; 
-    score: number;
-    max_weight: number;
-    max_score: number;
-    scorePercentage: number; // Để hiển thị trên biểu đồ
-  }[]>([]);
+  const [kpisData, setKpisData] = useState<
+    {
+      id: number;
+      kpi: string;
+      weight: number;
+      score: number;
+      max_weight: number;
+      max_score: number;
+      scorePercentage: number;
+    }[]
+  >([]);
   const [backupKpisData, setBackupKpisData] = useState<typeof kpisData>([]);
   const [isEditing, setIsEditing] = useState(false);
 
-  console.log("employee in EmployeeKpis:", employee);
-  
   useEffect(() => {
     if (employee?.kpis && employee.kpis.length > 0) {
       const formattedData = employee.kpis.map((item: EmployeeKpi) => ({
@@ -60,7 +65,8 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
         score: item.score,
         max_weight: item.max_weight,
         max_score: item.max_score,
-        scorePercentage: item.max_score > 0 ? (item.score / item.max_score) * 100 : 0
+        scorePercentage:
+          item.max_score > 0 ? (item.score / item.max_score) * 100 : 0,
       }));
       setKpisData(formattedData);
       setBackupKpisData(JSON.parse(JSON.stringify(formattedData)));
@@ -69,55 +75,70 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
 
   const handleWeightChange = (kpiId: number, newWeight: number) => {
     setKpisData((prev) =>
-      prev.map((k) => (k.id === kpiId ? { ...k, weight: newWeight } : k))
+      prev.map((k) => {
+        if (k.id === kpiId) {
+          // Giới hạn giá trị trong khoảng 0 - max_weight
+          const clampedWeight = Math.max(0, Math.min(newWeight, k.max_weight));
+          return { ...k, weight: clampedWeight };
+        }
+        return k;
+      })
     );
   };
 
   const handleSave = async () => {
     try {
-      // Tạo payload để gửi lên API
       const updatedKpis = kpisData.map((kpiData) => ({
         id: kpiData.id,
-        weight: kpiData.weight.toString()
+        weight: kpiData.weight.toString(),
       }));
 
       const payload = {
         id: employee.id,
-        kpis: updatedKpis
+        kpis: updatedKpis,
       };
 
-      console.log("Update KPIs payload:", payload);
+      const res = await dispatch(updateKPIEmployees(payload) as any);
 
-      // Uncomment khi đã có action
-      const res = await dispatch(
-        updateKPIEmployees(payload) as any
-      );
-      
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success("Cập nhật KPI thành công!");
-        setBackupKpisData(JSON.parse(JSON.stringify(kpisData)));
       }
-      
+      dispatch(listEmployeeById(employee.id as any) as any);
     } catch (error) {
       console.error("Error updating KPIs:", error);
       toast.error("Có lỗi xảy ra khi cập nhật KPI");
     }
   };
 
+  const handleBalance = async () => {
+    try {
+      const res = await dispatch(updateKPIBalance(employee.id) as any);
+      if (res.payload.status === 200 || res.payload.status === 201) {
+        dispatch(listEmployeeById(employee.id as any) as any);
+      }
+    } catch (error) {}
+  };
+
   const handleCancel = () => {
     setKpisData(JSON.parse(JSON.stringify(backupKpisData)));
   };
 
-  // Tính tổng weight để hiển thị
   const totalWeight = kpisData.reduce((sum, k) => sum + k.weight, 0);
   const totalMaxWeight = kpisData.reduce((sum, k) => sum + k.max_weight, 0);
 
   return (
-    <div className="space-y-3 sm:space-y-4 mt-0 overflow-x-hidden">
-      {/* --- Thông tin tổng quan --- */}
+    <div className="space-y-3 sm:space-y-4 mt-0">
+      {/* Thông tin tổng quan */}
       <div className="flex items-center gap-4 text-white/80 text-sm">
         <span>
-          Tổng trọng số: <strong className={Math.abs(totalWeight - totalMaxWeight) < 0.1 ? "text-green-400" : "text-yellow-400"}>
+          Tổng trọng số:{" "}
+          <strong
+            className={
+              Math.abs(totalWeight - totalMaxWeight) < 0.1
+                ? "text-green-400"
+                : "text-yellow-400"
+            }
+          >
             {totalWeight.toFixed(2)}/100
           </strong>
         </span>
@@ -128,21 +149,18 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
         )}
       </div>
 
-      {/* --- Biểu đồ KPI (theo score/max_score) --- */}
-      <Card className="bg-black/50 border-purple-500/30 overflow-x-hidden">
-        <CardHeader className="p-3 sm:p-6">
-          <CardTitle className="text-white text-sm sm:text-lg">
-            Biểu đồ KPI (% Hoàn thành)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 overflow-x-hidden">
-          {kpisData.length > 0 ? (
-            <div className="w-full overflow-x-hidden">
-              <ResponsiveContainer
-                width="100%"
-                height={300}
-                className="sm:h-[400px]"
-              >
+      {/* Layout ngang: Biểu đồ và Chi tiết */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        {/* Biểu đồ KPI */}
+        <Card className="bg-black/50 border-purple-500/30">
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-white text-sm sm:text-lg">
+              Biểu đồ KPI (% Hoàn thành)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            {kpisData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
                 <RadarChart data={kpisData}>
                   <PolarGrid stroke="#a855f7" strokeOpacity={0.3} />
                   <PolarAngleAxis
@@ -175,119 +193,141 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
                     formatter={(value: any, name: string, props: any) => {
                       const item = props.payload;
                       return [
-                        `${value.toFixed(2)}% (${item.score}/${item.max_score})`,
-                        name
+                        `${value.toFixed(2)}% (${item.score}/${
+                          item.max_score
+                        })`,
+                        name,
                       ];
                     }}
                   />
                   <Legend wrapperStyle={{ color: "#fff", fontSize: "12px" }} />
                 </RadarChart>
               </ResponsiveContainer>
-            </div>
-          ) : (
-            <p className="text-white/60 text-center py-8 text-xs sm:text-base">
-              Chưa có dữ liệu KPI
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* --- Chi tiết KPI với slider chỉnh weight --- */}
-      <Card className="bg-black/50 border-purple-500/30 overflow-x-hidden">
-        <CardHeader className="p-3 sm:p-6">
-          <CardTitle className="text-white text-sm sm:text-lg">
-            Chi tiết KPI
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 overflow-x-hidden">
-          <div className="space-y-6 overflow-x-hidden">
-            {kpisData.length > 0 ? (
-              kpisData.map((kpi, index) => (
-                <div key={index} className="space-y-3 p-4 bg-white/5 rounded-lg">
-                  <div className="text-white font-medium text-sm sm:text-base">
-                    {kpi.kpi}
-                  </div>
-                  
-                  {/* Score Display (Read-only) */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-white/80 text-xs sm:text-sm">
-                      <span>Điểm số (Score)</span>
-                      <span>{kpi.score}/{kpi.max_score} ({kpi.scorePercentage.toFixed(2)}%)</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-purple-600 h-2 rounded-full transition-all"
-                        style={{ width: `${kpi.scorePercentage}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Weight Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-white/80 text-xs sm:text-sm">
-                      <span>Trọng số (Weight)</span>
-                      <span>{kpi.weight.toFixed(2)}/{kpi.max_weight}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={kpi.max_weight}
-                      step={0.01}
-                      value={kpi.weight}
-                      onChange={(e) =>
-                        handleWeightChange(kpi.id, Number(e.target.value))
-                      }
-                      className="w-full accent-blue-600"
-                      disabled={!isEditing}
-                    />
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all"
-                        style={{ width: `${(kpi.weight / kpi.max_weight) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))
             ) : (
-              <p className="text-white/60 text-center py-4 text-xs sm:text-base">
+              <p className="text-white/60 text-center py-8 text-xs sm:text-base">
                 Chưa có dữ liệu KPI
               </p>
             )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* --- Nút điều khiển --- */}
-      {isEditing ? (
-        <div className="flex gap-2 mt-4">
-          <button
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition"
-            onClick={() => {
-              handleSave();
-              setIsEditing(false);
-            }}
-          >
-            Lưu
-          </button>
-          <button
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
-            onClick={() => {
-              handleCancel();
-              setIsEditing(false);
-            }}
-          >
-            Hủy
-          </button>
-        </div>
-      ) : (
-        <button
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
-          onClick={() => setIsEditing(true)}
-        >
-          Chỉnh sửa
-        </button>
-      )}
+        {/* Chi tiết KPI */}
+        <Card className="bg-black/50 border-purple-500/30">
+          <CardHeader className="p-3 sm:p-6">
+            <div className="flex items-center justify-between w-full">
+              <CardTitle className="text-white text-sm sm:text-lg">
+                Chi tiết KPI
+              </CardTitle>
+              {/* Nút điều khiển */}
+              {isEditing ? (
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition"
+                    onClick={() => {
+                      handleSave();
+                      setIsEditing(false);
+                    }}
+                  >
+                    Lưu
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
+                    onClick={() => {
+                      handleCancel();
+                      setIsEditing(false);
+                    }}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2 mt-4 items-center">
+                  <RotateCcw
+                    className="text-white hover:text-purple-400 cursor-pointer"
+                    onClick={handleBalance}
+                  />
+                  <button
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Chỉnh sửa
+                  </button>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+              {kpisData.length > 0 ? (
+                kpisData.map((kpi, index) => (
+                  <div
+                    key={index}
+                    className="space-y-3 p-4 bg-white/5 rounded-lg"
+                  >
+                    <div className="text-white font-medium text-sm sm:text-base">
+                      {kpi.kpi}
+                    </div>
+
+                    {/* Score Display */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-white/80 text-xs sm:text-sm">
+                        <span>Điểm số (Score)</span>
+                        <span>
+                          {kpi.score}/{kpi.max_score} (
+                          {kpi.scorePercentage.toFixed(2)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Weight Input & Slider */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-white/80 text-xs sm:text-sm">
+                        <span>Trọng số (Weight)</span>
+                        <div className="flex items-center gap-2">
+                          {isEditing ? (
+                            <input
+                              type="number"
+                              min={0}
+                              max={kpi.max_weight}
+                              step={0.01}
+                              value={kpi.weight.toFixed(2)}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value) || 0;
+                                handleWeightChange(kpi.id, value);
+                              }}
+                              className="w-20 px-2 py-1 bg-white/10 border border-purple-500/30 rounded text-white text-center focus:outline-none focus:border-purple-500"
+                              disabled={!isEditing}
+                            />
+                          ) : (
+                            <span>{kpi.weight.toFixed(2)}</span>
+                          )}
+                          <span>/{kpi.max_weight}</span>
+                        </div>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={kpi.max_weight}
+                        step={0.01}
+                        value={kpi.weight}
+                        onChange={(e) =>
+                          handleWeightChange(kpi.id, Number(e.target.value))
+                        }
+                        className="w-full accent-blue-600"
+                        disabled={!isEditing}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-white/60 text-center py-4 text-xs sm:text-base">
+                  Chưa có dữ liệu KPI
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

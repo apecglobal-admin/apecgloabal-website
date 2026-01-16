@@ -29,6 +29,8 @@ import {
 import { getAllProjects } from "@/lib/db"
 import { Project } from "@/lib/schema"
 
+export const dynamic = 'force-dynamic'
+
 // Hàm lấy icon dựa trên công nghệ
 const getTechIcon = (technologies: string[]) => {
   if (!technologies || technologies.length === 0) return Brain;

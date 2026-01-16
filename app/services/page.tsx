@@ -31,6 +31,8 @@ import {
 import { getAllServices, getAllCompanies } from "@/lib/db"
 import { Service, Company } from "@/lib/schema"
 
+export const dynamic = 'force-dynamic'
+
 // Hàm để lấy icon dựa trên tên dịch vụ
 const getServiceIcon = (icon: string | null) => {
   switch (icon) {

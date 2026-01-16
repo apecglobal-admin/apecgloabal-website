@@ -11,6 +11,8 @@ import { getAllNews } from "@/lib/db"
 import { News } from "@/lib/schema"
 import { format } from "date-fns"
 
+export const dynamic = 'force-dynamic'
+
 // CSS Animations for AI/Automation style
 const styles = {
   '@keyframes slide': {

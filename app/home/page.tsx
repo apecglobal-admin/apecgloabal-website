@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import { getAllProjects, getAllServices } from "@/lib/db"
 
+export const dynamic = 'force-dynamic'
+
 // Helper function to get icon component from icon name
 const getServiceIcon = (iconName: string | null) => {
   const iconMap: Record<string, LucideIcon> = {

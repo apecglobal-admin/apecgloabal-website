@@ -15,6 +15,8 @@ import {
 import { getAllCompanies, getSubsidiaryCompanies } from "@/lib/db"
 import type { LucideIcon } from "lucide-react"
 
+export const dynamic = 'force-dynamic'
+
 // Helper function to get icon for company based on name or industry
 const getCompanyIcon = (name: string, industry?: string): LucideIcon => {
   const nameLower = name.toLowerCase()

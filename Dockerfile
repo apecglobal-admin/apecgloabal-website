@@ -21,7 +21,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# ?? B?T BU?C CÀI PNPM L?I
+# ?? B?T BU?C Cï¿½I PNPM L?I
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 COPY --from=build /app/.next ./.next
@@ -29,6 +29,7 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/next.config.* ./
+COPY .env .env
 
 EXPOSE 3006
 

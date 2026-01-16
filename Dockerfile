@@ -29,7 +29,6 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/next.config.* ./
-COPY .env .env
 
 EXPOSE 3006
 

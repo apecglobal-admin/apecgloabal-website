@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       try {
         // Tìm trong bảng users
         const userResult = await query(`
-          SELECT u.*, e.name as employee_name, e.position, e.department_id, e.company_id, e.avatar_url
+          SELECT u.*, e.name as employee_name, e.position_id, e.department_id, e.company_id, e.avatar_url
           FROM users u
           LEFT JOIN employees e ON u.employee_id = e.id
           WHERE u.username = $1

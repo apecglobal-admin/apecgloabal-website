@@ -11,7 +11,8 @@ const nextConfig = {
     domains: ['images.unsplash.com', 'apecgloabal-website.vercel.app'],
   },
   env: {
-    POSTGRES_URL: process.env.POSTGRES_URL,
+    POSTGRES_URL: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+    DATABASE_URL: process.env.DATABASE_URL || process.env.POSTGRES_URL,
   },
   async rewrites() {
     return {

@@ -205,8 +205,6 @@ const pillarCardClass = "group rounded-2xl border border-gray-100 bg-white/70 ba
 const highlightCardClass = "flex items-start space-x-4 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
 const factCardClass = "group rounded-2xl bg-white/80 backdrop-blur p-6 border border-gray-100 hover:border-transparent hover:shadow-xl transition-all duration-300"
 
-export const dynamic = 'force-dynamic'
-
 export default async function HomePage() {
   let dbProjects = []
   let dbServices = []

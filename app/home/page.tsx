@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import { getAllProjects, getAllServices } from "@/lib/db"
 
+export const dynamic = 'force-dynamic'
+
 // Helper function to get icon component from icon name
 const getServiceIcon = (iconName: string | null) => {
   const iconMap: Record<string, LucideIcon> = {
@@ -202,8 +204,6 @@ const sectionBadgeMap: Record<string, string> = {
 const pillarCardClass = "group rounded-2xl border border-gray-100 bg-white/70 backdrop-blur p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
 const highlightCardClass = "flex items-start space-x-4 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
 const factCardClass = "group rounded-2xl bg-white/80 backdrop-blur p-6 border border-gray-100 hover:border-transparent hover:shadow-xl transition-all duration-300"
-
-export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   let dbProjects = []

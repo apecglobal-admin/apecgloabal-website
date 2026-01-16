@@ -65,7 +65,8 @@ export function ProjectReportModal({ isOpen, onClose, projectId }: ProjectReport
     
     setLoading(true)
     try {
-      const response = await fetch(`/api/projects/${projectId}/report`)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
+      const response = await fetch(`${baseUrl}/projects/${projectId}/report`)
       const result = await response.json()
       if (result.success) {
         setReport(result.data)

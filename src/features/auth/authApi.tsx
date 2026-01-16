@@ -8,6 +8,8 @@ export const loginCMS = createAsyncThunk(
   async (payload: any, thunkAPI) => {
     try {
       const { username, password }: any = payload;
+      console.log('🔐 Attempting CMS login with endpoint: /cms/login')
+      console.log('📋 Full axios baseURL:', apiAxiosInstance.defaults.baseURL)
       const response = await apiAxiosInstance.post(`/cms/login`, {
         username,
         password,

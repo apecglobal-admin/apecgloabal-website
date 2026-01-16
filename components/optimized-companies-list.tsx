@@ -14,7 +14,8 @@ export default function OptimizedCompaniesList() {
   const { data: companies, loading, error } = useApiCache<Company[]>(
     'companies',
     async () => {
-      const response = await fetch('/api/companies')
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
+      const response = await fetch(`${baseUrl}/companies`)
       if (!response.ok) {
         throw new Error('Failed to fetch companies')
       }

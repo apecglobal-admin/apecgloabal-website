@@ -1,8 +1,11 @@
 // src/services/api.js
 import axios from "axios";
 
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'https://api.apecglobal.net/api/v1'
+console.log('🔧 Axios baseURL:', baseURL)
+
 const apiAxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL
+  baseURL: baseURL
 });
 
 

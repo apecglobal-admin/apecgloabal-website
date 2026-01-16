@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3006",
     "lint": "next lint",
     "install:backend": "cd backend && npm install",
     "start:backend": "cd backend && npm run start:dev",

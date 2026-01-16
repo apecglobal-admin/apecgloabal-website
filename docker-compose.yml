@@ -1,0 +1,27 @@
+services:
+  main-apec-global:
+    container_name: main-apec-global
+    image: main-apec-global
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    env_file:
+      - .env
+
+    ports:
+      - "127.0.0.1:3006:3006"
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3006"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

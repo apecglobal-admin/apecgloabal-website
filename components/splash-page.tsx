@@ -22,25 +22,22 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [logoLoaded, setLogoLoaded] = useState(false)
 
-  // Tạo fetch function stable để tránh re-render vô hạn
-  const fetchCompanies = useCallback(async () => {
-    const response = await fetch('/api/companies')
-    if (!response.ok) {
-      throw new Error('Failed to fetch companies')
-    }
-    const data = await response.json()
-    return data
-  }, [])
-
-  // Sử dụng API cache để lấy companies với khả năng refresh
-  const { data: apiResponse, loading, error, refetch } = useApiCache<any>(
+  // Sử dụng API cache để lấy companies
+  const { data: apiResponse, loading, error } = useApiCache<any>(
     'companies',
-    fetchCompanies,
+    async () => {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
+      const response = await fetch(`${baseUrl}/companies`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch companies')
+      }
+      return response.json()
+    },
     2 * 60 * 1000 // Cache 2 phút
   )
 
   // Extract companies array from API response
-  const apiCompanies = apiResponse?.success ? apiResponse.data : null
+  const apiCompanies = apiResponse?.success ? apiResponse.data : []
 
   // Sử dụng fallback data nếu API không có data
   const allCompanies = Array.isArray(apiCompanies) ? apiCompanies : []
@@ -235,7 +232,7 @@ export default function SplashPage({ onEnterSite }: SplashPageProps) {
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
                           <div className="text-purple-600 text-xs md:text-sm font-bold text-center">
-                            {company.name.split(' ').map(word => word[0]).join('').toUpperCase()}
+                            {company.name.split(' ').map((word: string) => word[0]).join('').toUpperCase()}
                           </div>
                         </div>
                       )}

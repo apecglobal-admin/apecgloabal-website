@@ -93,7 +93,8 @@ export default function MemberCompanies() {
   const { data: apiResponse, loading, error } = useApiCache<any>(
     'companies-member',
     async () => {
-      const response = await fetch('/api/companies')
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
+      const response = await fetch(`${baseUrl}/companies`)
       if (!response.ok) {
         throw new Error('Failed to fetch companies')
       }

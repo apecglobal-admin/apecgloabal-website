@@ -100,9 +100,10 @@ export default function HomeProjects() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
         const [allResponse, featuredResponse] = await Promise.all([
-          fetch('/api/projects?limit=12'),
-          fetch('/api/projects?featured=true&limit=4')
+          fetch(`${baseUrl}/projects?limit=12`),
+          fetch(`${baseUrl}/projects?featured=true&limit=4`)
         ])
 
         if (allResponse.ok) {

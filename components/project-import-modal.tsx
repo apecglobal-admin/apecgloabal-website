@@ -63,7 +63,8 @@ export function ProjectImportModal({ isOpen, onClose, onSuccess }: ProjectImport
         })
       }, 200)
 
-      const response = await fetch('/api/projects/import', {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
+      const response = await fetch(`${baseUrl}/projects/import`, {
         method: 'POST',
         body: formData,
       })

@@ -144,7 +144,7 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
         </span>
         {Math.abs(totalWeight - totalMaxWeight) >= 0.1 && (
           <span className="text-yellow-400 text-xs">
-            (Tổng trọng số nên bằng {totalMaxWeight.toFixed(2)})
+            (Tổng trọng số nên bằng 100)
           </span>
         )}
       </div>

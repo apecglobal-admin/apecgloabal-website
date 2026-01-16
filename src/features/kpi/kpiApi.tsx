@@ -164,7 +164,8 @@ export const updateKPIEmployees = createAsyncThunk(
         status: response.status,
       };
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
+      console.log("error", error);
+      toast.error(error?.response?.data?.data?.message, {
         position: "top-right",
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);

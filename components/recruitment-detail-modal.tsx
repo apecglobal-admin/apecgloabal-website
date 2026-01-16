@@ -122,7 +122,8 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('/api/companies')
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
+      const response = await fetch(`${baseUrl}/companies`)
       const result = await response.json()
       if (result.success) {
         setCompanies(result.data)

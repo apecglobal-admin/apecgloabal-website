@@ -58,10 +58,11 @@ export default function HomeStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/api'
         // Fetch companies and projects from API
         const [companiesResponse, projectsResponse] = await Promise.all([
-          fetch('/api/companies'),
-          fetch('/api/projects')
+          fetch(`${baseUrl}/companies`),
+          fetch(`${baseUrl}/projects`)
         ])
 
         let companies: Company[] = []

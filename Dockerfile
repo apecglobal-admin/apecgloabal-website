@@ -11,6 +11,20 @@ RUN pnpm install --frozen-lockfile
 
 # ---------- Build ----------
 FROM base AS build
+
+# Accept build arguments for environment variables
+# These are NEXT_PUBLIC_* variables that need to be available at build time
+ARG NEXT_PUBLIC_BASE_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+
+# Set environment variables from build arguments
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm build

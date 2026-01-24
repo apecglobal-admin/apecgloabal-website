@@ -7,7 +7,7 @@ export const listUnitKpi = createAsyncThunk(
   "kpi/listUnitKpi",
   async (_, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(`/cms/select/option/units`);
+      const response = await apiAxiosInstance.get(`/cms/select/options/units`);
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {

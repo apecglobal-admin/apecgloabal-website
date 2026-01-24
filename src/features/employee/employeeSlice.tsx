@@ -6,6 +6,8 @@ import {
   listEmployeeStatus,
   listManager,
   listSkill,
+  listTasks,
+  listTasksById,
   updateSkills,
 } from "./employeeApi";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
@@ -21,21 +23,29 @@ interface InitState<T> {
 // Kiểu dữ liệu cho EmployeeSlice
 interface EmployeeState {
   employees: InitState<any[]>;
+  totalEmployees: InitState<any[]>;
   skills: InitState<any[]>;
   contacts: InitState<any[]>;
   managers: InitState<any[]>;
   employeeById: InitState<any | null>;
   statuses: InitState<any[]>;
+  tasks: InitState<any[]>;
+  totalTasks: InitState<any[]>;
+  taskById: InitState<any | null>;
 }
 
 // Trạng thái khởi tạo
 const initialState: EmployeeState = {
   employees: { data: [], loading: false, error: null, status: null },
+  totalEmployees: { data: [], loading: false, error: null, status: null },
   skills: { data: [], loading: false, error: null, status: null },
   contacts: { data: [], loading: false, error: null, status: null },
   managers: { data: [], loading: false, error: null, status: null },
   employeeById: { data: null, loading: false, error: null, status: null },
   statuses: { data: [], loading: false, error: null, status: null },
+  tasks: { data: [], loading: false, error: null, status: null },
+  totalTasks: { data: [], loading: false, error: null, status: null },
+  taskById: { data: null, loading: false, error: null, status: null },
 };
 
 const employeeSlice = createSlice({
@@ -45,12 +55,14 @@ const employeeSlice = createSlice({
   },
   extraReducers: (builder) => {
     // Dùng helper cho các async thunk có payload
-    createAsyncReducer(builder, listEmployee, "employees");
+    createAsyncReducer(builder, listEmployee, ["employees", "totalEmployees"]);
     createAsyncReducer(builder, listSkill, "skills");
     createAsyncReducer(builder, listContact, "contacts");
     createAsyncReducer(builder, listManager, "managers");
     createAsyncReducer(builder, listEmployeeById, "employeeById");
     createAsyncReducer(builder, listEmployeeStatus, "statuses");
+    createAsyncReducer(builder, listTasks, ["tasks", "totalTasks"]);
+    createAsyncReducer(builder, listTasksById, "taskById");
 
     // Dùng helper cho API chỉ cần status (không cần lưu payload)
     createAsyncReducer(builder, updateSkills);

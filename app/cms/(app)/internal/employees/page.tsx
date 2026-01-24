@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -57,6 +57,8 @@ import { Pagination, usePagination } from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createEmployee,
+  exportExcel,
+  importExcel,
   listContact,
   listEmployee,
   listEmployeeStatus,
@@ -139,6 +141,8 @@ interface Department {
 
 export default function EmployeesManagementContent() {
   const dispatch = useDispatch();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { employees, skills, contacts, managers, statuses } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
@@ -149,7 +153,7 @@ export default function EmployeesManagementContent() {
   const [viewingEmployee, setViewingEmployee] = useState(null);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(
-    null
+    null,
   );
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -200,7 +204,9 @@ export default function EmployeesManagementContent() {
   });
 
   useEffect(() => {
-    dispatch(listEmployee() as any);
+    dispatch(
+      listEmployee({ limit: itemsPerPage, page: currentPage } as any) as any,
+    );
     dispatch(listSkill() as any);
     dispatch(listContact() as any);
     dispatch(listManager() as any);
@@ -211,17 +217,6 @@ export default function EmployeesManagementContent() {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
     dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
   }, [dispatch, totalPosition, totalDepartment]);
-
-  const handleCreatePosition = () => {
-    setPositionFormData({
-      title: "",
-      description: "",
-      level: "staff",
-      is_manager_position: false,
-      is_active: true,
-    });
-    setShowPositionModal(true);
-  };
 
   const handleSavePosition = async () => {
     if (!positionFormData.title.trim()) {
@@ -264,16 +259,57 @@ export default function EmployeesManagementContent() {
         updateStatusEmployee({
           id: employeeId,
           status: parseInt(statusId),
-        }) as any
+        }) as any,
       );
       if (res.payload.status === 200 || res.payload.status === 201) {
-        await dispatch(listEmployee() as any);
+        await dispatch(
+          listEmployee({
+            limit: itemsPerPage,
+            page: currentPage,
+          } as any) as any,
+        );
         toast.success(res.payload.data.message);
       }
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Lỗi khi cập nhật trạng thái");
     }
+  };
+
+  const handleExportExcel = async () => {
+    const result = await dispatch(exportExcel() as any);
+
+    if (exportExcel.fulfilled.match(result)) {
+      const blob = result.payload;
+
+      const url = window.URL.createObjectURL(
+        new Blob([blob] as any, {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }),
+      );
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "employees.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    await dispatch(importExcel(formData) as any);
+    await dispatch(
+      listEmployee({ limit: itemsPerPage, page: currentPage } as any) as any,
+    );
+
+    e.target.value = ""; // reset input
   };
 
   const handleCreate = () => {
@@ -374,71 +410,70 @@ export default function EmployeesManagementContent() {
     setShowCreateModal(true);
   };
   const validateForm = () => {
-  const requiredFields = {
-    email: "Email",
-    name: "Họ tên",
-    join_date: "Ngày vào làm",
-    birthday: "Ngày sinh",
-    address: "Địa chỉ",
-    manager_id: "Quản lý trực tiếp",
-    gen: "Giới tính",
-    birth_place: "Nơi sinh",
-    citizen_card: "CCCD",
-    issue_date: "Ngày cấp CCCD",
-    issue_place: "Nơi cấp CCCD",
-    emergency_contract: "Liên hệ khẩn cấp",
-    degree_level: "Trình độ học vấn",
-    major: "Chuyên ngành",
-    school_name: "Trường học",
-    graduation_year: "Năm tốt nghiệp",
-    base_salary: "Lương cơ bản",
-    allowance: "Phụ cấp",
-    contract_type: "Loại hợp đồng",
-    certificate_name: "Chứng chỉ",
-    skill_group_id: "Nhóm kỹ năng",
-    department_id: "Phòng ban",
-    position: "Chức vụ",
+    const requiredFields = {
+      email: "Email",
+      name: "Họ tên",
+      join_date: "Ngày vào làm",
+      birthday: "Ngày sinh",
+      address: "Địa chỉ",
+      manager_id: "Quản lý trực tiếp",
+      gen: "Giới tính",
+      birth_place: "Nơi sinh",
+      citizen_card: "CCCD",
+      issue_date: "Ngày cấp CCCD",
+      issue_place: "Nơi cấp CCCD",
+      emergency_contract: "Liên hệ khẩn cấp",
+      degree_level: "Trình độ học vấn",
+      major: "Chuyên ngành",
+      school_name: "Trường học",
+      graduation_year: "Năm tốt nghiệp",
+      base_salary: "Lương cơ bản",
+      allowance: "Phụ cấp",
+      contract_type: "Loại hợp đồng",
+      certificate_name: "Chứng chỉ",
+      skill_group_id: "Nhóm kỹ năng",
+      department_id: "Phòng ban",
+      position: "Chức vụ",
+    };
+
+    type RequiredFormField = keyof typeof requiredFields;
+
+    for (const key in requiredFields) {
+      const typedKey = key as RequiredFormField;
+
+      if (!formData[typedKey] || formData[typedKey] === "") {
+        toast.error(`${requiredFields[typedKey]} không được để trống`);
+        return false;
+      }
+    }
+
+    // Validate skills
+    if (!formData.skills || formData.skills.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 kỹ năng");
+      return false;
+    }
+
+    for (const skill of formData.skills) {
+      if (!skill.skill_id) {
+        toast.error("Kỹ năng không hợp lệ");
+        return false;
+      }
+
+      if (Number(skill.value) < 0 || Number(skill.value) > 100) {
+        toast.error("Điểm kỹ năng phải từ 0–100");
+        return false;
+      }
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Email không hợp lệ");
+      return false;
+    }
+
+    return true;
   };
-
-  type RequiredFormField = keyof typeof requiredFields;
-
-  for (const key in requiredFields) {
-    const typedKey = key as RequiredFormField;
-
-    if (!formData[typedKey] || formData[typedKey] === "") {
-      toast.error(`${requiredFields[typedKey]} không được để trống`);
-      return false;
-    }
-  }
-
-  // Validate skills
-  if (!formData.skills || formData.skills.length === 0) {
-    toast.error("Vui lòng chọn ít nhất 1 kỹ năng");
-    return false;
-  }
-
-  for (const skill of formData.skills) {
-    if (!skill.skill_id) {
-      toast.error("Kỹ năng không hợp lệ");
-      return false;
-    }
-
-   if (Number(skill.value) < 0 || Number(skill.value) > 100) {
-      toast.error("Điểm kỹ năng phải từ 0–100");
-      return false;
-    }
-  }
-
-  // Validate email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(formData.email)) {
-    toast.error("Email không hợp lệ");
-    return false;
-  }
-
-  return true;
-};
-
 
   const handleSave = async () => {
     const isEditing = !!editingEmployee;
@@ -493,7 +528,12 @@ export default function EmployeesManagementContent() {
       }
 
       if (res.payload.status == 200 || res.payload.status == 201) {
-        await dispatch(listEmployee() as any);
+        await dispatch(
+          listEmployee({
+            limit: itemsPerPage,
+            page: currentPage,
+          } as any) as any,
+        );
         setShowCreateModal(false); // Đóng modal sau khi thành công
         toast.success(res.payload.data.message);
       }
@@ -517,7 +557,12 @@ export default function EmployeesManagementContent() {
       if (result.success) {
         setDeletingEmployee(null);
         //fetchEmployees()
-        dispatch(listEmployee() as any);
+        dispatch(
+          listEmployee({
+            limit: itemsPerPage,
+            page: currentPage,
+          } as any) as any,
+        );
         toast.success("Xóa nhân viên thành công!");
       } else {
         toast.error("Lỗi: " + result.error);
@@ -562,10 +607,10 @@ export default function EmployeesManagementContent() {
   // Calculate stats
   const totalEmployees = employees.length;
   const activeEmployees = employees.filter(
-    (e: Employee) => e.status === "active"
+    (e: Employee) => e.status === "active",
   ).length;
   const inactiveEmployees = employees.filter(
-    (e: Employee) => e.status === "inactive"
+    (e: Employee) => e.status === "inactive",
   ).length;
   const companiesWithEmployees = [
     ...new Set(employees.map((e: Employee) => e.company_id).filter(Boolean)),
@@ -692,13 +737,36 @@ export default function EmployeesManagementContent() {
                 {filteredEmployees.length} nhân viên
               </CardDescription>
             </div>
-            <Button
-              onClick={handleCreate}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
-            >
-              <Plus className="h-4 w-4 mr-0 sm:mr-2" />
-              <span className="hidden sm:inline">Thêm Nhân Viên</span>
-            </Button>
+            <div className="flex space-x-2">
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleImportExcel}
+              />
+              <Button
+                onClick={handleCreate}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
+              >
+                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Thêm Nhân Viên</span>
+              </Button>
+              <Button
+                onClick={handleExportExcel}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
+              >
+                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Export Excel</span>
+              </Button>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
+              >
+                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Import Excel</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

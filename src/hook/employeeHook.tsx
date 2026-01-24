@@ -6,11 +6,16 @@ export const useEmployeeData = () => {
   return {
     // Data 
     employees: employee.employees.data,
+    totalEmployees: employee.totalEmployees.total,
     skills: employee.skills.data,
     contacts: employee.contacts.data,
     managers: employee.managers.data,
     employeeById: employee.employeeById.data,
     statuses: employee.statuses.data,
+    tasks: employee.tasks.data,
+    totalTasks: employee.totalTasks.data,
+    taskById: employee.taskById.data,
+
  
 
     // Loading states

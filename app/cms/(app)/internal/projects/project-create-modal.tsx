@@ -209,7 +209,7 @@ export function ProjectCreateUpdateModal({
     if (isOpen) {
       dispatch(listEmployee() as any);
       dispatch(listManager() as any);
-    dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
+      dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
       dispatch(listDepartment() as any);
       dispatch(listStatusProject() as any);
     }

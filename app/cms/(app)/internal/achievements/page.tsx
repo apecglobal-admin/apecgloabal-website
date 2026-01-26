@@ -291,7 +291,28 @@ const AchievementsPage: React.FC = () => {
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button
+                   
+                  </div>
+                </div>
+              </CardHeader>
+              <div className="px-6">
+                {achievement.description && (
+                  <p className="text-white/70 text-sm mb-3 line-clamp-2">{achievement.description}</p>
+                )}
+                {achievement.document && (
+                  <a
+                    href={achievement.document}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    Tải tài liệu
+                  </a>
+                )}
+              </div>
+              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity justify-end p-2">
+                <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleOpenModal("edit", achievement)}
@@ -307,25 +328,7 @@ const AchievementsPage: React.FC = () => {
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {achievement.description && (
-                  <p className="text-white/70 text-sm mb-3 line-clamp-2">{achievement.description}</p>
-                )}
-                {achievement.document && (
-                  <a
-                    href={achievement.document}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    Tải tài liệu
-                  </a>
-                )}
-              </CardContent>
+              </div>
             </Card>
           ))}
         </div>

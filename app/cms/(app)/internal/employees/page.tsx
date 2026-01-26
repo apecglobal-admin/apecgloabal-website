@@ -50,6 +50,8 @@ import {
   Briefcase,
   Trash2,
   Eye,
+  Upload,
+  Download,
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -732,41 +734,37 @@ export default function EmployeesManagementContent() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-white">Danh Sách Nhân Viên</CardTitle>
-              <CardDescription className="text-white/80">
-                Hiển thị {paginatedEmployees.length} trên tổng số{" "}
-                {filteredEmployees.length} nhân viên
-              </CardDescription>
             </div>
             <div className="flex space-x-2">
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={handleImportExcel}
-              />
-              <Button
-                onClick={handleCreate}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
-                <span className="hidden sm:inline">Thêm Nhân Viên</span>
-              </Button>
-              <Button
-                onClick={handleExportExcel}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
-                <span className="hidden sm:inline">Export Excel</span>
-              </Button>
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
-                <span className="hidden sm:inline">Import Excel</span>
-              </Button>
-            </div>
+  <input
+    type="file"
+    accept=".xlsx,.xls"
+    ref={fileInputRef}
+    className="hidden"
+    onChange={handleImportExcel}
+  />
+  <Button
+    onClick={handleCreate}
+    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
+  >
+    <Plus className="h-4 w-4 mr-0 sm:mr-2" />
+    <span className="hidden sm:inline">Thêm Nhân Viên</span>
+  </Button>
+  <Button
+    onClick={handleExportExcel}
+    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 flex items-center"
+  >
+    <Download className="h-4 w-4 mr-0 sm:mr-2" />
+    <span className="hidden sm:inline">Export Excel</span>
+  </Button>
+  <Button
+    onClick={() => fileInputRef.current?.click()}
+    className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white border-0 flex items-center"
+  >
+    <Upload className="h-4 w-4 mr-0 sm:mr-2" />
+    <span className="hidden sm:inline">Import Excel</span>
+  </Button>
+</div>
           </div>
         </CardHeader>
         <CardContent>

@@ -13,9 +13,6 @@ export const listCompanies = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -27,9 +24,6 @@ export const listIndustry = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/companies/industries`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -76,7 +70,6 @@ export const updateCompany = createAsyncThunk(
       toast.error(error?.response?.data?.message, {
         position: "top-right",
       });
-
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -96,6 +89,9 @@ export const deleteCompany = createAsyncThunk(
         status: response.status,
       };
     } catch (error: any) {
+      toast.error(error?.response?.data?.message, {
+        position: "top-right",
+      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

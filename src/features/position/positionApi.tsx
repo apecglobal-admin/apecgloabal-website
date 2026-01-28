@@ -11,9 +11,6 @@ export const listPosition = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/cms/positions?limit=${limit}&page=${page}`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
-              position: "top-right",
-            });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

@@ -287,7 +287,7 @@ export default function RolesContent() {
 
       {/* Edit Permissions Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-[95vw] sm:max-w-4xl max-h-[100vh]">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-[100vw] sm:max-w-7xl max-h-[100vh]">
           <DialogHeader className="space-y-2 sm:space-y-3">
             <DialogTitle className="text-lg sm:text-2xl flex items-center gap-2 sm:gap-3">
               <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md sm:rounded-lg flex-shrink-0">
@@ -308,20 +308,20 @@ export default function RolesContent() {
                 <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-purple-500" />
               </div>
             ) : (
-              <div className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {roleById?.map((group: any, index: number) => (
                   <Card
                     key={group.group_id}
-                    className="border-gray-800 bg-gray-800/50"
+                    className="rounded-lg border text-card-foreground shadow-sm border-gray-800 bg-gray-800/50 h-full flex flex-col"
                   >
-                    <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-6">
+                    <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-sm sm:text-lg text-white flex items-center gap-2">
-                            <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 flex-shrink-0" />
+                          <CardTitle className="text-sm sm:text-base text-white flex items-center gap-2">
+                            <Settings className="w-4 h-4 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
                             <span className="truncate">{group.group_name}</span>
                           </CardTitle>
-                          <CardDescription className="text-gray-400 mt-1 text-xs sm:text-sm line-clamp-2">
+                          <CardDescription className="text-gray-400 mt-0.5 sm:mt-1 text-xs line-clamp-2">
                             {group.group_description}
                           </CardDescription>
                         </div>
@@ -330,7 +330,7 @@ export default function RolesContent() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleGroupToggle(group.permissions)}
-                            className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3"
+                            className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 flex-shrink-0 text-xs px-2 h-7"
                           >
                             {group.permissions.every((p: any) =>
                               selectedPermissions.includes(p.id)
@@ -341,17 +341,17 @@ export default function RolesContent() {
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
+                    <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 flex-1">
                       {!group.permissions || group.permissions.length === 0 ? (
-                        <p className="text-gray-500 text-xs sm:text-sm italic">
+                        <p className="text-gray-500 text-xs italic">
                           Nhóm quyền này chưa có quyền cụ thể
                         </p>
                       ) : (
-                        <div className="grid grid-cols-1 gap-2 sm:gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2">
                           {group.permissions.map((permission: any) => (
                             <div
                               key={permission.id}
-                              className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3 rounded-lg hover:bg-gray-700/30 transition-colors"
+                              className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-700 bg-gray-800/50 hover:bg-gray-700/50 hover:border-gray-600 transition-all"
                             >
                               <Checkbox
                                 id={`permission-${permission.id}`}
@@ -361,17 +361,17 @@ export default function RolesContent() {
                                 onCheckedChange={() =>
                                   handlePermissionToggle(permission.id)
                                 }
-                                className="mt-0.5 border-gray-600 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 flex-shrink-0"
+                                className="border-gray-600 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 flex-shrink-0"
                               />
                               <div className="flex-1 min-w-0">
                                 <Label
                                   htmlFor={`permission-${permission.id}`}
-                                  className="text-xs sm:text-sm font-medium text-white cursor-pointer break-words"
+                                  className="text-xs font-medium text-white cursor-pointer break-words leading-tight block"
                                 >
                                   {permission.name}
                                 </Label>
                                 {permission.description && (
-                                  <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 break-words">
+                                  <p className="text-[10px] text-gray-500 mt-0.5 break-words leading-tight">
                                     {permission.description}
                                   </p>
                                 )}

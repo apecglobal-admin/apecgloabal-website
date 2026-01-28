@@ -7,6 +7,7 @@ import {
   updateKPI,
   createKPIChild,
   updateKPIChild,
+  deleteKPIsChild,
 } from "@/src/features/kpi/kpiApi";
 import { useKpiData } from "@/src/hook/kpiHook";
 import { useEffect, useState } from "react";
@@ -45,6 +46,10 @@ export default function KpiPage() {
   });
   const [kpiChildPage, setKpiChildPage] = useState(1);
   const kpiChildLimit = 10;
+
+  // States cho bulk delete
+  const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   useEffect(() => {
     dispatch(listUnitKpi() as any);
@@ -88,7 +93,7 @@ export default function KpiPage() {
           } as any) as any
         );
 
-        if(res && res.payload && res.payload.status === 200){
+        if (res && res.payload && res.payload.status === 200) {
           toast.success(res.payload.data.message, { position: "top-right" });
         }
       } else {
@@ -99,7 +104,7 @@ export default function KpiPage() {
           } as any) as any
         );
 
-        if(res && res.payload && res.payload.status === 200){
+        if (res && res.payload && res.payload.status === 200) {
           toast.success(res.payload.data.message, { position: "top-right" });
         }
       }
@@ -111,24 +116,15 @@ export default function KpiPage() {
     }
   };
 
-  const handleDeleteKpi = async (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa KPI này?")) {
-      try {
-        // await dispatch(deleteKPI(id as any) as any);
-        if (selectedKpiId === id) setSelectedKpiId(null);
-        dispatch(listKPI({ limit: kpiLimit, page: kpiPage } as any) as any);
-      } catch (error) {
-        console.error("Error deleting KPI:", error);
-        alert("Có lỗi xảy ra khi xóa KPI");
-      }
-    }
-  };
-
   const handleToggleKpi = (kpiId: string) => {
     if (selectedKpiId === kpiId) {
       setSelectedKpiId(null);
+      setIsSelectionMode(false);
+      setSelectedChildIds([]);
     } else {
       setSelectedKpiId(kpiId);
+      setIsSelectionMode(false);
+      setSelectedChildIds([]);
     }
   };
 
@@ -171,7 +167,7 @@ export default function KpiPage() {
 
     try {
       if (editingKpiChild) {
-        const res =await dispatch(
+        const res = await dispatch(
           updateKPIChild({
             id: editingKpiChild.id,
             name: kpiChildForm.name,
@@ -179,11 +175,11 @@ export default function KpiPage() {
             unit_id: kpiChildForm.unit_id,
           } as any) as any
         );
-        if(res && res.payload && res.payload.status === 200){
+        if (res && res.payload && res.payload.status === 200) {
           toast.success(res.payload.data.message, { position: "top-right" });
         }
       } else {
-        const res =await dispatch(
+        const res = await dispatch(
           createKPIChild({
             kpi_id: kpiChildForm.kpi_id,
             name: kpiChildForm.name,
@@ -191,7 +187,7 @@ export default function KpiPage() {
             unit_id: kpiChildForm.unit_id,
           } as any) as any
         );
-        if(res && res.payload && res.payload.status === 200){
+        if (res && res.payload && res.payload.status === 200) {
           toast.success(res.payload.data.message, { position: "top-right" });
         }
       }
@@ -205,10 +201,17 @@ export default function KpiPage() {
     }
   };
 
+  // Xóa 1 hoặc nhiều KPI Child (luôn truyền mảng)
   const handleDeleteKpiChild = async (id: string) => {
     if (confirm("Bạn có chắc chắn muốn xóa KPI Child này?")) {
       try {
-        // await dispatch(deleteKPIChild(id as any) as any);
+        // Truyền mảng chứa 1 phần tử
+        const res = await dispatch(deleteKPIsChild([id] as any) as any);
+        
+        if (res && res.payload && res.payload.status === 200) {
+          toast.success(res.payload.data.message, { position: "top-right" });
+        }
+        
         dispatch(
           listKPIChild({
             limit: kpiChildLimit,
@@ -220,6 +223,65 @@ export default function KpiPage() {
         alert("Có lỗi xảy ra khi xóa KPI Child");
       }
     }
+  };
+
+  // Toggle chọn child để xóa
+  const handleToggleSelectChild = (childId: string) => {
+    setSelectedChildIds((prev) =>
+      prev.includes(childId)
+        ? prev.filter((id) => id !== childId)
+        : [...prev, childId]
+    );
+  };
+
+  // Chọn tất cả children trong KPI hiện tại
+  const handleSelectAllChildren = () => {
+    if (selectedChildIds.length === filteredKpiChildren.length) {
+      setSelectedChildIds([]);
+    } else {
+      setSelectedChildIds(filteredKpiChildren.map((child: any) => child.id));
+    }
+  };
+
+  // Xóa nhiều KPI Child
+  const handleBulkDeleteKpiChild = async () => {
+    if (selectedChildIds.length === 0) {
+      alert("Vui lòng chọn ít nhất một KPI Child để xóa");
+      return;
+    }
+
+    if (
+      confirm(
+        `Bạn có chắc chắn muốn xóa ${selectedChildIds.length} KPI Child đã chọn?`
+      )
+    ) {
+      try {
+        // Truyền mảng các ID
+        const res = await dispatch(deleteKPIsChild(selectedChildIds as any) as any);
+        
+        if (res && res.payload && res.payload.status === 200) {
+          toast.success(res.payload.data.message, { position: "top-right" });
+        }
+        
+        setSelectedChildIds([]);
+        setIsSelectionMode(false);
+        dispatch(
+          listKPIChild({
+            limit: kpiChildLimit,
+            page: kpiChildPage,
+          } as any) as any
+        );
+      } catch (error) {
+        console.error("Error bulk deleting KPI Children:", error);
+        alert("Có lỗi xảy ra khi xóa các KPI Child");
+      }
+    }
+  };
+
+  // Toggle chế độ chọn nhiều
+  const handleToggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedChildIds([]);
   };
 
   return (
@@ -279,15 +341,6 @@ export default function KpiPage() {
                     >
                       <Edit2 className="w-4 h-4 text-blue-400" />
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteKpi(kpi.id);
-                      }}
-                      className="p-2 hover:bg-white/10 rounded-lg transition"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </button>
                   </div>
                 </div>
 
@@ -296,13 +349,52 @@ export default function KpiPage() {
                   <div className="bg-white/5 p-4 border-t border-white/10">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="text-white font-medium">Chi tiết KPI</h4>
-                      <button
-                        onClick={handleCreateKpiChild}
-                        className="flex items-center gap-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Thêm chi tiết
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {isSelectionMode && (
+                          <>
+                            <button
+                              onClick={handleSelectAllChildren}
+                              className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm"
+                            >
+                              {selectedChildIds.length ===
+                              filteredKpiChildren.length
+                                ? "Bỏ chọn tất cả"
+                                : "Chọn tất cả"}
+                            </button>
+                            {selectedChildIds.length > 0 && (
+                              <button
+                                onClick={handleBulkDeleteKpiChild}
+                                className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Xóa ({selectedChildIds.length})
+                              </button>
+                            )}
+                            <button
+                              onClick={handleToggleSelectionMode}
+                              className="flex items-center gap-2 bg-white/10 text-white px-3 py-1.5 rounded-lg hover:bg-white/20 transition text-sm"
+                            >
+                              Hủy
+                            </button>
+                          </>
+                        )}
+                        {!isSelectionMode && filteredKpiChildren?.length > 0 && (
+                          <button
+                            onClick={handleToggleSelectionMode}
+                            className="flex items-center gap-2 bg-orange-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Xóa nhiều
+                          </button>
+                        )}
+                        <button
+                          onClick={handleCreateKpiChild}
+                          className="flex items-center gap-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition text-sm"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Thêm chi tiết
+                        </button>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -310,30 +402,57 @@ export default function KpiPage() {
                         filteredKpiChildren.map((child: any) => (
                           <div
                             key={child.id}
-                            className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition"
+                            className={`flex items-center justify-between p-3 rounded-lg transition ${
+                              isSelectionMode
+                                ? "cursor-pointer hover:bg-white/10"
+                                : "bg-white/5 hover:bg-white/10"
+                            } ${
+                              selectedChildIds.includes(child.id)
+                                ? "bg-purple-600/30 border border-purple-400"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              isSelectionMode &&
+                              handleToggleSelectChild(child.id)
+                            }
                           >
-                            <div>
-                              <p className="text-white">{child.name}</p>
-                              {child.description && (
-                                <p className="text-white/60 text-sm">
-                                  {child.description}
-                                </p>
+                            <div className="flex items-center gap-3">
+                              {isSelectionMode && (
+                                <input
+                                  type="checkbox"
+                                  checked={selectedChildIds.includes(child.id)}
+                                  onChange={() =>
+                                    handleToggleSelectChild(child.id)
+                                  }
+                                  className="w-4 h-4 rounded accent-purple-600"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
                               )}
+                              <div>
+                                <p className="text-white">{child.name}</p>
+                                {child.description && (
+                                  <p className="text-white/60 text-sm">
+                                    {child.description}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEditKpiChild(child)}
-                                className="p-2 hover:bg-white/10 rounded-lg transition"
-                              >
-                                <Edit2 className="w-4 h-4 text-blue-400" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteKpiChild(child.id)}
-                                className="p-2 hover:bg-white/10 rounded-lg transition"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-400" />
-                              </button>
-                            </div>
+                            {!isSelectionMode && (
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleEditKpiChild(child)}
+                                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                                >
+                                  <Edit2 className="w-4 h-4 text-blue-400" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteKpiChild(child.id)}
+                                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-400" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                         ))
                       ) : (

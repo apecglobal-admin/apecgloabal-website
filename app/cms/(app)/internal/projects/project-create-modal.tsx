@@ -28,6 +28,7 @@ import {
   Users,
   Upload,
   FileText,
+  Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEmployeeData } from "@/src/hook/employeeHook";
@@ -44,6 +45,22 @@ import {
   listStatusProject,
   listProjectById,
 } from "@/src/features/project/projectApi";
+
+// Helper function to format date from ISO to YYYY-MM-DD
+const formatDateForInput = (dateString: string | null | undefined): string => {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  } catch {
+    return "";
+  }
+};
 
 interface Company {
   id: number;
@@ -116,13 +133,12 @@ export function ProjectCreateUpdateModal({
   projectId = null,
 }: ProjectModalProps) {
   const dispatch = useDispatch();
-  const { employees, managers } = useEmployeeData();
+  const { employees, totalEmployees, managers } = useEmployeeData();
   const { companies, totalCompany } = useCompanyData();
-  const { departments } = useDepartmentData();
+  const { departments, totalDepartment } = useDepartmentData();
   const { statusProject } = useProjectData();
   const { project } = useProjectData();
 
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const isEditMode = !!project?.id;
@@ -204,30 +220,35 @@ export function ProjectCreateUpdateModal({
       setDeletedDocumentIds([]);
     }
   }, [projectId, dispatch]);
-  
+
   useEffect(() => {
     if (isOpen) {
-      dispatch(listEmployee() as any);
+      dispatch(listEmployee({ limit: totalEmployees, page: 1 } as any) as any);
       dispatch(listManager() as any);
-      dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
-      dispatch(listDepartment() as any);
+      dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
+      dispatch(
+        listDepartment({ limit: totalDepartment, page: 1 } as any) as any
+      );
       dispatch(listStatusProject() as any);
     }
-  }, [isOpen, dispatch]);
+  }, [isOpen, dispatch, totalEmployees, totalCompany, totalDepartment]);
 
   // Load project data khi edit
   useEffect(() => {
     if (isOpen && projectId && project) {
       setFormData({
         ...project,
-        departments: project.departments 
+        // Format dates for input fields
+        start_date: formatDateForInput(project.start_date),
+        end_date: formatDateForInput(project.end_date),
+        departments: project.departments
           ? project.departments.map((dept: any) => dept.id || dept)
           : [],
-        employees: project.members 
+        employees: project.members
           ? project.members.map((emp: any) => emp.id || emp)
           : [],
       });
-      
+
       // Load existing documents
       if (project.documents && Array.isArray(project.documents)) {
         setExistingDocuments(project.documents);
@@ -516,7 +537,7 @@ export function ProjectCreateUpdateModal({
                       })
                     }
                   >
-                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                       <SelectValue placeholder="Chọn công ty" />
                     </SelectTrigger>
                     <SelectContent>
@@ -548,7 +569,7 @@ export function ProjectCreateUpdateModal({
                       })
                     }
                   >
-                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                       <SelectValue placeholder="Chọn quản lý" />
                     </SelectTrigger>
                     <SelectContent>
@@ -573,26 +594,32 @@ export function ProjectCreateUpdateModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-white">Ngày bắt đầu</Label>
-                  <Input
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, start_date: e.target.value })
-                    }
-                    className="bg-black/30 border-purple-500/30 text-white"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="date"
+                      value={formData.start_date}
+                      onChange={(e) =>
+                        setFormData({ ...formData, start_date: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    />
+                    <Calendar className="h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
                   <Label className="text-white">Ngày kết thúc</Label>
-                  <Input
-                    type="date"
-                    value={formData.end_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, end_date: e.target.value })
-                    }
-                    className="bg-black/30 border-purple-500/30 text-white"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="date"
+                      value={formData.end_date}
+                      onChange={(e) =>
+                        setFormData({ ...formData, end_date: e.target.value })
+                      }
+                      className="bg-black/30 border-purple-500/30 text-white [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    />
+                    <Calendar className="h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
@@ -608,7 +635,7 @@ export function ProjectCreateUpdateModal({
                       })
                     }
                   >
-                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                       <SelectValue placeholder="Chọn trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
@@ -773,7 +800,7 @@ export function ProjectCreateUpdateModal({
                 <Label className="text-white mb-2 block">
                   Tài liệu đính kèm
                 </Label>
-                
+
                 {/* Existing Documents */}
                 {existingDocuments.length > 0 && (
                   <div className="mb-3 space-y-2">
@@ -868,12 +895,14 @@ export function ProjectCreateUpdateModal({
                     <Upload className="h-10 w-10 text-purple-400" />
                     <div className="text-center">
                       <p className="text-white text-sm font-medium">
-                        {selectedFiles.length > 0 || existingDocuments.length > 0
+                        {selectedFiles.length > 0 ||
+                        existingDocuments.length > 0
                           ? "Thêm tài liệu"
                           : "Nhấn để chọn file"}
                       </p>
                       <p className="text-gray-400 text-xs mt-1">
-                        PDF, DOC, XLS, TXT, hoặc hình ảnh (có thể chọn nhiều file)
+                        PDF, DOC, XLS, TXT, hoặc hình ảnh (có thể chọn nhiều
+                        file)
                       </p>
                     </div>
                   </label>

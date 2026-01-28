@@ -13,9 +13,6 @@ export const listJobs = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -28,9 +25,6 @@ export const listJobStatus = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/jobs/status`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

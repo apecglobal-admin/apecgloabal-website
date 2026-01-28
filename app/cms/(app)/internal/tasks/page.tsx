@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { useEmployeeData } from "@/src/hook/employeeHook";
-import { listTasks, listTasksById } from "@/src/features/employee/employeeApi";
 import { Pagination } from "@/components/ui/pagination";
 import { 
   Calendar, 
@@ -19,10 +18,12 @@ import {
   Clock,
   ArrowLeft
 } from "lucide-react";
+import { listTasks, listTasksById } from "@/src/features/task/taskApi";
+import { useTaskData } from "@/src/hook/taskHook";
 
-const EmployeeTasks: React.FC = () => {
+const TasksPage: React.FC = () => {
   const dispatch = useDispatch();
-  const { tasks, totalTasks, taskById } = useEmployeeData();
+  const { tasks, totalTasks, taskById } = useTaskData();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const itemsPerPage = 10;
@@ -386,4 +387,4 @@ const EmployeeTasks: React.FC = () => {
   );
 };
 
-export default EmployeeTasks;
+export default TasksPage;

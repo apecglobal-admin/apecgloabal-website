@@ -45,6 +45,8 @@ const iconMapping: Record<string, { icon: any; color: string }> = {
   "Thống kê": { icon: BarChart3, color: "text-green-400" },
   "Hệ sinh thái": { icon: Building2, color: "text-green-400" },
   Dashboard: { icon: Home, color: "text-purple-400" },
+  "Trang chủ": { icon: Home, color: "text-purple-400" },
+  Profile: { icon: Users, color: "text-blue-400" },
 };
 
 interface CMSLayoutProps {
@@ -53,12 +55,13 @@ interface CMSLayoutProps {
 
 export default function CMSLayout({ children }: CMSLayoutProps) {
   const dispatch = useDispatch();
-  const { sidebars, userInfo } = useAuthData();
+  const { userInfo, sidebars } = useAuthData();
   const router = useRouter();
   const pathname = usePathname();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
+  const [expandedSubGroups, setExpandedSubGroups] = useState<Record<string, boolean>>({});
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const hasLoadedData = useRef(false);
 
@@ -97,6 +100,10 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
   const toggleGroup = (index: number) => {
     setExpandedGroups(prev => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  const toggleSubGroup = (key: string) => {
+    setExpandedSubGroups(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleLogout = async () => {
@@ -222,6 +229,77 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                   {group.permission_groups?.map((item: any, itemIndex: number) => {
                     const iconData = iconMapping[item.name] || { icon: FileText, color: "text-gray-400" };
                     const Icon = iconData.icon;
+                    const subGroupKey = `${groupIndex}-${itemIndex}`;
+
+                    // Nếu có children thì là dropdown
+                    if (item.children) {
+                      return (
+                        <div key={itemIndex}>
+                          {/* Dropdown Header */}
+                          <button
+                            onClick={() => toggleSubGroup(subGroupKey)}
+                            className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group text-white/70 hover:text-white hover:bg-white/10"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <Icon className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${iconData.color}`} />
+                              <span className="font-medium text-sm truncate">{item.name}</span>
+                            </div>
+                            {expandedSubGroups[subGroupKey] ? (
+                              <ChevronUp className="h-4 w-4 text-white/60 flex-shrink-0" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-white/60 flex-shrink-0" />
+                            )}
+                          </button>
+
+                          {/* Dropdown Children */}
+                          <div
+                            className={`ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ${
+                              expandedSubGroups[subGroupKey] ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+                            }`}
+                          >
+                            {item.children.map((child: any, childIndex: number) => {
+                              const childIconData = iconMapping[child.name] || { icon: FileText, color: "text-gray-400" };
+                              const ChildIcon = childIconData.icon;
+                              const isActive = pathname === child.href;
+                              const isAdminMenu = child.name === "Phân quyền";
+
+                              return (
+                                <Link 
+                                  key={childIndex} 
+                                  href={child.href} 
+                                  prefetch={false} 
+                                  onClick={() => setIsSidebarOpen(false)}
+                                >
+                                  <div
+                                    className={`flex items-center space-x-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 group ${
+                                      isActive
+                                        ? isAdminMenu
+                                          ? "bg-red-500/20 border border-red-500/50 text-white"
+                                          : "bg-purple-500/20 border border-purple-500/50 text-white"
+                                        : "text-white/70 hover:text-white hover:bg-white/10"
+                                    }`}
+                                  >
+                                    <ChildIcon
+                                      className={`h-4 w-4 flex-shrink-0 ${
+                                        isActive ? (isAdminMenu ? "text-red-400" : "text-purple-400") : childIconData.color
+                                      }`}
+                                    />
+                                    <span className="font-medium text-sm truncate flex-1">{child.name}</span>
+                                    {isActive && (
+                                      <ChevronRight
+                                        className={`h-4 w-4 flex-shrink-0 ${isAdminMenu ? "text-red-400" : "text-purple-400"}`}
+                                      />
+                                    )}
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // Menu item thông thường (không có children)
                     const isActive = pathname === item.href;
                     const isAdminMenu = item.name === "Phân quyền";
 

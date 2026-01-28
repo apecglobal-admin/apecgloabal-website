@@ -22,7 +22,7 @@ const EmployeeCareerRequests: React.FC<EmployeeCareerRequestsProps> = ({
         updateStatusCareer({ id, status } as any) as any
       );
       if (res.payload.status == 200 || res.payload.status == 201) {
-        await dispatch(listEmployeeById(localStorage.getItem("cmsToken")as any) as any)
+        await dispatch(listEmployeeById(employee.id as any) as any);
         toast(res.payload.data.message);
       }
     } catch (error) {

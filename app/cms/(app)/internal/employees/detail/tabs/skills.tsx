@@ -34,7 +34,7 @@ interface SkillGroup {
 
 interface EmployeeSkillsProps {
   employee: any;
-  skillsData: { skill: string; value: number }[];
+  skillsData: { skill: string; value: number | null }[];
   listSkills: SkillGroup[];
 }
 
@@ -46,24 +46,24 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
   const dispatch = useDispatch();
 
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(
-    employee.skill_groups.length > 0 ? employee.skill_groups[0].id : null
+    employee?.skill_groups?.length > 0 ? employee.skill_groups[0].id : null
   );
   const [groupsSkillsValues, setGroupsSkillsValues] = useState<{
-    [groupId: number]: { skill: string; value: number }[];
+    [groupId: number]: { skill: string; value: number | null }[];
   }>({});
-  const [currentSkillsData, setCurrentSkillsData] = useState(skillsData);
+  const [currentSkillsData, setCurrentSkillsData] = useState(skillsData || []);
   const [backupGroupsSkillsValues, setBackupGroupsSkillsValues] = useState<{
-    [key: number]: { skill: string; value: number }[];
+    [key: number]: { skill: string; value: number | null }[];
   }>({});
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (selectedGroupId === null) return;
 
-    const selectedGroup = listSkills.find((g) => g.id === selectedGroupId);
+    const selectedGroup = listSkills?.find((g) => g.id === selectedGroupId);
     if (!selectedGroup) return;
 
-    const isExistingGroup = employee.skill_groups.some(
+    const isExistingGroup = employee?.skill_groups?.some(
       (g: any) => g.id === selectedGroupId
     );
 
@@ -74,10 +74,10 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
       if (prevSkill) return prevSkill;
 
       if (isExistingGroup) {
-        const existingSkill = skillsData.find((s) => s.skill === skill.name);
+        const existingSkill = skillsData?.find((s) => s.skill === skill.name);
         return {
           skill: skill.name,
-          value: existingSkill ? existingSkill.value : 0,
+          value: existingSkill?.value ?? 0,
         };
       }
 
@@ -119,7 +119,7 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
   const handleSave = async (employee: any) => {
     if (selectedGroupId === null) return;
 
-    const selectedGroup = listSkills.find((g) => g.id === selectedGroupId);
+    const selectedGroup = listSkills?.find((g) => g.id === selectedGroupId);
     if (!selectedGroup) return;
 
     const skillsWithId = currentSkillsData.map((s) => {
@@ -128,7 +128,7 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
       );
       return {
         id: skillObj?.id,
-        value: s.value,
+        value: s.value ?? 0,
       };
     });
 
@@ -141,16 +141,12 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
     );
     if (res.payload.status == 200 || res.payload.status == 201) {
       await dispatch(listEmployeeById(employee.id as any) as any);
-      toast.success(res.payload.data.message)
+      toast.success(res.payload.data.message);
     }
-    // console.log({
-    //   mainGroupId: selectedGroupId,
-    //   skills: skillsWithId,
-    // });
   };
 
   const handleCancel = () => {
-    if (selectedGroupId !== null) {
+    if (selectedGroupId !== null && backupGroupsSkillsValues[selectedGroupId]) {
       setCurrentSkillsData(
         backupGroupsSkillsValues[selectedGroupId].map((s) => ({ ...s }))
       );
@@ -172,20 +168,26 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
         <label className="text-white/80 text-sm hidden sm:block">
           Chọn nhóm kỹ năng:
         </label>
-        <select
-          className="bg-black/50 text-white border border-purple-500/30 p-1 rounded"
-          value={selectedGroupId ?? ""}
-          onChange={(e) => setSelectedGroupId(Number(e.target.value))}
-        >
-          <option value="" disabled>
-            -- Chọn nhóm --
-          </option>
-          {listSkills.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name}
+        {listSkills && listSkills.length > 0 ? (
+          <select
+            className="bg-black/50 text-white border border-purple-500/30 p-1 rounded"
+            value={selectedGroupId ?? ""}
+            onChange={(e) => setSelectedGroupId(Number(e.target.value))}
+          >
+            <option value="" disabled>
+              -- Chọn nhóm --
             </option>
-          ))}
-        </select>
+            {listSkills.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name || "Chưa có tên nhóm"}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="text-white/50 italic text-sm">
+            Chưa có nhóm kỹ năng
+          </span>
+        )}
       </div>
 
       {/* --- Biểu đồ kỹ năng --- */}
@@ -196,14 +198,19 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 overflow-x-hidden">
-          {currentSkillsData.length > 0 ? (
+          {currentSkillsData && currentSkillsData.length > 0 ? (
             <div className="w-full overflow-x-hidden">
               <ResponsiveContainer
                 width="100%"
                 height={300}
                 className="sm:h-[400px]"
               >
-                <RadarChart data={currentSkillsData}>
+                <RadarChart
+                  data={currentSkillsData.map((s) => ({
+                    ...s,
+                    value: s.value ?? 0,
+                  }))}
+                >
                   <PolarGrid stroke="#a855f7" strokeOpacity={0.3} />
                   <PolarAngleAxis
                     dataKey="skill"
@@ -232,6 +239,12 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
                       fontSize: "12px",
                     }}
                     labelStyle={{ color: "#fff" }}
+                    formatter={(value: any, name: string) => {
+                      if (value == null) {
+                        return ["Chưa có dữ liệu", name];
+                      }
+                      return [`${value}%`, name];
+                    }}
                   />
                   <Legend wrapperStyle={{ color: "#fff", fontSize: "12px" }} />
                 </RadarChart>
@@ -254,18 +267,26 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
         </CardHeader>
         <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 overflow-x-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 overflow-x-hidden">
-            {currentSkillsData.length > 0 ? (
+            {currentSkillsData && currentSkillsData.length > 0 ? (
               currentSkillsData.map((skill, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between text-white/80 text-xs sm:text-base">
-                    <span>{skill.skill}</span>
-                    <span>{skill.value}%</span>
+                    <span>{skill.skill || "Chưa có tên kỹ năng"}</span>
+                    <span>
+                      {skill.value != null ? (
+                        `${skill.value}%`
+                      ) : (
+                        <span className="text-white/50 italic text-xs">
+                          Chưa có dữ liệu
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <input
                     type="range"
                     min={0}
                     max={100}
-                    value={skill.value}
+                    value={skill.value ?? 0}
                     onChange={(e) =>
                       handleSkillValueChange(
                         skill.skill,
@@ -273,6 +294,7 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
                       )
                     }
                     className="w-full accent-purple-600"
+                    disabled={!isEditing}
                   />
                 </div>
               ))
@@ -288,19 +310,19 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
       {isEditing ? (
         <div className="flex gap-2 mt-4">
           <button
-            className="px-4 py-2 bg-green-600 text-white rounded"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition"
             onClick={() => {
               handleSave(employee);
-              setIsEditing(false); // tắt chế độ chỉnh sửa sau khi lưu
+              setIsEditing(false);
             }}
           >
             Lưu
           </button>
           <button
-            className="px-4 py-2 bg-red-600 text-white rounded"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
             onClick={() => {
               handleCancel();
-              setIsEditing(false); // tắt chế độ chỉnh sửa khi hủy
+              setIsEditing(false);
             }}
           >
             Hủy
@@ -308,7 +330,7 @@ const EmployeeSkills: React.FC<EmployeeSkillsProps> = ({
         </div>
       ) : (
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
           onClick={() => setIsEditing(true)}
         >
           Chỉnh sửa

@@ -96,6 +96,7 @@ export const createEmployee = createAsyncThunk(
         skills,
         skill_group_id,
         department_id,
+        level_id,
         position_id,
       }: any = payload;
       const response = await apiAxiosInstance.post(`/cms/employees/create`, {
@@ -123,6 +124,7 @@ export const createEmployee = createAsyncThunk(
         skills,
         skill_group_id,
         department_id,
+        level_id,
         position_id,
       });
       return {
@@ -168,6 +170,7 @@ export const updateEmployee = createAsyncThunk(
         skills,
         skill_group_id,
         department_id,
+        level_id,
         position_id,
       }: any = payload;
       const response = await apiAxiosInstance.put(
@@ -198,6 +201,7 @@ export const updateEmployee = createAsyncThunk(
           skills,
           skill_group_id,
           department_id,
+          level_id,
           position_id,
         },
       );

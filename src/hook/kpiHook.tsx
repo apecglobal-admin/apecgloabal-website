@@ -6,9 +6,9 @@ export const useKpiData = () => {
   return {
     // Data 
     kpis: kpi.kpis.data,
-    totalKpi: kpi?.totalKpi?.paginations?.total,
+    totalKpi: kpi?.totalKpi?.pagination?.total,
     kpiChild: kpi.kpiChild.data,
-    totalKpiChild: kpi?.totalKpiChild?.paginations?.total,
+    totalKpiChild: kpi?.totalKpiChild?.pagination?.total,
     units: kpi.units.data,
 
     // Loading states

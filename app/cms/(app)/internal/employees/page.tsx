@@ -76,6 +76,8 @@ import EmployeeDetailModal from "./detail/detailModal";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import { usePositionData } from "@/src/hook/positionHook";
 import { useDepartmentData } from "@/src/hook/departmentHook";
+import { useRoleData } from "@/src/hook/roleHook";
+import { listRoleLevelPositionWebsite } from "@/src/features/role/roleApi";
 
 interface Skill {
   skill_id: string | number;
@@ -91,6 +93,7 @@ interface Employee {
   position_id: number | null;
   position: string | null;
   department_id: number | null;
+  level_id: number | null;
   department_name: string | null;
   join_date: string | null;
   status: string;
@@ -148,6 +151,7 @@ export default function EmployeesManagementContent() {
   const { employees, skills, contacts, managers, statuses } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
+  const { levelPositionRoles } = useRoleData();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -192,6 +196,7 @@ export default function EmployeesManagementContent() {
     allowance: "",
     emergency_contract: "",
     department_id: "",
+    level_id: "",
     join_date: "",
     status: "active",
     salary: "",
@@ -218,6 +223,7 @@ export default function EmployeesManagementContent() {
   useEffect(() => {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
     dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
+    dispatch(listRoleLevelPositionWebsite() as any);
   }, [dispatch, totalPosition, totalDepartment]);
 
   const handleSavePosition = async () => {
@@ -337,6 +343,7 @@ export default function EmployeesManagementContent() {
       phone: "",
       position: "",
       department_id: "",
+      level_id: "",
       join_date: "",
       status: "",
       salary: "",
@@ -372,6 +379,7 @@ export default function EmployeesManagementContent() {
       join_date: employee.join_date ? employee.join_date.split("T")[0] : "",
       status: employee.status || "active",
       department_id: employee.department_id?.toString() || "",
+      level_id: employee.level_id?.toString() || "",
       manager_id: employee.manager_id?.toString() || "",
       bio: employee.bio || "",
 
@@ -435,6 +443,7 @@ export default function EmployeesManagementContent() {
       certificate_name: "Chứng chỉ",
       skill_group_id: "Nhóm kỹ năng",
       department_id: "Phòng ban",
+      level_id: "Cấp bậc",
       position: "Chức vụ",
     };
 
@@ -485,6 +494,7 @@ export default function EmployeesManagementContent() {
     const baseData = {
       email: formData.email,
       name: formData.name,
+      phone: formData.phone,
       join_date: formData.join_date,
       birthday: formData.birthday,
       address: formData.address,
@@ -511,6 +521,7 @@ export default function EmployeesManagementContent() {
         ? parseInt(formData.skill_group_id)
         : null,
       department_id: formData.department_id,
+      level_id: formData.level_id,
       position_id: formData.position,
     };
 
@@ -596,13 +607,18 @@ export default function EmployeesManagementContent() {
       ? departments?.find((d: any) => d.id === employee.department_id)?.name?.toLowerCase() || ""
       : "";
 
+    const employeeLevel = employee.level_id
+      ? levelPositionRoles?.find((l: any) => l.id === employee.level_id)?.name?.toLowerCase() || ""
+      : "";
+
     const searchLower = searchTerm.toLowerCase();
     
     const matchesSearch =
       employeeName.includes(searchLower) ||
       employeeEmail.includes(searchLower) ||
       employeePosition.includes(searchLower) ||
-      employeeDepartment.includes(searchLower);
+      employeeDepartment.includes(searchLower) ||
+      employeeLevel.includes(searchLower);
 
     const matchesStatus =
       selectedStatus === "all" || employee.status === selectedStatus;
@@ -853,6 +869,27 @@ export default function EmployeesManagementContent() {
                         );
                       })()}
                     </TableCell>
+
+                    <TableCell className="text-white/80">
+                      {(() => {
+                        if (employee.level_id) {
+                          const level = levelPositionRoles?.find(
+                            (l: any) => l.id === employee.level_id
+                          );
+                          return level?.name || (
+                            <span className="text-white/50 italic">
+                              Chưa có tên cấp bậc
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="text-white/50 italic">
+                            Chưa phân công
+                          </span>
+                        );
+                      })()}
+                    </TableCell>
+
                     <TableCell className="text-white/80">
                       {(() => {
                         if (employee.position_id) {
@@ -998,6 +1035,7 @@ export default function EmployeesManagementContent() {
         contacts={contacts}
         managers={managers}
         skills={skills}
+        levelPositionRoles={levelPositionRoles}
         handleSave={handleSave}
       />
 

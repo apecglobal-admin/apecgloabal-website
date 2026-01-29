@@ -7,6 +7,22 @@ import { useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
   Home,
   Users,
   Briefcase,
@@ -24,11 +40,13 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  ChevronRight
+  ChevronRight,
+  KeyRound,
+  Settings
 } from "lucide-react";
 
 import { useAuthData } from "@/src/hook/authHook";
-import { listSideBars, userInfoCMS } from "@/src/features/auth/authApi";
+import { listSideBars, userInfoCMS, changePassword } from "@/src/features/auth/authApi";
 import { logout } from "@/src/features/auth/authSlice";
 
 // Icon mapping
@@ -47,6 +65,9 @@ const iconMapping: Record<string, { icon: any; color: string }> = {
   Dashboard: { icon: Home, color: "text-purple-400" },
   "Trang chủ": { icon: Home, color: "text-purple-400" },
   Profile: { icon: Users, color: "text-blue-400" },
+  "Phân quyền": { icon: Shield, color: "text-red-400" },
+  "Cài đặt": { icon: Settings, color: "text-yellow-400" },
+  
 };
 
 interface CMSLayoutProps {
@@ -63,9 +84,16 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
   const [expandedSubGroups, setExpandedSubGroups] = useState<Record<string, boolean>>({});
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_password: ""
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
   const hasLoadedData = useRef(false);
 
-  // Load sidebar & user info only 1 lần
   useEffect(() => {
     const cmsToken = localStorage.getItem("cmsToken");
     if (!cmsToken) {
@@ -117,6 +145,58 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
     }
   };
 
+  const handleChangePassword = async () => {
+    setPasswordError("");
+
+    // Validation
+    if (!passwordData.old_password || !passwordData.new_password || !passwordData.confirm_password) {
+      setPasswordError("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setPasswordError("Mật khẩu mới không khớp");
+      return;
+    }
+
+    if (passwordData.new_password.length < 6) {
+      setPasswordError("Mật khẩu mới phải có ít nhất 6 ký tự");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await dispatch(changePassword({
+        old_password: passwordData.old_password,
+        new_password: passwordData.new_password
+      }) as any).unwrap();
+
+      // Success
+      setIsChangePasswordOpen(false);
+      setPasswordData({
+        old_password: "",
+        new_password: "",
+        confirm_password: ""
+      });
+      // Có thể thêm toast notification ở đây
+      alert("Đổi mật khẩu thành công!");
+    } catch (error: any) {
+      setPasswordError(error?.message || "Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu cũ.");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const handleClosePasswordDialog = () => {
+    setIsChangePasswordOpen(false);
+    setPasswordData({
+      old_password: "",
+      new_password: "",
+      confirm_password: ""
+    });
+    setPasswordError("");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900">
       {/* Header */}
@@ -151,21 +231,122 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
               <Bell className="h-4 w-4 sm:mr-2" />
               <Badge className="bg-red-600 text-white text-xs ml-1">5</Badge>
             </Button>
-            <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
-                <img
-                  src={userInfo?.avatar_url}
-                  alt="avatar"
-                  className="rounded-full object-cover w-full h-full"
-                />
-              </div>
-              <span className="text-white text-xs sm:text-sm hidden sm:block truncate max-w-[100px]">
-                {userInfo?.username || "Administrator"}
-              </span>
-            </div>
+
+            {/* User Dropdown Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center space-x-2 hover:opacity-80 transition-opacity focus:outline-none">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
+                    <img
+                      src={userInfo?.avatar_url}
+                      alt="avatar"
+                      className="rounded-full object-cover w-full h-full"
+                    />
+                  </div>
+                  <span className="text-white text-xs sm:text-sm hidden sm:block truncate max-w-[100px]">
+                    {userInfo?.username || "Administrator"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-white/60 hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                align="end" 
+                className="w-56 bg-gray-900 border border-purple-500/30 text-white"
+              >
+                <DropdownMenuItem 
+                  className="cursor-pointer hover:bg-purple-500/20 focus:bg-purple-500/20"
+                  onClick={() => setIsChangePasswordOpen(true)}
+                >
+                  <KeyRound className="mr-2 h-4 w-4 text-blue-400" />
+                  <span>Đổi mật khẩu</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="cursor-pointer hover:bg-red-500/20 focus:bg-red-500/20 text-red-300"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Đăng xuất</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
+
+      {/* Change Password Dialog */}
+      <Dialog open={isChangePasswordOpen} onOpenChange={handleClosePasswordDialog}>
+        <DialogContent className="sm:max-w-[425px] bg-gray-900 border border-purple-500/30 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">Đổi mật khẩu</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Nhập mật khẩu cũ và mật khẩu mới của bạn
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="old_password" className="text-white">
+                Mật khẩu cũ
+              </Label>
+              <Input
+                id="old_password"
+                type="password"
+                value={passwordData.old_password}
+                onChange={(e) => setPasswordData({ ...passwordData, old_password: e.target.value })}
+                className="bg-gray-800 border-purple-500/30 text-white"
+                placeholder="Nhập mật khẩu cũ"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="new_password" className="text-white">
+                Mật khẩu mới
+              </Label>
+              <Input
+                id="new_password"
+                type="password"
+                value={passwordData.new_password}
+                onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                className="bg-gray-800 border-purple-500/30 text-white"
+                placeholder="Nhập mật khẩu mới"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirm_password" className="text-white">
+                Xác nhận mật khẩu mới
+              </Label>
+              <Input
+                id="confirm_password"
+                type="password"
+                value={passwordData.confirm_password}
+                onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                className="bg-gray-800 border-purple-500/30 text-white"
+                placeholder="Nhập lại mật khẩu mới"
+              />
+            </div>
+            {passwordError && (
+              <p className="text-red-400 text-sm">{passwordError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClosePasswordDialog}
+              className="bg-transparent border-gray-600 text-white hover:bg-gray-800"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              onClick={handleChangePassword}
+              disabled={isChangingPassword}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {isChangingPassword ? "Đang xử lý..." : "Đổi mật khẩu"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Sidebar */}
       <div

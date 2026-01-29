@@ -80,6 +80,7 @@ export const listKPIChild = createAsyncThunk(
   async (payload, thunkAPI) => {
     try {
       const { limit, page }: any = payload;
+      console.log("payload in kpiChild", payload);
       const response = await apiAxiosInstance.get(
         `/cms/kpi/item?limit=${limit}&page=${page}`
       );
@@ -94,11 +95,14 @@ export const createKPIChild = createAsyncThunk(
   "kpi/createKPIChild",
   async (payload: any, thunkAPI) => {
     try {
-      const { kpi_id, name, description, unit_id }: any = payload;
+      const { kpi_id, name, description, operator, score, target_value, unit_id }: any = payload;
       const response = await apiAxiosInstance.post(`/cms/kpi/item/create`, {
         kpi_id,
         name,
         description,
+        operator,
+        score,
+        target_value,
         unit_id,
       });
       return {
@@ -118,11 +122,14 @@ export const updateKPIChild = createAsyncThunk(
   "kpi/updateKPIChild",
   async (payload: any, thunkAPI) => {
     try {
-      const { id, name, description, unit_id }: any = payload;
+      const { id, name, description, operator, score, target_value, unit_id }: any = payload;
       const response = await apiAxiosInstance.put(`/cms/kpi/item/update`, {
         id,
         name,
         description,
+        operator,
+        score,
+        target_value,
         unit_id,
       });
       return {

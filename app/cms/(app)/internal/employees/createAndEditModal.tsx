@@ -28,6 +28,7 @@ interface EmployeeModalProps {
   contacts: any[];
   managers: any[];
   skills: any[];
+  levelPositionRoles: any[];
   handleSave: () => void;
 }
 
@@ -42,6 +43,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
   contacts,
   managers,
   skills,
+  levelPositionRoles,
   handleSave,
 }) => {
   return (
@@ -399,6 +401,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
+                  
                   <div>
                     <Label htmlFor="position" className="text-white">
                       Chức vụ *
@@ -416,6 +419,29 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         {positions.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="level_position_role" className="text-white">
+                      Cấp bậc *
+                    </Label>
+                    <Select
+                      value={formData.level_id}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, level_id: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
+                        <SelectValue placeholder="Chọn cấp bậc" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {levelPositionRoles.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

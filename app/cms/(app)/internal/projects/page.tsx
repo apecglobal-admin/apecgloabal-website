@@ -97,7 +97,7 @@ export default function InternalProjectsPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(100); // Số lượng dự án mỗi trang
+  const [limit, setLimit] = useState(10); // Số lượng dự án mỗi trang
 
   useEffect(() => {
     dispatch(listProjects({ limit, page: currentPage } as any) as any);

@@ -46,13 +46,14 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
     {
       id: number;
       kpi: string;
-      weight: number;
-      score: number;
-      max_weight: number;
-      max_score: number;
+      weight: number | null;
+      score: number | null;
+      max_weight: number | null;
+      max_score: number | null;
       scorePercentage: number;
     }[]
   >([]);
+
   const [backupKpisData, setBackupKpisData] = useState<typeof kpisData>([]);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -60,13 +61,15 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
     if (employee?.kpis && employee.kpis.length > 0) {
       const formattedData = employee.kpis.map((item: EmployeeKpi) => ({
         id: item.id,
-        kpi: item.kpi.name,
-        weight: item.weight,
-        score: item.score,
-        max_weight: item.max_weight,
-        max_score: item.max_score,
+        kpi: item.kpi?.name || "Chưa có tên KPI",
+        weight: item.weight ?? null,
+        score: item.score ?? null,
+        max_weight: item.max_weight ?? null,
+        max_score: item.max_score ?? null,
         scorePercentage:
-          item.max_score > 0 ? (item.score / item.max_score) * 100 : 0,
+          item.max_score != null && item.max_score > 0 && item.score != null
+            ? (item.score / item.max_score) * 100
+            : 0,
       }));
       setKpisData(formattedData);
       setBackupKpisData(JSON.parse(JSON.stringify(formattedData)));
@@ -77,8 +80,8 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
     setKpisData((prev) =>
       prev.map((k) => {
         if (k.id === kpiId) {
-          // Giới hạn giá trị trong khoảng 0 - max_weight
-          const clampedWeight = Math.max(0, Math.min(newWeight, k.max_weight));
+          const maxWeight = k.max_weight ?? 100;
+          const clampedWeight = Math.max(0, Math.min(newWeight, maxWeight));
           return { ...k, weight: clampedWeight };
         }
         return k;
@@ -90,7 +93,7 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
     try {
       const updatedKpis = kpisData.map((kpiData) => ({
         id: kpiData.id,
-        weight: kpiData.weight.toString(),
+        weight: kpiData.weight != null ? kpiData.weight.toString() : "0",
       }));
 
       const payload = {
@@ -123,8 +126,8 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
     setKpisData(JSON.parse(JSON.stringify(backupKpisData)));
   };
 
-  const totalWeight = kpisData.reduce((sum, k) => sum + k.weight, 0);
-  const totalMaxWeight = kpisData.reduce((sum, k) => sum + k.max_weight, 0);
+  const totalWeight = kpisData.reduce((sum, k) => sum + (k.weight ?? 0), 0);
+  const totalMaxWeight = kpisData.reduce((sum, k) => sum + (k.max_weight ?? 0), 0);
 
   return (
     <div className="space-y-3 sm:space-y-4 mt-0">
@@ -192,10 +195,11 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
                     labelStyle={{ color: "#fff" }}
                     formatter={(value: any, name: string, props: any) => {
                       const item = props.payload;
+                      if (item.score == null || item.max_score == null) {
+                        return ["Chưa có dữ liệu điểm số", name];
+                      }
                       return [
-                        `${value.toFixed(2)}% (${item.score}/${
-                          item.max_score
-                        })`,
+                        `${value.toFixed(2)}% (${item.score}/${item.max_score})`,
                         name,
                       ];
                     }}
@@ -273,8 +277,16 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
                       <div className="flex justify-between text-white/80 text-xs sm:text-sm">
                         <span>Điểm số (Score)</span>
                         <span>
-                          {kpi.score}/{kpi.max_score} (
-                          {kpi.scorePercentage.toFixed(2)}%)
+                          {kpi.score != null && kpi.max_score != null ? (
+                            <>
+                              {kpi.score}/{kpi.max_score} (
+                              {kpi.scorePercentage.toFixed(2)}%)
+                            </>
+                          ) : (
+                            <span className="text-white/50 italic">
+                              Chưa có dữ liệu điểm số
+                            </span>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -284,38 +296,48 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
                       <div className="flex justify-between items-center text-white/80 text-xs sm:text-sm">
                         <span>Trọng số (Weight)</span>
                         <div className="flex items-center gap-2">
-                          {isEditing ? (
-                            <input
-                              type="number"
-                              min={0}
-                              max={kpi.max_weight}
-                              step={0.01}
-                              value={kpi.weight.toFixed(2)}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value) || 0;
-                                handleWeightChange(kpi.id, value);
-                              }}
-                              className="w-20 px-2 py-1 bg-white/10 border border-purple-500/30 rounded text-white text-center focus:outline-none focus:border-purple-500"
-                              disabled={!isEditing}
-                            />
+                          {kpi.weight != null && kpi.max_weight != null ? (
+                            <>
+                              {isEditing ? (
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={kpi.max_weight}
+                                  step={0.01}
+                                  value={kpi.weight.toFixed(2)}
+                                  onChange={(e) => {
+                                    const value = parseFloat(e.target.value) || 0;
+                                    handleWeightChange(kpi.id, value);
+                                  }}
+                                  className="w-20 px-2 py-1 bg-white/10 border border-purple-500/30 rounded text-white text-center focus:outline-none focus:border-purple-500"
+                                  disabled={!isEditing}
+                                />
+                              ) : (
+                                <span>{kpi.weight.toFixed(2)}</span>
+                              )}
+                              <span>/{kpi.max_weight}</span>
+                            </>
                           ) : (
-                            <span>{kpi.weight.toFixed(2)}</span>
+                            <span className="text-white/50 italic">
+                              Chưa có dữ liệu trọng số
+                            </span>
                           )}
-                          <span>/{kpi.max_weight}</span>
                         </div>
                       </div>
-                      <input
-                        type="range"
-                        min={0}
-                        max={kpi.max_weight}
-                        step={0.01}
-                        value={kpi.weight}
-                        onChange={(e) =>
-                          handleWeightChange(kpi.id, Number(e.target.value))
-                        }
-                        className="w-full accent-blue-600"
-                        disabled={!isEditing}
-                      />
+                      {kpi.weight != null && kpi.max_weight != null && (
+                        <input
+                          type="range"
+                          min={0}
+                          max={kpi.max_weight}
+                          step={0.01}
+                          value={kpi.weight}
+                          onChange={(e) =>
+                            handleWeightChange(kpi.id, Number(e.target.value))
+                          }
+                          className="w-full accent-blue-600"
+                          disabled={!isEditing}
+                        />
+                      )}
                     </div>
                   </div>
                 ))

@@ -10,9 +10,6 @@ export const listUnitKpi = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/cms/select/options/units`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -28,9 +25,6 @@ export const listKPI = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -91,9 +85,6 @@ export const listKPIChild = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -103,11 +94,14 @@ export const createKPIChild = createAsyncThunk(
   "kpi/createKPIChild",
   async (payload: any, thunkAPI) => {
     try {
-      const { kpi_id, name, description, unit_id }: any = payload;
+      const { kpi_id, name, description, operator, score, target_value, unit_id }: any = payload;
       const response = await apiAxiosInstance.post(`/cms/kpi/item/create`, {
         kpi_id,
         name,
         description,
+        operator,
+        score,
+        target_value,
         unit_id,
       });
       return {
@@ -127,11 +121,14 @@ export const updateKPIChild = createAsyncThunk(
   "kpi/updateKPIChild",
   async (payload: any, thunkAPI) => {
     try {
-      const { id, name, description, unit_id }: any = payload;
+      const { id, name, description, operator, score, target_value, unit_id }: any = payload;
       const response = await apiAxiosInstance.put(`/cms/kpi/item/update`, {
         id,
         name,
         description,
+        operator,
+        score,
+        target_value,
         unit_id,
       });
       return {
@@ -191,6 +188,25 @@ export const updateKPIBalance = createAsyncThunk(
       toast.error(error?.response?.data.message, {
         position: "top-right",
       });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const deleteKPIsChild = createAsyncThunk(
+  "kpi/deleteKPIsChild",
+  async (ids, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.delete(
+        `/cms/kpi/item/delete`,
+        { data: { ids } }
+      );
+
+      return {
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

@@ -22,6 +22,9 @@ import jobsReducer from "./features/jobs/jobSlice";
 import applicationRecuder from "./features/application/applicationSlice"
 import kpiReducer from "./features/kpi/kpiSlice";
 import achievementReducer from "./features/achievement/achievementsSlice";
+import taskReducer from "./features/task/taskSlice";
+import priorityReducer from "./features/priority/prioritySlice";
+import deadlineReducer from "./features/deadline/deadlineSlice";
 const persistConfig = {
   key: "cms-root",
   storage,
@@ -56,6 +59,9 @@ const rootReducer = combineReducers({
   application: applicationRecuder,
   kpi: kpiReducer,
   achievement: achievementReducer,
+  task: taskReducer,
+  priority: priorityReducer,
+  deadline: deadlineReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

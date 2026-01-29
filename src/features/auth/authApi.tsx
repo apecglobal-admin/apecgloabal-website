@@ -8,8 +8,6 @@ export const loginCMS = createAsyncThunk(
   async (payload: any, thunkAPI) => {
     try {
       const { username, password }: any = payload;
-      console.log('🔐 Attempting CMS login with endpoint: /cms/login')
-      console.log('📋 Full axios baseURL:', apiAxiosInstance.defaults.baseURL)
       const response = await apiAxiosInstance.post(`/cms/login`, {
         username,
         password,
@@ -54,6 +52,28 @@ export const userInfoCMS = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { old_password, new_password }: any = payload;
+      const response = await apiAxiosInstance.put(`/cms/users/change/password`, {
+        old_password,
+        new_password,
+      });
+      return {
+        status: response.status,
+        data: response.data,
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data.message,{
         position: "top-right",
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);

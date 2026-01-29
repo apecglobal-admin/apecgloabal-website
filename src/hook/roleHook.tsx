@@ -7,6 +7,9 @@ export const useRoleData = () => {
     // Data
     roleById: role.roleById.data,
     users: role.users.data,
+    positionRoles: role.positionRoles.data,
+    levelPositionRoles: role.levelPositionRoles.data,
+    groupPreRoles: role.groupPreRoles.data,
 
     // Loading states
     isLoadingRole: role.roleById.loading,

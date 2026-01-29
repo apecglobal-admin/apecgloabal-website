@@ -95,11 +95,15 @@ export default function InternalProjectsPage() {
   const [selectAll, setSelectAll] = useState(false);
   const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10); // Số lượng dự án mỗi trang
+
   useEffect(() => {
-    dispatch(listProjects() as any);
+    dispatch(listProjects({ limit, page: currentPage } as any) as any);
     dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
     dispatch(listStatusProject() as any);
-  }, [dispatch]);
+  }, [dispatch, limit, currentPage, totalCompany]);
 
   // Helper function to get status name by ID
   const getStatusName = (statusId: number) => {
@@ -258,10 +262,9 @@ export default function InternalProjectsPage() {
     setDeleting(true);
     try {
       const res = await dispatch(deleteProject(deletingProjects as any) as any);
-      console.log(res);
       if (res.payload.status == 200 || res.payload.status == 201) {
         toast.success(res.payload.data.message);
-        dispatch(listProjects() as any);
+        dispatch(listProjects({ limit, page: currentPage } as any) as any);
         setDeletingProjects([]);
         setSelectedProjects([]);
         setSelectAll(false);
@@ -307,43 +310,6 @@ export default function InternalProjectsPage() {
     } else {
       setSelectedProjects([]);
     }
-  };
-
-  const handleBulkArchive = async () => {
-    // Implement bulk archive
-  };
-
-  const handleExportProjects = () => {
-    const csvContent = [
-      [
-        "Tên dự án",
-        "Trạng thái",
-        "Tiến độ",
-        "Ngân sách",
-        "Đã chi",
-        "Ngày bắt đầu",
-        "Ngày kết thúc",
-      ],
-      ...filteredProjects.map((project: any) => [
-        project.name,
-        getStatusName(project.project_status_id),
-        `${project.progress || 0}%`,
-        formatCurrency(parseFloat(project.budget) || 0),
-        formatCurrency(parseFloat(project.spent) || 0),
-        formatDate(project.start_date),
-        formatDate(project.end_date),
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `projects_${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
-
-    toast.success("Đã xuất danh sách dự án!");
   };
 
   const formatCurrency = (amount: number) => {
@@ -621,20 +587,6 @@ export default function InternalProjectsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleBulkArchive}
-                disabled={bulkOperationLoading}
-                className="bg-transparent border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
-              >
-                {bulkOperationLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Archive className="h-4 w-4 mr-2" />
-                )}
-                Lưu trữ
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
                 onClick={handleBulkDelete}
                 disabled={bulkOperationLoading}
                 className="bg-transparent border-red-500/50 text-red-300 hover:bg-red-500/20"
@@ -660,26 +612,6 @@ export default function InternalProjectsPage() {
             className="border-white/30"
           />
           <span className="text-white/70 text-sm">Chọn tất cả</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportProjects}
-            className="bg-transparent border-green-500/50 text-green-300 hover:bg-green-500/20"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Xuất Excel
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowImportModal(true)}
-            className="bg-transparent border-blue-500/50 text-blue-300 hover:bg-blue-500/20"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Nhập Excel
-          </Button>
         </div>
       </div>
 
@@ -742,34 +674,6 @@ export default function InternalProjectsPage() {
                         >
                           <Edit className="h-4 w-4 mr-2" />
                           Chỉnh sửa
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleCloneProject(project)}
-                          className="text-white hover:bg-white/10"
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          Sao chép
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleQuickStatusUpdate(project.id, 2)}
-                          className="text-white hover:bg-white/10"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Bắt đầu
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleQuickStatusUpdate(project.id, 3)}
-                          className="text-white hover:bg-white/10"
-                        >
-                          <Pause className="h-4 w-4 mr-2" />
-                          Tạm dừng
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleArchiveProject(project.id)}
-                          className="text-white hover:bg-white/10"
-                        >
-                          <Archive className="h-4 w-4 mr-2" />
-                          Lưu trữ
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDeleteProject(project)}
@@ -948,43 +852,6 @@ export default function InternalProjectsPage() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="mt-12">
-        <h3 className="text-xl font-bold text-white mb-6">Thao Tác Nhanh</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card
-            className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105"
-            onClick={handleCreateProject}
-          >
-            <CardContent className="p-6 text-center">
-              <Plus className="h-12 w-12 mx-auto text-purple-400 mb-4" />
-              <h4 className="text-white font-medium mb-2">Tạo Dự Án Mới</h4>
-              <p className="text-white/60 text-sm">
-                Khởi tạo dự án mới với template
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
-            <CardContent className="p-6 text-center">
-              <BarChart3 className="h-12 w-12 mx-auto text-blue-400 mb-4" />
-              <h4 className="text-white font-medium mb-2">Báo Cáo Tổng Hợp</h4>
-              <p className="text-white/60 text-sm">
-                Xem báo cáo tiến độ tất cả dự án
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 cursor-pointer hover:scale-105">
-            <CardContent className="p-6 text-center">
-              <Calendar className="h-12 w-12 mx-auto text-green-400 mb-4" />
-              <h4 className="text-white font-medium mb-2">Lịch Dự Án</h4>
-              <p className="text-white/60 text-sm">Xem timeline và milestone</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
       {/* Modals */}
       <ProjectDetailModal
         isOpen={showDetailModal}
@@ -1000,7 +867,7 @@ export default function InternalProjectsPage() {
           setSelectedProjectData(null);
         }}
         onSuccess={() => {
-          dispatch(listProjects() as any);
+          dispatch(listProjects({ limit, page: currentPage } as any) as any);
           setShowCreateModal(false);
           setSelectedProjectData(null);
         }}
@@ -1017,7 +884,7 @@ export default function InternalProjectsPage() {
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onSuccess={() => {
-          dispatch(listProjects() as any);
+          dispatch(listProjects({ limit, page: currentPage } as any) as any);
           setShowImportModal(false);
         }}
       />

@@ -76,6 +76,8 @@ import EmployeeDetailModal from "./detail/detailModal";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import { usePositionData } from "@/src/hook/positionHook";
 import { useDepartmentData } from "@/src/hook/departmentHook";
+import { useRoleData } from "@/src/hook/roleHook";
+import { listRoleLevelPositionWebsite } from "@/src/features/role/roleApi";
 
 interface Skill {
   skill_id: string | number;
@@ -87,19 +89,20 @@ interface Employee {
   id: number;
   name: string;
   email: string;
-  phone: string;
-  position_id: number;
-  position: string;
-  department_id: number;
-  department_name: string;
-  join_date: string;
+  phone: string | null;
+  position_id: number | null;
+  position: string | null;
+  department_id: number | null;
+  level_id: number | null;
+  department_name: string | null;
+  join_date: string | null;
   status: string;
-  avatar_url: string;
-  salary: number;
-  manager_id: number;
-  address: string;
-  birthday: string;
-  education: string;
+  avatar_url: string | null;
+  salary: number | null;
+  manager_id: number | null;
+  address: string | null;
+  birthday: string | null;
+  education: string | null;
   educations: {
     degree_level: string;
     major: string;
@@ -125,15 +128,15 @@ interface Employee {
     name: string;
     status: boolean;
   }>;
-  issue_date: string;
-  issue_place: string;
-  citizen_card: string;
-  birth_place: string;
-  emergency_contract: string;
-  bio: string;
-  company_id: number;
+  issue_date: string | null;
+  issue_place: string | null;
+  citizen_card: string | null;
+  birth_place: string | null;
+  emergency_contract: string | null;
+  bio: string | null;
+  company_id: number | null;
   gen: number;
-  employees_status: number;
+  employees_status: number | null;
 }
 
 interface Department {
@@ -148,6 +151,7 @@ export default function EmployeesManagementContent() {
   const { employees, skills, contacts, managers, statuses } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
+  const { levelPositionRoles } = useRoleData();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -192,6 +196,7 @@ export default function EmployeesManagementContent() {
     allowance: "",
     emergency_contract: "",
     department_id: "",
+    level_id: "",
     join_date: "",
     status: "active",
     salary: "",
@@ -218,6 +223,7 @@ export default function EmployeesManagementContent() {
   useEffect(() => {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
     dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
+    dispatch(listRoleLevelPositionWebsite() as any);
   }, [dispatch, totalPosition, totalDepartment]);
 
   const handleSavePosition = async () => {
@@ -337,6 +343,7 @@ export default function EmployeesManagementContent() {
       phone: "",
       position: "",
       department_id: "",
+      level_id: "",
       join_date: "",
       status: "",
       salary: "",
@@ -354,12 +361,11 @@ export default function EmployeesManagementContent() {
 
   const handleEdit = async (employee: Employee) => {
     setEditingEmployee(employee);
-    // console.log("emploeyy edit", employee);
 
     setFormData({
       id: employee.id.toString(),
-      name: employee.name,
-      email: employee.email,
+      name: employee.name || "",
+      email: employee.email || "",
       gen: employee.gen || 1,
       phone: employee.phone || "",
       position: employee.position_id?.toString() || "",
@@ -373,24 +379,25 @@ export default function EmployeesManagementContent() {
       join_date: employee.join_date ? employee.join_date.split("T")[0] : "",
       status: employee.status || "active",
       department_id: employee.department_id?.toString() || "",
+      level_id: employee.level_id?.toString() || "",
       manager_id: employee.manager_id?.toString() || "",
       bio: employee.bio || "",
 
-      degree_level: employee.educations[0]?.degree_level || "",
-      major: employee.educations[0]?.major || "",
-      school_name: employee.educations[0]?.school_name || "",
+      degree_level: employee.educations?.[0]?.degree_level || "",
+      major: employee.educations?.[0]?.major || "",
+      school_name: employee.educations?.[0]?.school_name || "",
       graduation_year:
-        employee.educations[0]?.graduation_year?.toString() || "",
+        employee.educations?.[0]?.graduation_year?.toString() || "",
 
-      base_salary: employee.contracts[0]?.base_salary?.toString() || "",
-      allowance: employee.contracts[0]?.allowance?.toString() || "",
-      contract_type: employee.contracts[0]?.contract_type?.toString() || "",
+      base_salary: employee.contracts?.[0]?.base_salary?.toString() || "",
+      allowance: employee.contracts?.[0]?.allowance?.toString() || "",
+      contract_type: employee.contracts?.[0]?.contract_type?.toString() || "",
 
-      certificate_name: employee.certificates[0]?.certificate_name || "",
+      certificate_name: employee.certificates?.[0]?.certificate_name || "",
 
       salary:
         employee.salary?.toString() ||
-        employee.contracts[0]?.base_salary?.toString() ||
+        employee.contracts?.[0]?.base_salary?.toString() ||
         "",
 
       skills:
@@ -411,6 +418,7 @@ export default function EmployeesManagementContent() {
 
     setShowCreateModal(true);
   };
+
   const validateForm = () => {
     const requiredFields = {
       email: "Email",
@@ -435,6 +443,7 @@ export default function EmployeesManagementContent() {
       certificate_name: "Chứng chỉ",
       skill_group_id: "Nhóm kỹ năng",
       department_id: "Phòng ban",
+      level_id: "Cấp bậc",
       position: "Chức vụ",
     };
 
@@ -485,6 +494,7 @@ export default function EmployeesManagementContent() {
     const baseData = {
       email: formData.email,
       name: formData.name,
+      phone: formData.phone,
       join_date: formData.join_date,
       birthday: formData.birthday,
       address: formData.address,
@@ -511,6 +521,7 @@ export default function EmployeesManagementContent() {
         ? parseInt(formData.skill_group_id)
         : null,
       department_id: formData.department_id,
+      level_id: formData.level_id,
       position_id: formData.position,
     };
 
@@ -536,7 +547,7 @@ export default function EmployeesManagementContent() {
             page: currentPage,
           } as any) as any,
         );
-        setShowCreateModal(false); // Đóng modal sau khi thành công
+        setShowCreateModal(false);
         toast.success(res.payload.data.message);
       }
     } catch (error) {
@@ -546,35 +557,7 @@ export default function EmployeesManagementContent() {
   };
 
   const handleDelete = async () => {
-    if (!deletingEmployee) return;
-
-    setDeleting(true);
-    try {
-      const response = await fetch(`/api/employees/${deletingEmployee.id}`, {
-        method: "DELETE",
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setDeletingEmployee(null);
-        //fetchEmployees()
-        dispatch(
-          listEmployee({
-            limit: itemsPerPage,
-            page: currentPage,
-          } as any) as any,
-        );
-        toast.success("Xóa nhân viên thành công!");
-      } else {
-        toast.error("Lỗi: " + result.error);
-      }
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-      toast.error("Lỗi kết nối server");
-    } finally {
-      setDeleting(false);
-    }
+   
   };
 
   const handleViewDetails = (employee: any) => {
@@ -583,12 +566,32 @@ export default function EmployeesManagementContent() {
   };
 
   // Filter employees
-  const filteredEmployees = employees.filter((employee: Employee) => {
+  const filteredEmployees = (employees || []).filter((employee: Employee) => {
+    const employeeName = employee.name?.toLowerCase() || "";
+    const employeeEmail = employee.email?.toLowerCase() || "";
+    
+    // Lấy tên position từ positions array
+    const employeePosition = employee.position_id 
+      ? positions?.find((p: any) => p.id === employee.position_id)?.title?.toLowerCase() || ""
+      : "";
+    
+    // Lấy tên department từ departments array  
+    const employeeDepartment = employee.department_id
+      ? departments?.find((d: any) => d.id === employee.department_id)?.name?.toLowerCase() || ""
+      : "";
+
+    const employeeLevel = employee.level_id
+      ? levelPositionRoles?.find((l: any) => l.id === employee.level_id)?.name?.toLowerCase() || ""
+      : "";
+
+    const searchLower = searchTerm.toLowerCase();
+    
     const matchesSearch =
-      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (employee.position &&
-        employee.position.toLowerCase().includes(searchTerm.toLowerCase()));
+      employeeName.includes(searchLower) ||
+      employeeEmail.includes(searchLower) ||
+      employeePosition.includes(searchLower) ||
+      employeeDepartment.includes(searchLower) ||
+      employeeLevel.includes(searchLower);
 
     const matchesStatus =
       selectedStatus === "all" || employee.status === selectedStatus;
@@ -607,16 +610,16 @@ export default function EmployeesManagementContent() {
   } = usePagination(filteredEmployees, 10);
 
   // Calculate stats
-  const totalEmployees = employees.length;
-  const activeEmployees = employees.filter(
+  const totalEmployees = employees?.length || 0;
+  const activeEmployees = employees?.filter(
     (e: Employee) => e.status === "active",
-  ).length;
-  const inactiveEmployees = employees.filter(
+  ).length || 0;
+  const inactiveEmployees = employees?.filter(
     (e: Employee) => e.status === "inactive",
-  ).length;
-  const companiesWithEmployees = [
+  ).length || 0;
+  const companiesWithEmployees = employees ? [
     ...new Set(employees.map((e: Employee) => e.company_id).filter(Boolean)),
-  ].length;
+  ].length : 0;
 
   if (!employees) {
     return (
@@ -736,35 +739,35 @@ export default function EmployeesManagementContent() {
               <CardTitle className="text-white">Danh Sách Nhân Viên</CardTitle>
             </div>
             <div className="flex space-x-2">
-  <input
-    type="file"
-    accept=".xlsx,.xls"
-    ref={fileInputRef}
-    className="hidden"
-    onChange={handleImportExcel}
-  />
-  <Button
-    onClick={handleCreate}
-    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
-  >
-    <Plus className="h-4 w-4 mr-0 sm:mr-2" />
-    <span className="hidden sm:inline">Thêm Nhân Viên</span>
-  </Button>
-  <Button
-    onClick={handleExportExcel}
-    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 flex items-center"
-  >
-    <Download className="h-4 w-4 mr-0 sm:mr-2" />
-    <span className="hidden sm:inline">Export Excel</span>
-  </Button>
-  <Button
-    onClick={() => fileInputRef.current?.click()}
-    className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white border-0 flex items-center"
-  >
-    <Upload className="h-4 w-4 mr-0 sm:mr-2" />
-    <span className="hidden sm:inline">Import Excel</span>
-  </Button>
-</div>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleImportExcel}
+              />
+              <Button
+                onClick={handleCreate}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center"
+              >
+                <Plus className="h-4 w-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Thêm Nhân Viên</span>
+              </Button>
+              <Button
+                onClick={handleExportExcel}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 flex items-center"
+              >
+                <Download className="h-4 w-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Export Excel</span>
+              </Button>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white border-0 flex items-center"
+              >
+                <Upload className="h-4 w-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Import Excel</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -792,7 +795,7 @@ export default function EmployeesManagementContent() {
                           {employee.avatar_url ? (
                             <Image
                               src={employee.avatar_url}
-                              alt={employee.name}
+                              alt={employee.name || "Avatar"}
                               width={40}
                               height={40}
                               className="w-full h-full object-cover"
@@ -803,51 +806,127 @@ export default function EmployeesManagementContent() {
                         </div>
                         <div>
                           <p className="font-medium text-white">
-                            {employee.name}
+                            {employee.name || (
+                              <span className="text-white/50 italic">
+                                Chưa có tên
+                              </span>
+                            )}
                           </p>
                           <p className="text-sm text-white/60">
-                            {employee.email}
+                            {employee.email || (
+                              <span className="text-white/50 italic">
+                                Chưa có email
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>
                     </TableCell>
 
                     <TableCell className="text-white/80">
-                      {employee.department_name || "Chưa phân công"}
+                      {(() => {
+                        if (employee.department_id) {
+                          const dept = departments?.find(
+                            (d: any) => d.id === employee.department_id
+                          );
+                          return dept?.name || (
+                            <span className="text-white/50 italic">
+                              Chưa có tên phòng ban
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="text-white/50 italic">
+                            Chưa phân công
+                          </span>
+                        );
+                      })()}
                     </TableCell>
+
                     <TableCell className="text-white/80">
-                      {employee.position || "Chưa xác định"}
+                      {(() => {
+                        if (employee.level_id) {
+                          const level = levelPositionRoles?.find(
+                            (l: any) => l.id === employee.level_id
+                          );
+                          return level?.name || (
+                            <span className="text-white/50 italic">
+                              Chưa có tên cấp bậc
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="text-white/50 italic">
+                            Chưa phân công
+                          </span>
+                        );
+                      })()}
+                    </TableCell>
+
+                    <TableCell className="text-white/80">
+                      {(() => {
+                        if (employee.position_id) {
+                          const pos = positions?.find(
+                            (p: any) => p.id === employee.position_id
+                          );
+                          return pos?.title || (
+                            <span className="text-white/50 italic">
+                              Chưa có tên chức vụ
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="text-white/50 italic">
+                            Chưa xác định
+                          </span>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center text-sm text-white/60">
                           <Mail className="h-3 w-3 mr-1" />
-                          {employee.email}
+                          {employee.email || (
+                            <span className="text-white/50 italic">
+                              Chưa có email
+                            </span>
+                          )}
                         </div>
-                        {employee.phone && (
+                        {employee.phone ? (
                           <div className="flex items-center text-sm text-white/60">
                             <Phone className="h-3 w-3 mr-1" />
                             {employee.phone}
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-sm text-white/50 italic">
+                            <Phone className="h-3 w-3 mr-1" />
+                            Chưa có SĐT
                           </div>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <Select
-                        value={employee.employees_status?.toString()}
+                        value={employee.employees_status?.toString() || ""}
                         onValueChange={(value) =>
                           handleUpdateStatus(employee.id, value)
                         }
                       >
                         <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-[140px]">
-                          <SelectValue />
+                          <SelectValue placeholder="Chưa có trạng thái" />
                         </SelectTrigger>
                         <SelectContent>
-                          {statuses.map((status: any) => (
-                            <SelectItem key={status.id} value={status.id}>
-                              {status.name}
+                          {statuses && statuses.length > 0 ? (
+                            statuses.map((status: any) => (
+                              <SelectItem key={status.id} value={status.id}>
+                                {status.name || "Chưa có tên"}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              Chưa có trạng thái
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -869,14 +948,14 @@ export default function EmployeesManagementContent() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setDeletingEmployee(employee)}
                           className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -929,6 +1008,7 @@ export default function EmployeesManagementContent() {
         contacts={contacts}
         managers={managers}
         skills={skills}
+        levelPositionRoles={levelPositionRoles}
         handleSave={handleSave}
       />
 
@@ -1066,7 +1146,7 @@ export default function EmployeesManagementContent() {
             <p className="text-white/80">
               Bạn có chắc chắn muốn xóa nhân viên{" "}
               <span className="font-semibold text-red-400">
-                {deletingEmployee?.name}
+                {deletingEmployee?.name || "này"}
               </span>{" "}
               không?
             </p>

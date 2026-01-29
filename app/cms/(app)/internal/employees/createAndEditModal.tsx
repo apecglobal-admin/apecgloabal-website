@@ -15,6 +15,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Calendar } from "lucide-react";
 
 interface EmployeeModalProps {
   showCreateModal: boolean;
@@ -27,6 +28,7 @@ interface EmployeeModalProps {
   contacts: any[];
   managers: any[];
   skills: any[];
+  levelPositionRoles: any[];
   handleSave: () => void;
 }
 
@@ -41,6 +43,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
   contacts,
   managers,
   skills,
+  levelPositionRoles,
   handleSave,
 }) => {
   return (
@@ -115,15 +118,18 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                     <Label htmlFor="birthday" className="text-white">
                       Ngày Sinh *
                     </Label>
-                    <Input
-                      id="birthday"
-                      type="date"
-                      value={formData.birthday}
-                      onChange={(e) =>
-                        setFormData({ ...formData, birthday: e.target.value })
-                      }
-                      className="bg-black/30 border-purple-500/30 text-white"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="birthday"
+                        type="date"
+                        value={formData.birthday}
+                        onChange={(e) =>
+                          setFormData({ ...formData, birthday: e.target.value })
+                        }
+                        className="bg-black/30 border-purple-500/30 text-white [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Calendar className="h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 pointer-events-none" />
+                    </div>
                   </div>
 
                   <div>
@@ -136,7 +142,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         setFormData({ ...formData, gen: parseInt(value) })
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn giới tính" />
                       </SelectTrigger>
                       <SelectContent>
@@ -181,19 +187,22 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                   </div>
 
                   <div>
-                    <Label htmlFor="address" className="text-white">
+                    <Label htmlFor="join_date" className="text-white">
                       Ngày gia nhập *
                     </Label>
-                    <Input
-                      id="join_date"
-                      type="date"
-                      placeholder="2023-01-01"
-                      value={formData.join_date}
-                      onChange={(e) =>
-                        setFormData({ ...formData, join_date: e.target.value })
-                      }
-                      className="bg-black/30 border-purple-500/30 text-white"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="join_date"
+                        type="date"
+                        placeholder="2023-01-01"
+                        value={formData.join_date}
+                        onChange={(e) =>
+                          setFormData({ ...formData, join_date: e.target.value })
+                        }
+                        className="bg-black/30 border-purple-500/30 text-white [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Calendar className="h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -226,15 +235,18 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                     <Label htmlFor="issue_date" className="text-white">
                       Ngày Cấp *
                     </Label>
-                    <Input
-                      id="issue_date"
-                      type="date"
-                      value={formData.issue_date}
-                      onChange={(e) =>
-                        setFormData({ ...formData, issue_date: e.target.value })
-                      }
-                      className="bg-black/30 border-purple-500/30 text-white"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="issue_date"
+                        type="date"
+                        value={formData.issue_date}
+                        onChange={(e) =>
+                          setFormData({ ...formData, issue_date: e.target.value })
+                        }
+                        className="bg-black/30 border-purple-500/30 text-white [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Calendar className="h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 pointer-events-none" />
+                    </div>
                   </div>
 
                   <div>
@@ -276,7 +288,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         setFormData({ ...formData, degree_level: value })
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn trình độ" />
                       </SelectTrigger>
                       <SelectContent>
@@ -368,7 +380,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="contract_type" className="text-white">
+                    <Label htmlFor="department_id" className="text-white">
                       Phòng ban
                     </Label>
                     <Select
@@ -377,7 +389,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         setFormData({ ...formData, department_id: value })
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn phòng ban" />
                       </SelectTrigger>
                       <SelectContent>
@@ -389,8 +401,9 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
+                  
                   <div>
-                    <Label htmlFor="contract_type" className="text-white">
+                    <Label htmlFor="position" className="text-white">
                       Chức vụ *
                     </Label>
                     <Select
@@ -399,13 +412,36 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         setFormData({ ...formData, position: value })
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn chức vụ" />
                       </SelectTrigger>
                       <SelectContent>
                         {positions.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="level_position_role" className="text-white">
+                      Cấp bậc *
+                    </Label>
+                    <Select
+                      value={formData.level_id}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, level_id: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
+                        <SelectValue placeholder="Chọn cấp bậc" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {levelPositionRoles.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -422,7 +458,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         setFormData({ ...formData, contract_type: value })
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn loại hợp đồng" />
                       </SelectTrigger>
                       <SelectContent>
@@ -480,7 +516,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         setFormData({ ...formData, manager_id: value })
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn người duyệt" />
                       </SelectTrigger>
                       <SelectContent>
@@ -571,7 +607,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         editingEmployee !== null && formData?.skills?.length > 0
                       }
                     >
-                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                      <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn nhóm kỹ năng" />
                       </SelectTrigger>
                       <SelectContent>

@@ -314,8 +314,6 @@ export default function CareersPage() {
     }
   };
 
-  console.log("abc", jobOpenings);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-white text-black flex items-center justify-center">

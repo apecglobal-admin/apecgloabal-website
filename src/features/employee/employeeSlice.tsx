@@ -6,8 +6,6 @@ import {
   listEmployeeStatus,
   listManager,
   listSkill,
-  listTasks,
-  listTasksById,
   updateSkills,
 } from "./employeeApi";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
@@ -61,8 +59,6 @@ const employeeSlice = createSlice({
     createAsyncReducer(builder, listManager, "managers");
     createAsyncReducer(builder, listEmployeeById, "employeeById");
     createAsyncReducer(builder, listEmployeeStatus, "statuses");
-    createAsyncReducer(builder, listTasks, ["tasks", "totalTasks"]);
-    createAsyncReducer(builder, listTasksById, "taskById");
 
     // Dùng helper cho API chỉ cần status (không cần lưu payload)
     createAsyncReducer(builder, updateSkills);

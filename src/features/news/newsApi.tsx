@@ -13,9 +13,6 @@ export const listNews = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -94,9 +91,6 @@ export const listNewsType = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/news/category`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

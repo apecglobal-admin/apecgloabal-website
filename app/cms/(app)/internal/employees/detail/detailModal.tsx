@@ -52,7 +52,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import EmployeeKpis from "./tabs/kpi";
-import EmployeeTasks from "./tabs/tasks";
 
 interface EmployeeDetailModalProps {
   employeeId: any;
@@ -165,12 +164,6 @@ export default function EmployeeDetailModal({
                 Dự án
               </TabsTrigger>
               <TabsTrigger
-                value="tasks"
-                className="whitespace-nowrap lg:w-full lg:justify-start text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 shrink-0"
-              >
-                Tasks
-              </TabsTrigger>
-              <TabsTrigger
                 value="career"
                 className="whitespace-nowrap lg:w-full lg:justify-start text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 shrink-0"
               >
@@ -216,10 +209,6 @@ export default function EmployeeDetailModal({
                   performanceData={performanceData}
                   projectStatusData={projectStatusData}
                 />
-              </TabsContent>
-
-              <TabsContent value="tasks">
-                <EmployeeTasks />
               </TabsContent>
 
               <TabsContent value="achievements">

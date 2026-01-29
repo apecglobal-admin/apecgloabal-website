@@ -14,9 +14,6 @@ export const listEmployee = createAsyncThunk(
         total: response.data.data.pagination.total,
       };
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -29,9 +26,6 @@ export const listSkill = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/skills`);
       return response.data.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -44,9 +38,6 @@ export const listContact = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/contract-types`);
       return response.data.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -58,10 +49,7 @@ export const listManager = createAsyncThunk(
     try {
       const response = await apiAxiosInstance.get(`/employees/managers`);
       return response.data.data;
-    } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
+    } catch (error: any) {   
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -74,9 +62,6 @@ export const listEmployeeById = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/employees?id=${id}`);
       return response.data.data.employees[0];
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -111,6 +96,7 @@ export const createEmployee = createAsyncThunk(
         skills,
         skill_group_id,
         department_id,
+        level_id,
         position_id,
       }: any = payload;
       const response = await apiAxiosInstance.post(`/cms/employees/create`, {
@@ -138,6 +124,7 @@ export const createEmployee = createAsyncThunk(
         skills,
         skill_group_id,
         department_id,
+        level_id,
         position_id,
       });
       return {
@@ -183,6 +170,7 @@ export const updateEmployee = createAsyncThunk(
         skills,
         skill_group_id,
         department_id,
+        level_id,
         position_id,
       }: any = payload;
       const response = await apiAxiosInstance.put(
@@ -213,6 +201,7 @@ export const updateEmployee = createAsyncThunk(
           skills,
           skill_group_id,
           department_id,
+          level_id,
           position_id,
         },
       );
@@ -283,9 +272,6 @@ export const listEmployeeStatus = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/employees/status`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -303,42 +289,6 @@ export const updateStatusEmployee = createAsyncThunk(
         status: response.status,
         data: response.data,
       };
-    } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
-      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
-    }
-  },
-);
-
-export const listTasks = createAsyncThunk(
-  "employee/listTasks",
-  async (payload, thunkAPI) => {
-    try {
-      const { limit, page }: any = payload;
-      const response = await apiAxiosInstance.get(
-        `/cms/tasks?limit=${limit}&page=${page}`,
-      );
-      return {
-        status: response.status,
-        data: response.data,
-      };
-    } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
-      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
-    }
-  },
-);
-
-export const listTasksById = createAsyncThunk(
-  "employee/listTasksById",
-  async (id, thunkAPI) => {
-    try {
-      const response = await apiAxiosInstance.get(`/cms/tasks?id=${id}`);
-      return response.data.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {
         position: "top-right",

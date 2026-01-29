@@ -5,14 +5,12 @@ import { toast } from "sonner";
 
 export const listProjects = createAsyncThunk(
   "project/listProjects",
-  async (_, thunkAPI) => {
+  async (payload, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(`/cms/projects`);
+      const {limit, page}: any = payload;
+      const response = await apiAxiosInstance.get(`/cms/projects?limit=${limit}&page=${page}`);
       return response.data.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -25,9 +23,6 @@ export const listProjectById = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/cms/projects?id=${id}`);
       return response.data.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
-              position: "top-right",
-            });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -40,9 +35,6 @@ export const listStatusProject = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/projects/status`);
       return response.data.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -136,9 +128,6 @@ export const listIssues = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/cms/projects/issues?project_id=${project_id}&limit=${limit}&page=${page}`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

@@ -3,39 +3,29 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
 
-export const listServices = createAsyncThunk(
-  "services/listServices",
+export const listPriority = createAsyncThunk(
+  "priority/listPriority",
   async (_, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(
-        `/cms/services`
-      );
+      const response = await apiAxiosInstance.get(`/cms/priority/setting`);
       return response.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
 );
 
-export const listServicesType = createAsyncThunk(
-  "services/listServicesType",
-  async (_, thunkAPI) => {
+export const createPriority = createAsyncThunk(
+  "priority/createPriority",
+  async (payload, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(`/services/category`);
-      return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
-    }
-  }
-);
-
-export const createServices = createAsyncThunk(
-  "services/createServices",
-  async (formData: FormData, thunkAPI) => {
-    try {
+      const { name, weight }: any = payload;
       const response = await apiAxiosInstance.post(
-        "/cms/services/create",
-        formData
+        "/cms/priority/setting/create",
+        {
+          name,
+          weight,
+        },
       );
       return {
         data: response.data,
@@ -47,20 +37,21 @@ export const createServices = createAsyncThunk(
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
 );
 
-export const updateServices = createAsyncThunk(
-  "services/updateServices",
-  async ({ id, data }: { id: string | number; data: FormData }, thunkAPI) => {
-//     console.log("FormData content:");
-// for (let [key, value] of data.entries()) {
-//   console.log(key, value);
-// }
+export const updatePriority = createAsyncThunk(
+  "priority/updatePriority",
+  async (payload, thunkAPI) => {
     try {
+      const { id, name, weight }: any = payload;
       const response = await apiAxiosInstance.put(
-        `/cms/services/update?id=${id}`,
-        data 
+        `/cms/priority/setting/update`,
+        {
+          id,
+          name,
+          weight,
+        },
       );
       return {
         data: response.data,
@@ -72,16 +63,16 @@ export const updateServices = createAsyncThunk(
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
 );
 
-export const deleteServices = createAsyncThunk(
-  "services/deleteServices",
+export const deletePriority = createAsyncThunk(
+  "priority/deletePriority",
   async (ids, thunkAPI) => {
     try {
       const response = await apiAxiosInstance.delete(
-        `/cms/services/delete`,
-        { data: { ids } }
+        `/cms/priority/setting/delete`,
+        { data: { ids } } 
       );
 
       return {

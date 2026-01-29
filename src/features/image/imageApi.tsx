@@ -13,9 +13,6 @@ export const listImage = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -28,9 +25,6 @@ export const listImageType = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/images/types`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }
@@ -43,9 +37,6 @@ export const listPageImage = createAsyncThunk(
       const response = await apiAxiosInstance.get(`/sliders/pages`);
       return response.data;
     } catch (error: any) {
-      toast.error(error?.response?.data.message, {
-        position: "top-right",
-      });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   }

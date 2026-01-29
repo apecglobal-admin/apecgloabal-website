@@ -80,7 +80,6 @@ export const listKPIChild = createAsyncThunk(
   async (payload, thunkAPI) => {
     try {
       const { limit, page }: any = payload;
-      console.log("payload in kpiChild", payload);
       const response = await apiAxiosInstance.get(
         `/cms/kpi/item?limit=${limit}&page=${page}`
       );

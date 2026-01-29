@@ -54,7 +54,6 @@ const EmployeeKpis: React.FC<EmployeeKpisProps> = ({ employee }) => {
     }[]
   >([]);
 
-  console.log("abc", kpisData.map((kpi) => kpi.weight != null ? kpi.weight.toFixed(2) : "Chưa có dữ liệu"));
   const [backupKpisData, setBackupKpisData] = useState<typeof kpisData>([]);
   const [isEditing, setIsEditing] = useState(false);
 

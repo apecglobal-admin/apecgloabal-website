@@ -111,7 +111,7 @@ export default function PositionsManagementContent() {
     }
 
 
-    console.log('Toàn bộ dữ liệu:', formData)
+    // console.log('Toàn bộ dữ liệu:', formData)
     setCreating(true)
     try {
       if(editingPosition){

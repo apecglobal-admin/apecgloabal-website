@@ -262,7 +262,6 @@ export default function InternalProjectsPage() {
     setDeleting(true);
     try {
       const res = await dispatch(deleteProject(deletingProjects as any) as any);
-      console.log(res);
       if (res.payload.status == 200 || res.payload.status == 201) {
         toast.success(res.payload.data.message);
         dispatch(listProjects({ limit, page: currentPage } as any) as any);

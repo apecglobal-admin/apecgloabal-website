@@ -50,7 +50,6 @@ export default function KpiPage() {
   const [kpiChildPage, setKpiChildPage] = useState(1);
   const kpiChildLimit = totalKpiChild;
 
-  console.log("abc", kpiChildLimit);
   // States cho bulk delete
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);

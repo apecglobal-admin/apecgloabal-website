@@ -557,34 +557,7 @@ export default function EmployeesManagementContent() {
   };
 
   const handleDelete = async () => {
-    if (!deletingEmployee) return;
-
-    setDeleting(true);
-    try {
-      const response = await fetch(`/api/employees/${deletingEmployee.id}`, {
-        method: "DELETE",
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setDeletingEmployee(null);
-        dispatch(
-          listEmployee({
-            limit: itemsPerPage,
-            page: currentPage,
-          } as any) as any,
-        );
-        toast.success("Xóa nhân viên thành công!");
-      } else {
-        toast.error("Lỗi: " + result.error);
-      }
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-      toast.error("Lỗi kết nối server");
-    } finally {
-      setDeleting(false);
-    }
+   
   };
 
   const handleViewDetails = (employee: any) => {
@@ -975,14 +948,14 @@ export default function EmployeesManagementContent() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setDeletingEmployee(employee)}
                           className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                       </div>
                     </TableCell>
                   </TableRow>

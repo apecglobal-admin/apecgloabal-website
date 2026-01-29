@@ -337,7 +337,6 @@ export function ProjectCreateUpdateModal({
         res = await dispatch(createProject(formDataToSend as any) as any);
       }
 
-      console.log("res", res);
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success(
           res.payload.data.message ||

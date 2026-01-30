@@ -55,7 +55,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Pagination, usePagination } from "@/components/ui/pagination";
+import { Pagination } from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createEmployee,
@@ -148,10 +148,15 @@ export default function EmployeesManagementContent() {
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { employees, skills, contacts, managers, statuses } = useEmployeeData();
+  const { employees, totalEmployees, skills, contacts, managers, statuses } = useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
   const { levelPositionRoles } = useRoleData();
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil((totalEmployees || 0) / itemsPerPage);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -218,7 +223,7 @@ export default function EmployeesManagementContent() {
     dispatch(listContact() as any);
     dispatch(listManager() as any);
     dispatch(listEmployeeStatus() as any);
-  }, [dispatch]);
+  }, [dispatch, currentPage]);
 
   useEffect(() => {
     dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
@@ -565,6 +570,11 @@ export default function EmployeesManagementContent() {
     setShowDetailModal(true);
   };
 
+  // Hàm chuyển trang
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
   // Filter employees
   const filteredEmployees = (employees || []).filter((employee: Employee) => {
     const employeeName = employee.name?.toLowerCase() || "";
@@ -599,18 +609,9 @@ export default function EmployeesManagementContent() {
     return matchesSearch && matchesStatus;
   });
 
-  // Pagination
-  const {
-    currentPage,
-    totalPages,
-    currentItems: paginatedEmployees,
-    totalItems,
-    itemsPerPage,
-    goToPage,
-  } = usePagination(filteredEmployees, 10);
+  // Sử dụng filteredEmployees làm data hiển thị
+  const paginatedEmployees = filteredEmployees;
 
-  // Calculate stats
-  const totalEmployees = employees?.length || 0;
   const activeEmployees = employees?.filter(
     (e: Employee) => e.status === "active",
   ).length || 0;
@@ -776,6 +777,7 @@ export default function EmployeesManagementContent() {
               <TableRow className="border-b border-purple-500/30">
                 <TableHead className="text-white">Nhân Viên</TableHead>
                 <TableHead className="text-white">Phòng Ban</TableHead>
+                <TableHead className="text-white">Cấp Bậc</TableHead>
                 <TableHead className="text-white">Chức Vụ</TableHead>
                 <TableHead className="text-white">Liên Hệ</TableHead>
                 <TableHead className="text-white">Trạng Thái</TableHead>
@@ -963,7 +965,7 @@ export default function EmployeesManagementContent() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="text-center py-8 text-white/60"
                   >
                     Không tìm thấy nhân viên nào
@@ -980,7 +982,7 @@ export default function EmployeesManagementContent() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={totalItems}
+              totalItems={totalEmployees || 0}
               itemsPerPage={itemsPerPage}
               onPageChange={goToPage}
             />

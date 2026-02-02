@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,10 @@ import {
   Upload,
   FileText,
   Calendar,
+  Search,
+  Filter,
+  CheckCircle2,
+  Circle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEmployeeData } from "@/src/hook/employeeHook";
@@ -140,6 +144,12 @@ export function ProjectCreateUpdateModal({
   const { project } = useProjectData();
 
   const [saving, setSaving] = useState(false);
+
+  // Search and filter states
+  const [deptSearchQuery, setDeptSearchQuery] = useState("");
+  const [empSearchQuery, setEmpSearchQuery] = useState("");
+  const [showOnlySelectedDepts, setShowOnlySelectedDepts] = useState(false);
+  const [showOnlySelectedEmps, setShowOnlySelectedEmps] = useState(false);
 
   const isEditMode = !!project?.id;
 
@@ -260,6 +270,49 @@ export function ProjectCreateUpdateModal({
     }
   }, [isOpen, projectId, project]);
 
+  // Filtered departments with search and selection filter
+  const filteredDepartments = useMemo(() => {
+    let result = departments || [];
+    
+    // Search filter
+    if (deptSearchQuery.trim()) {
+      result = result.filter((dept: any) =>
+        dept.name.toLowerCase().includes(deptSearchQuery.toLowerCase())
+      );
+    }
+    
+    // Selection filter
+    if (showOnlySelectedDepts) {
+      result = result.filter((dept: any) =>
+        formData.departments.includes(dept.id)
+      );
+    }
+    
+    return result;
+  }, [departments, deptSearchQuery, showOnlySelectedDepts, formData.departments]);
+
+  // Filtered employees with search and selection filter
+  const filteredEmployees = useMemo(() => {
+    let result = employees || [];
+    
+    // Search filter
+    if (empSearchQuery.trim()) {
+      result = result.filter((emp: any) =>
+        emp.name.toLowerCase().includes(empSearchQuery.toLowerCase()) ||
+        emp.email.toLowerCase().includes(empSearchQuery.toLowerCase())
+      );
+    }
+    
+    // Selection filter
+    if (showOnlySelectedEmps) {
+      result = result.filter((emp: any) =>
+        formData.employees.includes(emp.id)
+      );
+    }
+    
+    return result;
+  }, [employees, empSearchQuery, showOnlySelectedEmps, formData.employees]);
+
   const handleSave = async () => {
     if (!formData.name || !formData.company_id) {
       toast.error("Vui lòng nhập tên dự án và chọn công ty");
@@ -320,11 +373,6 @@ export function ProjectCreateUpdateModal({
           JSON.stringify(deletedDocumentIds)
         );
       }
-
-      // Debug: kiểm tra tất cả các key-value
-      formDataToSend.forEach((value, key) => {
-        console.log(key, value);
-      });
 
       let res;
       if (isEditMode && project?.id) {
@@ -389,6 +437,10 @@ export function ProjectCreateUpdateModal({
     });
     setSelectedFiles([]);
     setDeletedDocumentIds([]);
+    setDeptSearchQuery("");
+    setEmpSearchQuery("");
+    setShowOnlySelectedDepts(false);
+    setShowOnlySelectedEmps(false);
   };
 
   const handleClose = () => {
@@ -436,29 +488,45 @@ export function ProjectCreateUpdateModal({
     }));
   };
 
-  const handleDepartmentChange = (values: string[]) => {
+  const selectAllDepartments = () => {
+    const allDeptIds = filteredDepartments.map((dept: any) => dept.id);
     setFormData((prev) => ({
       ...prev,
-      departments: values.map((v) => parseInt(v)),
+      departments: [...new Set([...prev.departments, ...allDeptIds])],
     }));
+    toast.success(`Đã chọn ${allDeptIds.length} phòng ban`);
   };
 
-  const handleEmployeeChange = (values: string[]) => {
+  const deselectAllDepartments = () => {
     setFormData((prev) => ({
       ...prev,
-      employees: values.map((v) => parseInt(v)),
+      departments: [],
     }));
+    toast.success("Đã bỏ chọn tất cả phòng ban");
   };
 
-  // Hiển thị tất cả departments và employees (không filter theo company)
-  const filteredDepartments = departments || [];
-  const filteredEmployees = employees || [];
+  const selectAllEmployees = () => {
+    const allEmpIds = filteredEmployees.map((emp: any) => emp.id);
+    setFormData((prev) => ({
+      ...prev,
+      employees: [...new Set([...prev.employees, ...allEmpIds])],
+    }));
+    toast.success(`Đã chọn ${allEmpIds.length} nhân viên`);
+  };
+
+  const deselectAllEmployees = () => {
+    setFormData((prev) => ({
+      ...prev,
+      employees: [],
+    }));
+    toast.success("Đã bỏ chọn tất cả nhân viên");
+  };
 
   if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-7xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-white">
@@ -725,84 +793,225 @@ export function ProjectCreateUpdateModal({
           {/* Departments & Employees */}
           <Card className="bg-black/50 border-blue-500/30">
             <CardHeader>
-              <CardTitle className="text-white">
-                Phòng ban & Nhân viên
+              <CardTitle className="text-white flex items-center justify-between">
+                <span>Phòng ban & Nhân viên</span>
+                <div className="flex items-center space-x-2 text-sm font-normal">
+                  <span className="text-purple-400">
+                    {formData.departments.length} phòng ban
+                  </span>
+                  <span className="text-gray-500">•</span>
+                  <span className="text-blue-400">
+                    {formData.employees.length} nhân viên
+                  </span>
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-white mb-2 block">
-                  Phòng ban tham gia ({formData.departments.length})
-                </Label>
-                <div className="bg-black/30 border border-purple-500/30 rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+            <CardContent className="space-y-6">
+              {/* Departments Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-white font-semibold text-base">
+                    Phòng ban tham gia
+                  </Label>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={selectAllDepartments}
+                      className="text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 h-7"
+                    >
+                      Chọn tất cả
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={deselectAllDepartments}
+                      className="text-xs text-gray-400 hover:text-gray-300 hover:bg-gray-500/10 h-7"
+                    >
+                      Bỏ chọn
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Search and Filter for Departments */}
+                <div className="flex items-center space-x-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      value={deptSearchQuery}
+                      onChange={(e) => setDeptSearchQuery(e.target.value)}
+                      placeholder="Tìm kiếm phòng ban..."
+                      className="bg-black/30 border-purple-500/30 text-white pl-10 h-9"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={showOnlySelectedDepts ? "default" : "outline"}
+                    onClick={() => setShowOnlySelectedDepts(!showOnlySelectedDepts)}
+                    className={`h-9 ${
+                      showOnlySelectedDepts
+                        ? "bg-purple-600 hover:bg-purple-700"
+                        : "bg-transparent border-purple-500/30 text-white hover:bg-purple-500/10"
+                    }`}
+                  >
+                    <Filter className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Departments List */}
+                <div className="bg-black/30 border border-purple-500/30 rounded-lg p-2 max-h-56 overflow-y-auto">
                   {!formData.company_id ? (
-                    <p className="text-gray-400 text-sm">
+                    <div className="flex items-center justify-center p-8 text-gray-400 text-sm">
+                      <Building2 className="h-5 w-5 mr-2" />
                       Vui lòng chọn công ty trước
-                    </p>
+                    </div>
                   ) : filteredDepartments.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Không có phòng ban</p>
+                    <div className="flex items-center justify-center p-8 text-gray-400 text-sm">
+                      {deptSearchQuery || showOnlySelectedDepts
+                        ? "Không tìm thấy phòng ban"
+                        : "Không có phòng ban"}
+                    </div>
                   ) : (
-                    filteredDepartments.map((dept: any) => (
-                      <label
-                        key={dept.id}
-                        className="flex items-center space-x-2 cursor-pointer hover:bg-purple-500/10 p-2 rounded"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.departments.includes(dept.id)}
-                          onChange={() => toggleDepartment(dept.id)}
-                          className="w-4 h-4"
-                        />
-                        <Building2 className="h-4 w-4 text-purple-400" />
-                        <span className="text-white text-sm">{dept.name}</span>
-                      </label>
-                    ))
+                    <div className="space-y-1">
+                      {filteredDepartments.map((dept: any) => {
+                        const isSelected = formData.departments.includes(dept.id);
+                        return (
+                          <div
+                            key={dept.id}
+                            onClick={() => toggleDepartment(dept.id)}
+                            className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg transition-all ${
+                              isSelected
+                                ? "bg-purple-500/20 border border-purple-500/50"
+                                : "hover:bg-purple-500/10 border border-transparent"
+                            }`}
+                          >
+                            {isSelected ? (
+                              <CheckCircle2 className="h-5 w-5 text-purple-400 flex-shrink-0" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                            )}
+                            <Building2 className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                            <span className={`text-sm flex-1 ${isSelected ? "text-white font-medium" : "text-gray-300"}`}>
+                              {dept.name}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div>
-                <Label className="text-white mb-2 block">
-                  Nhân viên tham gia ({formData.employees.length})
-                </Label>
-                <div className="bg-black/30 border border-purple-500/30 rounded-md p-3 max-h-64 overflow-y-auto space-y-2">
+              {/* Employees Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-white font-semibold text-base">
+                    Nhân viên tham gia
+                  </Label>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={selectAllEmployees}
+                      className="text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 h-7"
+                    >
+                      Chọn tất cả
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={deselectAllEmployees}
+                      className="text-xs text-gray-400 hover:text-gray-300 hover:bg-gray-500/10 h-7"
+                    >
+                      Bỏ chọn
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Search and Filter for Employees */}
+                <div className="flex items-center space-x-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      value={empSearchQuery}
+                      onChange={(e) => setEmpSearchQuery(e.target.value)}
+                      placeholder="Tìm kiếm nhân viên (tên hoặc email)..."
+                      className="bg-black/30 border-blue-500/30 text-white pl-10 h-9"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={showOnlySelectedEmps ? "default" : "outline"}
+                    onClick={() => setShowOnlySelectedEmps(!showOnlySelectedEmps)}
+                    className={`h-9 ${
+                      showOnlySelectedEmps
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : "bg-transparent border-blue-500/30 text-white hover:bg-blue-500/10"
+                    }`}
+                  >
+                    <Filter className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Employees List */}
+                <div className="bg-black/30 border border-blue-500/30 rounded-lg p-2 max-h-64 overflow-y-auto">
                   {filteredEmployees.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Không có nhân viên</p>
+                    <div className="flex items-center justify-center p-8 text-gray-400 text-sm">
+                      {empSearchQuery || showOnlySelectedEmps
+                        ? "Không tìm thấy nhân viên"
+                        : "Không có nhân viên"}
+                    </div>
                   ) : (
-                    filteredEmployees.map((emp: any) => (
-                      <label
-                        key={emp.id}
-                        className="flex items-center space-x-2 cursor-pointer hover:bg-blue-500/10 p-2 rounded"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.employees.includes(emp.id)}
-                          onChange={() => toggleEmployee(emp.id)}
-                          className="w-4 h-4"
-                        />
-                        <User className="h-4 w-4 text-blue-400" />
-                        <div className="flex-1">
-                          <span className="text-white text-sm block">
-                            {emp.name}
-                          </span>
-                          <span className="text-gray-400 text-xs">
-                            {emp.email}
-                          </span>
-                        </div>
-                      </label>
-                    ))
+                    <div className="space-y-1">
+                      {filteredEmployees.map((emp: any) => {
+                        const isSelected = formData.employees.includes(emp.id);
+                        return (
+                          <div
+                            key={emp.id}
+                            onClick={() => toggleEmployee(emp.id)}
+                            className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg transition-all ${
+                              isSelected
+                                ? "bg-blue-500/20 border border-blue-500/50"
+                                : "hover:bg-blue-500/10 border border-transparent"
+                            }`}
+                          >
+                            {isSelected ? (
+                              <CheckCircle2 className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                            )}
+                            <User className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm ${isSelected ? "text-white font-medium" : "text-gray-300"}`}>
+                                {emp.name}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {emp.email}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div>
-                <Label className="text-white mb-2 block">
+              {/* Documents Section */}
+              <div className="space-y-3 pt-4 border-t border-gray-700/50">
+                <Label className="text-white font-semibold text-base block">
                   Tài liệu đính kèm
                 </Label>
 
                 {/* Existing Documents */}
                 {existingDocuments.length > 0 && (
-                  <div className="mb-3 space-y-2">
+                  <div className="space-y-2">
                     <p className="text-xs text-gray-400">
                       Tài liệu hiện có ({existingDocuments.length}):
                     </p>
@@ -843,7 +1052,7 @@ export function ProjectCreateUpdateModal({
 
                 {/* Selected Files Preview */}
                 {selectedFiles.length > 0 && (
-                  <div className="mb-3 space-y-2">
+                  <div className="space-y-2">
                     <p className="text-xs text-purple-400">
                       File mới sẽ upload ({selectedFiles.length}):
                     </p>

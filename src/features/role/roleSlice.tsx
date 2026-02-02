@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
-import { listRoleGroupPreWebsite, listRoleLevelPositionWebsite, listRolePositionWebsite, listUserCMS, roleByUserId } from "./roleApi";
+import { listRoleGroupPreWebsite, listRoleLevelPositionWebsite, listRolePositionWebsite, listRoles, listUserCMS, roleByUserId } from "./roleApi";
 import { list } from "postcss";
 
 interface InitState<T> {
@@ -16,6 +16,7 @@ interface RoleState {
   positionRoles: InitState<any[]>;
   levelPositionRoles: InitState<any[]>;
   groupPreRoles: InitState<any[]>;
+  roles: InitState<any[]>;
 }
 
 const initialState: RoleState = {
@@ -24,6 +25,7 @@ const initialState: RoleState = {
   positionRoles: { data: [], loading: false, error: null, status: null },
   levelPositionRoles: { data: [], loading: false, error: null, status: null },
   groupPreRoles: { data: [], loading: false, error: null, status: null },
+  roles: { data: [], loading: false, error: null, status: null },
 };
 const roleSlice = createSlice({
   name: "role",
@@ -35,6 +37,7 @@ const roleSlice = createSlice({
     createAsyncReducer(builder, listRolePositionWebsite, "positionRoles");
     createAsyncReducer(builder, listRoleLevelPositionWebsite, "levelPositionRoles");
     createAsyncReducer(builder, listRoleGroupPreWebsite, "groupPreRoles");
+    createAsyncReducer(builder, listRoles, "roles");
   },
 });
 

@@ -10,6 +10,7 @@ export const useRoleData = () => {
     positionRoles: role.positionRoles.data,
     levelPositionRoles: role.levelPositionRoles.data,
     groupPreRoles: role.groupPreRoles.data,
+    roles: role.roles.data,
 
     // Loading states
     isLoadingRole: role.roleById.loading,

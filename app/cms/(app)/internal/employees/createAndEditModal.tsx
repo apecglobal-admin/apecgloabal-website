@@ -390,9 +390,26 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       }
                     >
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
-                        <SelectValue placeholder="Chọn phòng ban" />
+                        <SelectValue placeholder="Tìm và chọn phòng ban..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px]">
+                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                          <Input
+                            placeholder="Tìm kiếm phòng ban..."
+                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            onChange={(e) => {
+                              const input = e.target;
+                              const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
+                              const searchText = input.value.toLowerCase();
+                              
+                              items?.forEach((item) => {
+                                const text = item.textContent?.toLowerCase() || '';
+                                (item as HTMLElement).style.display = text.includes(searchText) ? '' : 'none';
+                              });
+                            }}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          />
+                        </div>
                         {departments?.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.name}
@@ -413,9 +430,26 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       }
                     >
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
-                        <SelectValue placeholder="Chọn chức vụ" />
+                        <SelectValue placeholder="Tìm và chọn chức vụ..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px]">
+                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                          <Input
+                            placeholder="Tìm kiếm chức vụ..."
+                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            onChange={(e) => {
+                              const input = e.target;
+                              const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
+                              const searchText = input.value.toLowerCase();
+                              
+                              items?.forEach((item) => {
+                                const text = item.textContent?.toLowerCase() || '';
+                                (item as HTMLElement).style.display = text.includes(searchText) ? '' : 'none';
+                              });
+                            }}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          />
+                        </div>
                         {positions.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.title}
@@ -436,9 +470,26 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       }
                     >
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
-                        <SelectValue placeholder="Chọn cấp bậc" />
+                        <SelectValue placeholder="Tìm và chọn cấp bậc..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px]">
+                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                          <Input
+                            placeholder="Tìm kiếm cấp bậc..."
+                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            onChange={(e) => {
+                              const input = e.target;
+                              const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
+                              const searchText = input.value.toLowerCase();
+                              
+                              items?.forEach((item) => {
+                                const text = item.textContent?.toLowerCase() || '';
+                                (item as HTMLElement).style.display = text.includes(searchText) ? '' : 'none';
+                              });
+                            }}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          />
+                        </div>
                         {levelPositionRoles.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.name}
@@ -517,9 +568,26 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       }
                     >
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
-                        <SelectValue placeholder="Chọn người duyệt" />
+                        <SelectValue placeholder="Tìm và chọn người duyệt..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px]">
+                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                          <Input
+                            placeholder="Tìm kiếm người duyệt..."
+                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            onChange={(e) => {
+                              const input = e.target;
+                              const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
+                              const searchText = input.value.toLowerCase();
+                              
+                              items?.forEach((item) => {
+                                const text = item.textContent?.toLowerCase() || '';
+                                (item as HTMLElement).style.display = text.includes(searchText) ? '' : 'none';
+                              });
+                            }}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          />
+                        </div>
                         {managers.map((item: any) => (
                           <SelectItem key={item.id} value={item.id.toString()}>
                             {item.name}

@@ -355,7 +355,7 @@ export default function RolesContent() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-white text-base sm:text-lg">
-                Danh sách nhân viên
+                Danh sách user
               </CardTitle>
               <CardDescription className="text-gray-400 text-xs sm:text-sm">
                 Nhấn vào nút chỉnh sửa để cấu hình quyền cho nhân viên
@@ -366,7 +366,7 @@ export default function RolesContent() {
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm"
             >
               <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              Thêm nhân viên
+              Thêm user
             </Button>
           </div>
         </CardHeader>

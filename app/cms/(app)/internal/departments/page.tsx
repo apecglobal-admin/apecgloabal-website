@@ -284,14 +284,14 @@ export default function DepartmentsManagementContent() {
 
   const hasActiveFilters = searchTerm.trim() !== "" || filterStatus !== "all";
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-white" />
-        <span className="ml-2 text-white">Đang tải phòng ban...</span>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen">
+  //       <Loader2 className="h-8 w-8 animate-spin text-white" />
+  //       <span className="ml-2 text-white">Đang tải phòng ban...</span>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-6">

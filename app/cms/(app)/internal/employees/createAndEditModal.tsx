@@ -145,7 +145,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn giới tính" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                         <SelectItem value="1">Nam</SelectItem>
                         <SelectItem value="2">Nữ</SelectItem>
                         <SelectItem value="3">Khác</SelectItem>
@@ -291,7 +291,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn trình độ" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                         <SelectItem value="Trung cấp">Trung cấp</SelectItem>
                         <SelectItem value="Cao đẳng">Cao đẳng</SelectItem>
                         <SelectItem value="Đại học">Đại học</SelectItem>
@@ -392,11 +392,11 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Tìm và chọn phòng ban..." />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                      <SelectContent className="max-h-[300px] bg-black/90 border-purple-500/30 text-white">
+                        <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm phòng ban..."
-                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -432,11 +432,11 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Tìm và chọn chức vụ..." />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                      <SelectContent className="max-h-[300px] bg-black/90 border-purple-500/30 text-white">
+                        <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm chức vụ..."
-                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -472,11 +472,11 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Tìm và chọn cấp bậc..." />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                      <SelectContent className="max-h-[300px] bg-black/90 border-purple-500/30 text-white">
+                        <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm cấp bậc..."
-                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -512,7 +512,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn loại hợp đồng" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                         {contacts.map((item: any) => (
                           <SelectItem key={item.id} value={item.id}>
                             {item.name}
@@ -570,11 +570,11 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Tìm và chọn người duyệt..." />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        <div className="px-2 pb-2 sticky top-0 bg-popover z-10">
+                      <SelectContent className="max-h-[300px] bg-black/90 border-purple-500/30 text-white">
+                        <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm người duyệt..."
-                            className="h-8 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -678,7 +678,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full">
                         <SelectValue placeholder="Chọn nhóm kỹ năng" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                         {skills.map((group: any) => (
                           <SelectItem
                             key={group.id}

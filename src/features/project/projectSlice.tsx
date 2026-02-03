@@ -18,6 +18,7 @@ interface InitState<T> {
 
 interface ProjectState {
   projects: InitState<any[]>;
+  totalProjects: InitState<number>;
   project: InitState<any | null>;
   statusProject: InitState<any[]>;
   issues: InitState<any[]>;
@@ -26,6 +27,7 @@ interface ProjectState {
 
 const initialState: ProjectState = {
   projects: { data: [], loading: false, error: null, status: null },
+  totalProjects: { data: 0, loading: false, error: null, status: null },
   project: { data: null, loading: false, error: null, status: null },
   statusProject: { data: [], loading: false, error: null, status: null },
   issues: { data: [], loading: false, error: null, status: null },
@@ -37,7 +39,7 @@ const projectSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    createAsyncReducer(builder, listProjects, "projects");
+    createAsyncReducer(builder, listProjects, ["projects", "totalProjects"]);
     createAsyncReducer(builder, listProjectById, "project");
     createAsyncReducer(builder, listStatusProject, "statusProject");
     createAsyncReducer(builder, listIssues, ["issues", "totalIssues"]);

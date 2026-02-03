@@ -71,7 +71,7 @@ import { ProjectCreateUpdateModal } from "./project-create-modal";
 
 export default function InternalProjectsPage() {
   const dispatch = useDispatch();
-  const { projects, statusProject } = useProjectData();
+  const { projects, totalProjects, statusProject } = useProjectData();
   const { companies, totalCompany } = useCompanyData();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -136,7 +136,7 @@ export default function InternalProjectsPage() {
   const stats = [
     {
       title: "Tổng Dự Án",
-      value: projects.length.toString(),
+      value: totalProjects?.toString() || 0,
       change: "+3",
       icon: Target,
       color: "text-purple-400",
@@ -279,21 +279,6 @@ export default function InternalProjectsPage() {
     }
   };
 
-  const handleArchiveProject = async (projectId: number) => {
-    // Implement archive logic
-  };
-
-  const handleCloneProject = async (project: any) => {
-    // Implement clone logic
-  };
-
-  const handleQuickStatusUpdate = async (
-    projectId: number,
-    statusId: number
-  ) => {
-    // Implement status update logic
-  };
-
   // Bulk operations handlers
   const handleSelectProject = (projectId: number, checked: boolean) => {
     if (checked) {
@@ -306,7 +291,7 @@ export default function InternalProjectsPage() {
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
     if (checked) {
-      setSelectedProjects(paginatedProjects.map((project: any) => project.id));
+      setSelectedProjects(filteredProjects.map((project: any) => project.id));
     } else {
       setSelectedProjects([]);
     }
@@ -353,15 +338,8 @@ export default function InternalProjectsPage() {
       return dateB - dateA; // Newest first
     });
 
-  // Pagination with custom hook
-  const {
-    currentPage: currentPageFromHook,
-    totalPages,
-    currentItems: paginatedProjects,
-    totalItems,
-    itemsPerPage,
-    goToPage,
-  } = usePagination(filteredProjects, 6);
+  // Calculate pagination info
+  const totalPages = Math.ceil(totalProjects / limit);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -489,7 +467,7 @@ export default function InternalProjectsPage() {
           Lọc nhanh:
         </span>
         {[
-          { label: "Tất cả", value: "all", count: projects.length },
+          { label: "Tất cả", value: "all", count: totalProjects },
           ...statusProject.map((status: any) => ({
             label: status.name,
             value: status.id,
@@ -623,7 +601,7 @@ export default function InternalProjectsPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {paginatedProjects.length === 0 ? (
+          {filteredProjects.length === 0 ? (
             <div className="text-center py-20">
               <Target className="h-16 w-16 text-white/30 mx-auto mb-4" />
               <p className="text-white/60">Chưa có dự án nào</p>
@@ -636,7 +614,7 @@ export default function InternalProjectsPage() {
               </Button>
             </div>
           ) : (
-            paginatedProjects.map((project: any) => (
+            filteredProjects.map((project: any) => (
               <Card
                 key={project.id}
                 className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
@@ -841,11 +819,11 @@ export default function InternalProjectsPage() {
           {totalPages > 1 && (
             <div className="mt-8">
               <Pagination
-                currentPage={currentPageFromHook}
+                currentPage={currentPage}
                 totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={goToPage}
+                totalItems={totalProjects}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
               />
             </div>
           )}

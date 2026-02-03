@@ -76,9 +76,10 @@ export default function PositionsManagementContent() {
     { value: "executive", label: "Điều hành", color: "bg-red-500" },
   ]
 
+  // Load data khi component mount hoặc khi currentPage thay đổi
   useEffect(() => {
     dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
-  }, [dispatch])
+  }, [dispatch, currentPage])
 
   const handleCreate = () => {
     setEditingPosition(null)
@@ -110,8 +111,6 @@ export default function PositionsManagementContent() {
       return
     }
 
-
-    // console.log('Toàn bộ dữ liệu:', formData)
     setCreating(true)
     try {
       if(editingPosition){
@@ -156,7 +155,7 @@ export default function PositionsManagementContent() {
     }
   }
 
-  // Filter positions
+  // Filter positions (chỉ filter, không phân trang)
   const filteredPositions = positions.filter((position: any) => {
     const matchesSearch = 
       position.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -168,26 +167,19 @@ export default function PositionsManagementContent() {
     return matchesSearch && matchesLevel && matchesManager
   })
 
-  // Pagination logic
-  const totalItems = filteredPositions.length
+  // Pagination info - sử dụng totalPosition từ API
+  const totalItems = totalPosition
   const totalPages = Math.ceil(totalItems / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedPositions = filteredPositions.slice(startIndex, endIndex)
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, selectedLevel, showManagerOnly])
 
-  // Calculate stats
+  // Calculate stats - sử dụng toàn bộ positions từ store
   const totalPositions = positions.length
   const managerPositions = positions.filter((p: any) => p.is_manager_position).length
   const activePositions = positions.filter((p: any) => p.is_active).length
-  const positionsByLevel = levels.map(level => ({
-    ...level,
-    count: positions.filter((p: any) => p.level === level.value).length
-  }))
 
   // Show loading state
   if (!positions || positions.length === 0) {
@@ -226,7 +218,7 @@ export default function PositionsManagementContent() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/60 text-sm">Tổng Chức Vụ</p>
-                <p className="text-2xl font-bold text-white">{totalPositions}</p>
+                <p className="text-2xl font-bold text-white">{totalItems}</p>
               </div>
               <Briefcase className="h-8 w-8 text-purple-400" />
             </div>
@@ -275,8 +267,6 @@ export default function PositionsManagementContent() {
               />
             </div>
             
-           
-
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="manager-only"
@@ -296,7 +286,7 @@ export default function PositionsManagementContent() {
         <CardHeader>
           <CardTitle className="text-white">Danh Sách Chức Vụ</CardTitle>
           <CardDescription className="text-white/80">
-            Hiển thị {paginatedPositions.length} trên tổng số {filteredPositions.length} chức vụ
+            Hiển thị {filteredPositions.length} trên tổng số {totalItems} chức vụ
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -309,8 +299,8 @@ export default function PositionsManagementContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedPositions.length > 0 ? (
-                paginatedPositions.map((position: any) => {
+              {filteredPositions.length > 0 ? (
+                filteredPositions.map((position: any) => {
                   return (
                     <TableRow key={position.id} className="border-b border-purple-500/30 hover:bg-white/5">
                       <TableCell>
@@ -364,7 +354,7 @@ export default function PositionsManagementContent() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-white/60">
+                  <TableCell colSpan={3} className="text-center py-8 text-white/60">
                     Không tìm thấy chức vụ nào
                   </TableCell>
                 </TableRow>
@@ -417,8 +407,6 @@ export default function PositionsManagementContent() {
                 rows={3}
               />
             </div>
-
-            
 
             <div className="flex items-center space-x-2">
               <Checkbox

@@ -406,10 +406,10 @@ export default function NotificationPage() {
               </div>
 
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
+                <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-[200px]">
                   <SelectValue placeholder="Chọn loại thông báo" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                   <SelectItem value="all">Tất cả loại</SelectItem>
                   {notificationTypes.map((type: NotificationType) => (
                     <SelectItem key={type.id} value={type.id.toString()}>
@@ -658,10 +658,10 @@ export default function NotificationPage() {
                     setFormData((prev) => ({ ...prev, type_id: value }))
                   }
                 >
-                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white">
+                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white w-full">
                     <SelectValue placeholder="Chọn loại thông báo" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                     {notificationTypes.map((type: NotificationType) => (
                       <SelectItem key={type.id} value={type.id.toString()}>
                         {type.name}
@@ -681,10 +681,27 @@ export default function NotificationPage() {
                     setFormData((prev) => ({ ...prev, department_id: value }))
                   }
                 >
-                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white">
+                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white w-full">
                     <SelectValue placeholder="Chọn phòng ban (để trống = tất cả)" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px] bg-black/90 border-purple-500/30 text-white">
+                    <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
+                      <Input
+                        placeholder="Tìm kiếm phòng ban..."
+                        className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
+                        onChange={(e) => {
+                          const input = e.target;
+                          const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
+                          const searchText = input.value.toLowerCase();
+                          
+                          items?.forEach((item) => {
+                            const text = item.textContent?.toLowerCase() || '';
+                            (item as HTMLElement).style.display = text.includes(searchText) ? '' : 'none';
+                          });
+                        }}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      />
+                    </div>
                     <SelectItem value="all">Tất cả phòng ban</SelectItem>
                     {departments.map((dept: Department) => (
                       <SelectItem key={dept.id} value={dept.id.toString()}>

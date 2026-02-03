@@ -36,8 +36,8 @@ import {
 
 const AchievementsPage: React.FC = () => {
   const dispatch = useDispatch();
-  const { employees } = useEmployeeData();
-  const { achievements, achievementById, listAchivementCategories } = useAchievementData();
+  const { employees, totalEmployees } = useEmployeeData();
+  const { achievements, totalAchievements, achievementById, listAchivementCategories } = useAchievementData();
   
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -60,10 +60,10 @@ const AchievementsPage: React.FC = () => {
   const categories = listAchivementCategories || [];
 
   useEffect(() => {
-    dispatch(listAchivements({ limit: 100, page: 1 } as any) as any);
-    dispatch(listEmployee({ limit: 100, page: 1 } as any) as any);
+    dispatch(listAchivements({ limit: totalAchievements, page: 1 } as any) as any);
+    dispatch(listEmployee({ limit: totalEmployees, page: 1 } as any) as any);
     dispatch(listAchivementCategory() as any);
-  }, [dispatch]);
+  }, [dispatch, totalAchievements, totalEmployees]);
 
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {

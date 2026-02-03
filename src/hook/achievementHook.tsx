@@ -6,7 +6,7 @@ export const useAchievementData = () => {
   return {
     // Data 
     achievements: achievement.achievements.data,
-    totalAchievements: achievement.totalAchievements.data,
+    totalAchievements: achievement.totalAchievements?.data?.pagination?.total,
     achievementById: achievement.achievementById.data,
     listAchivementCategories: achievement.listAchivementCategories.data,
  

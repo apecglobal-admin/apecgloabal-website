@@ -9,7 +9,7 @@ export const listProjects = createAsyncThunk(
     try {
       const {limit, page}: any = payload;
       const response = await apiAxiosInstance.get(`/cms/projects?limit=${limit}&page=${page}`);
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }

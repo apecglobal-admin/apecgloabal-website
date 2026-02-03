@@ -1,3 +1,4 @@
+import { totalmem } from 'os';
 import { useSelector } from 'react-redux';
 
 export const useProjectData = () => {
@@ -6,6 +7,7 @@ export const useProjectData = () => {
   return {
     // Data
     projects: projectState.projects.data,
+    totalProjects: projectState.totalProjects?.paginations?.total,
     project: projectState.project.data,
     statusProject: projectState.statusProject.data,
     issues: projectState.issues.data,

@@ -159,7 +159,6 @@ export default function RolesContent() {
     );
   };
 
-  // Handle group toggle (select/deselect all permissions in a group)
   const handleGroupToggle = (groupPermissions: any[]) => {
     const groupPermissionIds = groupPermissions.map((p) => p.id);
     const allSelected = groupPermissionIds.every((id) =>
@@ -177,13 +176,11 @@ export default function RolesContent() {
     }
   };
 
-  // Handle save permissions
   const handleSavePermissions = async () => {
     if (!selectedEmployee) return;
 
     setIsSaving(true);
     try {
-      // Get all permission IDs from all groups
       const allPermissionIds: number[] = [];
       if (roleById && Array.isArray(roleById)) {
         roleById.forEach((group: any) => {
@@ -195,7 +192,6 @@ export default function RolesContent() {
         });
       }
 
-      // Format permissions: selected ones as true, unselected as false
       const formattedPermissions = allPermissionIds.map((permissionId) => ({
         id: permissionId,
         status: selectedPermissions.includes(permissionId),
@@ -210,10 +206,7 @@ export default function RolesContent() {
 
       if (res.payload.status == 200 || res.payload.status == 201) {
         toast.success(res.payload.data.message);
-
         setIsDialogOpen(false);
-
-        // Refresh user list
         dispatch(listUserCMS() as any);
       }
     } catch (error) {

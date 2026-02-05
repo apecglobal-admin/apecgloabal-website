@@ -107,13 +107,15 @@ interface Department {
 
 export default function NotificationPage() {
   const dispatch = useDispatch();
-  const { notifications, totalNotification, notificationTypes } = useNotificationData();
+  const { notifications, totalNotification, notificationTypes } =
+    useNotificationData();
   const { departments, totalDepartment } = useDepartmentData();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
+  const [editingNotification, setEditingNotification] =
+    useState<Notification | null>(null);
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deletedDocumentIds, setDeletedDocumentIds] = useState<number[]>([]);
@@ -139,7 +141,10 @@ export default function NotificationPage() {
 
   useEffect(() => {
     dispatch(
-      listNotification({ limit: itemsPerPage, page: currentPage } as any) as any
+      listNotification({
+        limit: itemsPerPage,
+        page: currentPage,
+      } as any) as any,
     );
     dispatch(listNotificationType() as any);
   }, [dispatch, currentPage]);
@@ -163,7 +168,10 @@ export default function NotificationPage() {
   };
 
   const handleEdit = (notification: Notification) => {
-    setEditingNotification(notification);
+    setEditingNotification({
+      ...notification,
+      document_notification: notification.document_notification || [], // Thêm dòng này
+    });
     setFormData({
       title: notification.title,
       content: notification.content || "",
@@ -234,19 +242,27 @@ export default function NotificationPage() {
           updateNotification({
             id: editingNotification.id,
             data: apiFormData,
-          } as any) as any
+          } as any) as any,
         );
         if (res.payload.status == 200 || res.payload.status == 201) {
           await dispatch(
-            listNotification({ limit: itemsPerPage, page: currentPage } as any) as any
+            listNotification({
+              limit: itemsPerPage,
+              page: currentPage,
+            } as any) as any,
           );
           toast.success(res.payload.data.message);
         }
       } else {
-        const res = await dispatch(createNotification(apiFormData as any) as any);
+        const res = await dispatch(
+          createNotification(apiFormData as any) as any,
+        );
         if (res.payload.status == 200 || res.payload.status == 201) {
           await dispatch(
-            listNotification({ limit: itemsPerPage, page: currentPage } as any) as any
+            listNotification({
+              limit: itemsPerPage,
+              page: currentPage,
+            } as any) as any,
           );
           toast.success(res.payload.data.message);
         }
@@ -263,7 +279,10 @@ export default function NotificationPage() {
 
   // Handle select all checkbox
   const handleSelectAll = () => {
-    if (selectedIds.length === filteredNotifications.length && filteredNotifications.length > 0) {
+    if (
+      selectedIds.length === filteredNotifications.length &&
+      filteredNotifications.length > 0
+    ) {
       setSelectedIds([]);
     } else {
       setSelectedIds(filteredNotifications.map((n: Notification) => n.id));
@@ -286,11 +305,16 @@ export default function NotificationPage() {
 
     setDeleting(true);
     try {
-      const res = await dispatch(deleteNotification( ids as any) as any);
-      
+      const res = await dispatch(deleteNotification(ids as any) as any);
+
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success(res.payload.data.message);
-        await dispatch(listNotification({ limit: itemsPerPage, page: currentPage } as any) as any);
+        await dispatch(
+          listNotification({
+            limit: itemsPerPage,
+            page: currentPage,
+          } as any) as any,
+        );
         setSelectedIds([]);
       } else {
         toast.error("Có lỗi xảy ra khi xóa thông báo");
@@ -309,7 +333,9 @@ export default function NotificationPage() {
       const matchesSearch =
         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (notification.content &&
-          notification.content.toLowerCase().includes(searchTerm.toLowerCase()));
+          notification.content
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()));
 
       const matchesType =
         selectedType === "all" ||
@@ -319,7 +345,9 @@ export default function NotificationPage() {
       return matchesSearch && matchesType && matchesUnread;
     })
     .sort((a: Notification, b: Notification) => {
-      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      return (
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
     });
 
   // Tính tổng số trang từ totalNotification (tổng số từ server)
@@ -332,11 +360,17 @@ export default function NotificationPage() {
   }, [searchTerm, selectedType, showUnreadOnly]);
 
   // Calculate stats
-  const unreadNotifications = notifications.filter((n: Notification) => !n.is_read).length;
-  const notificationsByType = notificationTypes?.map((type: NotificationType) => ({
-    ...type,
-    count: notifications?.filter((n: Notification) => n?.type_id?.toString() === type?.id).length,
-  }));
+  const unreadNotifications = notifications.filter(
+    (n: Notification) => !n.is_read,
+  ).length;
+  const notificationsByType = notificationTypes?.map(
+    (type: NotificationType) => ({
+      ...type,
+      count: notifications?.filter(
+        (n: Notification) => n?.type_id?.toString() === type?.id,
+      ).length,
+    }),
+  );
 
   const getTypeColor = (typeId: number) => {
     const colors = [
@@ -357,9 +391,7 @@ export default function NotificationPage() {
             <h1 className="text-3xl font-bold text-white mb-2">
               Quản Lý Thông Báo
             </h1>
-            <p className="text-white/80">
-              Quản lý các thông báo trong tổ chức
-            </p>
+            <p className="text-white/80">Quản lý các thông báo trong tổ chức</p>
           </div>
           <Button
             onClick={handleCreate}
@@ -381,7 +413,9 @@ export default function NotificationPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {notificationsByType.map((type: any) => (
                 <div key={type.id} className="text-center">
-                  <Badge className={`${getTypeColor(parseInt(type.id))} text-white mb-2`}>
+                  <Badge
+                    className={`${getTypeColor(parseInt(type.id))} text-white mb-2`}
+                  >
                     {type.name}
                   </Badge>
                   <p className="text-2xl font-bold text-white">{type.count}</p>
@@ -456,7 +490,8 @@ export default function NotificationPage() {
           <CardHeader>
             <CardTitle className="text-white">Danh Sách Thông Báo</CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {filteredNotifications.length} trên tổng số {totalNotification} thông báo
+              Hiển thị {filteredNotifications.length} trên tổng số{" "}
+              {totalNotification} thông báo
               {selectedIds.length > 0 && (
                 <span className="ml-2 text-blue-400">
                   (Đã chọn {selectedIds.length})
@@ -484,7 +519,9 @@ export default function NotificationPage() {
                     <TableHead className="text-white">Phòng Ban</TableHead>
                     <TableHead className="text-white">Tài Liệu</TableHead>
                     <TableHead className="text-white">Trạng Thái</TableHead>
-                    <TableHead className="text-white text-right">Thao Tác</TableHead>
+                    <TableHead className="text-white text-right">
+                      Thao Tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -497,7 +534,9 @@ export default function NotificationPage() {
                         <TableCell>
                           <Checkbox
                             checked={selectedIds.includes(notification.id)}
-                            onCheckedChange={() => handleSelectOne(notification.id)}
+                            onCheckedChange={() =>
+                              handleSelectOne(notification.id)
+                            }
                             className="border-white/30"
                           />
                         </TableCell>
@@ -516,7 +555,7 @@ export default function NotificationPage() {
                         <TableCell>
                           <Badge
                             className={`${getTypeColor(
-                              notification.type_id
+                              notification.type_id,
                             )} text-white`}
                           >
                             {notification.notification_type.name}
@@ -528,7 +567,9 @@ export default function NotificationPage() {
                               {notification.department.name}
                             </Badge>
                           ) : (
-                            <span className="text-white/40 text-sm">Tất cả</span>
+                            <span className="text-white/40 text-sm">
+                              Tất cả
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -536,7 +577,8 @@ export default function NotificationPage() {
                             <div className="flex items-center gap-2">
                               <FileText className="h-4 w-4 text-purple-400" />
                               <span className="text-white text-sm">
-                                {notification?.document_notification?.length} tài liệu
+                                {notification?.document_notification?.length}{" "}
+                                tài liệu
                               </span>
                             </div>
                           ) : (
@@ -609,7 +651,9 @@ export default function NotificationPage() {
           <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">
-                {editingNotification ? "Chỉnh Sửa Thông Báo" : "Thêm Thông Báo Mới"}
+                {editingNotification
+                  ? "Chỉnh Sửa Thông Báo"
+                  : "Thêm Thông Báo Mới"}
               </DialogTitle>
             </DialogHeader>
 
@@ -691,12 +735,18 @@ export default function NotificationPage() {
                         className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                         onChange={(e) => {
                           const input = e.target;
-                          const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
+                          const items = input
+                            .closest('[role="listbox"]')
+                            ?.querySelectorAll('[role="option"]');
                           const searchText = input.value.toLowerCase();
-                          
+
                           items?.forEach((item) => {
-                            const text = item.textContent?.toLowerCase() || '';
-                            (item as HTMLElement).style.display = text.includes(searchText) ? '' : 'none';
+                            const text = item.textContent?.toLowerCase() || "";
+                            (item as HTMLElement).style.display = text.includes(
+                              searchText,
+                            )
+                              ? ""
+                              : "none";
                           });
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
@@ -765,45 +815,52 @@ export default function NotificationPage() {
 
                   {editingNotification &&
                     editingNotification?.document_notification?.filter(
-                      (doc) => !deletedDocumentIds.includes(doc.id)
+                      (doc) => !deletedDocumentIds.includes(doc.id),
                     ).length > 0 && (
                       <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/30">
                         <p className="text-blue-400 text-sm font-medium mb-2">
                           Tài liệu hiện có (
-                          {editingNotification?.document_notification?.filter(
-                            (doc) => !deletedDocumentIds.includes(doc.id)
-                          ).length})
+                          {
+                            editingNotification?.document_notification?.filter(
+                              (doc) => !deletedDocumentIds.includes(doc.id),
+                            ).length
+                          }
+                          )
                         </p>
                         {editingNotification.document_notification
-                          ?.filter((doc) => !deletedDocumentIds.includes(doc.id))
+                          ?.filter(
+                            (doc) => !deletedDocumentIds.includes(doc.id),
+                          )
                           ?.map((doc) => (
-                          <div
-                            key={doc.id}
-                            className="flex items-center gap-3 bg-black/40 p-3 rounded-lg mb-2"
-                          >
-                            <FileText className="h-4 w-4 text-blue-400" />
-                            <p className="text-white text-sm flex-1 truncate">
-                              {doc.name}
-                            </p>
-                            <a
-                              href={doc.file_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-400 hover:text-blue-300"
+                            <div
+                              key={doc.id}
+                              className="flex items-center gap-3 bg-black/40 p-3 rounded-lg mb-2"
                             >
-                              <Download className="h-4 w-4" />
-                            </a>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveExistingDocument(doc.id)}
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
+                              <FileText className="h-4 w-4 text-blue-400" />
+                              <p className="text-white text-sm flex-1 truncate">
+                                {doc.name}
+                              </p>
+                              <a
+                                href={doc.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:text-blue-300"
+                              >
+                                <Download className="h-4 w-4" />
+                              </a>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleRemoveExistingDocument(doc.id)
+                                }
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
                         <p className="text-white/60 text-xs mt-2">
                           * Tài liệu mới sẽ được thêm vào danh sách hiện có
                         </p>

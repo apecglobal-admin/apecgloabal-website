@@ -170,7 +170,7 @@ export default function NotificationPage() {
   const handleEdit = (notification: Notification) => {
     setEditingNotification({
       ...notification,
-      document_notification: notification.document_notification || [], // Thêm dòng này
+      document_notification: notification.document_notification || [],
     });
     setFormData({
       title: notification.title,
@@ -386,20 +386,11 @@ export default function NotificationPage() {
     <div className="space-y-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Quản Lý Thông Báo
-            </h1>
-            <p className="text-white/80">Quản lý các thông báo trong tổ chức</p>
-          </div>
-          <Button
-            onClick={handleCreate}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Thêm Thông Báo
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Quản Lý Thông Báo
+          </h1>
+          <p className="text-white/80">Quản lý các thông báo trong tổ chức</p>
         </div>
 
         {/* Type breakdown */}
@@ -488,16 +479,27 @@ export default function NotificationPage() {
         {/* Notifications Table */}
         <Card className="bg-black/50 border-purple-500/30">
           <CardHeader>
-            <CardTitle className="text-white">Danh Sách Thông Báo</CardTitle>
-            <CardDescription className="text-white/80">
-              Hiển thị {filteredNotifications.length} trên tổng số{" "}
-              {totalNotification} thông báo
-              {selectedIds.length > 0 && (
-                <span className="ml-2 text-blue-400">
-                  (Đã chọn {selectedIds.length})
-                </span>
-              )}
-            </CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-white">Danh Sách Thông Báo</CardTitle>
+                <CardDescription className="text-white/80">
+                  Hiển thị {filteredNotifications.length} trên tổng số{" "}
+                  {totalNotification} thông báo
+                  {selectedIds.length > 0 && (
+                    <span className="ml-2 text-blue-400">
+                      (Đã chọn {selectedIds.length})
+                    </span>
+                  )}
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleCreate}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Thêm Thông Báo
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">

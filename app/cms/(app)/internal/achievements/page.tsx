@@ -61,7 +61,7 @@ const AchievementsPage: React.FC = () => {
 
   useEffect(() => {
     dispatch(listAchivements({ limit: totalAchievements, page: 1 } as any) as any);
-    dispatch(listEmployee({ limit: totalEmployees, page: 1 } as any) as any);
+    dispatch(listEmployee({ limit: totalEmployees, page: 1, search: "" } as any) as any);
     dispatch(listAchivementCategory() as any);
   }, [dispatch, totalAchievements, totalEmployees]);
 

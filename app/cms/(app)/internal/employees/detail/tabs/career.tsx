@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Target } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { listEmployee, listEmployeeById, updateStatusCareer } from "@/src/features/employee/employeeApi";
+import { listEmployeeById, updateStatusCareer } from "@/src/features/employee/employeeApi";
 import { toast } from "sonner";
 
 interface EmployeeCareerRequestsProps {

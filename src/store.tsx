@@ -25,6 +25,7 @@ import achievementReducer from "./features/achievement/achievementsSlice";
 import taskReducer from "./features/task/taskSlice";
 import priorityReducer from "./features/priority/prioritySlice";
 import deadlineReducer from "./features/deadline/deadlineSlice";
+import levelReducer from "./features/levels/levelSlice";
 const persistConfig = {
   key: "cms-root",
   storage,
@@ -62,6 +63,7 @@ const rootReducer = combineReducers({
   task: taskReducer,
   priority: priorityReducer,
   deadline: deadlineReducer,
+  level: levelReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

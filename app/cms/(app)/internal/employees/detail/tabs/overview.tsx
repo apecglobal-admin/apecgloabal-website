@@ -129,7 +129,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
           <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-6 pt-0 sm:pt-0">
             <div className="flex items-center gap-2 text-white/80 text-xs sm:text-base">
               <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-400 shrink-0" />
-              <span>{employee?.position || "Chưa xác định"}</span>
+              <span>Phòng ban: {employee?.positions.name || "Chưa xác định"}</span>
             </div>
             <div className="flex items-center gap-2 text-white/80 text-xs sm:text-base">
               <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-400 shrink-0" />
@@ -143,7 +143,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             <div className="flex items-center gap-2 text-white/80 text-xs sm:text-base">
               <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-400 shrink-0" />
               <span>
-                Cấp bậc: {employee?.careers?.[0]?.career_level || "Chưa xác định"}
+                Cấp bậc: {employee?.levels?.name || "Chưa xác định"}
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs sm:text-base">

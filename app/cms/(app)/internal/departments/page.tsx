@@ -103,6 +103,9 @@ export default function DepartmentsManagementContent() {
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [showOnlySelectedManager, setShowOnlySelectedManager] = useState(false);
 
+  // Debounce search
+  const [searchDebounce, setSearchDebounce] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -113,12 +116,30 @@ export default function DepartmentsManagementContent() {
     dispatch(listManager() as any);
   }, [dispatch]);
 
+  // Debounce effect for search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchTerm);
+      setPage(1); // Reset to first page when searching
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch departments when filters change
   useEffect(() => {
     setLoading(true);
-    dispatch(listDepartment({ limit, page } as any) as any).finally(() =>
+    const params: any = {
+      limit,
+      page,
+      search: searchDebounce.trim() || "",
+      status: filterStatus !== "all" ? filterStatus : "",
+    };
+
+    dispatch(listDepartment(params as any) as any).finally(() =>
       setLoading(false)
     );
-  }, [dispatch, page, limit]);
+  }, [dispatch, page, limit, searchDebounce, filterStatus]);
 
   const totalPages = Math.ceil((totalDepartment || 0) / limit);
 
@@ -180,7 +201,15 @@ export default function DepartmentsManagementContent() {
           setShowCreateModal(false);
         }
       }
-      await dispatch(listDepartment({ limit, page } as any) as any);
+      
+      // Re-fetch with current filters
+      const params: any = {
+        limit,
+        page,
+        search: searchDebounce.trim() || "",
+        status: filterStatus !== "all" ? filterStatus : "",
+      };
+      await dispatch(listDepartment(params as any) as any);
     } catch (error) {
       console.error("Error saving department:", error);
       toast.error("Lỗi kết nối server");
@@ -199,7 +228,15 @@ export default function DepartmentsManagementContent() {
 
       if (res.payload.status == 200 || res.payload.status == 201) {
         setDeletingDepartment(null);
-        dispatch(listDepartment({ limit, page } as any) as any);
+        
+        // Re-fetch with current filters
+        const params: any = {
+          limit,
+          page,
+          search: searchDebounce.trim() || "",
+          status: filterStatus !== "all" ? filterStatus : "",
+        };
+        dispatch(listDepartment(params as any) as any);
         toast.success(res.payload.data.message);
       } else {
         toast.error("Lỗi: " + res.error);
@@ -214,38 +251,6 @@ export default function DepartmentsManagementContent() {
 
   // Ensure departments is always an array
   const safeDepartments = Array.isArray(departments) ? departments : [];
-
-  // Filter departments with useMemo
-  const filteredDepartments = useMemo(() => {
-    let result = safeDepartments;
-
-    // Search filter
-    if (searchTerm.trim()) {
-      result = result.filter((department) => {
-        const matchesSearch =
-          department.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (department.description &&
-            department.description
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
-          (department.manager?.name &&
-            department.manager.name
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()));
-
-        return matchesSearch;
-      });
-    }
-
-    // Status filter
-    if (filterStatus === "with-manager") {
-      result = result.filter((d) => d.manager?.id !== null);
-    } else if (filterStatus === "without-manager") {
-      result = result.filter((d) => d.manager?.id === null);
-    }
-
-    return result;
-  }, [safeDepartments, searchTerm, filterStatus]);
 
   // Filter managers for selection with search
   const filteredManagers = useMemo(() => {
@@ -271,7 +276,7 @@ export default function DepartmentsManagementContent() {
     return result;
   }, [managers, managerSearchQuery, showOnlySelectedManager, formData.manager_id]);
 
-  // Calculate stats
+  // Calculate stats from all departments (not filtered by search)
   const totalDepartments = totalDepartment || 0;
   const departmentsWithManagers = safeDepartments.filter(
     (d) => d.manager?.id !== null
@@ -280,18 +285,10 @@ export default function DepartmentsManagementContent() {
   const clearFilters = () => {
     setSearchTerm("");
     setFilterStatus("all");
+    setPage(1);
   };
 
   const hasActiveFilters = searchTerm.trim() !== "" || filterStatus !== "all";
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen">
-  //       <Loader2 className="h-8 w-8 animate-spin text-white" />
-  //       <span className="ml-2 text-white">Đang tải phòng ban...</span>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="space-y-6">
@@ -409,7 +406,7 @@ export default function DepartmentsManagementContent() {
             <div>
               <CardTitle className="text-white">Danh Sách Phòng Ban</CardTitle>
               <CardDescription className="text-white/80">
-                Hiển thị {filteredDepartments.length} phòng ban
+                Hiển thị {safeDepartments.length} phòng ban
                 {hasActiveFilters && ` (đã lọc từ ${totalDepartments})`}
               </CardDescription>
             </div>
@@ -423,116 +420,125 @@ export default function DepartmentsManagementContent() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-purple-500/30">
-                <TableHead className="text-white">Phòng Ban</TableHead>
-                <TableHead className="text-white">Trưởng Phòng</TableHead>
-                <TableHead className="text-white">Email</TableHead>
-                <TableHead className="text-white">Ngày Tạo</TableHead>
-                <TableHead className="text-white">Thao Tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDepartments.length > 0 ? (
-                filteredDepartments.map((department) => (
-                  <TableRow
-                    key={department.id}
-                    className="border-b border-purple-500/30 hover:bg-white/5"
-                  >
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-white">
-                          {department.name}
-                        </p>
-                        <p className="text-sm text-white/60">
-                          {department.description || "Không có mô tả"}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {department.manager?.id ? (
-                        <div className="flex items-center gap-2">
-                          {department.manager.avatar_url ? (
-                            <img
-                              src={department.manager.avatar_url}
-                              alt={department.manager.name || ""}
-                              className="w-8 h-8 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
-                              <span className="text-white text-sm font-semibold">
-                                {department.manager.name?.charAt(0) || "?"}
-                              </span>
-                            </div>
-                          )}
-                          <span className="text-white/80">
-                            {department.manager.name}
-                          </span>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+              <span className="ml-2 text-white">Đang tải phòng ban...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-purple-500/30">
+                  <TableHead className="text-white">Phòng Ban</TableHead>
+                  <TableHead className="text-white">Trưởng Phòng</TableHead>
+                  <TableHead className="text-white">Email</TableHead>
+                  <TableHead className="text-white">Ngày Tạo</TableHead>
+                  <TableHead className="text-white">Thao Tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {safeDepartments.length > 0 ? (
+                  safeDepartments.map((department) => (
+                    <TableRow
+                      key={department.id}
+                      className="border-b border-purple-500/30 hover:bg-white/5"
+                    >
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-white">
+                            {department.name}
+                          </p>
+                          <p className="text-sm text-white/60">
+                            {department.description || "Không có mô tả"}
+                          </p>
                         </div>
-                      ) : (
-                        <Badge className="bg-gray-600/20 text-gray-400 border-gray-500/30">
-                          Chưa phân công
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-white/60">
-                      {department.manager?.email || "—"}
-                    </TableCell>
-                    <TableCell className="text-white/60">
-                      {new Date(department.created_at).toLocaleDateString(
-                        "vi-VN"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(department)}
-                          className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setDeletingDepartment(department)}
-                          className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      </TableCell>
+                      <TableCell>
+                        {department.manager?.id ? (
+                          <div className="flex items-center gap-2">
+                            {department.manager.avatar_url ? (
+                              <img
+                                src={department.manager.avatar_url}
+                                alt={department.manager.name || ""}
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+                                <span className="text-white text-sm font-semibold">
+                                  {department.manager.name?.charAt(0) || "?"}
+                                </span>
+                              </div>
+                            )}
+                            <span className="text-white/80">
+                              {department.manager.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <Badge className="bg-gray-600/20 text-gray-400 border-gray-500/30">
+                            Chưa phân công
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-white/60">
+                        {department.manager?.email || "—"}
+                      </TableCell>
+                      <TableCell className="text-white/60">
+                        {new Date(department.created_at).toLocaleDateString(
+                          "vi-VN"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(department)}
+                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeletingDepartment(department)}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-white/60"
+                    >
+                      {hasActiveFilters
+                        ? "Không tìm thấy phòng ban nào phù hợp với bộ lọc"
+                        : "Không tìm thấy phòng ban nào"}
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center py-8 text-white/60"
-                  >
-                    {hasActiveFilters
-                      ? "Không tìm thấy phòng ban nào phù hợp với bộ lọc"
-                      : "Không tìm thấy phòng ban nào"}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
 
         {/* Pagination */}
-        <div className="px-6 pb-6">
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            totalItems={totalDepartment}
-            onPageChange={setPage}
-            maxVisiblePages={5}
-            itemsPerPage={limit}
-          />
-        </div>
+        {totalPages > 1 && (
+          <div className="px-6 pb-6">
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              totalItems={totalDepartment}
+              onPageChange={setPage}
+              maxVisiblePages={5}
+              itemsPerPage={limit}
+            />
+          </div>
+        )}
       </Card>
 
       {/* Create/Edit Modal */}

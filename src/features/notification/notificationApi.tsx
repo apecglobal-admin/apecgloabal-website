@@ -7,9 +7,9 @@ export const listNotification = createAsyncThunk(
   "notification/listNotification",
   async (payload, thunkAPI) => {
     try {
-      const { limit, page }: any = payload;
+      const { limit, page, search }: any = payload;
       const response = await apiAxiosInstance.get(
-        `/cms/notifications?limit=${limit}&page=${page}`
+        `/cms/notifications?limit=${limit}&page=${page}&search=${search}`
       );
       return response.data;
     } catch (error: any) {

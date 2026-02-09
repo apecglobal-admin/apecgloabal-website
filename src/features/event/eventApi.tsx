@@ -6,9 +6,9 @@ export const listEvent = createAsyncThunk(
   "event/listEvent",
   async (payload, thunkAPI) => {
     try {
-      const { limit, page }: any = payload;
+      const { limit, page, search }: any = payload;
       const response = await apiAxiosInstance.get(
-        `/cms/events?limit=${limit}&&page=${page}`
+        `/cms/events?limit=${limit}&&page=${page}&search=${search}`
       );
       return response.data;
     } catch (error: any) {

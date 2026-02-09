@@ -22,14 +22,14 @@ import {
   Crown,
   Trash2,
   Star,
-  Shield
+  Shield,
+  X
 } from "lucide-react"
 import { toast } from "sonner"
 import { usePositionData } from "@/src/hook/positionHook"
 import { createPosition, deletePosition, listPosition, updatePosition } from "@/src/features/position/positionApi"
 import { useDispatch } from "react-redux"
 import Pagination from "@/components/pagination"
-import { de } from "date-fns/locale"
 
 interface Position {
   id: number
@@ -59,6 +59,9 @@ export default function PositionsManagementContent() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
+  // Debounce search
+  const [searchDebounce, setSearchDebounce] = useState("")
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -76,10 +79,28 @@ export default function PositionsManagementContent() {
     { value: "executive", label: "Điều hành", color: "bg-red-500" },
   ]
 
-  // Load data khi component mount hoặc khi currentPage thay đổi
+  // Debounce effect for search
   useEffect(() => {
-    dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
-  }, [dispatch, currentPage])
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchTerm);
+      setCurrentPage(1); // Reset to first page when searching
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch positions when filters change
+  useEffect(() => {
+    setLoading(true);
+    const params: any = {
+      limit: itemsPerPage,
+      page: currentPage,
+      search: searchDebounce.trim() || "",
+      is_manager: showManagerOnly ? "true" : "",
+    };
+
+    dispatch(listPosition(params as any) as any).finally(() => setLoading(false));
+  }, [dispatch, currentPage, searchDebounce, showManagerOnly]);
 
   const handleCreate = () => {
     setEditingPosition(null)
@@ -117,14 +138,30 @@ export default function PositionsManagementContent() {
         const res = await dispatch(updatePosition({id: editingPosition.id, title: formData.title, description: formData.description, is_manager_position: formData.is_manager_position} as any) as any)
         if (res.payload.status == 200 || res.payload.status == 201) {
           setShowCreateModal(false)
-          dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
+          
+          // Re-fetch with current filters
+          const params: any = {
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchDebounce.trim() || "",
+            is_manager: showManagerOnly ? "true" : "",
+          };
+          dispatch(listPosition(params as any) as any)
           toast.success(res.payload.data.message)
         }
       } else {
         const res = await dispatch(createPosition({title: formData.title, description: formData.description, is_manager_position: formData.is_manager_position, is_active: formData.is_active} as any) as any)
          if (res.payload.status == 200 || res.payload.status == 201) {
            setShowCreateModal(false)
-           dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
+           
+           // Re-fetch with current filters
+           const params: any = {
+             limit: itemsPerPage,
+             page: currentPage,
+             search: searchDebounce.trim() || "",
+             is_manager: showManagerOnly ? "true" : "",
+           };
+           dispatch(listPosition(params as any) as any)
            toast.success(res.payload.data.message)
          }
       }
@@ -144,7 +181,15 @@ export default function PositionsManagementContent() {
       const res = await dispatch(deletePosition([deletingPosition.id]  as any) as any)
       if (res.payload.status == 200 || res.payload.status == 201) {
         setDeletingPosition(null)
-        dispatch(listPosition({ limit: itemsPerPage, page: currentPage } as any) as any)
+        
+        // Re-fetch with current filters
+        const params: any = {
+          limit: itemsPerPage,
+          page: currentPage,
+          search: searchDebounce.trim() || "",
+          is_manager: showManagerOnly ? "true" : "",
+        };
+        dispatch(listPosition(params as any) as any)
         toast.success('Xóa chức vụ thành công!')
       } 
     } catch (error) {
@@ -155,41 +200,24 @@ export default function PositionsManagementContent() {
     }
   }
 
-  // Filter positions (chỉ filter, không phân trang)
-  const filteredPositions = positions.filter((position: any) => {
-    const matchesSearch = 
-      position.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (position.description && position.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    
-    const matchesLevel = selectedLevel === "all" || position.level === selectedLevel
-    const matchesManager = !showManagerOnly || position.is_manager_position
-    
-    return matchesSearch && matchesLevel && matchesManager
-  })
+  // Clear filters
+  const clearFilters = () => {
+    setSearchTerm("");
+    setShowManagerOnly(false);
+    setCurrentPage(1);
+  };
 
-  // Pagination info - sử dụng totalPosition từ API
-  const totalItems = totalPosition
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const hasActiveFilters = searchTerm.trim() !== "" || showManagerOnly;
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm, selectedLevel, showManagerOnly])
+  // Pagination info
+  const totalItems = totalPosition || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  // Calculate stats - sử dụng toàn bộ positions từ store
-  const totalPositions = positions.length
-  const managerPositions = positions.filter((p: any) => p.is_manager_position).length
-  const activePositions = positions.filter((p: any) => p.is_active).length
-
-  // Show loading state
-  if (!positions || positions.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
-        <Loader2 className="h-8 w-8 animate-spin text-white" />
-        <span className="ml-2 text-white">Đang tải chức vụ...</span>
-      </div>
-    )
-  }
+  // Calculate stats from current positions
+  const safePositions = Array.isArray(positions) ? positions : [];
+  const totalPositions = totalItems;
+  const managerPositions = safePositions.filter((p: any) => p.is_manager_position).length;
+  const activePositions = safePositions.filter((p: any) => p.is_active).length;
 
   return (
     <div className="space-y-6">
@@ -218,7 +246,7 @@ export default function PositionsManagementContent() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/60 text-sm">Tổng Chức Vụ</p>
-                <p className="text-2xl font-bold text-white">{totalItems}</p>
+                <p className="text-2xl font-bold text-white">{totalPositions}</p>
               </div>
               <Briefcase className="h-8 w-8 text-purple-400" />
             </div>
@@ -248,10 +276,7 @@ export default function PositionsManagementContent() {
             </div>
           </CardContent>
         </Card>
-
-        
       </div>
-
 
       {/* Filters */}
       <Card className="bg-black/50 border-purple-500/30">
@@ -277,6 +302,17 @@ export default function PositionsManagementContent() {
                 Chỉ hiển thị chức vụ quản lý
               </Label>
             </div>
+
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className="bg-transparent border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Xóa bộ lọc
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -286,90 +322,104 @@ export default function PositionsManagementContent() {
         <CardHeader>
           <CardTitle className="text-white">Danh Sách Chức Vụ</CardTitle>
           <CardDescription className="text-white/80">
-            Hiển thị {filteredPositions.length} trên tổng số {totalItems} chức vụ
+            Hiển thị {safePositions.length} chức vụ
+            {hasActiveFilters && ` (đã lọc từ ${totalPositions})`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-purple-500/30">
-                <TableHead className="text-white">Chức Vụ</TableHead>
-                <TableHead className="text-white">Trạng Thái</TableHead>
-                <TableHead className="text-white">Thao Tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPositions.length > 0 ? (
-                filteredPositions.map((position: any) => {
-                  return (
-                    <TableRow key={position.id} className="border-b border-purple-500/30 hover:bg-white/5">
-                      <TableCell>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-white">{position.title}</p>
-                            {position.is_manager_position && (
-                              <Shield className="h-4 w-4 text-orange-400"  />
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+              <span className="ml-2 text-white">Đang tải chức vụ...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-purple-500/30">
+                  <TableHead className="text-white">Chức Vụ</TableHead>
+                  <TableHead className="text-white">Trạng Thái</TableHead>
+                  <TableHead className="text-white">Thao Tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {safePositions.length > 0 ? (
+                  safePositions.map((position: any) => {
+                    return (
+                      <TableRow key={position.id} className="border-b border-purple-500/30 hover:bg-white/5">
+                        <TableCell>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-white">{position.title}</p>
+                              {position.is_manager_position && (
+                                <Shield className="h-4 w-4 text-orange-400"  />
+                              )}
+                            </div>
+                            {position.description && (
+                              <p className="text-sm text-white/60 mt-1">
+                                {position.description}
+                              </p>
                             )}
                           </div>
-                          {position.description && (
-                            <p className="text-sm text-white/60 mt-1">
-                              {position.description}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <Badge 
-                          className={position.is_active 
-                            ? "bg-green-600/20 text-green-400 border-green-500/30" 
-                            : "bg-red-600/20 text-red-400 border-red-500/30"
-                          }
-                        >
-                          {position.is_active ? 'Hoạt động' : 'Không hoạt động'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(position)}
-                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Badge 
+                            className={position.is_active 
+                              ? "bg-green-600/20 text-green-400 border-green-500/30" 
+                              : "bg-red-600/20 text-red-400 border-red-500/30"
+                            }
                           >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeletingPosition(position)}
-                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8 text-white/60">
-                    Không tìm thấy chức vụ nào
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                            {position.is_active ? 'Hoạt động' : 'Không hoạt động'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(position)}
+                              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setDeletingPosition(position)}
+                              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-white/60">
+                      {hasActiveFilters
+                        ? "Không tìm thấy chức vụ nào phù hợp với bộ lọc"
+                        : "Không tìm thấy chức vụ nào"}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
 
           {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            onPageChange={setCurrentPage}
-            itemsPerPage={itemsPerPage}
-          />
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -121,7 +121,7 @@ export default function PolicyPage() {
   });
 
   useEffect(() => {
-    dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
+    dispatch(listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any);
     dispatch(listPolicyType() as any);
   }, [dispatch, totalDepartment]);
 

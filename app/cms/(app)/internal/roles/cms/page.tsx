@@ -91,7 +91,7 @@ export default function RolesContent() {
   useEffect(() => {
     dispatch(listUserCMS() as any);
     dispatch(listRoles() as any);
-    dispatch(listEmployee({ limit: totalEmployees, page: 1 } as any) as any);
+    dispatch(listEmployee({ limit: totalEmployees, page: 1, search: "" } as any) as any);
   }, [dispatch, totalEmployees]);
 
   useEffect(() => {

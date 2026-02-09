@@ -16,9 +16,11 @@ import {
   AlertTriangle,
   List,
   Grid,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useEventData } from "@/src/hook/eventHook";
 import {
   createEvent,
@@ -68,18 +70,21 @@ interface FormData {
 }
 
 // ============= UTILITY FUNCTIONS =============
-const parseUTCDate = (dateString: string): string => {
+const parseUTCDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
   const datePart = dateString.split('T')[0];
   return datePart;
 };
 
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
   const datePart = dateString.split('T')[0];
   const [year, month, day] = datePart.split('-');
   return `${day}/${month}/${year}`;
 };
 
-const formatTime = (timeString: string): string => {
+const formatTime = (timeString: string | null | undefined): string => {
+  if (!timeString) return '';
   return timeString?.substring(0, 5);
 };
 
@@ -110,6 +115,10 @@ export default function EventPage() {
   const [showCalendar, setShowCalendar] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  
+  // Search states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -123,9 +132,32 @@ export default function EventPage() {
     active_status: true,
   });
 
+  // Debounce search term
   useEffect(() => {
-    dispatch(listEvent({ limit, page } as any) as any);
-  }, [dispatch, page, limit, totalEvent]);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset về trang 1 khi search
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
+  // Load events với search parameter
+  useEffect(() => {
+    dispatch(
+      listEvent({ 
+        limit, 
+        page,
+        search: debouncedSearchTerm || ""
+      } as any) as any
+    );
+  }, [dispatch, page, limit, debouncedSearchTerm]);
 
   const totalPages = Math.ceil((totalEvent || 0) / limit);
 
@@ -159,6 +191,8 @@ export default function EventPage() {
       const eventStartDate = parseUTCDate(event.date);
       const eventEndDate = parseUTCDate(event.end_date);
       
+      if (!eventStartDate || !eventEndDate) return false;
+      
       const eventStart = createLocalDateTime(eventStartDate, event.time);
       const eventEnd = createLocalDateTime(eventEndDate, event.end_time);
 
@@ -184,6 +218,9 @@ export default function EventPage() {
     return events.filter((event: Event) => {
       const eventStartDate = parseUTCDate(event.date);
       const eventEndDate = parseUTCDate(event.end_date);
+      
+      if (!eventStartDate || !eventEndDate) return false;
+      
       return dateStr >= eventStartDate && dateStr <= eventEndDate;
     });
   }, [selectedDate, events]);
@@ -207,6 +244,9 @@ export default function EventPage() {
     return events.some((event: Event) => {
       const eventStartDate = parseUTCDate(event.date);
       const eventEndDate = parseUTCDate(event.end_date);
+      
+      if (!eventStartDate || !eventEndDate) return false;
+      
       return dateStr >= eventStartDate && dateStr <= eventEndDate;
     });
   };
@@ -219,6 +259,9 @@ export default function EventPage() {
     return events.filter((event: Event) => {
       const eventStartDate = parseUTCDate(event.date);
       const eventEndDate = parseUTCDate(event.end_date);
+      
+      if (!eventStartDate || !eventEndDate) return false;
+      
       return dateStr >= eventStartDate && dateStr <= eventEndDate;
     });
   };
@@ -250,9 +293,9 @@ export default function EventPage() {
         title: event.title,
         description: event.description,
         date: parseUTCDate(event.date),
-        time: event.time.substring(0, 5),
+        time: event.time?.substring(0, 5) || '',
         end_date: parseUTCDate(event.end_date),
-        end_time: event.end_time.substring(0, 5),
+        end_time: event.end_time?.substring(0, 5) || '',
         address: event.address,
         event_type_id: event.event_type_id,
         active_status: event.active_status,
@@ -321,7 +364,13 @@ export default function EventPage() {
           handleCloseModal();
         }
       }
-      dispatch(listEvent({ limit, page } as any) as any);
+      dispatch(
+        listEvent({ 
+          limit, 
+          page,
+          search: debouncedSearchTerm || ""
+        } as any) as any
+      );
     } catch (error) {
       console.error("Error submitting event:", error);
     }
@@ -350,7 +399,13 @@ export default function EventPage() {
         if (res.payload.status === 200 || res.payload.status === 201) {
           toast.success(res.payload.data.message);
           setSelectedEvents([]);
-          dispatch(listEvent({ limit, page } as any) as any);
+          dispatch(
+            listEvent({ 
+              limit, 
+              page,
+              search: debouncedSearchTerm || ""
+            } as any) as any
+          );
         }
       } catch (error) {
         console.error("Error deleting events:", error);
@@ -549,6 +604,18 @@ export default function EventPage() {
               Theo dõi và quản lý tất cả sự kiện của ApecGlobal Group
             </p>
           </div>
+          
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
+            <Input
+              placeholder="Tìm kiếm sự kiện theo tên, địa điểm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-gray-400 text-sm sm:text-base"
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="flex gap-2 bg-slate-800/50 rounded-lg p-1">
               <Button
@@ -644,7 +711,7 @@ export default function EventPage() {
                           {event.title}
                         </h3>
                         <span className="inline-block px-2 sm:px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-medium">
-                          {event.event_type.name}
+                          {event.event_type?.name || 'Chưa phân loại'}
                         </span>
                       </div>
                     </div>
@@ -723,7 +790,7 @@ export default function EventPage() {
                 Chưa có sự kiện nào
               </h3>
               <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">
-                Chưa có sự kiện nào. Hãy tạo sự kiện mới!
+                {searchTerm ? `Không tìm thấy sự kiện nào với từ khóa "${searchTerm}"` : 'Chưa có sự kiện nào. Hãy tạo sự kiện mới!'}
               </p>
               <Button
                 onClick={() => handleOpenModal("create")}
@@ -1008,7 +1075,7 @@ export default function EventPage() {
                 <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                   <div className="flex flex-wrap gap-2 sm:gap-3">
                     <span className="inline-block px-3 sm:px-4 py-1 sm:py-2 bg-purple-500/20 text-purple-300 rounded-full text-xs sm:text-sm font-medium">
-                      {selectedEvent.event_type.name}
+                      {selectedEvent.event_type?.name || 'Chưa phân loại'}
                     </span>
                     <span
                       className={`inline-block px-3 sm:px-4 py-1 sm:py-2 ${
@@ -1108,18 +1175,22 @@ export default function EventPage() {
                       <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-center py-1.5 sm:py-2">
                         <div className="text-[10px] sm:text-xs font-semibold uppercase">
                           {(() => {
-                            const d = new Date(parseUTCDate(selectedEvent.date) + 'T00:00:00');
+                            const dateStr = parseUTCDate(selectedEvent.date);
+                            if (!dateStr) return '';
+                            const d = new Date(dateStr + 'T00:00:00');
                             return d.toLocaleDateString("vi-VN", { weekday: "long" });
                           })()}
                         </div>
                       </div>
                       <div className="bg-white p-3 sm:p-4 text-center">
                         <div className="text-3xl sm:text-5xl font-bold text-gray-800">
-                          {parseUTCDate(selectedEvent.date).split('-')[2]}
+                          {parseUTCDate(selectedEvent.date)?.split('-')[2] || ''}
                         </div>
                         <div className="text-sm sm:text-lg font-semibold text-gray-600 mt-1">
                           {(() => {
-                            const d = new Date(parseUTCDate(selectedEvent.date) + 'T00:00:00');
+                            const dateStr = parseUTCDate(selectedEvent.date);
+                            if (!dateStr) return '';
+                            const d = new Date(dateStr + 'T00:00:00');
                             return d.toLocaleDateString("vi-VN", {
                               month: "long",
                               year: "numeric",
@@ -1145,8 +1216,12 @@ export default function EventPage() {
                         <div className="w-0.5 sm:w-1 h-6 sm:h-8 bg-gradient-to-b from-purple-500 to-blue-500 rounded-full"></div>
                         <div className="text-gray-400 text-[10px] sm:text-xs font-semibold my-1">
                           {(() => {
-                            const start = createLocalDateTime(parseUTCDate(selectedEvent.date), selectedEvent.time);
-                            const end = createLocalDateTime(parseUTCDate(selectedEvent.end_date), selectedEvent.end_time);
+                            const startDateStr = parseUTCDate(selectedEvent.date);
+                            const endDateStr = parseUTCDate(selectedEvent.end_date);
+                            if (!startDateStr || !endDateStr) return '';
+                            
+                            const start = createLocalDateTime(startDateStr, selectedEvent.time);
+                            const end = createLocalDateTime(endDateStr, selectedEvent.end_time);
                             const diffMs = end.getTime() - start.getTime();
                             const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                             const diffDays = Math.floor(diffHours / 24);
@@ -1165,25 +1240,29 @@ export default function EventPage() {
                       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-1.5 sm:py-2">
                         <div className="text-[10px] sm:text-xs font-semibold uppercase">
                           {(() => {
-                            const d = new Date(parseUTCDate(selectedEvent.end_date) + 'T00:00:00');
+                            const dateStr = parseUTCDate(selectedEvent.end_date);
+                            if (!dateStr) return '';
+                            const d = new Date(dateStr + 'T00:00:00');
                             return d.toLocaleDateString("vi-VN", { weekday: "long" });
                           })()}
                         </div>
                       </div>
                       <div className="bg-white p-3 sm:p-4 text-center">
                         <div className="text-3xl sm:text-5xl font-bold text-gray-800">
-                          {parseUTCDate(selectedEvent.end_date).split('-')[2]}
+                          {parseUTCDate(selectedEvent.end_date)?.split('-')[2] || ''}
                         </div>
                         <div className="text-sm sm:text-lg font-semibold text-gray-600 mt-1">
                           {(() => {
-                            const d = new Date(parseUTCDate(selectedEvent.end_date) + 'T00:00:00');
+                            const dateStr = parseUTCDate(selectedEvent.end_date);
+                            if (!dateStr) return '';
+                            const d = new Date(dateStr + 'T00:00:00');
                             return d.toLocaleDateString("vi-VN", {
                               month: "long",
                               year: "numeric",
                             });
                           })()}
                         </div>
-                        <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200">
+                        <div className="mt-2 sm:pt-3 border-t border-gray-200">
                           <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-blue-600">
                             <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span className="font-semibold text-sm sm:text-base">

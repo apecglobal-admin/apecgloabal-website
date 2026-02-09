@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
-import { listPosition } from "../position/positionApi";
 import { listKPI, listKPIChild, listUnitKpi } from "./kpiApi";
 
 interface InitState<T> {

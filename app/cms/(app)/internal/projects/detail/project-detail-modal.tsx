@@ -66,12 +66,6 @@ import {
   listProjectById,
 } from "@/src/features/project/projectApi";
 import { listCompanies } from "@/src/features/company/companyApi";
-import { listEmployee } from "@/src/features/employee/employeeApi";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@radix-ui/react-popover";
 import { useCompanyData } from "@/src/hook/companyHook";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import { useProjectData } from "@/src/hook/projectHook";
@@ -96,7 +90,6 @@ export function ProjectDetailModal({
   const dispatch = useDispatch();
   const { project} = useProjectData();
   const { companies , totalCompany} = useCompanyData();
-  const { employees } = useEmployeeData();
 
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(editMode);
@@ -128,7 +121,6 @@ export function ProjectDetailModal({
     if (isOpen && projectId) {
       dispatch(listProjectById(projectId as any) as any);
       dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
-      dispatch(listEmployee() as any);
     }
     setEditing(editMode);
   }, [isOpen, projectId, editMode]);

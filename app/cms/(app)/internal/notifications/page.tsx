@@ -44,6 +44,8 @@ import {
   Trash2,
   Download,
   X,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
@@ -110,10 +112,13 @@ export default function NotificationPage() {
   const { notifications, totalNotification, notificationTypes } =
     useNotificationData();
   const { departments, totalDepartment } = useDepartmentData();
+  
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [editingNotification, setEditingNotification] =
     useState<Notification | null>(null);
   const [creating, setCreating] = useState(false);
@@ -135,23 +140,41 @@ export default function NotificationPage() {
     documents: [] as File[],
   });
 
+  // Debounce search term
   useEffect(() => {
-    dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // Đợi 500ms sau khi user ngừng typing
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset về trang 1 khi search
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    dispatch(listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any);
   }, [dispatch, totalDepartment]);
 
+  // Load notifications với search parameter
   useEffect(() => {
     dispatch(
       listNotification({
         limit: itemsPerPage,
         page: currentPage,
+        search: debouncedSearchTerm || ""
       } as any) as any,
     );
     dispatch(listNotificationType() as any);
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, debouncedSearchTerm]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setSelectedIds([]); // Clear selection when changing page
+    setSelectedIds([]);
   };
 
   const handleCreate = () => {
@@ -249,6 +272,7 @@ export default function NotificationPage() {
             listNotification({
               limit: itemsPerPage,
               page: currentPage,
+              search: debouncedSearchTerm || ""
             } as any) as any,
           );
           toast.success(res.payload.data.message);
@@ -262,6 +286,7 @@ export default function NotificationPage() {
             listNotification({
               limit: itemsPerPage,
               page: currentPage,
+              search: debouncedSearchTerm || ""
             } as any) as any,
           );
           toast.success(res.payload.data.message);
@@ -277,7 +302,6 @@ export default function NotificationPage() {
     }
   };
 
-  // Handle select all checkbox
   const handleSelectAll = () => {
     if (
       selectedIds.length === filteredNotifications.length &&
@@ -289,7 +313,6 @@ export default function NotificationPage() {
     }
   };
 
-  // Handle individual checkbox
   const handleSelectOne = (id: number) => {
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
@@ -313,6 +336,7 @@ export default function NotificationPage() {
           listNotification({
             limit: itemsPerPage,
             page: currentPage,
+            search: debouncedSearchTerm || ""
           } as any) as any,
         );
         setSelectedIds([]);
@@ -327,22 +351,16 @@ export default function NotificationPage() {
     }
   };
 
-  // Filter notifications (chỉ filter trên dữ liệu đã được phân trang từ server)
-  const filteredNotifications = notifications
+  // Sử dụng data trực tiếp từ API (đã được filter qua search)
+  // Chỉ filter thêm type và unread ở frontend
+  const filteredNotifications = (notifications || [])
     .filter((notification: Notification) => {
-      const matchesSearch =
-        notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (notification.content &&
-          notification.content
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()));
-
       const matchesType =
         selectedType === "all" ||
         notification.type_id.toString() === selectedType;
       const matchesUnread = !showUnreadOnly || !notification.is_read;
 
-      return matchesSearch && matchesType && matchesUnread;
+      return matchesType && matchesUnread;
     })
     .sort((a: Notification, b: Notification) => {
       return (
@@ -350,25 +368,24 @@ export default function NotificationPage() {
       );
     });
 
-  // Tính tổng số trang từ totalNotification (tổng số từ server)
   const totalPages = Math.ceil(totalNotification / itemsPerPage);
 
-  // Reset to page 1 when filters change
+  // Reset trang khi filter thay đổi
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);
-  }, [searchTerm, selectedType, showUnreadOnly]);
+  }, [selectedType, showUnreadOnly]);
 
-  // Calculate stats
-  const unreadNotifications = notifications.filter(
+  const unreadNotifications = notifications?.filter(
     (n: Notification) => !n.is_read,
-  ).length;
+  ).length || 0;
+  
   const notificationsByType = notificationTypes?.map(
     (type: NotificationType) => ({
       ...type,
       count: notifications?.filter(
         (n: Notification) => n?.type_id?.toString() === type?.id,
-      ).length,
+      ).length || 0,
     }),
   );
 
@@ -383,60 +400,77 @@ export default function NotificationPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+    <div className="space-y-4 p-3 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        {/* Header - Mobile Optimized */}
+        <div className="space-y-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
             Quản Lý Thông Báo
           </h1>
-          <p className="text-white/80">Quản lý các thông báo trong tổ chức</p>
+          <p className="text-sm md:text-base text-white/80">
+            Quản lý các thông báo trong tổ chức
+          </p>
         </div>
 
-        {/* Type breakdown */}
+        {/* Type breakdown - Mobile Grid */}
         <Card className="bg-black/50 border-purple-500/30">
-          <CardHeader>
-            <CardTitle className="text-white">
-              Phân Bố Theo Loại Thông Báo
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-base md:text-lg text-white">
+              Phân Bố Theo Loại
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {notificationsByType.map((type: any) => (
-                <div key={type.id} className="text-center">
+          <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {notificationsByType?.map((type: any) => (
+                <div key={type.id} className="text-center p-3 bg-black/30 rounded-lg">
                   <Badge
-                    className={`${getTypeColor(parseInt(type.id))} text-white mb-2`}
+                    className={`${getTypeColor(parseInt(type.id))} text-white text-xs mb-2`}
                   >
                     {type.name}
                   </Badge>
-                  <p className="text-2xl font-bold text-white">{type.count}</p>
+                  <p className="text-xl md:text-2xl font-bold text-white">{type.count}</p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Filters */}
-        <Card className="bg-black/50 border-purple-500/30">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        {/* Mobile Filter Button */}
+        <div className="md:hidden">
+          <Button
+            onClick={() => setShowFilterPanel(!showFilterPanel)}
+            className="w-full bg-black/50 border border-purple-500/30 text-white hover:bg-black/70"
+            variant="outline"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Bộ lọc & Tìm kiếm
+            <ChevronDown className={`h-4 w-4 ml-auto transition-transform ${showFilterPanel ? 'rotate-180' : ''}`} />
+          </Button>
+        </div>
+
+        {/* Filters - Mobile Collapsible */}
+        <Card className={`bg-black/50 border-purple-500/30 ${!showFilterPanel && 'hidden md:block'}`}>
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-col gap-3 md:flex-row md:gap-4">
+              {/* Search */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
                 <Input
-                  placeholder="Tìm kiếm thông báo..."
+                  placeholder="Tìm kiếm..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
+                  className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50 text-sm md:text-base"
                 />
               </div>
 
+              {/* Type Filter */}
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-[200px]">
-                  <SelectValue placeholder="Chọn loại thông báo" />
+                <SelectTrigger className="bg-black/30 border-purple-500/30 text-white w-full md:w-[200px] text-sm md:text-base">
+                  <SelectValue placeholder="Loại thông báo" />
                 </SelectTrigger>
                 <SelectContent className="bg-black/90 border-purple-500/30 text-white">
                   <SelectItem value="all">Tất cả loại</SelectItem>
-                  {notificationTypes.map((type: NotificationType) => (
+                  {notificationTypes?.map((type: NotificationType) => (
                     <SelectItem key={type.id} value={type.id.toString()}>
                       {type.name}
                     </SelectItem>
@@ -444,7 +478,8 @@ export default function NotificationPage() {
                 </SelectContent>
               </Select>
 
-              <div className="flex items-center space-x-2">
+              {/* Unread Filter */}
+              <div className="flex items-center space-x-2 bg-black/30 p-3 rounded-md border border-purple-500/30 md:bg-transparent md:p-0 md:border-0">
                 <Checkbox
                   id="unread-only"
                   checked={showUnreadOnly}
@@ -453,16 +488,19 @@ export default function NotificationPage() {
                   }
                 />
                 <Label htmlFor="unread-only" className="text-white text-sm">
-                  Chỉ hiển thị chưa đọc
+                  Chỉ chưa đọc
                 </Label>
               </div>
+            </div>
 
-              {selectedIds.length > 0 && (
+            {/* Bulk Actions - Mobile Full Width */}
+            {selectedIds.length > 0 && (
+              <div className="mt-3 md:mt-4">
                 <Button
                   variant="outline"
                   onClick={() => handleDelete(selectedIds)}
                   disabled={deleting}
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
+                  className="w-full md:w-auto bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50"
                 >
                   {deleting ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -471,38 +509,40 @@ export default function NotificationPage() {
                   )}
                   Xóa ({selectedIds.length})
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Notifications Table */}
+        {/* Notifications List - Mobile Card View */}
         <Card className="bg-black/50 border-purple-500/30">
-          <CardHeader>
-            <div className="flex justify-between items-center">
+          <CardHeader className="p-4 md:p-6">
+            <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
               <div>
-                <CardTitle className="text-white">Danh Sách Thông Báo</CardTitle>
-                <CardDescription className="text-white/80">
-                  Hiển thị {filteredNotifications.length} trên tổng số{" "}
-                  {totalNotification} thông báo
+                <CardTitle className="text-base md:text-lg text-white">
+                  Danh Sách Thông Báo
+                </CardTitle>
+                <CardDescription className="text-xs md:text-sm text-white/80 mt-1">
+                  {filteredNotifications.length}/{totalNotification}
                   {selectedIds.length > 0 && (
                     <span className="ml-2 text-blue-400">
-                      (Đã chọn {selectedIds.length})
+                      ({selectedIds.length} đã chọn)
                     </span>
                   )}
                 </CardDescription>
               </div>
               <Button
                 onClick={handleCreate}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+                className="w-full md:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Thêm Thông Báo
+                Thêm Mới
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
+          <CardContent className="p-0 md:p-6">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-purple-500/30">
@@ -637,31 +677,131 @@ export default function NotificationPage() {
               </Table>
             </div>
 
-            {/* Pagination Component */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalNotification}
-              onPageChange={handlePageChange}
-              itemsPerPage={itemsPerPage}
-            />
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3 p-4">
+              {filteredNotifications.length > 0 ? (
+                filteredNotifications.map((notification: Notification) => (
+                  <Card
+                    key={notification.id}
+                    className="bg-black/30 border-purple-500/30"
+                  >
+                    <CardContent className="p-4">
+                      {/* Checkbox & Title */}
+                      <div className="flex items-start gap-3 mb-3">
+                        <Checkbox
+                          checked={selectedIds.includes(notification.id)}
+                          onCheckedChange={() =>
+                            handleSelectOne(notification.id)
+                          }
+                          className="border-white/30 mt-1"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-white text-sm mb-1 break-words">
+                            {notification.title}
+                          </h3>
+                          {notification.content && (
+                            <p className="text-xs text-white/60 line-clamp-2 break-words">
+                              {notification.content}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Badges Row */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <Badge
+                          className={`${getTypeColor(
+                            notification.type_id,
+                          )} text-white text-xs`}
+                        >
+                          {notification.notification_type.name}
+                        </Badge>
+                        {notification.department?.name && (
+                          <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 text-xs">
+                            {notification.department.name}
+                          </Badge>
+                        )}
+                        <Badge
+                          className={
+                            notification.is_read
+                              ? "bg-gray-600/20 text-gray-400 border-gray-500/30 text-xs"
+                              : "bg-green-600/20 text-green-400 border-green-500/30 text-xs"
+                          }
+                        >
+                          {notification.is_read ? "Đã đọc" : "Chưa đọc"}
+                        </Badge>
+                      </div>
+
+                      {/* Documents Info */}
+                      {notification?.document_notification?.length > 0 && (
+                        <div className="flex items-center gap-2 mb-3 text-xs text-white/60">
+                          <FileText className="h-3 w-3 text-purple-400" />
+                          <span>
+                            {notification?.document_notification?.length} tài liệu
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(notification)}
+                          className="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Sửa
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete([notification.id])}
+                          disabled={deleting}
+                          className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 hover:border-red-500/50 text-xs"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Xóa
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8 text-white/60 text-sm">
+                  Không tìm thấy thông báo nào
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            <div className="px-4 md:px-0">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalNotification}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+              />
+            </div>
           </CardContent>
         </Card>
 
-        {/* Create/Edit Modal */}
+        {/* Create/Edit Modal - Mobile Optimized */}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-          <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl">
+          <DialogContent className="bg-black/95 border-purple-500/30 text-white max-w-[95vw] w-full md:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="px-4 md:px-6">
+              <DialogTitle className="text-lg md:text-xl">
                 {editingNotification
                   ? "Chỉnh Sửa Thông Báo"
                   : "Thêm Thông Báo Mới"}
               </DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="space-y-4 px-4 md:px-6 pb-4">
+              {/* Title */}
               <div>
-                <Label htmlFor="title" className="text-white">
+                <Label htmlFor="title" className="text-white text-sm">
                   Tiêu Đề <span className="text-red-400">*</span>
                 </Label>
                 <Input
@@ -670,13 +810,14 @@ export default function NotificationPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="bg-black/50 border-purple-500/30 text-white"
+                  className="bg-black/50 border-purple-500/30 text-white text-sm mt-1.5"
                   placeholder="VD: Thông báo họp phòng ban"
                 />
               </div>
 
+              {/* Content */}
               <div>
-                <Label htmlFor="content" className="text-white">
+                <Label htmlFor="content" className="text-white text-sm">
                   Nội Dung
                 </Label>
                 <Textarea
@@ -688,14 +829,15 @@ export default function NotificationPage() {
                       content: e.target.value,
                     }))
                   }
-                  className="bg-black/50 border-purple-500/30 text-white"
+                  className="bg-black/50 border-purple-500/30 text-white text-sm mt-1.5"
                   placeholder="Nội dung thông báo..."
                   rows={3}
                 />
               </div>
 
+              {/* Type */}
               <div>
-                <Label htmlFor="notification_type" className="text-white">
+                <Label htmlFor="notification_type" className="text-white text-sm">
                   Loại Thông Báo <span className="text-red-400">*</span>
                 </Label>
                 <Select
@@ -704,11 +846,11 @@ export default function NotificationPage() {
                     setFormData((prev) => ({ ...prev, type_id: value }))
                   }
                 >
-                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white w-full">
-                    <SelectValue placeholder="Chọn loại thông báo" />
+                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white w-full text-sm mt-1.5">
+                    <SelectValue placeholder="Chọn loại" />
                   </SelectTrigger>
                   <SelectContent className="bg-black/90 border-purple-500/30 text-white">
-                    {notificationTypes.map((type: NotificationType) => (
+                    {notificationTypes?.map((type: NotificationType) => (
                       <SelectItem key={type.id} value={type.id.toString()}>
                         {type.name}
                       </SelectItem>
@@ -717,8 +859,9 @@ export default function NotificationPage() {
                 </Select>
               </div>
 
+              {/* Department */}
               <div>
-                <Label htmlFor="department" className="text-white">
+                <Label htmlFor="department" className="text-white text-sm">
                   Phòng Ban
                 </Label>
                 <Select
@@ -727,14 +870,14 @@ export default function NotificationPage() {
                     setFormData((prev) => ({ ...prev, department_id: value }))
                   }
                 >
-                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white w-full">
-                    <SelectValue placeholder="Chọn phòng ban (để trống = tất cả)" />
+                  <SelectTrigger className="bg-black/50 border-purple-500/30 text-white w-full text-sm mt-1.5">
+                    <SelectValue placeholder="Chọn phòng ban" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px] bg-black/90 border-purple-500/30 text-white">
                     <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                       <Input
-                        placeholder="Tìm kiếm phòng ban..."
-                        className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
+                        placeholder="Tìm kiếm..."
+                        className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 text-sm"
                         onChange={(e) => {
                           const input = e.target;
                           const items = input
@@ -755,7 +898,7 @@ export default function NotificationPage() {
                       />
                     </div>
                     <SelectItem value="all">Tất cả phòng ban</SelectItem>
-                    {departments.map((dept: Department) => (
+                    {departments?.map((dept: Department) => (
                       <SelectItem key={dept.id} value={dept.id.toString()}>
                         {dept.name}
                       </SelectItem>
@@ -764,40 +907,40 @@ export default function NotificationPage() {
                 </Select>
               </div>
 
+              {/* Documents */}
               <div>
-                <Label htmlFor="documents" className="text-white mb-3 block">
+                <Label htmlFor="documents" className="text-white text-sm mb-2 block">
                   Tài Liệu Đính Kèm
                 </Label>
                 <div className="space-y-3">
-                  <div className="relative">
-                    <Input
-                      id="documents"
-                      type="file"
-                      multiple
-                      onChange={handleFileChange}
-                      className="bg-black/50 border-purple-500/30 text-white file:mr-4 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer"
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
-                    />
-                  </div>
+                  <Input
+                    id="documents"
+                    type="file"
+                    multiple
+                    onChange={handleFileChange}
+                    className="bg-black/50 border-purple-500/30 text-white text-xs file:mr-2 file:px-3 file:py-1.5 file:rounded-full file:border-0 file:text-xs file:bg-purple-600 file:text-white"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
+                  />
 
+                  {/* New Files */}
                   {formData.documents.length > 0 && (
-                    <div className="bg-black/30 p-4 rounded-lg border border-purple-500/30 space-y-2">
-                      <p className="text-white text-sm font-medium mb-2">
-                        Đã chọn {formData.documents.length} tài liệu
+                    <div className="bg-black/30 p-3 rounded-lg border border-purple-500/30 space-y-2">
+                      <p className="text-white text-xs font-medium mb-2">
+                        {formData.documents.length} tài liệu mới
                       </p>
                       {formData.documents.map((file, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between bg-black/40 p-3 rounded-lg"
+                          className="flex items-center justify-between bg-black/40 p-2 rounded-lg gap-2"
                         >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <FileText className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <FileText className="h-3 w-3 text-purple-400 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-white text-sm truncate">
+                              <p className="text-white text-xs truncate">
                                 {file.name}
                               </p>
-                              <p className="text-white/60 text-xs">
-                                {(file.size / 1024).toFixed(2)} KB
+                              <p className="text-white/60 text-[10px]">
+                                {(file.size / 1024).toFixed(1)} KB
                               </p>
                             </div>
                           </div>
@@ -806,21 +949,22 @@ export default function NotificationPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveFile(index)}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-7 w-7 p-0"
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-3 w-3" />
                           </Button>
                         </div>
                       ))}
                     </div>
                   )}
 
+                  {/* Existing Documents */}
                   {editingNotification &&
                     editingNotification?.document_notification?.filter(
                       (doc) => !deletedDocumentIds.includes(doc.id),
                     ).length > 0 && (
-                      <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/30">
-                        <p className="text-blue-400 text-sm font-medium mb-2">
+                      <div className="bg-blue-500/10 p-3 rounded-lg border border-blue-500/30">
+                        <p className="text-blue-400 text-xs font-medium mb-2">
                           Tài liệu hiện có (
                           {
                             editingNotification?.document_notification?.filter(
@@ -836,19 +980,19 @@ export default function NotificationPage() {
                           ?.map((doc) => (
                             <div
                               key={doc.id}
-                              className="flex items-center gap-3 bg-black/40 p-3 rounded-lg mb-2"
+                              className="flex items-center gap-2 bg-black/40 p-2 rounded-lg mb-2"
                             >
-                              <FileText className="h-4 w-4 text-blue-400" />
-                              <p className="text-white text-sm flex-1 truncate">
+                              <FileText className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                              <p className="text-white text-xs flex-1 truncate">
                                 {doc.name}
                               </p>
                               <a
                                 href={doc.file_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-400 hover:text-blue-300"
+                                className="text-blue-400 hover:text-blue-300 flex-shrink-0"
                               >
-                                <Download className="h-4 w-4" />
+                                <Download className="h-3 w-3" />
                               </a>
                               <Button
                                 type="button"
@@ -857,33 +1001,31 @@ export default function NotificationPage() {
                                 onClick={() =>
                                   handleRemoveExistingDocument(doc.id)
                                 }
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-6 w-6 p-0"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
                           ))}
-                        <p className="text-white/60 text-xs mt-2">
-                          * Tài liệu mới sẽ được thêm vào danh sách hiện có
-                        </p>
                       </div>
                     )}
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end space-x-2 mt-6">
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row gap-2 px-4 md:px-6 pb-4">
               <Button
                 variant="outline"
                 onClick={() => setShowCreateModal(false)}
-                className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                className="flex-1 bg-transparent border-white/20 text-white hover:bg-white/10 text-sm"
               >
                 Hủy
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={creating}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-sm"
               >
                 {creating ? (
                   <>

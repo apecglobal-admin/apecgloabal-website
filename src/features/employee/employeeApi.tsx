@@ -7,8 +7,8 @@ export const listEmployee = createAsyncThunk(
   "employee/listEmployee",
   async (payload, thunkAPI) => {
     try {
-      const { limit, page }: any = payload;
-      const response = await apiAxiosInstance.get(`/employees?limit=${limit}&page=${page}`);
+      const { limit, page, search }: any = payload;
+      const response = await apiAxiosInstance.get(`/employees?limit=${limit}&page=${page}&search=${search}`);
       return {
         data: response.data.data.employees,
         total: response.data.data.pagination.total,

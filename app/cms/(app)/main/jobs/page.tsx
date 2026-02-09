@@ -191,7 +191,7 @@ export default function JobsManagementPage() {
 
   useEffect(() => {
     dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
-    dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
+    dispatch(listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any);
   }, [dispatch, totalCompany, totalDepartment]);
 
   const handlePageChange = (page: number) => {

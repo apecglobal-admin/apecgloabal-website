@@ -159,9 +159,9 @@ export default function EmployeesManagementContent() {
   const totalPages = Math.ceil((totalEmployees || 0) / itemsPerPage);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [viewingEmployee, setViewingEmployee] = useState(null);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(
     null,
@@ -169,16 +169,6 @@ export default function EmployeesManagementContent() {
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  // Position management states
-  const [showPositionModal, setShowPositionModal] = useState(false);
-  const [creatingPosition, setCreatingPosition] = useState(false);
-  const [positionFormData, setPositionFormData] = useState({
-    title: "",
-    description: "",
-    level: "staff",
-    is_manager_position: false,
-    is_active: true,
-  });
 
   const [formData, setFormData] = useState({
     id: "",
@@ -216,18 +206,38 @@ export default function EmployeesManagementContent() {
   });
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 100); 
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset về trang 1 khi search
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
+  // Load employees với search parameter
+  useEffect(() => {
     dispatch(
-      listEmployee({ limit: itemsPerPage, page: currentPage } as any) as any,
+      listEmployee({ 
+        limit: itemsPerPage, 
+        page: currentPage,
+        search: debouncedSearchTerm || ""
+      } as any) as any,
     );
     dispatch(listSkill() as any);
     dispatch(listContact() as any);
     dispatch(listManager() as any);
     dispatch(listEmployeeStatus() as any);
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, debouncedSearchTerm]);
 
   useEffect(() => {
-    dispatch(listDepartment({ limit: totalDepartment, page: 1 } as any) as any);
-    dispatch(listPosition({ limit: totalPosition, page: 1 } as any) as any);
+    dispatch(listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any);
+    dispatch(listPosition({ limit: totalPosition, page: 1, search: "" } as any) as any);
     dispatch(listRoleLevelPositionWebsite() as any);
   }, [dispatch, totalPosition, totalDepartment]);
 
@@ -244,6 +254,7 @@ export default function EmployeesManagementContent() {
           listEmployee({
             limit: itemsPerPage,
             page: currentPage,
+            search: debouncedSearchTerm || ""
           } as any) as any,
         );
         toast.success(res.payload.data.message);
@@ -284,7 +295,11 @@ export default function EmployeesManagementContent() {
 
     await dispatch(importExcel(formData) as any);
     await dispatch(
-      listEmployee({ limit: itemsPerPage, page: currentPage } as any) as any,
+      listEmployee({ 
+        limit: itemsPerPage, 
+        page: currentPage,
+        search: debouncedSearchTerm || ""
+      } as any) as any,
     );
 
     e.target.value = ""; // reset input
@@ -515,6 +530,7 @@ export default function EmployeesManagementContent() {
           listEmployee({
             limit: itemsPerPage,
             page: currentPage,
+            search: debouncedSearchTerm || ""
           } as any) as any,
         );
         setShowCreateModal(false);
@@ -540,42 +556,13 @@ export default function EmployeesManagementContent() {
     setCurrentPage(page);
   };
 
-  // Filter employees
-  const filteredEmployees = (employees || []).filter((employee: Employee) => {
-    const employeeName = employee.name?.toLowerCase() || "";
-    const employeeEmail = employee.email?.toLowerCase() || "";
-    
-    // Lấy tên position từ positions array
-    const employeePosition = employee.position_id 
-      ? positions?.find((p: any) => p.id === employee.position_id)?.title?.toLowerCase() || ""
-      : "";
-    
-    // Lấy tên department từ departments array  
-    const employeeDepartment = employee.department_id
-      ? departments?.find((d: any) => d.id === employee.department_id)?.name?.toLowerCase() || ""
-      : "";
+  // Sử dụng data trực tiếp từ API (đã được filter qua search)
+  const paginatedEmployees = employees || [];
 
-    const employeeLevel = employee.level_id
-      ? levelPositionRoles?.find((l: any) => l.id === employee.level_id)?.name?.toLowerCase() || ""
-      : "";
-
-    const searchLower = searchTerm.toLowerCase();
-    
-    const matchesSearch =
-      employeeName.includes(searchLower) ||
-      employeeEmail.includes(searchLower) ||
-      employeePosition.includes(searchLower) ||
-      employeeDepartment.includes(searchLower) ||
-      employeeLevel.includes(searchLower);
-
-    const matchesStatus =
-      selectedStatus === "all" || employee.status === selectedStatus;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  // Sử dụng filteredEmployees làm data hiển thị
-  const paginatedEmployees = filteredEmployees;
+  // Filter cho status vẫn giữ ở frontend
+  const filteredEmployees = selectedStatus === "all" 
+    ? paginatedEmployees 
+    : paginatedEmployees.filter((emp: Employee) => emp.status === selectedStatus);
 
   const activeEmployees = employees?.filter(
     (e: Employee) => e.status === "active",
@@ -676,7 +663,7 @@ export default function EmployeesManagementContent() {
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
               <Input
-                placeholder="Tìm kiếm nhân viên..."
+                placeholder="Tìm kiếm tên nhân viên..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
@@ -750,8 +737,8 @@ export default function EmployeesManagementContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedEmployees.length > 0 ? (
-                (paginatedEmployees as Employee[]).map((employee) => (
+              {filteredEmployees.length > 0 ? (
+                (filteredEmployees as Employee[]).map((employee) => (
                   <TableRow
                     key={employee.id}
                     className="border-b border-purple-500/30 hover:bg-white/5"

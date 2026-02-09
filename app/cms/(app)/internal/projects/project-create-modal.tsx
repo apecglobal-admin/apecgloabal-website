@@ -233,11 +233,11 @@ export function ProjectCreateUpdateModal({
 
   useEffect(() => {
     if (isOpen) {
-      dispatch(listEmployee({ limit: totalEmployees, page: 1 } as any) as any);
+      dispatch(listEmployee({ limit: totalEmployees, page: 1, search: "" } as any) as any);
       dispatch(listManager() as any);
       dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
       dispatch(
-        listDepartment({ limit: totalDepartment, page: 1 } as any) as any
+        listDepartment({ limit: totalDepartment, page: 1, search: ""  } as any) as any
       );
       dispatch(listStatusProject() as any);
     }

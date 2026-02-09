@@ -97,13 +97,39 @@ export default function InternalProjectsPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(10); // Số lượng dự án mỗi trang
+  const [limit, setLimit] = useState(10);
 
+  // Debounce search
+  const [searchDebounce, setSearchDebounce] = useState("");
+
+  // Debounce effect for search
   useEffect(() => {
-    dispatch(listProjects({ limit, page: currentPage } as any) as any);
-    dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchTerm);
+      setCurrentPage(1); // Reset to first page when searching
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch projects when filters change
+  useEffect(() => {
+    const params: any = {
+      limit,
+      page: currentPage,
+      search: searchDebounce.trim() || "",
+      status: selectedStatus !== "all" ? selectedStatus : "",
+      company_id: selectedCompany !== "all" ? selectedCompany : "",
+    };
+
+    dispatch(listProjects(params as any) as any);
+  }, [dispatch, limit, currentPage, searchDebounce, selectedStatus, selectedCompany]);
+
+  // Fetch companies and status on mount
+  useEffect(() => {
+    dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
     dispatch(listStatusProject() as any);
-  }, [dispatch, limit, currentPage, totalCompany]);
+  }, [dispatch, totalCompany]);
 
   // Helper function to get status name by ID
   const getStatusName = (statusId: number) => {
@@ -264,7 +290,17 @@ export default function InternalProjectsPage() {
       const res = await dispatch(deleteProject(deletingProjects as any) as any);
       if (res.payload.status == 200 || res.payload.status == 201) {
         toast.success(res.payload.data.message);
-        dispatch(listProjects({ limit, page: currentPage } as any) as any);
+        
+        // Re-fetch with current filters
+        const params: any = {
+          limit,
+          page: currentPage,
+          search: searchDebounce.trim() || "",
+          status: selectedStatus !== "all" ? selectedStatus : "",
+          company_id: selectedCompany !== "all" ? selectedCompany : "",
+        };
+        
+        dispatch(listProjects(params as any) as any);
         setDeletingProjects([]);
         setSelectedProjects([]);
         setSelectAll(false);
@@ -291,7 +327,7 @@ export default function InternalProjectsPage() {
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
     if (checked) {
-      setSelectedProjects(filteredProjects.map((project: any) => project.id));
+      setSelectedProjects(projects.map((project: any) => project.id));
     } else {
       setSelectedProjects([]);
     }
@@ -310,33 +346,12 @@ export default function InternalProjectsPage() {
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
-  // Filter projects
-  const filteredProjects = projects
-    .filter((project: any) => {
-      const matchesSearch =
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.description &&
-          project.description
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (project.client_name &&
-          project.client_name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-      const matchesStatus =
-        selectedStatus === "all" ||
-        project.project_status_id === parseInt(selectedStatus);
-
-      const matchesCompany =
-        selectedCompany === "all" ||
-        project.company_id === parseInt(selectedCompany);
-
-      return matchesSearch && matchesStatus && matchesCompany;
-    })
-    .sort((a: any, b: any) => {
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
-      return dateB - dateA; // Newest first
-    });
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setSelectedStatus("all");
+    setSelectedCompany("all");
+    setCurrentPage(1);
+  };
 
   // Calculate pagination info
   const totalPages = Math.ceil(totalProjects / limit);
@@ -412,9 +427,7 @@ export default function InternalProjectsPage() {
           <Input
             placeholder="Tìm kiếm dự án theo tên, mô tả, khách hàng..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/50"
           />
         </div>
@@ -450,11 +463,7 @@ export default function InternalProjectsPage() {
         <Button
           variant="outline"
           className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
-          onClick={() => {
-            setSearchTerm("");
-            setSelectedStatus("all");
-            setSelectedCompany("all");
-          }}
+          onClick={handleResetFilters}
         >
           <RefreshCw className="h-4 w-4 mr-2" />
           Đặt Lại
@@ -601,20 +610,26 @@ export default function InternalProjectsPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {filteredProjects.length === 0 ? (
+          {projects.length === 0 ? (
             <div className="text-center py-20">
               <Target className="h-16 w-16 text-white/30 mx-auto mb-4" />
-              <p className="text-white/60">Chưa có dự án nào</p>
-              <Button
-                className="mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-                onClick={handleCreateProject}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Tạo Dự Án Đầu Tiên
-              </Button>
+              <p className="text-white/60">
+                {searchTerm || selectedStatus !== "all" || selectedCompany !== "all"
+                  ? "Không tìm thấy dự án phù hợp"
+                  : "Chưa có dự án nào"}
+              </p>
+              {!searchTerm && selectedStatus === "all" && selectedCompany === "all" && (
+                <Button
+                  className="mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+                  onClick={handleCreateProject}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Tạo Dự Án Đầu Tiên
+                </Button>
+              )}
             </div>
           ) : (
-            filteredProjects.map((project: any) => (
+            projects.map((project: any) => (
               <Card
                 key={project.id}
                 className="bg-black/50 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
@@ -799,15 +814,6 @@ export default function InternalProjectsPage() {
                         <Edit className="h-4 w-4 mr-2" />
                         Chỉnh Sửa
                       </Button>
-                      {/* <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
-                        onClick={() => handleProjectReport(project)}
-                      >
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Báo Cáo
-                      </Button> */}
                     </div>
                   </div>
                 </CardContent>
@@ -845,7 +851,15 @@ export default function InternalProjectsPage() {
           setSelectedProjectData(null);
         }}
         onSuccess={() => {
-          dispatch(listProjects({ limit, page: currentPage } as any) as any);
+          const params: any = {
+            limit,
+            page: currentPage,
+            search: searchDebounce.trim() || "",
+            status: selectedStatus !== "all" ? selectedStatus : "",
+            company_id: selectedCompany !== "all" ? selectedCompany : "",
+          };
+          
+          dispatch(listProjects(params as any) as any);
           setShowCreateModal(false);
           setSelectedProjectData(null);
         }}
@@ -862,7 +876,15 @@ export default function InternalProjectsPage() {
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onSuccess={() => {
-          dispatch(listProjects({ limit, page: currentPage } as any) as any);
+          const params: any = {
+            limit,
+            page: currentPage,
+            search: searchDebounce.trim() || "",
+            status: selectedStatus !== "all" ? selectedStatus : "",
+            company_id: selectedCompany !== "all" ? selectedCompany : "",
+          };
+          
+          dispatch(listProjects(params as any) as any);
           setShowImportModal(false);
         }}
       />

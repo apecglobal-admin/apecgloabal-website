@@ -514,14 +514,12 @@ export default function EmployeesManagementContent() {
       let res;
 
       if (isEditing) {
-        // Update: truyền id
         const updateData = {
           id: editingEmployee.id,
           ...baseData,
         };
         res = await dispatch(updateEmployee(updateData) as any);
       } else {
-        // Create: không truyền id
         res = await dispatch(createEmployee(baseData) as any);
       }
 

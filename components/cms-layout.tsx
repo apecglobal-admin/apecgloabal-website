@@ -105,11 +105,13 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       const loadData = async () => {
         try {
           await Promise.all([
-            dispatch(listSideBars() as any),
-            dispatch(userInfoCMS() as any),
+            dispatch(listSideBars() as any).unwrap(),
+            dispatch(userInfoCMS() as any).unwrap(),
           ]);
           hasLoadedData.current = true;
         } catch (error) {
+          localStorage.removeItem("cmsToken");
+          router.push("/cms");
           console.error("Error loading data:", error);
         }
       };
@@ -178,7 +180,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
         new_password: "",
         confirm_password: ""
       });
-      // Có thể thêm toast notification ở đây
       alert("Đổi mật khẩu thành công!");
     } catch (error: any) {
       setPasswordError(error?.message || "Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu cũ.");

@@ -7,9 +7,9 @@ export const listNews = createAsyncThunk(
   "news/listNews",
   async (payload, thunkAPI) => {
     try {
-      const { limit, page }: any = payload;
+      const { limit, page, search }: any = payload;
       const response = await apiAxiosInstance.get(
-        `/cms/news?limit=${limit}&page=${page}`
+        `/cms/news?limit=${limit}&page=${page}&search=${search}`
       );
       return response.data;
     } catch (error: any) {

@@ -6,7 +6,7 @@ export const useJobsData = () => {
   return {
     // Data 
     jobs: job.jobs.data,
-    totalJobs: job?.totalJobs?.paginations?.total,
+    totalJobs: job?.totalJobs?.pagination?.total,
     jobStatus: job.jobStatus.data,
   
     // Loading states

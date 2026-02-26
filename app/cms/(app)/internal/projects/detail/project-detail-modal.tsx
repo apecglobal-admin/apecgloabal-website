@@ -120,7 +120,7 @@ export function ProjectDetailModal({
   useEffect(() => {
     if (isOpen && projectId) {
       dispatch(listProjectById(projectId as any) as any);
-      dispatch(listCompanies({limit: totalCompany, page: 1} as any) as any);
+      dispatch(listCompanies({limit: totalCompany, page: 1, search: "" } as any) as any);
     }
     setEditing(editMode);
   }, [isOpen, projectId, editMode]);

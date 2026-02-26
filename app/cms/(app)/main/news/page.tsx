@@ -121,10 +121,14 @@ export default function NewsPage() {
 
   useEffect(() => {
     dispatch(
-      listNews({ limit: itemsPerPage, page: currentPage } as any) as any
+      listNews({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
     );
     dispatch(listNewsType() as any);
-  }, [dispatch, currentPage, itemsPerPage]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -227,7 +231,11 @@ export default function NewsPage() {
         );
         if (res.payload.status == 200 || res.payload.status == 201) {
           dispatch(
-            listNews({ limit: itemsPerPage, page: currentPage } as any) as any
+            listNews({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
           );
           toast.success(
             res.payload.data.message || "Cập nhật tin tức thành công"
@@ -237,7 +245,11 @@ export default function NewsPage() {
         const res = await dispatch(createNews(apiFormData as any) as any);
         if (res.payload.status == 200 || res.payload.status == 201) {
           dispatch(
-            listNews({ limit: itemsPerPage, page: currentPage } as any) as any
+            listNews({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
           );
           toast.success(res.payload.data.message || "Tạo tin tức thành công");
         }
@@ -282,7 +294,11 @@ export default function NewsPage() {
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success(res.payload.data.message || "Xóa tin tức thành công");
         dispatch(
-          listNews({ limit: itemsPerPage, page: currentPage } as any) as any
+          listNews({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
         );
         setSelectedIds([]);
       } else {
@@ -296,25 +312,16 @@ export default function NewsPage() {
     }
   };
 
-  // Filter news (chỉ filter trên dữ liệu đã được phân trang từ server)
+  // Filter news (chỉ filter category, featured, published phía client vì search đã xử lý từ server)
   const filteredNews = news
     ?.filter((newsItem: News) => {
-      const matchesSearch =
-        newsItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (newsItem.excerpt &&
-          newsItem.excerpt.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (newsItem.content &&
-          newsItem.content.toLowerCase().includes(searchTerm.toLowerCase()));
-
       const matchesCategory =
         selectedCategory === "all" ||
         newsItem.category.id.toString() === selectedCategory;
       const matchesFeatured = !showFeaturedOnly || newsItem.featured;
       const matchesPublished = !showPublishedOnly || newsItem.published;
 
-      return (
-        matchesSearch && matchesCategory && matchesFeatured && matchesPublished
-      );
+      return matchesCategory && matchesFeatured && matchesPublished;
     })
     .sort((a: News, b: News) => {
       return (

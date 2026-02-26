@@ -125,10 +125,14 @@ export default function CompanyPage() {
 
   useEffect(() => {
     dispatch(
-      listCompanies({ limit: itemsPerPage, page: currentPage } as any) as any
+      listCompanies({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
     );
     dispatch(listIndustry() as any);
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -260,7 +264,11 @@ export default function CompanyPage() {
         );
         if (res.payload.status === 200 || res.payload.status === 201) {
           await dispatch(
-            listCompanies({ limit: itemsPerPage, page: currentPage } as any) as any
+            listCompanies({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
           );
           toast.success(res.payload.data.message || "Cập nhật công ty thành công");
         }
@@ -268,7 +276,11 @@ export default function CompanyPage() {
         const res = await dispatch(createCompany(apiFormData as any) as any);
         if (res.payload.status === 200 || res.payload.status === 201) {
           await dispatch(
-            listCompanies({ limit: itemsPerPage, page: currentPage } as any) as any
+            listCompanies({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
           );
           toast.success(res.payload.data.message || "Tạo công ty thành công");
         }
@@ -314,7 +326,11 @@ export default function CompanyPage() {
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success(res.payload.data.message || "Xóa công ty thành công");
         await dispatch(
-          listCompanies({ limit: itemsPerPage, page: currentPage } as any) as any
+          listCompanies({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
         );
         setSelectedIds([]);
       } else {
@@ -328,24 +344,16 @@ export default function CompanyPage() {
     }
   };
 
+  // Filter chỉ theo industry và display_order phía client, search đã xử lý từ server
   const filteredCompanies = companies
     .filter((company: Company) => {
-      const matchesSearch =
-        company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (company.description &&
-          company.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (company.short_description &&
-          company.short_description
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()));
-
       const matchesIndustry =
         selectedIndustry === "all" ||
         company.industry?.some(
           (ind) => ind.id.toString() === selectedIndustry
         );
 
-      return matchesSearch && matchesIndustry;
+      return matchesIndustry;
     })
     .sort((a: Company, b: Company) => {
       return b.display_order - a.display_order;
@@ -353,6 +361,7 @@ export default function CompanyPage() {
 
   const totalPages = Math.ceil(totalCompany / itemsPerPage);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);

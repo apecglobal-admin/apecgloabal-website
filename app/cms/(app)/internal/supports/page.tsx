@@ -100,10 +100,14 @@ export default function SupportPage() {
 
   useEffect(() => {
     dispatch(
-      listSupport({ limit: itemsPerPage, page: currentPage } as any) as any
+      listSupport({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
     );
     dispatch(listSupportType() as any);
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   const handleViewDetail = (support: Support) => {
     setSelectedSupport(support);
@@ -123,7 +127,6 @@ export default function SupportPage() {
     }
 
     setUpdating(true);
-    // console.log(selectedSupport.id)
     try {
       const res = await dispatch(
         updateSupport({
@@ -134,7 +137,11 @@ export default function SupportPage() {
 
       if (res.payload.status == 200 || res.payload.status == 201) {
         await dispatch(
-          listSupport({ limit: itemsPerPage, page: currentPage } as any) as any
+          listSupport({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
         );
         toast.success(res.payload.data.message);
         setShowDetailModal(false);
@@ -152,11 +159,14 @@ export default function SupportPage() {
     const id = [deletingSupport.id];
     setDeleting(true);
     try {
-      // Replace with actual API call
       const res = await dispatch(deleteSupport(id as any) as any);
       if (res.payload.status == 200 || res.payload.status == 201) {
         await dispatch(
-          listSupport({ limit: itemsPerPage, page: currentPage } as any) as any
+          listSupport({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
         );
         toast.success("Xóa yêu cầu hỗ trợ thành công!");
         setDeletingSupport(null);
@@ -169,27 +179,15 @@ export default function SupportPage() {
     }
   };
 
-  // Filter supports
+  // Filter chỉ theo status phía client, search đã xử lý từ server
   const filteredSupports = supports.filter((support: Support) => {
-    const matchesSearch =
-      support.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      support.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      support.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      support.content.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesType =
       selectedType === "all" || support.status.id.toString() === selectedType;
 
-    return matchesSearch && matchesType;
+    return matchesType;
   });
 
-  // Pagination logic - Sử dụng totalSupport từ API thay vì filteredSupports.length
-  const totalItems = totalSupport || filteredSupports.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  // Chỉ hiển thị data hiện có trên trang (không slice vì data đã được paginate từ API)
-  const paginatedSupports = supports;
+  const totalPages = Math.ceil(totalSupport / itemsPerPage);
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -210,18 +208,18 @@ export default function SupportPage() {
 
   const getStatusColor = (statusId: number) => {
     const colors: Record<number, string> = {
-      1: "bg-yellow-500", // Đang xử lý
-      2: "bg-blue-500", // Đã tiếp nhận
-      3: "bg-green-500", // Đã phản hồi
+      1: "bg-yellow-500",
+      2: "bg-blue-500",
+      3: "bg-green-500",
     };
     return colors[statusId] || "bg-gray-500";
   };
 
   const getStatusIcon = (statusId: number) => {
     const icons: Record<number, any> = {
-      1: Clock, // Đang xử lý
-      2: AlertCircle, // Đã tiếp nhận
-      3: CheckCircle2, // Đã phản hồi
+      1: Clock,
+      2: AlertCircle,
+      3: CheckCircle2,
     };
     const Icon = icons[statusId] || Clock;
     return <Icon className="h-4 w-4" />;
@@ -314,8 +312,7 @@ export default function SupportPage() {
               Danh Sách Yêu Cầu Hỗ Trợ
             </CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {supports.length} trên tổng số{" "}
-              {totalSupport || supports.length} yêu cầu
+              Hiển thị {filteredSupports.length} trên tổng số {totalSupport} yêu cầu
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -332,8 +329,8 @@ export default function SupportPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedSupports.length > 0 ? (
-                  paginatedSupports.map((support: Support) => (
+                {filteredSupports.length > 0 ? (
+                  filteredSupports.map((support: Support) => (
                     <TableRow
                       key={support.id}
                       className="border-b border-purple-500/30 hover:bg-white/5"
@@ -440,7 +437,7 @@ export default function SupportPage() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={totalItems}
+              totalItems={totalSupport}
               itemsPerPage={itemsPerPage}
               onPageChange={handlePageChange}
               maxVisiblePages={5}
@@ -472,23 +469,17 @@ export default function SupportPage() {
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-purple-400" />
                       <span className="text-white/60">Email:</span>
-                      <span className="text-white">
-                        {selectedSupport.email}
-                      </span>
+                      <span className="text-white">{selectedSupport.email}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4 text-purple-400" />
                       <span className="text-white/60">Số điện thoại:</span>
-                      <span className="text-white">
-                        {selectedSupport.phone}
-                      </span>
+                      <span className="text-white">{selectedSupport.phone}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-purple-400" />
                       <span className="text-white/60">Ngày tạo:</span>
-                      <span className="text-white">
-                        {selectedSupport.created_at}
-                      </span>
+                      <span className="text-white">{selectedSupport.created_at}</span>
                     </div>
                   </div>
                 </div>
@@ -632,4 +623,3 @@ export default function SupportPage() {
     </div>
   );
 }
-

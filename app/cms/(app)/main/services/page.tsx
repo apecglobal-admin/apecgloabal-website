@@ -52,7 +52,7 @@ import { useCompanyData } from "@/src/hook/companyHook";
 import { useServicesData } from "@/src/hook/servicesHook";
 import { listCompanies } from "@/src/features/company/companyApi";
 import {
-    createServices,
+  createServices,
   deleteServices,
   listServices,
   listServicesType,
@@ -100,9 +100,9 @@ interface Company {
 
 export default function ServicesManagementPage() {
   const dispatch = useDispatch();
-  const { services, servicesTypes } = useServicesData();
+  const { services, totalServices, servicesTypes } = useServicesData();
   const { companies, totalCompany } = useCompanyData();
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedCompany, setSelectedCompany] = useState("all");
@@ -132,13 +132,21 @@ export default function ServicesManagementPage() {
   });
 
   useEffect(() => {
-    dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
+    dispatch(
+      listCompanies({ limit: totalCompany, page: 1, search: "" } as any) as any
+    );
   }, [dispatch, totalCompany]);
 
   useEffect(() => {
-    dispatch(listServices() as any);
+    dispatch(
+      listServices({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
+    );
     dispatch(listServicesType() as any);
-  }, [dispatch]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -162,13 +170,12 @@ export default function ServicesManagementPage() {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
-    
-    // Parse price_range to extract min and max price
+
     const priceRange = service.price_range || "";
     const priceParts = priceRange.split("-");
     const minPrice = priceParts[0]?.trim().replace(/[^\d]/g, "") || "";
     const maxPrice = priceParts[1]?.trim().replace(/[^\d]/g, "") || "";
-    
+
     setFormData({
       title: service.title,
       description: service.description,
@@ -224,9 +231,10 @@ export default function ServicesManagementPage() {
         min_price: parseFloat(formData.min_price),
         max_price: parseFloat(formData.max_price),
         company_id: parseInt(formData.company_id),
-        ...(formData.category_id && formData.category_id !== "all" && {
-          category_id: parseInt(formData.category_id),
-        }),
+        ...(formData.category_id &&
+          formData.category_id !== "all" && {
+            category_id: parseInt(formData.category_id),
+          }),
       };
 
       if (editingService) {
@@ -237,20 +245,32 @@ export default function ServicesManagementPage() {
           } as any) as any
         );
         if (res.payload.status == 200 || res.payload.status == 201) {
-          await dispatch(listServices() as any);
+          await dispatch(
+            listServices({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
+          );
           setShowCreateModal(false);
-          toast.success(res.payload.data.message || "Cập nhật dịch vụ thành công");
+          toast.success(
+            res.payload.data.message || "Cập nhật dịch vụ thành công"
+          );
         }
       } else {
         const res = await dispatch(createServices(apiData as any) as any);
         if (res.payload.status == 200 || res.payload.status == 201) {
-          await dispatch(listServices() as any);
+          await dispatch(
+            listServices({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
+          );
           setShowCreateModal(false);
           toast.success(res.payload.data.message || "Tạo dịch vụ thành công");
         }
       }
-
-      
     } catch (error) {
       console.error("Error saving service:", error);
       toast.error("Lỗi kết nối server");
@@ -260,7 +280,10 @@ export default function ServicesManagementPage() {
   };
 
   const handleSelectAll = () => {
-    if (selectedIds.length === filteredServices.length && filteredServices.length > 0) {
+    if (
+      selectedIds.length === filteredServices.length &&
+      filteredServices.length > 0
+    ) {
       setSelectedIds([]);
     } else {
       setSelectedIds(filteredServices.map((s: Service) => s.id));
@@ -283,10 +306,16 @@ export default function ServicesManagementPage() {
     setDeleting(true);
     try {
       const res = await dispatch(deleteServices(ids as any) as any);
-      
+
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success(res.payload.data.message || "Xóa dịch vụ thành công");
-        await dispatch(listServices() as any);
+        await dispatch(
+          listServices({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
+        );
         setSelectedIds([]);
       } else {
         toast.error("Có lỗi xảy ra khi xóa dịch vụ");
@@ -299,13 +328,9 @@ export default function ServicesManagementPage() {
     }
   };
 
+  // Filter chỉ theo category và company phía client, search đã xử lý từ server
   const filteredServices = services
     .filter((service: Service) => {
-      const matchesSearch =
-        service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (service.description &&
-          service.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
       const matchesCategory =
         selectedCategory === "all" ||
         service.category?.id?.toString() === selectedCategory;
@@ -314,12 +339,13 @@ export default function ServicesManagementPage() {
         selectedCompany === "all" ||
         service.company.id.toString() === selectedCompany;
 
-      return matchesSearch && matchesCategory && matchesCompany;
+      return matchesCategory && matchesCompany;
     })
     .sort((a: Service, b: Service) => b.id - a.id);
 
-//   const totalPages = Math.ceil(totalService / itemsPerPage);
+  const totalPages = Math.ceil(totalServices / itemsPerPage);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);
@@ -327,7 +353,8 @@ export default function ServicesManagementPage() {
 
   const servicesByCategory = servicesTypes?.map((type: ServiceType) => ({
     ...type,
-    count: services?.filter((s: Service) => s?.category?.id === type?.id).length,
+    count: services?.filter((s: Service) => s?.category?.id === type?.id)
+      .length,
   }));
 
   const getCategoryColor = (categoryId: number | null) => {
@@ -375,7 +402,9 @@ export default function ServicesManagementPage() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {servicesByCategory.map((type: any) => (
                 <div key={type.id} className="text-center">
-                  <Badge className={`${getCategoryColor(type.id)} text-white mb-2`}>
+                  <Badge
+                    className={`${getCategoryColor(type.id)} text-white mb-2`}
+                  >
                     {type.name}
                   </Badge>
                   <p className="text-2xl font-bold text-white">{type.count}</p>
@@ -399,7 +428,10 @@ export default function ServicesManagementPage() {
                 />
               </div>
 
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
                   <SelectValue placeholder="Chọn loại dịch vụ" />
                 </SelectTrigger>
@@ -413,7 +445,10 @@ export default function ServicesManagementPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+              <Select
+                value={selectedCompany}
+                onValueChange={setSelectedCompany}
+              >
                 <SelectTrigger className="bg-black/30 border-purple-500/30 text-white min-w-[200px]">
                   <SelectValue placeholder="Chọn công ty" />
                 </SelectTrigger>
@@ -450,14 +485,15 @@ export default function ServicesManagementPage() {
         <Card className="bg-black/50 border-purple-500/30">
           <CardHeader>
             <CardTitle className="text-white">Danh Sách Dịch Vụ</CardTitle>
-            {/* <CardDescription className="text-white/80">
-              Hiển thị {filteredServices.length} trên tổng số {totalService} dịch vụ
+            <CardDescription className="text-white/80">
+              Hiển thị {filteredServices.length} trên tổng số {totalServices}{" "}
+              dịch vụ
               {selectedIds.length > 0 && (
                 <span className="ml-2 text-blue-400">
                   (Đã chọn {selectedIds.length})
                 </span>
               )}
-            </CardDescription> */}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -479,7 +515,9 @@ export default function ServicesManagementPage() {
                     <TableHead className="text-white">Công Ty</TableHead>
                     <TableHead className="text-white">Tính Năng</TableHead>
                     <TableHead className="text-white">Giá</TableHead>
-                    <TableHead className="text-white text-right">Thao Tác</TableHead>
+                    <TableHead className="text-white text-right">
+                      Thao Tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -518,7 +556,9 @@ export default function ServicesManagementPage() {
                               {service.category.name}
                             </Badge>
                           ) : (
-                            <span className="text-white/40 text-sm">Chưa phân loại</span>
+                            <span className="text-white/40 text-sm">
+                              Chưa phân loại
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -591,13 +631,13 @@ export default function ServicesManagementPage() {
             </div>
 
             {/* Pagination Component */}
-            {/* <Pagination
+            <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={totalService}
+              totalItems={totalServices}
               onPageChange={handlePageChange}
               itemsPerPage={itemsPerPage}
-            /> */}
+            />
           </CardContent>
         </Card>
 
@@ -660,7 +700,10 @@ export default function ServicesManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {companies.map((company: Company) => (
-                      <SelectItem key={company.id} value={company.id.toString()}>
+                      <SelectItem
+                        key={company.id}
+                        value={company.id.toString()}
+                      >
                         {company.name}
                       </SelectItem>
                     ))}

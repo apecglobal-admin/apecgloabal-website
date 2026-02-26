@@ -186,12 +186,22 @@ export default function JobsManagementPage() {
   });
 
   useEffect(() => {
-    dispatch(listJobs({limit: itemsPerPage, page: currentPage}as any) as any);
-  }, [dispatch, currentPage, itemsPerPage]);
+    dispatch(
+      listJobs({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
+    );
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   useEffect(() => {
-    dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
-    dispatch(listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any);
+    dispatch(
+      listCompanies({ limit: totalCompany, page: 1, search: "" } as any) as any
+    );
+    dispatch(
+      listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any
+    );
   }, [dispatch, totalCompany, totalDepartment]);
 
   const handlePageChange = (page: number) => {
@@ -359,16 +369,32 @@ export default function JobsManagementPage() {
           } as any) as any
         );
         if (res.payload.status === 200 || res.payload.status === 201) {
-        await dispatch(listJobs({limit: itemsPerPage, page: currentPage}as any) as any);
+          await dispatch(
+            listJobs({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
+          );
           setShowCreateModal(false);
-          toast.success(res.payload.data.message || "Cập nhật công việc thành công");
+          toast.success(
+            res.payload.data.message || "Cập nhật công việc thành công"
+          );
         }
       } else {
         const res = await dispatch(createJob(apiData as any) as any);
         if (res.payload.status === 200 || res.payload.status === 201) {
-        await dispatch(listJobs({limit: itemsPerPage, page: currentPage}as any) as any);
+          await dispatch(
+            listJobs({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
+          );
           setShowCreateModal(false);
-          toast.success(res.payload.data.message || "Tạo công việc thành công");
+          toast.success(
+            res.payload.data.message || "Tạo công việc thành công"
+          );
         }
       }
     } catch (error) {
@@ -381,12 +407,12 @@ export default function JobsManagementPage() {
 
   const handleSelectAll = () => {
     if (
-      selectedIds.length === paginatedJobs.length &&
-      paginatedJobs.length > 0
+      selectedIds.length === filteredJobs.length &&
+      filteredJobs.length > 0
     ) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(paginatedJobs.map((j: Job) => j.id));
+      setSelectedIds(filteredJobs.map((j: Job) => j.id));
     }
   };
 
@@ -399,7 +425,9 @@ export default function JobsManagementPage() {
   };
 
   const handleDelete = async (ids: number[]) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${ids.length} công việc?`)) {
+    if (
+      !window.confirm(`Bạn có chắc chắn muốn xóa ${ids.length} công việc?`)
+    ) {
       return;
     }
 
@@ -409,7 +437,13 @@ export default function JobsManagementPage() {
 
       if (res.payload.status === 200 || res.payload.status === 201) {
         toast.success(res.payload.data.message || "Xóa công việc thành công");
-        await dispatch(listJobs({limit: itemsPerPage, page: currentPage}as any) as any);
+        await dispatch(
+          listJobs({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
+        );
         setSelectedIds([]);
       } else {
         toast.error("Có lỗi xảy ra khi xóa công việc");
@@ -422,14 +456,9 @@ export default function JobsManagementPage() {
     }
   };
 
+  // Filter chỉ theo status, company, type phía client vì search đã xử lý từ server
   const filteredJobs = jobs
     .filter((job: Job) => {
-      const matchesSearch =
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (job.description &&
-          job.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        job.location.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchesStatus =
         selectedStatus === "all" ||
         job.status?.id?.toString() === selectedStatus;
@@ -441,13 +470,13 @@ export default function JobsManagementPage() {
       const matchesType =
         selectedType === "all" || job.type === selectedType;
 
-      return matchesSearch && matchesStatus && matchesCompany && matchesType;
+      return matchesStatus && matchesCompany && matchesType;
     })
     .sort((a: Job, b: Job) => b.id - a.id);
 
   const totalPages = Math.ceil(totalJobs / itemsPerPage);
-  const paginatedJobs = filteredJobs;
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);
@@ -461,9 +490,9 @@ export default function JobsManagementPage() {
   const getStatusColor = (statusId: number | null) => {
     if (!statusId) return "bg-gray-500";
     const colors = {
-      1: "bg-green-500", // Đã đăng tải
-      2: "bg-yellow-500", // Chờ xét duyệt
-      3: "bg-red-500", // Đã ẩn
+      1: "bg-green-500",
+      2: "bg-yellow-500",
+      3: "bg-red-500",
     };
     return colors[statusId as keyof typeof colors] || "bg-gray-500";
   };
@@ -475,16 +504,18 @@ export default function JobsManagementPage() {
       2: <Clock className="h-4 w-4" />,
       3: <EyeOff className="h-4 w-4" />,
     };
-    return icons[statusId as keyof typeof icons] || <AlertCircle className="h-4 w-4" />;
+    return (
+      icons[statusId as keyof typeof icons] || <AlertCircle className="h-4 w-4" />
+    );
   };
 
   const getTypeColor = (type: string) => {
     const colors = {
       "full-time": "bg-blue-500",
       "part-time": "bg-purple-500",
-      "contract": "bg-orange-500",
-      "internship": "bg-pink-500",
-      "freelance": "bg-teal-500",
+      contract: "bg-orange-500",
+      internship: "bg-pink-500",
+      freelance: "bg-teal-500",
     };
     return colors[type as keyof typeof colors] || "bg-gray-500";
   };
@@ -553,7 +584,10 @@ export default function JobsManagementPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+              <Select
+                value={selectedCompany}
+                onValueChange={setSelectedCompany}
+              >
                 <SelectTrigger className="bg-black/30 border-blue-500/30 text-white min-w-[200px]">
                   <SelectValue placeholder="Chọn công ty" />
                 </SelectTrigger>
@@ -591,7 +625,7 @@ export default function JobsManagementPage() {
           <CardHeader>
             <CardTitle className="text-white">Danh Sách Tuyển Dụng</CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {paginatedJobs.length} trên tổng số {totalJobs} công việc
+              Hiển thị {filteredJobs.length} trên tổng số {totalJobs} công việc
               {selectedIds.length > 0 && (
                 <span className="ml-2 text-cyan-400">
                   (Đã chọn {selectedIds.length})
@@ -607,8 +641,8 @@ export default function JobsManagementPage() {
                     <TableHead className="w-[50px] text-white">
                       <Checkbox
                         checked={
-                          selectedIds.length === paginatedJobs.length &&
-                          paginatedJobs.length > 0
+                          selectedIds.length === filteredJobs.length &&
+                          filteredJobs.length > 0
                         }
                         onCheckedChange={handleSelectAll}
                         className="border-white/30"
@@ -626,8 +660,8 @@ export default function JobsManagementPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedJobs.length > 0 ? (
-                    paginatedJobs.map((job: Job) => (
+                  {filteredJobs.length > 0 ? (
+                    filteredJobs.map((job: Job) => (
                       <TableRow
                         key={job.id}
                         className="border-b border-blue-500/30 hover:bg-white/5"
@@ -654,10 +688,6 @@ export default function JobsManagementPage() {
                                 )}
                               </div>
                             </div>
-                            {/* <div className="flex items-center gap-2 text-sm text-white/60">
-                              <MapPin className="h-3 w-3" />
-                              {job.location}
-                            </div> */}
                             <div className="flex flex-wrap gap-2">
                               {job.urgent && (
                                 <Badge className="bg-red-500/20 text-red-400 border border-red-500/30">
@@ -771,15 +801,13 @@ export default function JobsManagementPage() {
             </div>
 
             {/* Pagination Component */}
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalJobs}
-                onPageChange={handlePageChange}
-                itemsPerPage={itemsPerPage}
-              />
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalJobs}
+              onPageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+            />
           </CardContent>
         </Card>
 
@@ -809,7 +837,10 @@ export default function JobsManagementPage() {
                     id="title"
                     value={formData.title}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, title: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
                     }
                     className="bg-black/50 border-blue-500/30 text-white"
                     placeholder="VD: Senior Backend Developer"
@@ -911,7 +942,8 @@ export default function JobsManagementPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="type" className="text-white">
-                      Loại Hình Công Việc <span className="text-red-400">*</span>
+                      Loại Hình Công Việc{" "}
+                      <span className="text-red-400">*</span>
                     </Label>
                     <Select
                       value={formData.type}
@@ -963,7 +995,8 @@ export default function JobsManagementPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="min_price" className="text-white">
-                      Mức Lương Tối Thiểu <span className="text-red-400">*</span>
+                      Mức Lương Tối Thiểu{" "}
+                      <span className="text-red-400">*</span>
                     </Label>
                     <Input
                       id="min_price"

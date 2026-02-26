@@ -6,6 +6,7 @@ export const useServicesData = () => {
   return {
     // Data 
     services: service.services.data,
+    totalServices: service.totalServices?.paginations?.total,
     servicesTypes: service.servicesTypes.data,
   
     // Loading states

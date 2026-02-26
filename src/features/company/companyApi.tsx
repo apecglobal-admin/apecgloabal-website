@@ -7,9 +7,9 @@ export const listCompanies = createAsyncThunk(
   "company/listCompanies",
   async (payload, thunkAPI) => {
     try {
-      const { limit, page }: any = payload;
+      const { limit, page, search }: any = payload;
       const response = await apiAxiosInstance.get(
-        `/cms/companies?limit=${limit}&page=${page}`
+        `/cms/companies?limit=${limit}&page=${page}&search=${search}`
       );
       return response.data;
     } catch (error: any) {

@@ -127,7 +127,7 @@ export default function InternalProjectsPage() {
 
   // Fetch companies and status on mount
   useEffect(() => {
-    dispatch(listCompanies({ limit: totalCompany, page: 1 } as any) as any);
+    dispatch(listCompanies({ limit: totalCompany, page: 1, search: "" } as any) as any);
     dispatch(listStatusProject() as any);
   }, [dispatch, totalCompany]);
 

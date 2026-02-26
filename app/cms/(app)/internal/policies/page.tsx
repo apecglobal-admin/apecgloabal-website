@@ -121,15 +121,21 @@ export default function PolicyPage() {
   });
 
   useEffect(() => {
-    dispatch(listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any);
+    dispatch(
+      listDepartment({ limit: totalDepartment, page: 1, search: "" } as any) as any
+    );
     dispatch(listPolicyType() as any);
   }, [dispatch, totalDepartment]);
 
   useEffect(() => {
     dispatch(
-      listPolicy({ limit: itemsPerPage, page: currentPage } as any) as any
+      listPolicy({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
     );
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -229,7 +235,11 @@ export default function PolicyPage() {
         );
         if (res.payload.status == 200 || res.payload.status == 201) {
           await dispatch(
-            listPolicy({ limit: itemsPerPage, page: currentPage } as any) as any
+            listPolicy({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
           );
           toast.success(res.payload.data.message);
         }
@@ -237,7 +247,11 @@ export default function PolicyPage() {
         const res = await dispatch(createPolicy(apiFormData as any) as any);
         if (res.payload.status == 200 || res.payload.status == 201) {
           await dispatch(
-            listPolicy({ limit: itemsPerPage, page: currentPage } as any) as any
+            listPolicy({
+              limit: itemsPerPage,
+              page: currentPage,
+              search: searchTerm,
+            } as any) as any
           );
           toast.success(res.payload.data.message);
         }
@@ -255,7 +269,6 @@ export default function PolicyPage() {
   const handleDelete = async () => {
     if (!deletingPolicy) return;
 
-    console.log("Deleting policy:", deletingPolicy);
     setDeleting(true);
     try {
       toast.success("Xóa chính sách thành công!");
@@ -268,19 +281,14 @@ export default function PolicyPage() {
     }
   };
 
-  // Filter policies (chỉ filter trên dữ liệu đã được phân trang từ server)
+  // Filter chỉ theo type và status phía client, search đã xử lý từ server
   const filteredPolicies = policies.filter((policy: Policy) => {
-    const matchesSearch =
-      policy.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (policy.description &&
-        policy.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
     const matchesType =
       selectedType === "all" ||
       policy.policy_type_id.toString() === selectedType;
     const matchesStatus = !showActiveOnly || policy.status;
 
-    return matchesSearch && matchesType && matchesStatus;
+    return matchesType && matchesStatus;
   });
 
   // Tính tổng số trang từ totalPolicy (tổng số từ server)
@@ -524,7 +532,9 @@ export default function PolicyPage() {
           <DialogContent className="bg-black/90 border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">
-                {editingPolicy ? "Chỉnh Sửa Chính Sách" : "Thêm Chính Sách Mới"}
+                {editingPolicy
+                  ? "Chỉnh Sửa Chính Sách"
+                  : "Thêm Chính Sách Mới"}
               </DialogTitle>
             </DialogHeader>
 

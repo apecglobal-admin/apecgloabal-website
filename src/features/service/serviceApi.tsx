@@ -5,10 +5,11 @@ import { toast } from "sonner";
 
 export const listServices = createAsyncThunk(
   "services/listServices",
-  async (_, thunkAPI) => {
+  async (payload: any, thunkAPI) => {
     try {
+      const { limit, page, search }: any = payload;
       const response = await apiAxiosInstance.get(
-        `/cms/services`
+        `/cms/services?limit=${limit}&page=${page}&search=${search}`
       );
       return response.data;
     } catch (error: any) {

@@ -59,7 +59,6 @@ import {
   listApplications,
   listApplicationStatus,
   reviewApplication,
-  
 } from "@/src/features/application/applicationApi";
 import Pagination from "@/components/pagination";
 
@@ -111,9 +110,15 @@ export default function ApplicationManagementPage() {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    dispatch(listApplications({limit: itemsPerPage, page: currentPage} as any) as any);
+    dispatch(
+      listApplications({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: searchTerm,
+      } as any) as any
+    );
     dispatch(listApplicationStatus() as any);
-  }, [dispatch, currentPage, itemsPerPage]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -150,7 +155,13 @@ export default function ApplicationManagementPage() {
         toast.success(
           res.payload.data.message || "Xét duyệt hồ sơ thành công"
         );
-        await dispatch(listApplications({limit: itemsPerPage, page: currentPage} as any) as any);
+        await dispatch(
+          listApplications({
+            limit: itemsPerPage,
+            page: currentPage,
+            search: searchTerm,
+          } as any) as any
+        );
         setShowReviewModal(false);
         setReviewingApplication(null);
       } else {
@@ -166,12 +177,12 @@ export default function ApplicationManagementPage() {
 
   const handleSelectAll = () => {
     if (
-      selectedIds.length === paginatedApplications.length &&
-      paginatedApplications.length > 0
+      selectedIds.length === filteredApplications.length &&
+      filteredApplications.length > 0
     ) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(paginatedApplications.map((a: Application) => a.id));
+      setSelectedIds(filteredApplications.map((a: Application) => a.id));
     }
   };
 
@@ -185,24 +196,23 @@ export default function ApplicationManagementPage() {
 
   const handleDelete = async (ids: number[]) => {
     if (
-      !window.confirm(`Bạn có chắc chắn muốn xóa ${ids.length} hồ sơ ứng tuyển?`)
+      !window.confirm(
+        `Bạn có chắc chắn muốn xóa ${ids.length} hồ sơ ứng tuyển?`
+      )
     ) {
       return;
     }
 
     setDeleting(true);
     try {
-    //   const res = await dispatch(deleteApplications(ids as any) as any);
-
-    //   if (res.payload.status === 200 || res.payload.status === 201) {
-    //     toast.success(
-    //       res.payload.data.message || "Xóa hồ sơ ứng tuyển thành công"
-    //     );
-    //     await dispatch(listApplications({limit: itemsPerPage, page: currentPage} as any) as any);
-    //     setSelectedIds([]);
-    //   } else {
-    //     toast.error("Có lỗi xảy ra khi xóa hồ sơ ứng tuyển");
-    //   }
+      // const res = await dispatch(deleteApplications(ids as any) as any);
+      // if (res.payload.status === 200 || res.payload.status === 201) {
+      //   toast.success(res.payload.data.message || "Xóa hồ sơ ứng tuyển thành công");
+      //   await dispatch(listApplications({ limit: itemsPerPage, page: currentPage, search: searchTerm } as any) as any);
+      //   setSelectedIds([]);
+      // } else {
+      //   toast.error("Có lỗi xảy ra khi xóa hồ sơ ứng tuyển");
+      // }
     } catch (error) {
       console.error("Error deleting applications:", error);
       toast.error("Lỗi kết nối server");
@@ -215,14 +225,9 @@ export default function ApplicationManagementPage() {
     window.open(url, "_blank");
   };
 
+  // Filter chỉ theo status và job phía client, search đã xử lý từ server
   const filteredApplications = applications
     .filter((app: Application) => {
-      const matchesSearch =
-        app.applicant_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.applicant_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.applicant_phone.includes(searchTerm) ||
-        app.jobs.title.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchesStatus =
         selectedStatus === "all" ||
         app.status?.id?.toString() === selectedStatus;
@@ -230,12 +235,11 @@ export default function ApplicationManagementPage() {
       const matchesJob =
         selectedJob === "all" || app.jobs.id.toString() === selectedJob;
 
-      return matchesSearch && matchesStatus && matchesJob;
+      return matchesStatus && matchesJob;
     })
     .sort((a: Application, b: Application) => b.id - a.id);
 
   const totalPages = Math.ceil(totalApplication / itemsPerPage);
-  const paginatedApplications = filteredApplications;
 
   // Get unique jobs from applications
   const uniqueJobs = Array.from(
@@ -244,6 +248,7 @@ export default function ApplicationManagementPage() {
     ).values()
   );
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);
@@ -252,17 +257,18 @@ export default function ApplicationManagementPage() {
   const applicationsByStatus = applicationStatus?.map(
     (status: ApplicationStatus) => ({
       ...status,
-      count: applications?.filter((a: Application) => a?.status?.id === status?.id)
-        .length,
+      count: applications?.filter(
+        (a: Application) => a?.status?.id === status?.id
+      ).length,
     })
   );
 
   const getStatusColor = (statusId: number | null) => {
     if (!statusId) return "bg-gray-500";
     const colors = {
-      1: "bg-yellow-500", // Chờ xét duyệt
-      2: "bg-green-500", // Đã xét duyệt
-      3: "bg-red-500", // Đã từ chối
+      1: "bg-yellow-500",
+      2: "bg-green-500",
+      3: "bg-red-500",
     };
     return colors[statusId as keyof typeof colors] || "bg-gray-500";
   };
@@ -327,7 +333,9 @@ export default function ApplicationManagementPage() {
                       <span className="ml-1">{status.name}</span>
                     </Badge>
                   </div>
-                  <p className="text-2xl font-bold text-white">{status.count}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {status.count}
+                  </p>
                 </div>
               ))}
             </div>
@@ -405,7 +413,7 @@ export default function ApplicationManagementPage() {
               Danh Sách Hồ Sơ Ứng Tuyển
             </CardTitle>
             <CardDescription className="text-white/80">
-              Hiển thị {paginatedApplications.length} trên tổng số{" "}
+              Hiển thị {filteredApplications.length} trên tổng số{" "}
               {totalApplication} hồ sơ
               {selectedIds.length > 0 && (
                 <span className="ml-2 text-cyan-400">
@@ -422,9 +430,8 @@ export default function ApplicationManagementPage() {
                     <TableHead className="w-[50px] text-white">
                       <Checkbox
                         checked={
-                          selectedIds.length ===
-                            paginatedApplications.length &&
-                          paginatedApplications.length > 0
+                          selectedIds.length === filteredApplications.length &&
+                          filteredApplications.length > 0
                         }
                         onCheckedChange={handleSelectAll}
                         className="border-white/30"
@@ -441,8 +448,8 @@ export default function ApplicationManagementPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedApplications.length > 0 ? (
-                    paginatedApplications.map((application: Application) => (
+                  {filteredApplications.length > 0 ? (
+                    filteredApplications.map((application: Application) => (
                       <TableRow
                         key={application.id}
                         className="border-b border-blue-500/30 hover:bg-white/5"
@@ -561,15 +568,13 @@ export default function ApplicationManagementPage() {
             </div>
 
             {/* Pagination Component */}
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalApplication}
-                onPageChange={handlePageChange}
-                itemsPerPage={itemsPerPage}
-              />
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalApplication}
+              onPageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+            />
           </CardContent>
         </Card>
 

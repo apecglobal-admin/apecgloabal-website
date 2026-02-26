@@ -11,11 +11,13 @@ interface InitState<T> {
 
 interface NotificationState {
   services: InitState<any[]>;
+  totalServices: InitState<any[]>;
   servicesTypes: InitState<any[]>;
 }
 
 const initialState: NotificationState = {
   services: { data: [], loading: false, error: null, status: null },
+  totalServices: { data: [], loading: false, error: null, status: null },
   servicesTypes: { data: [], loading: false, error: null, status: null },
 };
 const servicesSlice = createSlice({
@@ -23,7 +25,7 @@ const servicesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    createAsyncReducer(builder, listServices, "services");
+    createAsyncReducer(builder, listServices, ["services", "totalServices"]);
     createAsyncReducer(builder, listServicesType, "servicesTypes");
   },
 });

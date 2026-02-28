@@ -15,23 +15,21 @@ export const loginCMS = createAsyncThunk(
       return {
         status: response.status,
         data: response.data,
-      }
+      };
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
+      toast.error(error?.response?.data.message, {
         position: "top-right",
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
 );
 
 export const listSideBars = createAsyncThunk(
   "auth/listSideBars",
   async (_, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(
-        `/cms/sidebars`
-      );
+      const response = await apiAxiosInstance.get(`/cms/sidebars`);
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {
@@ -39,16 +37,14 @@ export const listSideBars = createAsyncThunk(
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
 );
 
 export const userInfoCMS = createAsyncThunk(
   "auth/userInfoCMS",
   async (_, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.get(
-        `/cms/profile`
-      );
+      const response = await apiAxiosInstance.get(`/cms/profile`);
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data.message, {
@@ -56,7 +52,7 @@ export const userInfoCMS = createAsyncThunk(
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
 );
 
 export const changePassword = createAsyncThunk(
@@ -64,19 +60,42 @@ export const changePassword = createAsyncThunk(
   async (payload: any, thunkAPI) => {
     try {
       const { old_password, new_password }: any = payload;
-      const response = await apiAxiosInstance.put(`/cms/users/change/password`, {
-        old_password,
-        new_password,
-      });
+      const response = await apiAxiosInstance.put(
+        `/cms/users/change/password`,
+        {
+          old_password,
+          new_password,
+        },
+      );
       return {
         status: response.status,
         data: response.data,
-      }
+      };
     } catch (error: any) {
-      toast.error(error?.response?.data.message,{
+      toast.error(error?.response?.data.message, {
         position: "top-right",
       });
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
-  }
+  },
+);
+
+export const resetPasswordUserCMS = createAsyncThunk(
+  "auth/resetPasswordUserCMS",
+  async (id: any, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.put(`/cms/reset/password`, {
+        id,
+      });
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  },
 );

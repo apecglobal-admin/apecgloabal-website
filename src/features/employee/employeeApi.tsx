@@ -355,3 +355,23 @@ export const importExcel = createAsyncThunk(
     }
   }
 );
+
+export const resetPasswordEmployeeCMS = createAsyncThunk(
+  "auth/resetPasswordEmployeeCMS",
+  async (id: any, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.put(`/cms/employees/reset/password`, {
+        id,
+      });
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  },
+);

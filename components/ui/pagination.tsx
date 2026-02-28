@@ -97,7 +97,7 @@ export function Pagination({
           className="bg-black/30 border-purple-500/30 text-white hover:bg-purple-500/20 disabled:opacity-50"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Trước
+          <span className="hidden sm:inline">Trước</span>
         </Button>
 
         {/* Page numbers */}
@@ -134,7 +134,7 @@ export function Pagination({
           disabled={currentPage >= totalPages}
           className="bg-black/30 border-purple-500/30 text-white hover:bg-purple-500/20 disabled:opacity-50"
         >
-          Sau
+          <span className="hidden sm:inline">Sau</span>
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>

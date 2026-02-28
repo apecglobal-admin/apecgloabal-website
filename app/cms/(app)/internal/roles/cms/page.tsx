@@ -44,6 +44,7 @@ import {
   Loader2,
   UserPlus,
   ChevronRight,
+  FolderLock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
@@ -61,6 +62,7 @@ import { Separator } from "@/components/ui/separator";
 import { useEmployeeData } from "@/src/hook/employeeHook";
 import { listEmployee } from "@/src/features/employee/employeeApi";
 import { cn } from "@/lib/utils";
+import { resetPasswordUserCMS } from "@/src/features/auth/authApi";
 
 export default function RolesContent() {
   const dispatch = useDispatch();
@@ -94,6 +96,7 @@ export default function RolesContent() {
     dispatch(listEmployee({ limit: totalEmployees, page: 1, search: "" } as any) as any);
   }, [dispatch, totalEmployees]);
 
+  console.log("user", users);
   useEffect(() => {
     if (selectedEmployee) {
       setIsLoadingPermissions(true);
@@ -283,6 +286,17 @@ export default function RolesContent() {
     setIsDialogOpen(true);
   };
 
+  const handleChangePassword = async (employee: any) => {
+    try {
+      const res = await dispatch(resetPasswordUserCMS(employee.id) as any);
+      if (res.payload.status == 200 || res.payload.status == 201) {
+        toast.success(res.payload.data.message);
+      }
+    } catch (error: any) {
+      console.log("error", error)
+    }
+  }
+
   // Handle employee selection for new user
   const handleEmployeeSelect = (employeeId: string) => {
     const selectedEmp = employees?.find(
@@ -404,6 +418,15 @@ export default function RolesContent() {
                       >
                         <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
                         <span className="hidden sm:inline">Phân quyền</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleChangePassword(employee)}
+                        className="border-gray-700 hover:bg-purple-500/20 hover:border-purple-500 flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3"
+                      >
+                        <FolderLock className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Reset Mật Khẩu</span>
                       </Button>
                     </div>
                   </CardContent>

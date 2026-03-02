@@ -1080,7 +1080,7 @@ function ManageReportTypesForm({ reportTypes, setReportTypes }) {
         <Label className="text-white/80">Danh sách loại báo cáo hiện tại</Label>
         <div className="max-h-60 overflow-y-auto space-y-2">
           {reportTypes.map((type, index) => (
-            <div key={index} className="flex items-center justify-between p-2 bg-black/30 rounded border border-purple-500/20">
+            <div key={index} className="flex items-center justify-between p-2 bg-black/30 rounded border border-purple-500/50">
               {editingIndex === index ? (
                 <div className="flex items-center space-x-2 flex-1">
                   <Input

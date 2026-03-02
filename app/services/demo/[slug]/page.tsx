@@ -335,7 +335,7 @@ export default async function ServiceDemoPage({ params }: { params: Promise<{ sl
                 </CardContent>
               </Card>
               
-              <div className="bg-black/30 p-6 rounded-lg border border-purple-500/20">
+              <div className="bg-black/30 p-6 rounded-lg border border-purple-500/50">
                 <h3 className="text-white font-medium mb-2">Cần hỗ trợ?</h3>
                 <p className="text-white/70 text-sm mb-4">
                   Liên hệ với chúng tôi qua hotline hoặc email để được tư vấn trực tiếp.

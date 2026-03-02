@@ -52,7 +52,7 @@ const EmployeeCareerRequests: React.FC<EmployeeCareerRequestsProps> = ({
                 .map((request: any) => (
                   <div
                     key={request.id}
-                    className="bg-black/30 p-3 sm:p-4 rounded-lg border border-purple-500/20"
+                    className="bg-black/30 p-3 sm:p-4 rounded-lg border border-purple-500/50"
                   >
                     {/* --- Tiêu đề + trạng thái --- */}
                     <div className="flex justify-between items-start mb-2 gap-2">

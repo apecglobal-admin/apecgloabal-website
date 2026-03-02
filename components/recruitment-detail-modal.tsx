@@ -770,7 +770,7 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
                         return (
                           <TableRow
                             key={application.id}
-                            className={`border-b border-purple-500/20 transition-colors ${isActive ? 'bg-purple-500/10' : ''}`}
+                            className={`border-b border-purple-500/50 transition-colors ${isActive ? 'bg-purple-500/10' : ''}`}
                             onClick={() => setSelectedApplication(application)}
                           >
                             <TableCell className="text-white">
@@ -855,7 +855,7 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
 
                     <div>
                       <Label className="text-white/70 text-xs uppercase">Giới thiệu</Label>
-                      <p className="text-white/80 text-sm whitespace-pre-line border border-purple-500/20 rounded-lg p-3 bg-black/30">
+                      <p className="text-white/80 text-sm whitespace-pre-line border border-purple-500/50 rounded-lg p-3 bg-black/30">
                         {selectedApplication.introduction || 'Ứng viên chưa cung cấp phần giới thiệu.'}
                       </p>
                     </div>

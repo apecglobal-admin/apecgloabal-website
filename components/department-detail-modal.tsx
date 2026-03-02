@@ -521,7 +521,7 @@ export function DepartmentDetailModal({ isOpen, onClose, departmentId, editMode 
                     </TableHeader>
                     <TableBody>
                       {department?.employees?.map((employee: any) => (
-                        <TableRow key={employee.id} className="border-b border-purple-500/20">
+                        <TableRow key={employee.id} className="border-b border-purple-500/50">
                           <TableCell className="text-white">
                             <div className="flex items-center space-x-3">
                               <Avatar className="h-8 w-8">
@@ -579,7 +579,7 @@ export function DepartmentDetailModal({ isOpen, onClose, departmentId, editMode 
                     </TableHeader>
                     <TableBody>
                       {department?.projects?.map((project: any) => (
-                        <TableRow key={project.id} className="border-b border-purple-500/20">
+                        <TableRow key={project.id} className="border-b border-purple-500/50">
                           <TableCell className="text-white">{project.name}</TableCell>
                           <TableCell>
                             <Badge className={getStatusColor(project.status)}>

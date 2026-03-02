@@ -396,7 +396,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm phòng ban..."
-                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
+                            className="h-8 bg-purple-500/20 border-purple-500/30 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -436,7 +436,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm chức vụ..."
-                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
+                            className="h-8 bg-purple-500/20 border-purple-500/30 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -476,7 +476,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm cấp bậc..."
-                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
+                            className="h-8 bg-purple-500/20 border-purple-500/30 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');
@@ -574,7 +574,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                         <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                           <Input
                             placeholder="Tìm kiếm người duyệt..."
-                            className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
+                            className="h-8 bg-purple-500/20 border-purple-500/30 text-white placeholder:text-white/70 focus:bg-purple-500/30 focus:border-purple-500"
                             onChange={(e) => {
                               const input = e.target;
                               const items = input.closest('[role="listbox"]')?.querySelectorAll('[role="option"]');

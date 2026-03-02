@@ -258,7 +258,7 @@ const TasksPage: React.FC = () => {
 
             <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 sm:pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/50">
+                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <Calendar className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Thời gian</span>
@@ -269,7 +269,7 @@ const TasksPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/50">
+                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <FolderKanban className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Dự án</span>
@@ -279,7 +279,7 @@ const TasksPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/50">
+                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <User className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Người giao việc</span>
@@ -297,7 +297,7 @@ const TasksPage: React.FC = () => {
                 </div>
 
                 {taskById?.kpi_item && (
-                  <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/50">
+                  <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                     <div className="flex items-center gap-2 text-white/60 mb-2">
                       <span className="text-xs sm:text-sm">KPI</span>
                     </div>
@@ -345,7 +345,7 @@ const TasksPage: React.FC = () => {
                     return (
                       <div
                         key={assignment?.id}
-                        className="bg-black/30 rounded-lg border border-purple-500/50 overflow-hidden"
+                        className="bg-black/30 rounded-lg border border-purple-500/30 overflow-hidden"
                       >
                         {/* Header assignment - click để toggle */}
                         <div
@@ -517,7 +517,7 @@ const TasksPage: React.FC = () => {
                     placeholder="Tìm kiếm theo tên công việc, dự án, người giao việc..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                    className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500/30"
                   />
                   {searchTerm && (
                     <button
@@ -533,7 +533,7 @@ const TasksPage: React.FC = () => {
                   onClick={() => setShowFilters(!showFilters)}
                   className={`${
                     showFilters
-                      ? "bg-purple-600/30 border-purple-500/50 text-white"
+                      ? "bg-purple-600/30 border-purple-500/30 text-white"
                       : "bg-black/30 border-purple-500/30 text-white/60"
                   } hover:bg-purple-600/20 hover:text-white transition-all`}
                 >
@@ -544,7 +544,7 @@ const TasksPage: React.FC = () => {
 
               {/* Filter Options */}
               {showFilters && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-purple-500/50">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-purple-500/30">
                   <div className="space-y-2">
                     <label className="text-xs text-white/60">Trạng thái</label>
                     <Select
@@ -616,7 +616,7 @@ const TasksPage: React.FC = () => {
               {(searchTerm ||
                 statusFilter !== "all" ||
                 priorityFilter !== "all") && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-500/50">
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-500/30">
                   <span className="text-xs text-white/60">Đang lọc:</span>
                   {searchTerm && (
                     <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 border text-xs">
@@ -680,7 +680,7 @@ const TasksPage: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="bg-black/30 rounded p-2 border border-purple-500/50">
+                      <div className="bg-black/30 rounded p-2 border border-purple-500/30">
                         <div className="flex items-center gap-2 mb-2">
                           <FolderKanban className="w-3 h-3 text-white/60" />
                           <span className="text-xs text-white/80 truncate">
@@ -715,7 +715,7 @@ const TasksPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden border border-purple-500/50">
+                      <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden border border-purple-500/30">
                         <div
                           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
                           style={{ width: `${parseFloat(task.process)}%` }}
@@ -774,7 +774,7 @@ const TasksPage: React.FC = () => {
                               Ưu tiên: {task.priority.name}
                             </Badge>
                           )}
-                          <div className="flex items-center gap-2 bg-black/30 rounded-full px-2 sm:px-3 py-1 border border-purple-500/50">
+                          <div className="flex items-center gap-2 bg-black/30 rounded-full px-2 sm:px-3 py-1 border border-purple-500/30">
                             <FolderKanban className="w-3 h-3 sm:w-4 sm:h-4 text-white/60" />
                             <span className="text-[10px] sm:text-sm text-white/80">
                               {task.project.name}
@@ -808,7 +808,7 @@ const TasksPage: React.FC = () => {
                         <div className="text-[10px] sm:text-sm text-white/60">
                           Tiến độ
                         </div>
-                        <div className="mt-1 sm:mt-2 w-16 sm:w-24 h-1.5 sm:h-2 bg-black/30 rounded-full overflow-hidden border border-purple-500/50">
+                        <div className="mt-1 sm:mt-2 w-16 sm:w-24 h-1.5 sm:h-2 bg-black/30 rounded-full overflow-hidden border border-purple-500/30">
                           <div
                             className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
                             style={{ width: `${parseFloat(task.process)}%` }}

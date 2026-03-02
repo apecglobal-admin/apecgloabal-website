@@ -369,21 +369,21 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   </div>
                   
                   <div className="grid md:grid-cols-3 gap-6 mt-16">
-                    <div className="group bg-white p-6 rounded-xl border border-purple-500/50 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                    <div className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                         <Shield className="h-8 w-8 text-purple-400" />
                       </div>
                       <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Bảo Mật Tối Đa</h3>
                       <p className="text-gray-600 text-sm">Hệ thống bảo mật đa lớp bảo vệ dữ liệu của bạn với công nghệ AI tiên tiến</p>
                     </div>
-                    <div className="group bg-white p-6 rounded-xl border border-purple-500/50 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                    <div className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                         <Zap className="h-8 w-8 text-cyan-400" />
                       </div>
                       <h3 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-300 transition-colors duration-300">Hiệu Suất Cao</h3>
                       <p className="text-gray-600 text-sm">Tối ưu hóa hiệu suất và tốc độ xử lý với thuật toán machine learning</p>
                     </div>
-                    <div className="group bg-white p-6 rounded-xl border border-purple-500/50 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                    <div className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                         <Users className="h-8 w-8 text-green-400" />
                       </div>
@@ -482,7 +482,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   
                   <div className="mt-16 relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-xl blur opacity-30"></div>
-                    <div className="relative bg-white p-6 rounded-xl border border-purple-500/50 backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-6">
                       <div>
                         <h4 className="text-xl font-bold bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">Sẵn sàng bắt đầu?</h4>
                         <p className="text-gray-600">Liên hệ với chúng tôi ngay hôm nay để bắt đầu quy trình triển khai AI</p>
@@ -526,7 +526,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     {faqItems.map((item, index) => (
                       <div key={index} className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                        <div className="relative bg-white p-6 rounded-xl border border-purple-500/50 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+                        <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
                           <h4 className="text-gray-900 font-medium mb-3 group-hover:text-cyan-300 transition-colors duration-300">{item.question}</h4>
                           <p className="text-gray-600">{item.answer}</p>
                         </div>
@@ -647,7 +647,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         <div className="container mx-auto relative z-10">
           <div className="max-w-4xl mx-auto relative">
             {/* Decorative elements */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/50 rounded-tl-3xl"></div>
+            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl"></div>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
             
             <Card className={`bg-gradient-to-r ${serviceData.gradient} border-none shadow-2xl shadow-purple-900/20 overflow-hidden`}>

@@ -230,7 +230,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   required
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
 
@@ -242,7 +242,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                   rows={3}
                   value={formData.excerpt}
                   onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
 
@@ -253,7 +253,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                   placeholder="Nhập tên tác giả"
                   value={formData.author_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, author_name: e.target.value }))}
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
 
@@ -264,7 +264,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                   placeholder="Nhập URL hình ảnh đại diện"
                   value={formData.image_url}
                   onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
 
@@ -277,7 +277,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                   value={formData.content}
                   onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                   required
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
             </CardContent>
@@ -314,7 +314,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                     value={currentTag}
                     onChange={(e) => setCurrentTag(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                   />
                   <Button type="button" variant="outline" onClick={handleAddTag} className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40">
                     Thêm
@@ -362,7 +362,7 @@ function EditNewsContent({ params }: EditNewsPageProps) {
                       type="datetime-local"
                       value={formData.published_at}
                       onChange={(e) => setFormData(prev => ({ ...prev, published_at: e.target.value }))}
-                      className="bg-white/5 border-white/20 text-white focus:border-purple-500/50"
+                      className="bg-white/5 border-white/20 text-white focus:border-purple-500/30"
                     />
                   </div>
                 )}

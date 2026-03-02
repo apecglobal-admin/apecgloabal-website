@@ -161,7 +161,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         {items.map((item, index) => (
           <div key={index} className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-            <div className="relative bg-white p-6 rounded-xl border border-purple-500/50 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+            <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
               <p className="text-gray-800 group-hover:text-cyan-300 transition-colors duration-300">
                 {item}
               </p>
@@ -184,7 +184,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     return testimonials.map((testimonial, index) => (
       <div key={index} className="relative group">
         <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-        <div className="relative bg-white p-6 rounded-xl border border-purple-500/50 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+        <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
           <div className="flex items-center mb-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-white font-semibold shadow-lg shadow-purple-900/20">
               <MessageSquare className="h-6 w-6" />
@@ -368,7 +368,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                       <span className="text-gray-500 text-sm">Tiến độ</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden border border-purple-500/50">
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden border border-purple-500/30">
                         <div
                           className={`bg-gradient-to-r ${getStatusGradient(
                             projectData.status
@@ -465,7 +465,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
                   {shouldShowOverviewHighlights && (
                     <div className="grid md:grid-cols-3 gap-6 mt-16">
-                      <div className="group bg-white p-6 rounded-xl border border-purple-500/50 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                      <div className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                         <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                           <Rocket className="h-8 w-8 text-purple-400" />
                         </div>
@@ -477,7 +477,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                           tiên tiến
                         </p>
                       </div>
-                      <div className="group bg-white p-6 rounded-xl border border-purple-500/50 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                      <div className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                         <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                           <Shield className="h-8 w-8 text-cyan-400" />
                         </div>
@@ -489,7 +489,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                           hóa tiên tiến
                         </p>
                       </div>
-                      <div className="group bg-white p-6 rounded-xl border border-purple-500/50 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
+                      <div className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
                         <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                           <Zap className="h-8 w-8 text-green-400" />
                         </div>
@@ -692,7 +692,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                       {testimonials.map((testimonial, index) => (
                         <div key={index} className="relative group">
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                          <div className="relative bg-white p-6 rounded-xl border border-purple-500/50 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
+                          <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm">
                             <div className="flex items-center mb-4">
                               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mr-3 overflow-hidden">
                                 {testimonial.avatar ? (
@@ -798,7 +798,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full overflow-hidden bg-white border border-purple-500/50">
+                          <div className="w-6 h-6 rounded-full overflow-hidden bg-white border border-purple-500/30">
                             <Image
                               src={
                                 project.company_logo || "/placeholder-logo.png"
@@ -906,7 +906,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <div className="container mx-auto relative z-10">
           <div className="max-w-4xl mx-auto relative">
             {/* Decorative elements */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/50 rounded-tl-3xl"></div>
+            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl"></div>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
 
             <Card className="bg-white border-none shadow-2xl shadow-purple-900/20 backdrop-blur-md overflow-hidden">

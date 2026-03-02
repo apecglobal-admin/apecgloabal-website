@@ -689,7 +689,7 @@ export default function DepartmentsManagementContent() {
                           }
                           className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg transition-all ${
                             isSelected
-                              ? "bg-purple-500/20 border border-purple-500/50"
+                              ? "bg-purple-500/20 border border-purple-500/30"
                               : "hover:bg-purple-500/10 border border-transparent"
                           }`}
                         >

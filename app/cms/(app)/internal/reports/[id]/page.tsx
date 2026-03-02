@@ -167,7 +167,7 @@ export default function ReportDetailPage() {
             <Link href={`/cms/reports/${reportId}/analyze`}>
               <Button
                 variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Phân Tích
@@ -240,7 +240,7 @@ export default function ReportDetailPage() {
                   <Button
                     onClick={handleDownload}
                     variant="outline"
-                    className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                    className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Tải xuống để xem
@@ -297,7 +297,7 @@ export default function ReportDetailPage() {
                   <Link href={`/cms/reports/${reportId}/analyze`} className="block">
                     <Button
                       variant="outline"
-                      className="w-full bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                      className="w-full bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
                     >
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Phân Tích Chi Tiết

@@ -162,7 +162,7 @@ export default function CompaniesPage() {
       secondaryButton: {
         text: "Liên Hệ Hợp Tác",
         href: "/contact",
-        borderColor: "border-purple-500/50",
+        borderColor: "border-purple-500/30",
         hoverBg: "bg-purple-500/20",
         hoverBorder: "border-purple-400"
       }

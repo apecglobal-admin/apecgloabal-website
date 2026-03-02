@@ -85,7 +85,7 @@ export default function ContactPage() {
       secondaryButton: {
         text: "Thông Tin Liên Hệ",
         href: "#contact-info",
-        borderColor: "border-purple-500/50",
+        borderColor: "border-purple-500/30",
         hoverBg: "bg-purple-500/20",
         hoverBorder: "border-purple-400"
       }

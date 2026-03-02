@@ -884,7 +884,7 @@ export function ProjectCreateUpdateModal({
                             onClick={() => toggleDepartment(dept.id)}
                             className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg transition-all ${
                               isSelected
-                                ? "bg-purple-500/20 border border-purple-500/50"
+                                ? "bg-purple-500/20 border border-purple-500/30"
                                 : "hover:bg-purple-500/10 border border-transparent"
                             }`}
                           >
@@ -1087,7 +1087,7 @@ export function ProjectCreateUpdateModal({
                 )}
 
                 {/* Upload New Document */}
-                <div className="bg-black/30 border-2 border-dashed border-purple-500/30 rounded-md p-4 hover:border-purple-500/50 transition-colors">
+                <div className="bg-black/30 border-2 border-dashed border-purple-500/30 rounded-md p-4 hover:border-purple-500/30 transition-colors">
                   <input
                     type="file"
                     id="file-upload"

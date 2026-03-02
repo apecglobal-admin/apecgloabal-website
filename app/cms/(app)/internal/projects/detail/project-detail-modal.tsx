@@ -335,7 +335,7 @@ export function ProjectDetailModal({
                               project.members.map((member: any) => (
                                 <TableRow
                                   key={member.id}
-                                  className="border-b border-purple-500/50 hover:bg-white/5 transition-colors"
+                                  className="border-b border-purple-500/30 hover:bg-white/5 transition-colors"
                                 >
                                   <TableCell className="text-white/80 font-mono">
                                     #{member.id}
@@ -409,7 +409,7 @@ export function ProjectDetailModal({
                               project.tasks.map((task: any) => (
                                 <TableRow
                                   key={task.id}
-                                  className="border-b border-purple-500/50"
+                                  className="border-b border-purple-500/30"
                                 >
                                   <TableCell className="text-white font-medium">
                                     {task.name}

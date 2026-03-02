@@ -274,7 +274,7 @@ export default function EcoSystemManagementContent() {
             listEcoSystem.map((eco: EcoSystem) => (
               <Card
                 key={eco.id}
-                className="bg-black/50 border-purple-500/30 hover:border-purple-500/50 transition-all"
+                className="bg-black/50 border-purple-500/30 hover:border-purple-500/30 transition-all"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -293,7 +293,7 @@ export default function EcoSystemManagementContent() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleEditEcoSystem(eco)}
-                      className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:border-purple-500/50"
+                      className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:border-purple-500/30"
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Sửa

@@ -748,7 +748,7 @@ export default function DocumentsPage() {
             <Button
               onClick={() => setShowCreateFolderModal(true)}
               variant="outline"
-              className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+              className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
             >
               <FolderPlus className="h-4 w-4 mr-2" />
               Tạo Thư Mục
@@ -946,7 +946,7 @@ export default function DocumentsPage() {
                                   onClick={() => handleShareDocument(doc)}
                                   variant="outline"
                                   size="sm"
-                                  className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/20 flex-1"
+                                  className="bg-transparent border-2 border-purple-500/30 text-purple-300 hover:bg-purple-500/20 flex-1"
                                 >
                                   <Share className="h-4 w-4" />
                                 </Button>
@@ -1051,7 +1051,7 @@ export default function DocumentsPage() {
                   <p className="text-white/60 text-sm mb-4">hoặc click để chọn file</p>
                   <Button 
                     variant="outline" 
-                    className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                    className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
                   >
                     Chọn File
                   </Button>

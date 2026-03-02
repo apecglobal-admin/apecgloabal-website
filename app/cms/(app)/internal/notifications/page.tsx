@@ -877,7 +877,7 @@ export default function NotificationPage() {
                     <div className="px-2 pb-2 sticky top-0 bg-black z-10 border-b border-purple-500/30">
                       <Input
                         placeholder="Tìm kiếm..."
-                        className="h-8 bg-purple-500/20 border-purple-500/50 text-white placeholder:text-white/70 text-sm"
+                        className="h-8 bg-purple-500/20 border-purple-500/30 text-white placeholder:text-white/70 text-sm"
                         onChange={(e) => {
                           const input = e.target;
                           const items = input

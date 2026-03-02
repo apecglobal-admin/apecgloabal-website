@@ -88,7 +88,7 @@ function NewsContent() {
   return (
     <div className="space-y-4">
       {newsData.map((news) => (
-        <Card key={news.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
+        <Card key={news.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
           <CardHeader>
             <div className="flex justify-between items-start">
               <div className="space-y-3">
@@ -210,7 +210,7 @@ export default function AdminNewsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
                 <Input 
                   placeholder="Tìm kiếm tin tức..." 
-                  className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
             </div>

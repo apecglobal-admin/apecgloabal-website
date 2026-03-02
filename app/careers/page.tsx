@@ -159,7 +159,7 @@ export default function CareersPage() {
       secondaryButton: {
         text: "Lộ Trình Thăng Tiến",
         href: "#career-path",
-        borderColor: "border-purple-500/50",
+        borderColor: "border-purple-500/30",
         hoverBg: "bg-purple-500/20",
         hoverBorder: "border-purple-400",
       },
@@ -415,7 +415,7 @@ export default function CareersPage() {
       case "TimeLoop":
         return "border-orange-500/50 bg-orange-500/10";
       case "ApecNeuroOS":
-        return "border-purple-500/50 bg-purple-500/10";
+        return "border-purple-500/30 bg-purple-500/10";
       default:
         return "border-red-500/50 bg-white shadow-md";
     }

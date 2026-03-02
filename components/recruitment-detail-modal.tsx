@@ -770,7 +770,7 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
                         return (
                           <TableRow
                             key={application.id}
-                            className={`border-b border-purple-500/50 transition-colors ${isActive ? 'bg-purple-500/10' : ''}`}
+                            className={`border-b border-purple-500/30 transition-colors ${isActive ? 'bg-purple-500/10' : ''}`}
                             onClick={() => setSelectedApplication(application)}
                           >
                             <TableCell className="text-white">
@@ -797,7 +797,7 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
                               <Button
                                 size="sm"
                                 variant={isActive ? "default" : "outline"}
-                                className={`bg-transparent border-purple-500/50 text-white hover:bg-purple-500/20 ${isActive ? 'bg-purple-600/40 border-purple-400/60 hover:bg-purple-600/40' : ''}`}
+                                className={`bg-transparent border-purple-500/30 text-white hover:bg-purple-500/20 ${isActive ? 'bg-purple-600/40 border-purple-400/60 hover:bg-purple-600/40' : ''}`}
                                 onClick={(event) => {
                                   event.stopPropagation()
                                   setSelectedApplication(application)
@@ -855,7 +855,7 @@ export function RecruitmentDetailModal({ isOpen, onClose, jobId, editMode = fals
 
                     <div>
                       <Label className="text-white/70 text-xs uppercase">Giới thiệu</Label>
-                      <p className="text-white/80 text-sm whitespace-pre-line border border-purple-500/50 rounded-lg p-3 bg-black/30">
+                      <p className="text-white/80 text-sm whitespace-pre-line border border-purple-500/30 rounded-lg p-3 bg-black/30">
                         {selectedApplication.introduction || 'Ứng viên chưa cung cấp phần giới thiệu.'}
                       </p>
                     </div>

@@ -218,7 +218,7 @@ export default function InternalDashboard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                    className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
                   >
                     Xem Tất Cả
                   </Button>
@@ -295,7 +295,7 @@ export default function InternalDashboard() {
               })}
               <Button
                 variant="outline"
-                className="w-full bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                className="w-full bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
               >
                 Xem Tất Cả Thông Báo
               </Button>

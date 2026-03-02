@@ -143,7 +143,7 @@ const EmployeeProjects: React.FC<EmployeeProjectsProps> = ({
               employee.projects.project_list.map((project: any) => (
                 <div
                   key={project.id}
-                  className="bg-black/30 p-3 sm:p-4 rounded-lg border border-purple-500/50"
+                  className="bg-black/30 p-3 sm:p-4 rounded-lg border border-purple-500/30"
                 >
                   <div className="flex justify-between items-start mb-2 gap-2">
                     <h4 className="text-white font-semibold text-xs sm:text-base flex-1">

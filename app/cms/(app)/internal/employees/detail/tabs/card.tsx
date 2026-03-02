@@ -95,7 +95,7 @@ const EmployeeCards: React.FC<EmployeeCardsProps> = ({ employee }) => {
                   {card.benefits.map((benefit: any) => (
                     <div
                       key={benefit.id}
-                      className="bg-black/30 p-2 sm:p-3 rounded-lg border border-purple-500/50"
+                      className="bg-black/30 p-2 sm:p-3 rounded-lg border border-purple-500/30"
                     >
                       <div className="flex gap-1.5 sm:gap-2">
                         <div className="text-purple-400 text-base sm:text-xl mt-0.5 shrink-0">

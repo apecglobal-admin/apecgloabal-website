@@ -100,7 +100,7 @@ export default function SettingsPage() {
               </Button>
               <Button
                 variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Khôi Phục
@@ -305,7 +305,7 @@ export default function SettingsPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                    className="w-full bg-transparent border-2 border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Xuất báo cáo

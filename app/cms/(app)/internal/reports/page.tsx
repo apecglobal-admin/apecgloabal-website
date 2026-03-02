@@ -407,7 +407,7 @@ export default function ReportsPage() {
             </Dialog>
             <Button
               variant="outline"
-              className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+              className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
               onClick={handleExportAll}
             >
               <Download className="h-4 w-4 mr-2" />
@@ -523,7 +523,7 @@ export default function ReportsPage() {
                   setCurrentPage(1)
                 }}
                 variant="outline"
-                className={`${selectedType === type.name ? "bg-purple-500/20 border-purple-400 text-white" : "bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"}`}
+                className={`${selectedType === type.name ? "bg-purple-500/20 border-purple-400 text-white" : "bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"}`}
               >
                 {type.name}
                 <Badge className={`ml-2 ${type.color} text-white`}>{type.count}</Badge>
@@ -549,7 +549,7 @@ export default function ReportsPage() {
             <Button
               variant="outline"
               onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
-              className={`${showAdvancedFilter ? "bg-purple-500/20 border-purple-400 text-white" : "bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"}`}
+              className={`${showAdvancedFilter ? "bg-purple-500/20 border-purple-400 text-white" : "bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"}`}
             >
               <Filter className="h-4 w-4 mr-2" />
               Bộ Lọc Nâng Cao
@@ -710,7 +710,7 @@ export default function ReportsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                          className="bg-transparent border-2 border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
                           onClick={() => handleAnalyzeReport(report)}
                         >
                           <BarChart3 className="h-4 w-4 mr-2" />
@@ -748,7 +748,7 @@ export default function ReportsPage() {
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20 disabled:opacity-50"
+                className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20 disabled:opacity-50"
               >
                 Trước
               </Button>
@@ -772,7 +772,7 @@ export default function ReportsPage() {
                     className={
                       currentPage === page
                         ? "bg-purple-600 text-white"
-                        : "bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                        : "bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
                     }
                     variant={currentPage === page ? "default" : "outline"}
                   >
@@ -785,7 +785,7 @@ export default function ReportsPage() {
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === pagination.totalPages}
                 variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20 disabled:opacity-50"
+                className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20 disabled:opacity-50"
               >
                 Sau
               </Button>
@@ -1080,7 +1080,7 @@ function ManageReportTypesForm({ reportTypes, setReportTypes }) {
         <Label className="text-white/80">Danh sách loại báo cáo hiện tại</Label>
         <div className="max-h-60 overflow-y-auto space-y-2">
           {reportTypes.map((type, index) => (
-            <div key={index} className="flex items-center justify-between p-2 bg-black/30 rounded border border-purple-500/50">
+            <div key={index} className="flex items-center justify-between p-2 bg-black/30 rounded border border-purple-500/30">
               {editingIndex === index ? (
                 <div className="flex items-center space-x-2 flex-1">
                   <Input

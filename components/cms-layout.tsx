@@ -457,7 +457,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                                       isActive
                                         ? isAdminMenu
                                           ? "bg-red-500/20 border border-red-500/50 text-white"
-                                          : "bg-purple-500/20 border border-purple-500/50 text-white"
+                                          : "bg-purple-500/20 border border-purple-500/30 text-white"
                                         : "text-white/70 hover:text-white hover:bg-white/10"
                                     }`}
                                   >
@@ -492,7 +492,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                             isActive
                               ? isAdminMenu
                                 ? "bg-red-500/20 border border-red-500/50 text-white"
-                                : "bg-purple-500/20 border border-purple-500/50 text-white"
+                                : "bg-purple-500/20 border border-purple-500/30 text-white"
                               : "text-white/70 hover:text-white hover:bg-white/10"
                           }`}
                         >

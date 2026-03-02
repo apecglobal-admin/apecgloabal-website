@@ -215,7 +215,7 @@ export default function InternalProjectsPage() {
     const colors = [
       "bg-blue-500/20 text-blue-300 border-blue-500/50",
       "bg-green-500/20 text-green-300 border-green-500/50",
-      "bg-purple-500/20 text-purple-300 border-purple-500/50",
+      "bg-purple-500/20 text-purple-300 border-purple-500/30",
       "bg-orange-500/20 text-orange-300 border-orange-500/50",
       "bg-pink-500/20 text-pink-300 border-pink-500/50",
     ];
@@ -462,7 +462,7 @@ export default function InternalProjectsPage() {
 
         <Button
           variant="outline"
-          className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+          className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
           onClick={handleResetFilters}
         >
           <RefreshCw className="h-4 w-4 mr-2" />
@@ -552,7 +552,7 @@ export default function InternalProjectsPage() {
 
       {/* Bulk Actions Toolbar */}
       {selectedProjects.length > 0 && (
-        <div className="bg-purple-600/20 border border-purple-500/50 rounded-lg p-4 mb-6">
+        <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <span className="text-white font-medium">

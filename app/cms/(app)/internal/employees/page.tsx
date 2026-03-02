@@ -750,7 +750,7 @@ export default function EmployeesManagementContent() {
                 return (
                   <div
                     key={employee.id}
-                    className="bg-white/5 border border-purple-500/50 rounded-xl p-4 space-y-3"
+                    className="bg-white/5 border border-purple-500/30 rounded-xl p-4 space-y-3"
                   >
                     {/* Top row: avatar + name + actions */}
                     <div className="flex items-start justify-between gap-3">
@@ -902,7 +902,7 @@ export default function EmployeesManagementContent() {
                   (filteredEmployees as Employee[]).map((employee) => (
                     <TableRow
                       key={employee.id}
-                      className="border-b border-purple-500/50 hover:bg-white/5 transition-colors"
+                      className="border-b border-purple-500/30 hover:bg-white/5 transition-colors"
                     >
                       <TableCell>
                         <div className="flex items-center space-x-3">

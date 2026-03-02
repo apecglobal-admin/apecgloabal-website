@@ -121,7 +121,7 @@ export default function CreateNewsPage() {
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   required
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
 
@@ -133,7 +133,7 @@ export default function CreateNewsPage() {
                   rows={3}
                   value={formData.excerpt}
                   onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
 
@@ -146,7 +146,7 @@ export default function CreateNewsPage() {
                   value={formData.content}
                   onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                   required
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500/30"
                 />
               </div>
             </CardContent>
@@ -185,7 +185,7 @@ export default function CreateNewsPage() {
                     value={currentTag}
                     onChange={(e) => setCurrentTag(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                    className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500/30"
                   />
                   <Button type="button" variant="outline" onClick={handleAddTag} className="bg-purple-500/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/30">
                     Thêm
@@ -233,7 +233,7 @@ export default function CreateNewsPage() {
                       type="datetime-local"
                       value={formData.publishedAt}
                       onChange={(e) => setFormData(prev => ({ ...prev, publishedAt: e.target.value }))}
-                      className="bg-black/30 border-purple-500/30 text-white focus:border-purple-500/50"
+                      className="bg-black/30 border-purple-500/30 text-white focus:border-purple-500/30"
                     />
                   </div>
                 )}

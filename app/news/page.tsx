@@ -144,7 +144,7 @@ export default async function NewsPage() {
       secondaryButton: {
         text: "Tìm Kiếm Tin Tức",
         href: "/news/search",
-        borderColor: "border-purple-500/50",
+        borderColor: "border-purple-500/30",
         hoverBg: "bg-purple-500/20",
         hoverBorder: "border-purple-400"
       }

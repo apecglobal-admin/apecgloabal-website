@@ -30,6 +30,8 @@ import {
   Search,
   Filter,
   X,
+  ChevronsUpDown,
+  ChevronsDownUp,
 } from "lucide-react";
 import { listTasks, listTasksById } from "@/src/features/task/taskApi";
 import { useTaskData } from "@/src/hook/taskHook";
@@ -44,6 +46,11 @@ const TasksPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Collapse/expand state
+  const [collapsedAssignments, setCollapsedAssignments] = useState<Set<string>>(new Set());
+  const [allCollapsed, setAllCollapsed] = useState(false);
+
   const itemsPerPage = 9;
 
   // Extract tasks data array
@@ -64,6 +71,12 @@ const TasksPage: React.FC = () => {
     );
   }, [currentPage, dispatch]);
 
+  // Reset collapse state khi chuyển task
+  useEffect(() => {
+    setCollapsedAssignments(new Set());
+    setAllCollapsed(false);
+  }, [selectedTaskId]);
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     setSelectedTaskId(null);
@@ -82,6 +95,42 @@ const TasksPage: React.FC = () => {
     setSearchTerm("");
     setStatusFilter("all");
     setPriorityFilter("all");
+  };
+
+  // Toggle từng assignment
+  const toggleAssignment = (assignmentId: string) => {
+    setCollapsedAssignments((prev) => {
+      const next = new Set(prev);
+      if (next.has(assignmentId)) {
+        next.delete(assignmentId);
+      } else {
+        next.add(assignmentId);
+      }
+
+      // Sync trạng thái allCollapsed
+      const totalWithSubtasks = (taskById?.employee_assignments ?? []).filter(
+        (a: any) => a?.subtasks?.length > 0,
+      ).length;
+      setAllCollapsed(next.size === totalWithSubtasks);
+
+      return next;
+    });
+  };
+
+  // Toggle tất cả
+  const toggleAll = () => {
+    if (allCollapsed) {
+      setCollapsedAssignments(new Set());
+      setAllCollapsed(false);
+    } else {
+      const allIds = new Set<string>(
+        (taskById?.employee_assignments ?? [])
+          .filter((a: any) => a?.subtasks?.length > 0)
+          .map((a: any) => a.id),
+      );
+      setCollapsedAssignments(allIds);
+      setAllCollapsed(true);
+    }
   };
 
   // Filter tasks based on search and filters
@@ -141,6 +190,11 @@ const TasksPage: React.FC = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN");
   };
+
+  // Kiểm tra có assignment nào có subtasks không
+  const hasAnySubtasks = (taskById?.employee_assignments ?? []).some(
+    (a: any) => a?.subtasks?.length > 0,
+  );
 
   if (selectedTaskId && taskById) {
     return (
@@ -204,7 +258,7 @@ const TasksPage: React.FC = () => {
 
             <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-0 sm:pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/20">
+                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <Calendar className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Thời gian</span>
@@ -215,7 +269,7 @@ const TasksPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/20">
+                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <FolderKanban className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Dự án</span>
@@ -225,7 +279,7 @@ const TasksPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/20">
+                <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <User className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Người giao việc</span>
@@ -243,7 +297,7 @@ const TasksPage: React.FC = () => {
                 </div>
 
                 {taskById?.kpi_item && (
-                  <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/20">
+                  <div className="bg-black/30 rounded-lg p-3 sm:p-4 border border-purple-500/30">
                     <div className="flex items-center gap-2 text-white/60 mb-2">
                       <span className="text-xs sm:text-sm">KPI</span>
                     </div>
@@ -256,84 +310,142 @@ const TasksPage: React.FC = () => {
 
               {taskById?.employee_assignments?.length > 0 && (
                 <div className="space-y-3 sm:space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-white">
-                    Phân công thực hiện
-                  </h3>
+                  {/* Header section với nút Toggle All */}
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-base sm:text-lg font-semibold text-white">
+                      Phân công thực hiện
+                    </h3>
 
-                  {taskById?.employee_assignments?.map((assignment: any) => (
-                    <div
-                      key={assignment?.id}
-                      className="bg-black/30 rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4 border border-purple-500/20"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={assignment?.employee?.avatar}
-                            alt={assignment?.employee?.name}
-                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
-                          />
-                          <div>
-                            <div className="text-white font-medium text-xs sm:text-base">
-                              {assignment?.employee?.name}
-                            </div>
-                            <Badge
-                              className={`${getStatusColor(
-                                assignment?.status?.name,
-                              )} border text-[10px] sm:text-xs`}
-                            >
-                              {assignment?.status?.name}
-                            </Badge>
-                          </div>
-                        </div>
+                    {hasAnySubtasks && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={toggleAll}
+                        className="text-white/60 hover:text-white hover:bg-white/10 text-xs sm:text-sm gap-1.5"
+                      >
+                        {allCollapsed ? (
+                          <>
+                            <ChevronsUpDown className="w-4 h-4" />
+                            Mở tất cả
+                          </>
+                        ) : (
+                          <>
+                            <ChevronsDownUp className="w-4 h-4" />
+                            Đóng tất cả
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
 
-                        <div className="text-right">
-                          <div className="text-xl sm:text-2xl font-bold text-blue-400">
-                            {assignment?.process ?? 0}%
-                          </div>
-                          <div className="text-[10px] sm:text-xs text-white/60">
-                            Tiến độ cá nhân
-                          </div>
-                        </div>
-                      </div>
+                  {taskById?.employee_assignments?.map((assignment: any) => {
+                    const isCollapsed = collapsedAssignments.has(assignment?.id);
+                    const hasSubtasks = assignment?.subtasks?.length > 0;
 
-                      {assignment?.subtasks?.length > 0 && (
-                        <div className="space-y-2">
-                          <h4 className="text-xs sm:text-sm font-semibold text-white/80">
-                            Công việc con ({assignment?.subtasks?.length})
-                          </h4>
-
-                          <div className="space-y-2">
-                            {assignment?.subtasks?.map((subtask: any) => (
-                              <div
-                                key={subtask?.id}
-                                className="flex items-center justify-between bg-black/20 rounded p-2 sm:p-3 hover:bg-black/30 transition-colors border border-purple-500/10"
-                              >
-                                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                  {getSubtaskStatusIcon(subtask?.status?.name)}
-                                  <span className="text-white text-xs sm:text-base truncate">
-                                    {subtask?.name}
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
-                                  <Badge
-                                    className={`${getStatusColor(
-                                      subtask?.status?.name,
-                                    )} border text-[10px] sm:text-xs`}
-                                  >
-                                    {subtask?.status?.name}
-                                  </Badge>
-                                  <span className="text-xs sm:text-sm text-blue-400 font-medium">
-                                    {subtask?.process ?? 0}%
-                                  </span>
-                                </div>
+                    return (
+                      <div
+                        key={assignment?.id}
+                        className="bg-black/30 rounded-lg border border-purple-500/30 overflow-hidden"
+                      >
+                        {/* Header assignment - click để toggle */}
+                        <div
+                          className={`flex items-center justify-between gap-3 p-3 sm:p-4 ${
+                            hasSubtasks
+                              ? "cursor-pointer hover:bg-white/5 transition-colors"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            hasSubtasks && toggleAssignment(assignment?.id)
+                          }
+                        >
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={assignment?.employee?.avatar}
+                              alt={assignment?.employee?.name}
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
+                            />
+                            <div>
+                              <div className="text-white font-medium text-xs sm:text-base">
+                                {assignment?.employee?.name}
                               </div>
-                            ))}
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge
+                                  className={`${getStatusColor(
+                                    assignment?.status?.name,
+                                  )} border text-[10px] sm:text-xs`}
+                                >
+                                  {assignment?.status?.name}
+                                </Badge>
+                                {hasSubtasks && (
+                                  <span className="text-[10px] text-white/40">
+                                    {assignment?.subtasks?.length} công việc con
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <div className="text-xl sm:text-2xl font-bold text-blue-400">
+                                {assignment?.process ?? 0}%
+                              </div>
+                              <div className="text-[10px] sm:text-xs text-white/60">
+                                Tiến độ cá nhân
+                              </div>
+                            </div>
+
+                            {/* Nút collapse/expand từng assignment */}
+                            {hasSubtasks && (
+                              <ChevronRight
+                                className={`w-5 h-5 text-white/40 transition-transform duration-200 ${
+                                  isCollapsed ? "rotate-0" : "rotate-90"
+                                }`}
+                              />
+                            )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        {/* Subtasks - ẩn/hiện theo state */}
+                        {hasSubtasks && !isCollapsed && (
+                          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-2 border-t border-purple-500/10 pt-3">
+                            <h4 className="text-xs sm:text-sm font-semibold text-white/80">
+                              Công việc con ({assignment?.subtasks?.length})
+                            </h4>
+
+                            <div className="space-y-2">
+                              {assignment?.subtasks?.map((subtask: any) => (
+                                <div
+                                  key={subtask?.id}
+                                  className="flex items-center justify-between bg-black/20 rounded p-2 sm:p-3 hover:bg-black/30 transition-colors border border-purple-500/10"
+                                >
+                                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                    {getSubtaskStatusIcon(subtask?.status?.name)}
+                                    <span className="text-white text-xs sm:text-base truncate">
+                                      {subtask?.name}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
+                                    <Badge
+                                      className={`${getStatusColor(
+                                        subtask?.status?.name,
+                                      )} border text-[10px] sm:text-xs`}
+                                    >
+                                      {subtask?.status?.name}
+                                    </Badge>
+                                    <span className="text-xs sm:text-sm text-blue-400 font-medium">
+                                      {subtask?.process ?? 0}%
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -405,7 +517,7 @@ const TasksPage: React.FC = () => {
                     placeholder="Tìm kiếm theo tên công việc, dự án, người giao việc..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500/50"
+                    className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500/30"
                   />
                   {searchTerm && (
                     <button
@@ -421,7 +533,7 @@ const TasksPage: React.FC = () => {
                   onClick={() => setShowFilters(!showFilters)}
                   className={`${
                     showFilters
-                      ? "bg-purple-600/30 border-purple-500/50 text-white"
+                      ? "bg-purple-600/30 border-purple-500/30 text-white"
                       : "bg-black/30 border-purple-500/30 text-white/60"
                   } hover:bg-purple-600/20 hover:text-white transition-all`}
                 >
@@ -432,7 +544,7 @@ const TasksPage: React.FC = () => {
 
               {/* Filter Options */}
               {showFilters && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-purple-500/20">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-purple-500/30">
                   <div className="space-y-2">
                     <label className="text-xs text-white/60">Trạng thái</label>
                     <Select
@@ -504,7 +616,7 @@ const TasksPage: React.FC = () => {
               {(searchTerm ||
                 statusFilter !== "all" ||
                 priorityFilter !== "all") && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-500/20">
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-500/30">
                   <span className="text-xs text-white/60">Đang lọc:</span>
                   {searchTerm && (
                     <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 border text-xs">
@@ -568,7 +680,7 @@ const TasksPage: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="bg-black/30 rounded p-2 border border-purple-500/20">
+                      <div className="bg-black/30 rounded p-2 border border-purple-500/30">
                         <div className="flex items-center gap-2 mb-2">
                           <FolderKanban className="w-3 h-3 text-white/60" />
                           <span className="text-xs text-white/80 truncate">
@@ -603,7 +715,7 @@ const TasksPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden border border-purple-500/20">
+                      <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden border border-purple-500/30">
                         <div
                           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
                           style={{ width: `${parseFloat(task.process)}%` }}
@@ -662,7 +774,7 @@ const TasksPage: React.FC = () => {
                               Ưu tiên: {task.priority.name}
                             </Badge>
                           )}
-                          <div className="flex items-center gap-2 bg-black/30 rounded-full px-2 sm:px-3 py-1 border border-purple-500/20">
+                          <div className="flex items-center gap-2 bg-black/30 rounded-full px-2 sm:px-3 py-1 border border-purple-500/30">
                             <FolderKanban className="w-3 h-3 sm:w-4 sm:h-4 text-white/60" />
                             <span className="text-[10px] sm:text-sm text-white/80">
                               {task.project.name}
@@ -696,7 +808,7 @@ const TasksPage: React.FC = () => {
                         <div className="text-[10px] sm:text-sm text-white/60">
                           Tiến độ
                         </div>
-                        <div className="mt-1 sm:mt-2 w-16 sm:w-24 h-1.5 sm:h-2 bg-black/30 rounded-full overflow-hidden border border-purple-500/20">
+                        <div className="mt-1 sm:mt-2 w-16 sm:w-24 h-1.5 sm:h-2 bg-black/30 rounded-full overflow-hidden border border-purple-500/30">
                           <div
                             className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
                             style={{ width: `${parseFloat(task.process)}%` }}

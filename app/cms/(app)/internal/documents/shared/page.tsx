@@ -282,7 +282,7 @@ export default function SharedDocumentPage() {
             </Card>
           ) : document ? (
             <Card className="bg-black/50 border-purple-500/30">
-              <CardHeader className="border-b border-purple-500/20 pb-6">
+              <CardHeader className="border-b border-purple-500/30 pb-6">
                 <CardTitle className="text-2xl font-bold text-white">{document.name}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">

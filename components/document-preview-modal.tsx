@@ -526,7 +526,7 @@ export default function DocumentPreviewModal({
                     onClick={() => onShare(documentProp)}
                     variant="outline"
                     size="sm"
-                    className="bg-transparent border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                    className="bg-transparent border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
                   >
                     <Share className="h-4 w-4" />
                   </Button>
@@ -616,7 +616,7 @@ export default function DocumentPreviewModal({
                       setTimeout(() => setIsLoading(false), 2000)
                     }}
                     variant="outline"
-                    className="w-full bg-transparent border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                    className="w-full bg-transparent border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
                   >
                     <RotateCw className="h-4 w-4 mr-2" />
                     Thử lại

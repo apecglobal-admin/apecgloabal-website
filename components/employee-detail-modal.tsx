@@ -590,7 +590,7 @@ export function EmployeeDetailModal({ isOpen, onClose, employeeId, editMode = fa
                     </TableHeader>
                     <TableBody>
                       {employee?.projects?.map((project: any) => (
-                        <TableRow key={project.id} className="border-b border-purple-500/20">
+                        <TableRow key={project.id} className="border-b border-purple-500/30">
                           <TableCell className="text-white">{project.project_name}</TableCell>
                           <TableCell className="text-white">{project.role}</TableCell>
                           <TableCell>

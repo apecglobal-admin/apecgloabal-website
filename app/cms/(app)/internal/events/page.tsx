@@ -570,7 +570,7 @@ export default function EventPage() {
 
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 sm:mt-6 text-xs sm:text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/50" />
+                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/30" />
                 <span className="text-gray-300">Có sự kiện</span>
               </div>
               <div className="flex items-center gap-2">

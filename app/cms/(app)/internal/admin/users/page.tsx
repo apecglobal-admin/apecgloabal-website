@@ -112,7 +112,7 @@ function UsersContent() {
   return (
     <div className="space-y-4">
       {usersData.map((user) => (
-        <Card key={user.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
+        <Card key={user.id} className="bg-black/50 border-purple-500/30 hover:border-purple-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
           <CardHeader>
             <div className="flex justify-between items-start">
               <div className="space-y-3">

@@ -38,7 +38,7 @@ const StatCard = ({ item, icon: Icon }: any) => {
     : null;
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl">
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-500/30 transition-all duration-300 hover:shadow-2xl">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-300 mb-1">{item.title}</p>

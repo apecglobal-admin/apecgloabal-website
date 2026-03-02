@@ -659,7 +659,7 @@ export default function RolesContent() {
                             className={cn(
                               "w-full text-left px-3 py-2.5 rounded-lg transition-all duration-200 group",
                               selectedGroupId === group.group_id
-                                ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50"
+                                ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30"
                                 : "hover:bg-gray-700/50 border border-transparent"
                             )}
                           >
@@ -760,7 +760,7 @@ export default function RolesContent() {
                               className={cn(
                                 "flex items-start gap-3 p-4 rounded-lg border transition-all duration-200 cursor-pointer",
                                 selectedPermissions.includes(permission.id)
-                                  ? "border-purple-500/50 bg-purple-500/10"
+                                  ? "border-purple-500/30 bg-purple-500/10"
                                   : "border-gray-700 bg-gray-800/50 hover:bg-gray-700/50 hover:border-gray-600"
                               )}
                               onClick={() =>

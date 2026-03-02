@@ -83,7 +83,7 @@ export default function ReportsDashboardPage() {
             <Link href="/cms/reports">
               <Button
                 variant="outline"
-                className="bg-transparent border-2 border-purple-500/50 text-white hover:bg-purple-500/20"
+                className="bg-transparent border-2 border-purple-500/30 text-white hover:bg-purple-500/20"
               >
                 <FileText className="h-4 w-4 mr-2" />
                 Danh Sách Báo Cáo

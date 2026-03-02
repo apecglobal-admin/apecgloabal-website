@@ -411,7 +411,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
 
                     <div className="flex items-start space-x-3 group">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:border-cyan-500/30 transition-colors duration-300">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-purple-500/30 flex items-center justify-center flex-shrink-0 group-hover:border-cyan-500/30 transition-colors duration-300">
                         <Phone className="h-4 w-4 text-cyan-400" />
                       </div>
                       <div>
@@ -426,7 +426,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
 
                     <div className="flex items-start space-x-3 group">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:border-cyan-500/30 transition-colors duration-300">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-purple-500/30 flex items-center justify-center flex-shrink-0 group-hover:border-cyan-500/30 transition-colors duration-300">
                         <Globe className="h-4 w-4 text-cyan-400" />
                       </div>
                       <div>
@@ -444,7 +444,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
 
                     <div className="flex items-start space-x-3 group">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:border-cyan-500/30 transition-colors duration-300">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-purple-500/30 flex items-center justify-center flex-shrink-0 group-hover:border-cyan-500/30 transition-colors duration-300">
                         <MapPin className="h-4 w-4 text-cyan-400" />
                       </div>
                       <div>
@@ -535,7 +535,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                       {coreValues.map((value, index) => (
                         <div
                           key={index}
-                          className="group bg-white p-6 rounded-xl border border-purple-500/20 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10"
+                          className="group bg-white p-6 rounded-xl border border-purple-500/30 text-center hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10"
                         >
                           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-purple-600/20 to-cyan-600/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                             {React.cloneElement(value.icon, {
@@ -600,7 +600,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                           {companyData.departments.map((department, index) => (
                             <div key={index} className="relative group">
                               <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                              <div className="relative bg-white p-6 rounded-xl border border-purple-500/20 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm shadow-md">
+                              <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm shadow-md">
                                 <h4 className="text-gray-900 font-medium mb-2 group-hover:text-cyan-600 transition-colors duration-300">
                                   {department.name}
                                 </h4>
@@ -645,7 +645,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                       {projects.map((project, index) => (
                         <div key={index} className="relative group">
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                          <div className="relative bg-white p-6 rounded-xl border border-purple-500/20 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm shadow-md">
+                          <div className="relative bg-white p-6 rounded-xl border border-purple-500/30 group-hover:border-cyan-500/30 transition-colors duration-300 backdrop-blur-sm shadow-md">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-2">
@@ -693,7 +693,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                                       {project.progress}%
                                     </span>
                                   </div>
-                                  <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden border border-purple-500/20">
+                                  <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden border border-purple-500/30">
                                     <div
                                       className={`bg-gradient-to-r ${getStatusGradient(
                                         project.status
@@ -741,7 +741,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/30 flex items-center justify-center mb-4">
                         <FileText className="h-10 w-10 text-purple-400" />
                       </div>
                       <h4 className="text-xl font-medium text-gray-900 mb-2">
@@ -871,7 +871,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/30 flex items-center justify-center mb-4">
                         <FileText className="h-10 w-10 text-purple-400" />
                       </div>
                       <h4 className="text-xl font-medium text-gray-900 mb-2">
@@ -910,7 +910,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                       {employees.map((employee) => (
                         <div
                           key={employee.id}
-                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/20 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
+                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/30 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
                         >
                           <div className="flex items-center mb-4">
                             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center mr-4 shadow-lg shadow-purple-900/20">
@@ -960,7 +960,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/30 flex items-center justify-center mb-4">
                         <UserCircle className="h-10 w-10 text-purple-400" />
                       </div>
                       <h4 className="text-xl font-medium text-gray-900 mb-2">
@@ -999,7 +999,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                       {departments.map((dept) => (
                         <div
                           key={dept.id}
-                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/20 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
+                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/30 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
                         >
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
@@ -1034,7 +1034,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/30 flex items-center justify-center mb-4">
                         <Building2 className="h-10 w-10 text-purple-400" />
                       </div>
                       <h4 className="text-xl font-medium text-gray-900 mb-2">
@@ -1073,7 +1073,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                       {jobs.map((job) => (
                         <div
                           key={job.id}
-                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/20 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
+                          className="group relative p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-purple-500/30 hover:border-cyan-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-purple-900/10 transform hover:-translate-y-1"
                         >
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center">
@@ -1148,7 +1148,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/20 flex items-center justify-center mb-4">
+                      <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 border border-purple-500/30 flex items-center justify-center mb-4">
                         <GraduationCap className="h-10 w-10 text-purple-400" />
                       </div>
                       <h4 className="text-xl font-medium text-gray-900 mb-2">
@@ -1223,7 +1223,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ slug: 
         <div className="container mx-auto relative z-10">
           <div className="max-w-4xl mx-auto relative">
             {/* Decorative elements */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/20 rounded-tl-3xl"></div>
+            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-purple-500/30 rounded-tl-3xl"></div>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-cyan-500/20 rounded-br-3xl"></div>
 
             <Card className="bg-white border-none shadow-2xl shadow-purple-900/20 backdrop-blur-md overflow-hidden">

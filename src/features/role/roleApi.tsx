@@ -170,3 +170,80 @@ export const createUserCMS = createAsyncThunk(
     }
   },
 );
+
+export const listRoleEmployee = createAsyncThunk(
+  "role/listRoleEmployee",
+  async (search: any, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(`/cms/permissions/employees/select?search=${search}`);
+      return {
+        data: response.data.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  },
+);
+
+export const listRoleEmployeeLevels = createAsyncThunk(
+  "role/listRoleEmployeeLevels",
+  async (search: any, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(`/cms/permissions/levels/select?search=${search}`);
+      return {
+        data: response.data.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  },
+);
+
+export const listRoleDepartments = createAsyncThunk(
+  "role/listRoleDepartments",
+  async (params: { employee_id?: any; level_id?: any }, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(
+        `/cms/employees/departments/permissions`,
+        { params }
+      );
+
+      return {
+        data: response.data.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const updateRoleDepartments = createAsyncThunk(
+  "role/updateRoleDepartments",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { params: { employee_id, level_id }, departments } = payload;
+
+      const response = await apiAxiosInstance.put(`/cms/decentralization/employees/departments`, {
+        employee_id,
+        level_id,
+        departments,
+      });
+
+      return {
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message, {
+        position: "top-right",
+      });
+
+      return thunkAPI.rejectWithValue(
+        error?.response?.data || error?.message
+      );
+    }
+  }
+);

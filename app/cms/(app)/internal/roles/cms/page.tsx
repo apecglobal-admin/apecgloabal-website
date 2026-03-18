@@ -96,7 +96,6 @@ export default function RolesContent() {
     dispatch(listEmployee({ limit: totalEmployees, page: 1, search: "" } as any) as any);
   }, [dispatch, totalEmployees]);
 
-  console.log("user", users);
   useEffect(() => {
     if (selectedEmployee) {
       setIsLoadingPermissions(true);

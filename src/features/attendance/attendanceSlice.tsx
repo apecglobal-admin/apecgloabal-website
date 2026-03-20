@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncReducer } from "@/src/ulti/createAsyncReducerHelper";
-import { listAbsences, listEmployeeAbsences, listEmployeeAbsencesById, listHolidayAttendance, listPlaceAttendance, listPolicyAttendance, listSenioritiesAttendance, listShiftWorkAttendance, listShiftWorkSaturdayAttendance, listStatusAbsence, listTypeAbsence } from "./attendanceApi";
+import { listAbsences, listEmployeeAbsences, listEmployeeAbsencesById, listHolidayAttendance, listPlaceAttendance, listPolicyAttendance, listSenioritiesAttendance, listSettingAttdence, listShiftWorkAttendance, listShiftWorkSaturdayAttendance, listStatusAbsence, listTimeSheet, listTypeAbsence } from "./attendanceApi";
 
 interface InitState<T> {
   data: T;
@@ -22,6 +22,8 @@ interface AttendanceState {
   senioritiesAttendance: InitState<any[]>;
   holidayAttendance: InitState<any[]>;
   placeAttendance: InitState<any[]>;
+  timeSheet: InitState<any[]>;
+  settings: InitState<any[]>;
 
 }
 
@@ -38,6 +40,8 @@ const initialState: AttendanceState = {
   senioritiesAttendance: { data: [], loading: false, error: null, status: null },
   holidayAttendance: { data: [], loading: false, error: null, status: null },
   placeAttendance: { data: [], loading: false, error: null, status: null },
+  timeSheet: { data: [], loading: false, error: null, status: null },
+  settings: { data: [], loading: false, error: null, status: null },
 
 };
 
@@ -57,6 +61,8 @@ const attendanceSlice = createSlice({
     createAsyncReducer(builder, listSenioritiesAttendance, "senioritiesAttendance");
     createAsyncReducer(builder, listHolidayAttendance, "holidayAttendance");
     createAsyncReducer(builder, listPlaceAttendance, "placeAttendance");
+    createAsyncReducer(builder, listTimeSheet, "timeSheet");
+    createAsyncReducer(builder, listSettingAttdence, "settings");
 
   },
 });

@@ -172,6 +172,7 @@ export const updateEmployee = createAsyncThunk(
         department_id,
         level_id,
         position_id,
+        shift_work_id, saturday_attendance_id, attendance_place_id, is_attendance, leave_grant
       }: any = payload;
       const response = await apiAxiosInstance.put(
         `/cms/employees/update?id=${id}`,
@@ -203,6 +204,7 @@ export const updateEmployee = createAsyncThunk(
           department_id,
           level_id,
           position_id,
+          shift_work_id, saturday_attendance_id, attendance_place_id, is_attendance, leave_grant
         },
       );
       return {

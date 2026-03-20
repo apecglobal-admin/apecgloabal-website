@@ -886,3 +886,173 @@ export const deletePlaceAttendance = createAsyncThunk(
     }
   }
 );
+
+export const listTimeSheet = createAsyncThunk(
+  "attendance/listTimeSheet",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { token, month, year } = payload;
+
+      const response = await apiAxiosInstance.get(
+        `/cms/attendance/timesheet?month=${month}&year=${year}`,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const notificationAttendance = createAsyncThunk(
+  "attendance/notificationAttendance",
+  async (payload: any, thunkAPI) => {
+    try {
+        const {token, month, year} = payload;
+      const response = await apiAxiosInstance.post(
+        "/cms/attendance/timesheet/check",
+        { month, year },
+         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return {
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const openORLockAttendance = createAsyncThunk(
+  "attendance/openORLockAttendance",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { token, month, year } = payload;
+
+      const response = await apiAxiosInstance.put(
+        `/cms/attendance/timesheet/lock`,
+        { month, year },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const exportExcelAttendance = createAsyncThunk(
+  "attendance/exportExcelAttendance",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { token, month, year } = payload;
+
+      const response = await apiAxiosInstance.get(
+        `/cms/attendance/export`,
+        {
+          params: { month, year },
+          responseType: "blob", 
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Tạo file download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.setAttribute("download", `attendance-${month}-${year}.xlsx`);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      return true;
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message, {
+        position: "top-right",
+      });
+
+      return thunkAPI.rejectWithValue(
+        error?.response?.data || error?.message
+      );
+    }
+  }
+);
+
+export const listSettingAttdence = createAsyncThunk(
+  "attendance/listSettingAttdence",
+  async (token: any, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(
+        `/cms/attendance/setting`,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const updateSettingAttendance = createAsyncThunk(
+  "attendance/updateSettingAttendance",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { token, id, value, type } = payload;
+
+      const response = await apiAxiosInstance.put(
+        `/cms/attendance/setting/edit`,
+        { id, value, type },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);

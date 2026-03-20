@@ -17,6 +17,8 @@ export const useAttendanceData = () => {
     senioritiesAttendance: attendance.senioritiesAttendance.data,
     holidayAttendance: attendance.holidayAttendance.data,
     placeAttendance: attendance.placeAttendance.data,
+    timeSheet: attendance.timeSheet.data,
+    settings: attendance.settings.data,
   
 
     // Loading states

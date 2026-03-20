@@ -42,7 +42,8 @@ import {
   ChevronUp,
   ChevronRight,
   KeyRound,
-  Settings
+  Settings,
+  PanelLeftClose,
 } from "lucide-react";
 
 import { useAuthData } from "@/src/hook/authHook";
@@ -67,7 +68,7 @@ const iconMapping: Record<string, { icon: any; color: string }> = {
   Profile: { icon: Users, color: "text-blue-400" },
   "Phân quyền": { icon: Shield, color: "text-red-400" },
   "Cài đặt": { icon: Settings, color: "text-yellow-400" },
-  
+  "Chấm công": { icon: CalendarClock, color: "text-indigo-400" },
 };
 
 interface CMSLayoutProps {
@@ -81,6 +82,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const pathname = usePathname();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
   const [expandedSubGroups, setExpandedSubGroups] = useState<Record<string, boolean>>({});
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -150,7 +152,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const handleChangePassword = async () => {
     setPasswordError("");
 
-    // Validation
     if (!passwordData.old_password || !passwordData.new_password || !passwordData.confirm_password) {
       setPasswordError("Vui lòng điền đầy đủ thông tin");
       return;
@@ -173,13 +174,8 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
         new_password: passwordData.new_password
       }) as any).unwrap();
 
-      // Success
       setIsChangePasswordOpen(false);
-      setPasswordData({
-        old_password: "",
-        new_password: "",
-        confirm_password: ""
-      });
+      setPasswordData({ old_password: "", new_password: "", confirm_password: "" });
       alert("Đổi mật khẩu thành công!");
     } catch (error: any) {
       setPasswordError(error?.message || "Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu cũ.");
@@ -190,11 +186,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
   const handleClosePasswordDialog = () => {
     setIsChangePasswordOpen(false);
-    setPasswordData({
-      old_password: "",
-      new_password: "",
-      confirm_password: ""
-    });
+    setPasswordData({ old_password: "", new_password: "", confirm_password: "" });
     setPasswordError("");
   };
 
@@ -211,7 +203,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 size="sm"
               >
                 {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              </Button>
+            </Button>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -286,9 +278,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="old_password" className="text-white">
-                Mật khẩu cũ
-              </Label>
+              <Label htmlFor="old_password" className="text-white">Mật khẩu cũ</Label>
               <Input
                 id="old_password"
                 type="password"
@@ -299,9 +289,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="new_password" className="text-white">
-                Mật khẩu mới
-              </Label>
+              <Label htmlFor="new_password" className="text-white">Mật khẩu mới</Label>
               <Input
                 id="new_password"
                 type="password"
@@ -312,9 +300,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="confirm_password" className="text-white">
-                Xác nhận mật khẩu mới
-              </Label>
+              <Label htmlFor="confirm_password" className="text-white">Xác nhận mật khẩu mới</Label>
               <Input
                 id="confirm_password"
                 type="password"
@@ -353,7 +339,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       <div
         className={`fixed left-0 top-0 h-full w-64 bg-black/80 backdrop-blur-md border-r border-purple-500/30 transform transition-transform duration-300 z-50 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        } ${isDesktopSidebarOpen ? "lg:translate-x-0" : "lg:-translate-x-full"}`}
       >
         <div className="p-4 h-full overflow-y-auto custom-scrollbar">
           {/* User Info */}
@@ -372,6 +358,14 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 </p>
                 <Badge className="bg-green-600 text-white text-xs">Online</Badge>
               </div>
+              {/* Nút đóng sidebar — chỉ hiện trên desktop */}
+              <button
+                onClick={() => setIsDesktopSidebarOpen(false)}
+                className="hidden lg:flex items-center justify-center w-7 h-7 rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-all duration-200 flex-shrink-0"
+                title="Ẩn sidebar"
+              >
+                <PanelLeftClose className="h-8 w-8" />
+              </button>
             </div>
             <Button
               onClick={handleLogout}
@@ -413,11 +407,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                     const Icon = iconData.icon;
                     const subGroupKey = `${groupIndex}-${itemIndex}`;
 
-                    // Nếu có children thì là dropdown
                     if (item.children) {
                       return (
                         <div key={itemIndex}>
-                          {/* Dropdown Header */}
                           <button
                             onClick={() => toggleSubGroup(subGroupKey)}
                             className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group text-white/70 hover:text-white hover:bg-white/10"
@@ -433,7 +425,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                             )}
                           </button>
 
-                          {/* Dropdown Children */}
                           <div
                             className={`ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ${
                               expandedSubGroups[subGroupKey] ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
@@ -481,7 +472,6 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                       );
                     }
 
-                    // Menu item thông thường (không có children)
                     const isActive = pathname === item.href;
                     const isAdminMenu = item.name === "Phân quyền";
 
@@ -518,6 +508,17 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
         </div>
       </div>
 
+      {/* Tab mở lại sidebar khi đã đóng — chỉ hiện trên desktop */}
+      {!isDesktopSidebarOpen && (
+        <button
+          onClick={() => setIsDesktopSidebarOpen(true)}
+          className="hidden lg:flex fixed left-0 top-20 z-40 items-center justify-center w-6 h-10 bg-black/80 border border-purple-500/30 border-l-0 rounded-r-md text-white/50 hover:text-white hover:bg-purple-500/20 transition-all duration-200"
+          title="Hiện sidebar"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      )}
+
       {/* Overlay mobile */}
       {isSidebarOpen && (
         <div
@@ -527,7 +528,7 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       )}
 
       {/* Main Content */}
-      <div className="lg:ml-64 min-h-screen pt-16">
+      <div className={`min-h-screen pt-16 transition-all duration-300 ${isDesktopSidebarOpen ? "lg:ml-64" : "lg:ml-0"}`}>
         <main>{children}</main>
       </div>
     </div>

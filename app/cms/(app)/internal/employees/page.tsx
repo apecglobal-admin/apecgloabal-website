@@ -87,6 +87,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui";
+import { useAttendanceData } from "@/src/hook/attendanceHook";
+import { listPlaceAttendance, listPolicyAttendance, listShiftWorkAttendance, listShiftWorkSaturdayAttendance } from "@/src/features/attendance/attendanceApi";
 
 interface Skill {
   skill_id: string | number;
@@ -146,6 +148,17 @@ interface Employee {
   company_id: number | null;
   gen: number;
   employees_status: number | null;
+  shift_work_id: string | null;
+saturday_attendance_id: string | null;
+attendance_place_id: string | null;
+is_attendance: boolean;
+leave_grant: number | null;
+employee_attendance_policy?: {
+  attendance_policy: {
+    id: string | null;
+    name: string | null;
+  };
+};
 }
 
 interface Department {
@@ -154,6 +167,7 @@ interface Department {
 }
 
 export default function EmployeesManagementContent() {
+  const token = localStorage.getItem("cmsToken");
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -162,6 +176,7 @@ export default function EmployeesManagementContent() {
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
   const { levelPositionRoles } = useRoleData();
+  const {shiftWorkAttendance, shiftWorkSaturdayAttendance, placeAttendance, policyAttendance}  = useAttendanceData();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -212,6 +227,12 @@ export default function EmployeesManagementContent() {
     bio: "",
     skill_group_id: "",
     employees_status: "",
+    shift_work_id: "",
+saturday_attendance_id: "",
+attendance_place_id: "",
+attendance_policy_id: "",
+is_attendance: false,
+leave_grant: "",
   });
 
   useEffect(() => {
@@ -239,6 +260,10 @@ export default function EmployeesManagementContent() {
     dispatch(listContact() as any);
     dispatch(listManager() as any);
     dispatch(listEmployeeStatus() as any);
+    dispatch(listShiftWorkAttendance  (token) as any);
+    dispatch(listShiftWorkSaturdayAttendance(token) as any);
+    dispatch(listPlaceAttendance(token) as any);
+    dispatch(listPolicyAttendance(token) as any);
   }, [dispatch, currentPage, debouncedSearchTerm]);
 
   useEffect(() => {
@@ -348,6 +373,12 @@ export default function EmployeesManagementContent() {
       bio: "",
       skill_group_id: "",
       employees_status: "",
+      shift_work_id: "",
+saturday_attendance_id: "",
+attendance_place_id: "",
+attendance_policy_id: "",
+is_attendance: false,
+leave_grant: "",
     });
     setShowCreateModal(true);
   };
@@ -399,6 +430,12 @@ export default function EmployeesManagementContent() {
         "",
       education: employee.education || "",
       employees_status: employee.employees_status?.toString() || "1",
+      shift_work_id: (employee as any).shift_work_id || "",
+saturday_attendance_id: (employee as any).saturday_attendance_id || "",
+attendance_place_id: (employee as any).attendance_place_id || "",
+attendance_policy_id: (employee as any).employee_attendance_policy?.attendance_policy?.id?.toString() || "",
+is_attendance: (employee as any).is_attendance || false,
+leave_grant: (employee as any).leave_grant?.toString() || "",
     });
     setShowCreateModal(true);
   };
@@ -502,6 +539,12 @@ export default function EmployeesManagementContent() {
       department_id: formData.department_id,
       level_id: formData.level_id,
       position_id: formData.position,
+      shift_work_id: formData.shift_work_id || null,
+saturday_attendance_id: formData.saturday_attendance_id || null,
+attendance_place_id: formData.attendance_place_id || null,
+attendance_policy_id: formData.attendance_policy_id || null,
+is_attendance: formData.is_attendance,
+leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
     };
 
     try {
@@ -1141,6 +1184,10 @@ export default function EmployeesManagementContent() {
         managers={managers}
         skills={skills}
         levelPositionRoles={levelPositionRoles}
+        shiftWorks={shiftWorkAttendance}
+saturdayAttendances={shiftWorkSaturdayAttendance}
+attendancePlaces={placeAttendance}
+attendancePolicies={policyAttendance}
         handleSave={handleSave}
       />
 

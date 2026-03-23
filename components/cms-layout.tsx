@@ -44,6 +44,7 @@ import {
   KeyRound,
   Settings,
   PanelLeftClose,
+  FilePen,
 } from "lucide-react";
 
 import { useAuthData } from "@/src/hook/authHook";
@@ -69,6 +70,7 @@ const iconMapping: Record<string, { icon: any; color: string }> = {
   "Phân quyền": { icon: Shield, color: "text-red-400" },
   "Cài đặt": { icon: Settings, color: "text-yellow-400" },
   "Chấm công": { icon: CalendarClock, color: "text-indigo-400" },
+  "Tính lương": { icon: FilePen , color: "text-indigo-400" },
 };
 
 interface CMSLayoutProps {

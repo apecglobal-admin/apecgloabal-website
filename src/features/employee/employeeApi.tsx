@@ -8,7 +8,9 @@ export const listEmployee = createAsyncThunk(
   async (payload, thunkAPI) => {
     try {
       const { limit, page, search }: any = payload;
-      const response = await apiAxiosInstance.get(`/employees?limit=${limit}&page=${page}&search=${search}`);
+      const response = await apiAxiosInstance.get(
+        `/employees?limit=${limit}&page=${page}&search=${search}`,
+      );
       return {
         data: response.data.data.employees,
         total: response.data.data.pagination.total,
@@ -49,7 +51,7 @@ export const listManager = createAsyncThunk(
     try {
       const response = await apiAxiosInstance.get(`/employees/managers`);
       return response.data.data;
-    } catch (error: any) {   
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
     }
   },
@@ -172,7 +174,15 @@ export const updateEmployee = createAsyncThunk(
         department_id,
         level_id,
         position_id,
-        shift_work_id, saturday_attendance_id, attendance_place_id, is_attendance, leave_grant
+        shift_work_id,
+        saturday_attendance_id,
+        attendance_place_id,
+        is_attendance,
+        leave_grant,
+        insurance_salary,
+        allowances,
+        deductions,
+        bonuses,
       }: any = payload;
       const response = await apiAxiosInstance.put(
         `/cms/employees/update?id=${id}`,
@@ -204,7 +214,15 @@ export const updateEmployee = createAsyncThunk(
           department_id,
           level_id,
           position_id,
-          shift_work_id, saturday_attendance_id, attendance_place_id, is_attendance, leave_grant
+          shift_work_id,
+          saturday_attendance_id,
+          attendance_place_id,
+          is_attendance,
+          leave_grant,
+          insurance_salary,
+          allowances,
+          deductions,
+          bonuses,
         },
       );
       return {
@@ -308,7 +326,7 @@ export const exportExcel = createAsyncThunk(
         "/cms/employees/template/export",
         {
           responseType: "blob",
-        }
+        },
       );
 
       const blob = new Blob([response.data], {
@@ -333,7 +351,7 @@ export const exportExcel = createAsyncThunk(
       });
       return thunkAPI.rejectWithValue(error?.message);
     }
-  }
+  },
 );
 
 export const importExcel = createAsyncThunk(
@@ -347,24 +365,27 @@ export const importExcel = createAsyncThunk(
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
-      return response.data; 
+      return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Import thất bại");
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
-  }
+  },
 );
 
 export const resetPasswordEmployeeCMS = createAsyncThunk(
   "auth/resetPasswordEmployeeCMS",
   async (id: any, thunkAPI) => {
     try {
-      const response = await apiAxiosInstance.put(`/cms/employees/reset/password`, {
-        id,
-      });
+      const response = await apiAxiosInstance.put(
+        `/cms/employees/reset/password`,
+        {
+          id,
+        },
+      );
       return {
         status: response.status,
         data: response.data,

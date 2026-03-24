@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import {
   Card,
   CardContent,
@@ -89,6 +89,8 @@ import {
 } from "@/components/ui";
 import { useAttendanceData } from "@/src/hook/attendanceHook";
 import { listPlaceAttendance, listPolicyAttendance, listShiftWorkAttendance, listShiftWorkSaturdayAttendance } from "@/src/features/attendance/attendanceApi";
+import { usePayrollData } from "@/src/hook/payrollHook";
+import { listAllowancesPayroll, listBonusPayroll, listDeductionsPayroll, listInsurancePayroll } from "@/src/features/payroll/payrollApi";
 
 interface Skill {
   skill_id: string | number;
@@ -159,6 +161,7 @@ employee_attendance_policy?: {
     name: string | null;
   };
 };
+
 }
 
 interface Department {
@@ -177,6 +180,7 @@ export default function EmployeesManagementContent() {
   const { positions, totalPosition } = usePositionData();
   const { levelPositionRoles } = useRoleData();
   const {shiftWorkAttendance, shiftWorkSaturdayAttendance, placeAttendance, policyAttendance}  = useAttendanceData();
+  const { allowances, deductions, bonus, insurances } = usePayrollData();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -233,6 +237,10 @@ attendance_place_id: "",
 attendance_policy_id: "",
 is_attendance: false,
 leave_grant: "",
+insurance_salary: "",
+  allowances: [] as any[],
+  deductions: [] as any[],
+  bonuses: [] as any[],
   });
 
   useEffect(() => {
@@ -264,6 +272,10 @@ leave_grant: "",
     dispatch(listShiftWorkSaturdayAttendance(token) as any);
     dispatch(listPlaceAttendance(token) as any);
     dispatch(listPolicyAttendance(token) as any);
+    dispatch(listAllowancesPayroll(token) as any);
+    dispatch(listDeductionsPayroll(token) as any);
+    dispatch(listBonusPayroll(token) as any);
+    dispatch(listInsurancePayroll(token) as any);
   }, [dispatch, currentPage, debouncedSearchTerm]);
 
   useEffect(() => {
@@ -379,6 +391,10 @@ attendance_place_id: "",
 attendance_policy_id: "",
 is_attendance: false,
 leave_grant: "",
+insurance_salary: "",
+  allowances: [],
+  deductions: [],
+  bonuses: [],
     });
     setShowCreateModal(true);
   };
@@ -436,6 +452,28 @@ attendance_place_id: (employee as any).attendance_place_id || "",
 attendance_policy_id: (employee as any).employee_attendance_policy?.attendance_policy?.id?.toString() || "",
 is_attendance: (employee as any).is_attendance || false,
 leave_grant: (employee as any).leave_grant?.toString() || "",
+insurance_salary: (employee as any).contracts?.[0]?.insurance_salary?.toString() ?? "",
+  allowances: (employee as any).allowances?.map((a: any) => ({
+    id: a.allowance?.id?.toString(),
+    name: a.allowance?.name,
+    active: a.allowance?.active ?? null,
+    is_auto: a.allowance?.is_auto ?? null,
+    amount: a.amount ?? null,
+  })) ?? [],
+  deductions: (employee as any).deductions?.map((d: any) => ({
+    id: d.deduction?.id?.toString(),
+    name: d.deduction?.name,
+    active: d.deduction?.active ?? null,
+    is_auto: d.deduction?.is_auto ?? null,
+    amount: d.amount ?? null,
+  })) ?? [],
+  bonuses: (employee as any).bonuses?.map((b: any) => ({
+    id: b.bonus?.id?.toString(),
+    name: b.bonus?.name,
+    active: b.bonus?.active ?? null,
+    is_auto: b.bonus?.is_auto ?? null,
+    amount: b.amount ?? null,
+  })) ?? [],
     });
     setShowCreateModal(true);
   };
@@ -545,6 +583,10 @@ attendance_place_id: formData.attendance_place_id || null,
 attendance_policy_id: formData.attendance_policy_id || null,
 is_attendance: formData.is_attendance,
 leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
+ insurance_salary: formData.insurance_salary !== "" ? Number(formData.insurance_salary) : null,
+  allowances: formData.allowances,
+  deductions: formData.deductions,
+  bonuses: formData.bonuses,
     };
 
     try {
@@ -1188,6 +1230,10 @@ leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
 saturdayAttendances={shiftWorkSaturdayAttendance}
 attendancePlaces={placeAttendance}
 attendancePolicies={policyAttendance}
+allowances={allowances}
+  deductions={deductions}
+  bonus={bonus}
+  insurances={insurances}
         handleSave={handleSave}
       />
 

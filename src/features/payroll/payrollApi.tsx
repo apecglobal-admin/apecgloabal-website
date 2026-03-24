@@ -422,3 +422,53 @@ export const deleteDeductionsPayroll = createAsyncThunk(
     }
   }
 );
+
+export const listInsurancePayroll = createAsyncThunk(
+  "payroll/listInsurancePayroll",
+  async (token: any, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(
+        `/cms/payroll/settings`,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
+export const updateInsurancePayroll = createAsyncThunk(
+  "payroll/updateInsurancePayroll",
+  async (payload: any, thunkAPI) => {
+    try {
+      const { token, id, name, value} = payload;
+
+      const response = await apiAxiosInstance.put(
+        `/cms/payroll/settings/edit`,
+        { id, name, value },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error: any) {
+      toast.error(error?.response?.data.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);

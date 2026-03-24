@@ -9,6 +9,7 @@ export const usePayrollData = () => {
     allowances: payroll.allowances.data,
     bonus: payroll.bonus.data,
     deductions: payroll.deductions.data,
+    insurances: payroll.insurances.data,
 
     // Loading states
     isLoadingListContractPayroll: payroll.contracts.loading,

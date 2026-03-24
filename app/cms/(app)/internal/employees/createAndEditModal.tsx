@@ -26,6 +26,9 @@ import {
   ChevronLeft,
   CheckCircle2,
   Clock,
+  Wallet,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { Switch } from "@/components/ui";
 
@@ -42,9 +45,13 @@ interface EmployeeModalProps {
   skills: any[];
   levelPositionRoles: any[];
   shiftWorks: any[];
-saturdayAttendances: any[];
-attendancePlaces: any[];
-attendancePolicies: any[];
+  saturdayAttendances: any[];
+  attendancePlaces: any[];
+  attendancePolicies: any[];
+  allowances: any[];
+  deductions: any[];
+  bonus: any[];
+  insurances: any[];
   handleSave: () => void;
 }
 
@@ -92,17 +99,25 @@ const SECTIONS = [
     fields: ["skill_group_id", "skills"],
   },
   {
-  key: "attendance",
-  label: "Chấm Công",
-  labelFull: "Chấm Công",
-  icon: Clock,
-  fields: ["shift_work_id", "saturday_attendance_id", "attendance_place_id"],
-},
+    key: "attendance",
+    label: "Chấm Công",
+    labelFull: "Chấm Công",
+    icon: Clock,
+    fields: ["shift_work_id", "saturday_attendance_id", "attendance_place_id"],
+  },
+  {
+    key: "payroll",
+    label: "Lương & BH",
+    labelFull: "Lương & Bảo Hiểm",
+    icon: Wallet,
+    fields: [], // optional section, no required fields
+  },
 ];
 
 const isSectionComplete = (sectionKey: string, formData: any): boolean => {
   const section = SECTIONS.find((s) => s.key === sectionKey);
   if (!section) return false;
+  if (section.fields.length === 0) return true; // optional section always "complete"
   return section.fields.every((field) => {
     if (field === "skills") return formData.skills?.length > 0;
     const val = formData[field];
@@ -123,9 +138,13 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
   skills,
   levelPositionRoles,
   shiftWorks,
-saturdayAttendances,
-attendancePlaces,
-attendancePolicies,
+  saturdayAttendances,
+  attendancePlaces,
+  attendancePolicies,
+  allowances,
+  deductions,
+  bonus,
+  insurances,
   handleSave,
 }) => {
   const [activeSection, setActiveSection] = useState("basic");
@@ -140,6 +159,23 @@ attendancePolicies,
   const goPrev = () => {
     if (currentSectionIndex > 0)
       setActiveSection(SECTIONS[currentSectionIndex - 1].key);
+  };
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  const toggleItemInList = (listKey: string, item: any, allItems: any[]) => {
+    const currentList: any[] = formData[listKey] || [];
+    const exists = currentList.some((i: any) => i.id === item.id);
+    if (exists) {
+      setFormData({ ...formData, [listKey]: currentList.filter((i: any) => i.id !== item.id) });
+    } else {
+      // Add the full object
+      setFormData({ ...formData, [listKey]: [...currentList, { ...item }] });
+    }
+  };
+
+  const isItemSelected = (listKey: string, itemId: string) => {
+    return (formData[listKey] || []).some((i: any) => i.id === itemId);
   };
 
   // ── Reusable sub-components ──────────────────────────────────────────────
@@ -225,6 +261,68 @@ attendancePolicies,
       className="bg-black/30 border-purple-500/30 text-white h-10 text-sm placeholder:text-white/20"
     />
   );
+
+  // ── Multi-select checklist for allowances / deductions / bonus ────────────
+
+  const renderMultiCheckList = (
+    listKey: string,
+    allItems: any[],
+    label: string,
+    accentColor: string = "purple"
+  ) => {
+    const colorMap: Record<string, string> = {
+      purple: "border-purple-500/30 bg-purple-500/10 text-purple-300",
+      green: "border-green-500/30 bg-green-500/10 text-green-300",
+      red: "border-red-500/30 bg-red-500/10 text-red-300",
+      orange: "border-orange-500/30 bg-orange-500/10 text-orange-300",
+    };
+    const accent = colorMap[accentColor] || colorMap["purple"];
+
+    if (!allItems || allItems.length === 0) {
+      return (
+        <p className="text-white/30 text-xs italic py-2">Không có dữ liệu</p>
+      );
+    }
+
+    return (
+      <div className="space-y-1.5">
+        {allItems.map((item: any) => {
+          const selected = isItemSelected(listKey, item.id);
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => toggleItemInList(listKey, item, allItems)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${
+                selected
+                  ? accent + " border-opacity-60"
+                  : "border-white/10 bg-white/[0.03] text-white/50 hover:bg-white/[0.06] hover:text-white/70"
+              }`}
+            >
+              <div className="shrink-0">
+                {selected ? (
+                  <CheckSquare className="w-4 h-4" />
+                ) : (
+                  <Square className="w-4 h-4 opacity-40" />
+                )}
+              </div>
+              <span className="flex-1 text-xs font-medium">{item.name}</span>
+              {item.is_auto && (
+                <span className="text-[9px] bg-white/10 text-white/40 px-1.5 py-0.5 rounded-full shrink-0">
+                  Tự động
+                </span>
+              )}
+              {item.amount && (
+                <span className="text-[10px] text-white/40 shrink-0">
+                  {Number(item.amount).toLocaleString("vi-VN")}₫
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   // ── Section renderers ────────────────────────────────────────────────────
 
@@ -512,94 +610,216 @@ attendancePolicies,
           </div>
         );
 
-        case "attendance":
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-      <div>
-        <FL>Ca Làm Việc *</FL>
-        <SearchableSelect
-          value={formData.shift_work_id}
-          onValueChange={(v: string) => setFormData({ ...formData, shift_work_id: v })}
-          placeholder="Chọn ca làm việc..."
-          items={shiftWorks}
-          searchPlaceholder="Tìm ca làm việc..."
-        />
-      </div>
-
-      <div>
-        <FL>Chế Độ Thứ 7 *</FL>
-        <SearchableSelect
-          value={formData.saturday_attendance_id}
-          onValueChange={(v: string) => setFormData({ ...formData, saturday_attendance_id: v })}
-          placeholder="Chọn chế độ Thứ 7..."
-          items={saturdayAttendances}
-          searchPlaceholder="Tìm..."
-        />
-      </div>
-
-      <div>
-        <FL>Địa Điểm Chấm Công *</FL>
-        <SearchableSelect
-          value={formData.attendance_place_id}
-          onValueChange={(v: string) => setFormData({ ...formData, attendance_place_id: v })}
-          placeholder="Chọn địa điểm..."
-          items={attendancePlaces}
-          searchPlaceholder="Tìm địa điểm..."
-        />
-      </div>
-
-      <div>
-        <FL>Chính Sách Chấm Công</FL>
-        <SearchableSelect
-          value={formData.attendance_policy_id}
-          onValueChange={(v: string) => setFormData({ ...formData, attendance_policy_id: v })}
-          placeholder="Chọn chính sách..."
-          items={attendancePolicies}
-          searchPlaceholder="Tìm chính sách..."
-        />
-      </div>
-
-      <div>
-        <FL>Số Công Hiện Có</FL>
-        {FI("17", formData.leave_grant, (v: string) => setFormData({ ...formData, leave_grant: v }), "number")}
-        <p className="text-[10px] text-white/30 mt-1">
-          Đã dùng: {(editingEmployee as any)?.leave_usage ?? 0} công
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <FL>Miễn Chấm Công</FL>
-        <div className="flex items-center gap-3 h-10 px-3 bg-black/30 border border-purple-500/30 rounded-md">
-          <Switch
-            checked={!!formData.is_attendance}
-            onCheckedChange={(v: boolean) => setFormData({ ...formData, is_attendance: v })}
-            className="
-    data-[state=checked]:bg-green-500
-    data-[state=unchecked]:bg-gray-600
-  "
-          />
-          <span className="text-sm text-white/60">
-            {formData.is_attendance ? "Miễn chấm công" : "Phải chấm công"}
-          </span>
-        </div>
-      </div>
-
-      {/* Info chips cho ca làm việc đã chọn */}
-      {formData.shift_work_id && (() => {
-        const sw = shiftWorks?.find((s: any) => s.id === formData.shift_work_id);
-        return sw ? (
-          <div className="sm:col-span-2 flex gap-3 bg-purple-500/10 border border-purple-500/20 rounded-lg px-3 py-2">
-            <Clock className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-            <div className="text-xs text-white/60">
-              <span className="text-white/80 font-medium">{sw.name}</span>
-              <span className="ml-2">Check-in: <span className="text-purple-300">{sw.checkin?.slice(0,5)}</span></span>
-              <span className="ml-2">Check-out: <span className="text-purple-300">{sw.checkout?.slice(0,5)}</span></span>
+      case "attendance":
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <FL>Ca Làm Việc *</FL>
+              <SearchableSelect
+                value={formData.shift_work_id}
+                onValueChange={(v: string) => setFormData({ ...formData, shift_work_id: v })}
+                placeholder="Chọn ca làm việc..."
+                items={shiftWorks}
+                searchPlaceholder="Tìm ca làm việc..."
+              />
             </div>
+
+            <div>
+              <FL>Chế Độ Thứ 7 *</FL>
+              <SearchableSelect
+                value={formData.saturday_attendance_id}
+                onValueChange={(v: string) => setFormData({ ...formData, saturday_attendance_id: v })}
+                placeholder="Chọn chế độ Thứ 7..."
+                items={saturdayAttendances}
+                searchPlaceholder="Tìm..."
+              />
+            </div>
+
+            <div>
+              <FL>Địa Điểm Chấm Công *</FL>
+              <SearchableSelect
+                value={formData.attendance_place_id}
+                onValueChange={(v: string) => setFormData({ ...formData, attendance_place_id: v })}
+                placeholder="Chọn địa điểm..."
+                items={attendancePlaces}
+                searchPlaceholder="Tìm địa điểm..."
+              />
+            </div>
+
+            <div>
+              <FL>Chính Sách Chấm Công</FL>
+              <SearchableSelect
+                value={formData.attendance_policy_id}
+                onValueChange={(v: string) => setFormData({ ...formData, attendance_policy_id: v })}
+                placeholder="Chọn chính sách..."
+                items={attendancePolicies}
+                searchPlaceholder="Tìm chính sách..."
+              />
+            </div>
+
+            <div>
+              <FL>Số Công Hiện Có</FL>
+              {FI("17", formData.leave_grant, (v: string) => setFormData({ ...formData, leave_grant: v }), "number")}
+              <p className="text-[10px] text-white/30 mt-1">
+                Đã dùng: {(editingEmployee as any)?.leave_usage ?? 0} công
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <FL>Miễn Chấm Công</FL>
+              <div className="flex items-center gap-3 h-10 px-3 bg-black/30 border border-purple-500/30 rounded-md">
+                <Switch
+                  checked={!!formData.is_attendance}
+                  onCheckedChange={(v: boolean) => setFormData({ ...formData, is_attendance: v })}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-600"
+                />
+                <span className="text-sm text-white/60">
+                  {formData.is_attendance ? "Miễn chấm công" : "Phải chấm công"}
+                </span>
+              </div>
+            </div>
+
+            {formData.shift_work_id && (() => {
+              const sw = shiftWorks?.find((s: any) => s.id === formData.shift_work_id);
+              return sw ? (
+                <div className="sm:col-span-2 flex gap-3 bg-purple-500/10 border border-purple-500/20 rounded-lg px-3 py-2">
+                  <Clock className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-white/60">
+                    <span className="text-white/80 font-medium">{sw.name}</span>
+                    <span className="ml-2">Check-in: <span className="text-purple-300">{sw.checkin?.slice(0, 5)}</span></span>
+                    <span className="ml-2">Check-out: <span className="text-purple-300">{sw.checkout?.slice(0, 5)}</span></span>
+                  </div>
+                </div>
+              ) : null;
+            })()}
           </div>
-        ) : null;
-      })()}
-    </div>
-  );
+        );
+
+      case "payroll":
+        return (
+          <div className="space-y-5">
+            {/* Insurance Salary */}
+            <div>
+              <FL>Lương Đóng Bảo Hiểm (VNĐ)</FL>
+              <Input
+                type="number"
+                placeholder="VD: 5,000,000"
+                value={formData.insurance_salary ?? ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, insurance_salary: e.target.value === "" ? "" : Number(e.target.value) })
+                }
+                className="bg-black/30 border-purple-500/30 text-white h-10 text-sm placeholder:text-white/20"
+              />
+              {/* Insurance rate summary */}
+              {insurances && insurances.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {insurances.map((ins: any) => (
+                    <span
+                      key={ins.id}
+                      className="inline-flex items-center gap-1 text-[10px] bg-blue-500/10 border border-blue-500/20 text-blue-300 px-2 py-1 rounded-full"
+                    >
+                      {ins.name}
+                      <span className="font-bold">{parseFloat(ins.value).toFixed(1)}%</span>
+                    </span>
+                  ))}
+                  {formData.insurance_salary && (
+                    <span className="inline-flex items-center gap-1 text-[10px] bg-purple-500/10 border border-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
+                      Tổng BH:{" "}
+                      <span className="font-bold">
+                        {(
+                          (Number(formData.insurance_salary) *
+                            insurances.reduce((s: number, i: any) => s + parseFloat(i.value), 0)) /
+                          100
+                        ).toLocaleString("vi-VN")}₫
+                      </span>
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/5" />
+
+            {/* Three columns on desktop, stacked on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+              {/* Allowances */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
+                  <FL>Phụ Cấp</FL>
+                  {(formData.allowances || []).length > 0 && (
+                    <span className="ml-auto text-[10px] bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded-full">
+                      {(formData.allowances || []).length} đã chọn
+                    </span>
+                  )}
+                </div>
+                {renderMultiCheckList("allowances", allowances, "Phụ Cấp", "green")}
+              </div>
+
+              {/* Deductions */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-red-400" />
+                  <FL>Khấu Trừ</FL>
+                  {(formData.deductions || []).length > 0 && (
+                    <span className="ml-auto text-[10px] bg-red-500/15 text-red-400 px-1.5 py-0.5 rounded-full">
+                      {(formData.deductions || []).length} đã chọn
+                    </span>
+                  )}
+                </div>
+                {renderMultiCheckList("deductions", deductions, "Khấu Trừ", "red")}
+              </div>
+
+              {/* Bonus */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-400" />
+                  <FL>Thưởng</FL>
+                  {(formData.bonuses || []).length > 0 && (
+                    <span className="ml-auto text-[10px] bg-orange-500/15 text-orange-400 px-1.5 py-0.5 rounded-full">
+                      {(formData.bonuses || []).length} đã chọn
+                    </span>
+                  )}
+                </div>
+                {renderMultiCheckList("bonuses", bonus, "Thưởng", "orange")}
+              </div>
+            </div>
+
+            {/* Summary bar */}
+            {((formData.allowances || []).length > 0 ||
+              (formData.deductions || []).length > 0 ||
+              (formData.bonuses || []).length > 0) && (
+              <div className="flex flex-wrap gap-2 pt-1 border-t border-white/5">
+                {(formData.allowances || []).map((a: any) => (
+                  <span
+                    key={a.id}
+                    className="text-[10px] bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full flex items-center gap-1"
+                  >
+                    + {a.name}
+                  </span>
+                ))}
+                {(formData.deductions || []).map((d: any) => (
+                  <span
+                    key={d.id}
+                    className="text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded-full flex items-center gap-1"
+                  >
+                    − {d.name}
+                  </span>
+                ))}
+                {(formData.bonuses || []).map((b: any) => (
+                  <span
+                    key={b.id}
+                    className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full flex items-center gap-1"
+                  >
+                    ★ {b.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return null;
     }

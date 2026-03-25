@@ -398,3 +398,61 @@ export const resetPasswordEmployeeCMS = createAsyncThunk(
     }
   },
 );
+
+export const exportExcelSalary = createAsyncThunk(
+  "employee/exportExcelSalary",
+  async (_, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.get(
+        "/cms/contracts/template/export",
+        {
+          responseType: "blob",
+        },
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "employees.xlsx";
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return true;
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message, {
+        position: "top-right",
+      });
+      return thunkAPI.rejectWithValue(error?.message);
+    }
+  },
+);
+
+export const importExcelSalary = createAsyncThunk(
+  "employee/importExcelSalary",
+  async (formData: FormData, thunkAPI) => {
+    try {
+      const response = await apiAxiosInstance.post(
+        "/cms/contracts/import",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Import thất bại");
+      return thunkAPI.rejectWithValue(error?.response?.data);
+    }
+  },
+);

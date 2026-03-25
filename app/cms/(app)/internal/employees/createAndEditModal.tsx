@@ -722,18 +722,7 @@ const CreateAndEditModalEmployee: React.FC<EmployeeModalProps> = ({
                       <span className="font-bold">{parseFloat(ins.value).toFixed(1)}%</span>
                     </span>
                   ))}
-                  {formData.insurance_salary && (
-                    <span className="inline-flex items-center gap-1 text-[10px] bg-purple-500/10 border border-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
-                      Tổng BH:{" "}
-                      <span className="font-bold">
-                        {(
-                          (Number(formData.insurance_salary) *
-                            insurances.reduce((s: number, i: any) => s + parseFloat(i.value), 0)) /
-                          100
-                        ).toLocaleString("vi-VN")}₫
-                      </span>
-                    </span>
-                  )}
+                  
                 </div>
               )}
             </div>

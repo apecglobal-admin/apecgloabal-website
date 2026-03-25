@@ -62,7 +62,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createEmployee,
   exportExcel,
+  exportExcelSalary,
   importExcel,
+  importExcelSalary,
   listContact,
   listEmployee,
   listEmployeeStatus,
@@ -88,9 +90,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui";
 import { useAttendanceData } from "@/src/hook/attendanceHook";
-import { listPlaceAttendance, listPolicyAttendance, listShiftWorkAttendance, listShiftWorkSaturdayAttendance } from "@/src/features/attendance/attendanceApi";
+import {
+  listPlaceAttendance,
+  listPolicyAttendance,
+  listShiftWorkAttendance,
+  listShiftWorkSaturdayAttendance,
+} from "@/src/features/attendance/attendanceApi";
 import { usePayrollData } from "@/src/hook/payrollHook";
-import { listAllowancesPayroll, listBonusPayroll, listDeductionsPayroll, listInsurancePayroll } from "@/src/features/payroll/payrollApi";
+import {
+  listAllowancesPayroll,
+  listBonusPayroll,
+  listDeductionsPayroll,
+  listInsurancePayroll,
+} from "@/src/features/payroll/payrollApi";
 
 interface Skill {
   skill_id: string | number;
@@ -151,17 +163,16 @@ interface Employee {
   gen: number;
   employees_status: number | null;
   shift_work_id: string | null;
-saturday_attendance_id: string | null;
-attendance_place_id: string | null;
-is_attendance: boolean;
-leave_grant: number | null;
-employee_attendance_policy?: {
-  attendance_policy: {
-    id: string | null;
-    name: string | null;
+  saturday_attendance_id: string | null;
+  attendance_place_id: string | null;
+  is_attendance: boolean;
+  leave_grant: number | null;
+  employee_attendance_policy?: {
+    attendance_policy: {
+      id: string | null;
+      name: string | null;
+    };
   };
-};
-
 }
 
 interface Department {
@@ -173,13 +184,19 @@ export default function EmployeesManagementContent() {
   const token = localStorage.getItem("cmsToken");
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const salaryFileInputRef = useRef<HTMLInputElement>(null);
 
   const { employees, totalEmployees, skills, contacts, managers, statuses } =
     useEmployeeData();
   const { departments, totalDepartment } = useDepartmentData();
   const { positions, totalPosition } = usePositionData();
   const { levelPositionRoles } = useRoleData();
-  const {shiftWorkAttendance, shiftWorkSaturdayAttendance, placeAttendance, policyAttendance}  = useAttendanceData();
+  const {
+    shiftWorkAttendance,
+    shiftWorkSaturdayAttendance,
+    placeAttendance,
+    policyAttendance,
+  } = useAttendanceData();
   const { allowances, deductions, bonus, insurances } = usePayrollData();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -232,15 +249,15 @@ export default function EmployeesManagementContent() {
     skill_group_id: "",
     employees_status: "",
     shift_work_id: "",
-saturday_attendance_id: "",
-attendance_place_id: "",
-attendance_policy_id: "",
-is_attendance: false,
-leave_grant: "",
-insurance_salary: "",
-  allowances: [] as any[],
-  deductions: [] as any[],
-  bonuses: [] as any[],
+    saturday_attendance_id: "",
+    attendance_place_id: "",
+    attendance_policy_id: "",
+    is_attendance: false,
+    leave_grant: "",
+    insurance_salary: "",
+    allowances: [] as any[],
+    deductions: [] as any[],
+    bonuses: [] as any[],
   });
 
   useEffect(() => {
@@ -268,7 +285,7 @@ insurance_salary: "",
     dispatch(listContact() as any);
     dispatch(listManager() as any);
     dispatch(listEmployeeStatus() as any);
-    dispatch(listShiftWorkAttendance  (token) as any);
+    dispatch(listShiftWorkAttendance(token) as any);
     dispatch(listShiftWorkSaturdayAttendance(token) as any);
     dispatch(listPlaceAttendance(token) as any);
     dispatch(listPolicyAttendance(token) as any);
@@ -350,6 +367,42 @@ insurance_salary: "",
     e.target.value = "";
   };
 
+  const handleExportExcelSalary = async () => {
+    const result = await dispatch(exportExcelSalary() as any);
+    if (exportExcelSalary.fulfilled.match(result)) {
+      const blob = result.payload;
+      const url = window.URL.createObjectURL(
+        new Blob([blob] as any, {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "salary_contracts.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  };
+
+  const handleImportExcelSalary = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    await dispatch(importExcelSalary(formData) as any);
+    await dispatch(
+      listEmployee({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: debouncedSearchTerm || "",
+      } as any) as any,
+    );
+    e.target.value = "";
+  };
+
   const handleCreate = () => {
     setEditingEmployee(null);
     setFormData({
@@ -386,15 +439,15 @@ insurance_salary: "",
       skill_group_id: "",
       employees_status: "",
       shift_work_id: "",
-saturday_attendance_id: "",
-attendance_place_id: "",
-attendance_policy_id: "",
-is_attendance: false,
-leave_grant: "",
-insurance_salary: "",
-  allowances: [],
-  deductions: [],
-  bonuses: [],
+      saturday_attendance_id: "",
+      attendance_place_id: "",
+      attendance_policy_id: "",
+      is_attendance: false,
+      leave_grant: "",
+      insurance_salary: "",
+      allowances: [],
+      deductions: [],
+      bonuses: [],
     });
     setShowCreateModal(true);
   };
@@ -447,33 +500,40 @@ insurance_salary: "",
       education: employee.education || "",
       employees_status: employee.employees_status?.toString() || "1",
       shift_work_id: (employee as any).shift_work_id || "",
-saturday_attendance_id: (employee as any).saturday_attendance_id || "",
-attendance_place_id: (employee as any).attendance_place_id || "",
-attendance_policy_id: (employee as any).employee_attendance_policy?.attendance_policy?.id?.toString() || "",
-is_attendance: (employee as any).is_attendance || false,
-leave_grant: (employee as any).leave_grant?.toString() || "",
-insurance_salary: (employee as any).contracts?.[0]?.insurance_salary?.toString() ?? "",
-  allowances: (employee as any).allowances?.map((a: any) => ({
-    id: a.allowance?.id?.toString(),
-    name: a.allowance?.name,
-    active: a.allowance?.active ?? null,
-    is_auto: a.allowance?.is_auto ?? null,
-    amount: a.amount ?? null,
-  })) ?? [],
-  deductions: (employee as any).deductions?.map((d: any) => ({
-    id: d.deduction?.id?.toString(),
-    name: d.deduction?.name,
-    active: d.deduction?.active ?? null,
-    is_auto: d.deduction?.is_auto ?? null,
-    amount: d.amount ?? null,
-  })) ?? [],
-  bonuses: (employee as any).bonuses?.map((b: any) => ({
-    id: b.bonus?.id?.toString(),
-    name: b.bonus?.name,
-    active: b.bonus?.active ?? null,
-    is_auto: b.bonus?.is_auto ?? null,
-    amount: b.amount ?? null,
-  })) ?? [],
+      saturday_attendance_id: (employee as any).saturday_attendance_id || "",
+      attendance_place_id: (employee as any).attendance_place_id || "",
+      attendance_policy_id:
+        (
+          employee as any
+        ).employee_attendance_policy?.attendance_policy?.id?.toString() || "",
+      is_attendance: (employee as any).is_attendance || false,
+      leave_grant: (employee as any).leave_grant?.toString() || "",
+      insurance_salary:
+        (employee as any).contracts?.[0]?.insurance_salary?.toString() ?? "",
+      allowances:
+        (employee as any).allowances?.map((a: any) => ({
+          id: a.allowance?.id?.toString(),
+          name: a.allowance?.name,
+          active: a.allowance?.active ?? null,
+          is_auto: a.allowance?.is_auto ?? null,
+          amount: a.amount ?? null,
+        })) ?? [],
+      deductions:
+        (employee as any).deductions?.map((d: any) => ({
+          id: d.deduction?.id?.toString(),
+          name: d.deduction?.name,
+          active: d.deduction?.active ?? null,
+          is_auto: d.deduction?.is_auto ?? null,
+          amount: d.amount ?? null,
+        })) ?? [],
+      bonuses:
+        (employee as any).bonuses?.map((b: any) => ({
+          id: b.bonus?.id?.toString(),
+          name: b.bonus?.name,
+          active: b.bonus?.active ?? null,
+          is_auto: b.bonus?.is_auto ?? null,
+          amount: b.amount ?? null,
+        })) ?? [],
     });
     setShowCreateModal(true);
   };
@@ -578,15 +638,18 @@ insurance_salary: (employee as any).contracts?.[0]?.insurance_salary?.toString()
       level_id: formData.level_id,
       position_id: formData.position,
       shift_work_id: formData.shift_work_id || null,
-saturday_attendance_id: formData.saturday_attendance_id || null,
-attendance_place_id: formData.attendance_place_id || null,
-attendance_policy_id: formData.attendance_policy_id || null,
-is_attendance: formData.is_attendance,
-leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
- insurance_salary: formData.insurance_salary !== "" ? Number(formData.insurance_salary) : null,
-  allowances: formData.allowances,
-  deductions: formData.deductions,
-  bonuses: formData.bonuses,
+      saturday_attendance_id: formData.saturday_attendance_id || null,
+      attendance_place_id: formData.attendance_place_id || null,
+      attendance_policy_id: formData.attendance_policy_id || null,
+      is_attendance: formData.is_attendance,
+      leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
+      insurance_salary:
+        formData.insurance_salary !== ""
+          ? Number(formData.insurance_salary)
+          : null,
+      allowances: formData.allowances,
+      deductions: formData.deductions,
+      bonuses: formData.bonuses,
     };
 
     try {
@@ -788,6 +851,13 @@ leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
               className="hidden"
               onChange={handleImportExcel}
             />
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              ref={salaryFileInputRef}
+              className="hidden"
+              onChange={handleImportExcelSalary}
+            />
             <Button
               onClick={handleCreate}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
@@ -797,17 +867,34 @@ leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
             </Button>
             <Button
               onClick={handleExportExcel}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
+              className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
             >
               <Download className="h-4 w-4" />
-              <span>Export</span>
+              <span>Export DS Nhân viên</span>
             </Button>
+
             <Button
               onClick={() => fileInputRef.current?.click()}
-              className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
+              className="bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
             >
               <Upload className="h-4 w-4" />
-              <span>Import</span>
+              <span>Import DS Nhân viên</span>
+            </Button>
+
+            <Button
+              onClick={handleExportExcelSalary}
+              className="bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export DS Hợp Đồng Lương</span>
+            </Button>
+
+            <Button
+              onClick={() => salaryFileInputRef.current?.click()}
+              className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-0 flex items-center gap-1.5 text-sm h-9 px-3"
+            >
+              <Upload className="h-4 w-4" />
+              <span>Import DS Hợp Đồng Lương</span>
             </Button>
           </div>
         </CardContent>
@@ -1227,13 +1314,13 @@ leave_grant: formData.leave_grant ? Number(formData.leave_grant) : null,
         skills={skills}
         levelPositionRoles={levelPositionRoles}
         shiftWorks={shiftWorkAttendance}
-saturdayAttendances={shiftWorkSaturdayAttendance}
-attendancePlaces={placeAttendance}
-attendancePolicies={policyAttendance}
-allowances={allowances}
-  deductions={deductions}
-  bonus={bonus}
-  insurances={insurances}
+        saturdayAttendances={shiftWorkSaturdayAttendance}
+        attendancePlaces={placeAttendance}
+        attendancePolicies={policyAttendance}
+        allowances={allowances}
+        deductions={deductions}
+        bonus={bonus}
+        insurances={insurances}
         handleSave={handleSave}
       />
 

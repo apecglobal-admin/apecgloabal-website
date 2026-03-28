@@ -162,9 +162,42 @@ const isSectionComplete = (sectionKey: string, formData: Project): boolean => {
     return val !== undefined && val !== null && val !== "" && val !== 0;
   });
 };
-
+const FL = ({ children }: { children: React.ReactNode }) => (
+    <Label className="text-white/60 text-[10px] mb-1.5 block font-semibold tracking-widest uppercase">
+      {children}
+    </Label>
+  );
 // ── Component ─────────────────────────────────────────────────────────────────
+const DateInput = ({ id, label, value, onChange }: any) => {
+  const [localValue, setLocalValue] = useState(value);
 
+  // Sync khi value từ ngoài thay đổi (edit mode load data)
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  return (
+    <div>
+      <FL>{label}</FL>
+      <div className="relative">
+        <Input
+          id={id}
+          type="date"
+          value={localValue}
+          onChange={(e) => {
+            setLocalValue(e.target.value);
+            onChange(e); // Chỉ gọi parent onChange, không trigger re-render giữa chừng
+          }}
+          className="bg-black/30 border-purple-500/30 text-white h-10 text-sm [color-scheme:dark] pr-10
+            [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute
+            [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10
+            [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+        />
+        <IcoCalendar className="h-4 w-4 absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+      </div>
+    </div>
+  );
+};
 export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId = null }: ProjectModalProps) {
   const dispatch = useDispatch();
   const { employees, totalEmployees, managers } = useEmployeeData();
@@ -331,20 +364,7 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
     />
   );
 
-  const DateInput = ({ id, label, value, onChange }: any) => (
-    <div>
-      <FL>{label}</FL>
-      <div className="relative">
-        <Input id={id} type="date" value={value} onChange={onChange}
-          className="bg-black/30 border-purple-500/30 text-white h-10 text-sm [color-scheme:dark] pr-10
-            [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute
-            [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10
-            [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-        />
-        <IcoCalendar className="h-4 w-4 absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
-      </div>
-    </div>
-  );
+  
 
   const SearchableSelect = ({ value, onValueChange, placeholder, items, labelKey = "name", valueKey = "id", searchPlaceholder = "Tìm kiếm..." }: any) => (
     <Select value={value} onValueChange={onValueChange}>
@@ -491,21 +511,7 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
             {/* Spending bar */}
             {formData.budget > 0 && (
               <div className="sm:col-span-2">
-                <div className="flex justify-between text-[10px] text-white/40 mb-1">
-                  <span>Tỉ lệ sử dụng ngân sách</span>
-                  <span className={
-                    formData.spent / formData.budget > 0.9 ? "text-red-400" :
-                    formData.spent / formData.budget > 0.7 ? "text-amber-400" : "text-green-400"
-                  }>
-                    {Math.round((formData.spent / formData.budget) * 100)}%
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div className={`h-full rounded-full transition-all ${
-                    formData.spent / formData.budget > 0.9 ? "bg-red-500" :
-                    formData.spent / formData.budget > 0.7 ? "bg-amber-500" : "bg-green-500"
-                  }`} style={{ width: `${Math.min((formData.spent / formData.budget) * 100, 100)}%` }} />
-                </div>
+                
               </div>
             )}
             <div>

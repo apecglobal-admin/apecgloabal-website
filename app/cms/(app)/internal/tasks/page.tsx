@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDispatch } from "react-redux";
-import { useEmployeeData } from "@/src/hook/employeeHook";
 import { Pagination } from "@/components/ui/pagination";
 import {
   Calendar,
@@ -32,9 +31,24 @@ import {
   X,
   ChevronsUpDown,
   ChevronsDownUp,
+  FileSpreadsheet,
 } from "lucide-react";
-import { listTasks, listTasksById } from "@/src/features/task/taskApi";
+import {
+  listTasks,
+  listTasksById,
+  exportExcelTask,
+} from "@/src/features/task/taskApi";
 import { useTaskData } from "@/src/hook/taskHook";
+
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
 
 const TasksPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -46,18 +60,31 @@ const TasksPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Export month/year state — default to current month/year
+  const now = new Date();
+  const [exportMonth, setExportMonth] = useState<string>(
+    String(now.getMonth() + 1),
+  );
+  const [exportYear, setExportYear] = useState<string>(
+    String(now.getFullYear()),
+  );
 
   // Collapse/expand state
-  const [collapsedAssignments, setCollapsedAssignments] = useState<Set<string>>(new Set());
+  const [collapsedAssignments, setCollapsedAssignments] = useState<Set<string>>(
+    new Set(),
+  );
   const [allCollapsed, setAllCollapsed] = useState(false);
 
   const itemsPerPage = 9;
 
-  // Extract tasks data array
+  const debouncedSearch = useDebounce(searchTerm, 400);
+
   const tasksData = tasks?.data || [];
   const pagination = tasks?.pagination || null;
 
-  // Get unique statuses and priorities from tasks
+  // Statuses/priorities from current page data (for filter dropdowns)
   const statuses = Array.from(
     new Set(tasksData.map((task: any) => task.status.name)),
   );
@@ -65,13 +92,22 @@ const TasksPage: React.FC = () => {
     new Set(tasksData.map((task: any) => task.priority?.name).filter(Boolean)),
   );
 
+  // Fetch when page or debounced search changes
   useEffect(() => {
     dispatch(
-      listTasks({ limit: itemsPerPage, page: currentPage } as any) as any,
+      listTasks({
+        limit: itemsPerPage,
+        page: currentPage,
+        search: debouncedSearch || "",
+      } as any) as any,
     );
-  }, [currentPage, dispatch]);
+  }, [currentPage, debouncedSearch, dispatch]);
 
-  // Reset collapse state khi chuyển task
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
   useEffect(() => {
     setCollapsedAssignments(new Set());
     setAllCollapsed(false);
@@ -87,9 +123,7 @@ const TasksPage: React.FC = () => {
     dispatch(listTasksById(taskId as any) as any);
   };
 
-  const handleBackToList = () => {
-    setSelectedTaskId(null);
-  };
+  const handleBackToList = () => setSelectedTaskId(null);
 
   const handleClearFilters = () => {
     setSearchTerm("");
@@ -97,27 +131,30 @@ const TasksPage: React.FC = () => {
     setPriorityFilter("all");
   };
 
-  // Toggle từng assignment
+  const handleExportExcel = async () => {
+    setIsExporting(true);
+    try {
+      await dispatch(
+        exportExcelTask({ month: exportMonth, year: exportYear } as any) as any,
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const toggleAssignment = (assignmentId: string) => {
     setCollapsedAssignments((prev) => {
       const next = new Set(prev);
-      if (next.has(assignmentId)) {
-        next.delete(assignmentId);
-      } else {
-        next.add(assignmentId);
-      }
-
-      // Sync trạng thái allCollapsed
+      if (next.has(assignmentId)) next.delete(assignmentId);
+      else next.add(assignmentId);
       const totalWithSubtasks = (taskById?.employee_assignments ?? []).filter(
         (a: any) => a?.subtasks?.length > 0,
       ).length;
       setAllCollapsed(next.size === totalWithSubtasks);
-
       return next;
     });
   };
 
-  // Toggle tất cả
   const toggleAll = () => {
     if (allCollapsed) {
       setCollapsedAssignments(new Set());
@@ -133,19 +170,13 @@ const TasksPage: React.FC = () => {
     }
   };
 
-  // Filter tasks based on search and filters
+  // Client-side filter for status/priority only (search is server-side)
   const filteredTasks = tasksData.filter((task: any) => {
-    const matchesSearch =
-      task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.assignee.name.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesStatus =
       statusFilter === "all" || task.status.name === statusFilter;
     const matchesPriority =
       priorityFilter === "all" || task.priority?.name === priorityFilter;
-
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesStatus && matchesPriority;
   });
 
   const getStatusColor = (statusName: string) => {
@@ -186,16 +217,23 @@ const TasksPage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN");
-  };
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("vi-VN");
 
-  // Kiểm tra có assignment nào có subtasks không
   const hasAnySubtasks = (taskById?.employee_assignments ?? []).some(
     (a: any) => a?.subtasks?.length > 0,
   );
 
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: String(i + 1),
+    label: `Tháng ${i + 1}`,
+  }));
+  const years = Array.from({ length: 5 }, (_, i) => {
+    const y = now.getFullYear() - 2 + i;
+    return { value: String(y), label: String(y) };
+  });
+
+  // ─── Task Detail View ───────────────────────────────────────────────────────
   if (selectedTaskId && taskById) {
     return (
       <div className="min-h-screen p-3 sm:p-6">
@@ -216,24 +254,19 @@ const TasksPage: React.FC = () => {
                   <CardTitle className="text-lg sm:text-2xl">
                     {taskById?.name ?? ""}
                   </CardTitle>
-
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       className={`${getStatusColor(taskById?.status?.name)} border text-xs sm:text-sm`}
                     >
                       {taskById?.status?.name ?? ""}
                     </Badge>
-
                     {taskById?.priority && (
                       <Badge
-                        className={`${getPriorityColor(
-                          taskById?.priority?.name,
-                        )} border text-xs sm:text-sm`}
+                        className={`${getPriorityColor(taskById?.priority?.name)} border text-xs sm:text-sm`}
                       >
                         Ưu tiên: {taskById?.priority?.name}
                       </Badge>
                     )}
-
                     {taskById?.type && (
                       <Badge className="bg-purple-600/20 text-purple-400 border-purple-500/30 border text-xs sm:text-sm">
                         {taskById?.type?.name}
@@ -241,7 +274,6 @@ const TasksPage: React.FC = () => {
                     )}
                   </div>
                 </div>
-
                 <div className="text-right">
                   <div className="text-2xl sm:text-3xl font-bold text-blue-400">
                     {taskById?.process
@@ -264,7 +296,7 @@ const TasksPage: React.FC = () => {
                     <span className="text-xs sm:text-sm">Thời gian</span>
                   </div>
                   <div className="text-white text-xs sm:text-base">
-                    {formatDate(taskById?.date_start)} -{" "}
+                    {formatDate(taskById?.date_start)} –{" "}
                     {formatDate(taskById?.date_end)}
                   </div>
                 </div>
@@ -310,12 +342,10 @@ const TasksPage: React.FC = () => {
 
               {taskById?.employee_assignments?.length > 0 && (
                 <div className="space-y-3 sm:space-y-4">
-                  {/* Header section với nút Toggle All */}
                   <div className="flex items-center justify-between">
                     <h3 className="text-base sm:text-lg font-semibold text-white">
                       Phân công thực hiện
                     </h3>
-
                     {hasAnySubtasks && (
                       <Button
                         variant="ghost"
@@ -339,21 +369,17 @@ const TasksPage: React.FC = () => {
                   </div>
 
                   {taskById?.employee_assignments?.map((assignment: any) => {
-                    const isCollapsed = collapsedAssignments.has(assignment?.id);
+                    const isCollapsed = collapsedAssignments.has(
+                      assignment?.id,
+                    );
                     const hasSubtasks = assignment?.subtasks?.length > 0;
-
                     return (
                       <div
                         key={assignment?.id}
                         className="bg-black/30 rounded-lg border border-purple-500/30 overflow-hidden"
                       >
-                        {/* Header assignment - click để toggle */}
                         <div
-                          className={`flex items-center justify-between gap-3 p-3 sm:p-4 ${
-                            hasSubtasks
-                              ? "cursor-pointer hover:bg-white/5 transition-colors"
-                              : ""
-                          }`}
+                          className={`flex items-center justify-between gap-3 p-3 sm:p-4 ${hasSubtasks ? "cursor-pointer hover:bg-white/5 transition-colors" : ""}`}
                           onClick={() =>
                             hasSubtasks && toggleAssignment(assignment?.id)
                           }
@@ -370,9 +396,7 @@ const TasksPage: React.FC = () => {
                               </div>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge
-                                  className={`${getStatusColor(
-                                    assignment?.status?.name,
-                                  )} border text-[10px] sm:text-xs`}
+                                  className={`${getStatusColor(assignment?.status?.name)} border text-[10px] sm:text-xs`}
                                 >
                                   {assignment?.status?.name}
                                 </Badge>
@@ -384,7 +408,6 @@ const TasksPage: React.FC = () => {
                               </div>
                             </div>
                           </div>
-
                           <div className="flex items-center gap-3">
                             <div className="text-right">
                               <div className="text-xl sm:text-2xl font-bold text-blue-400">
@@ -394,25 +417,19 @@ const TasksPage: React.FC = () => {
                                 Tiến độ cá nhân
                               </div>
                             </div>
-
-                            {/* Nút collapse/expand từng assignment */}
                             {hasSubtasks && (
                               <ChevronRight
-                                className={`w-5 h-5 text-white/40 transition-transform duration-200 ${
-                                  isCollapsed ? "rotate-0" : "rotate-90"
-                                }`}
+                                className={`w-5 h-5 text-white/40 transition-transform duration-200 ${isCollapsed ? "rotate-0" : "rotate-90"}`}
                               />
                             )}
                           </div>
                         </div>
 
-                        {/* Subtasks - ẩn/hiện theo state */}
                         {hasSubtasks && !isCollapsed && (
                           <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-2 border-t border-purple-500/10 pt-3">
                             <h4 className="text-xs sm:text-sm font-semibold text-white/80">
                               Công việc con ({assignment?.subtasks?.length})
                             </h4>
-
                             <div className="space-y-2">
                               {assignment?.subtasks?.map((subtask: any) => (
                                 <div
@@ -420,17 +437,16 @@ const TasksPage: React.FC = () => {
                                   className="flex items-center justify-between bg-black/20 rounded p-2 sm:p-3 hover:bg-black/30 transition-colors border border-purple-500/10"
                                 >
                                   <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                    {getSubtaskStatusIcon(subtask?.status?.name)}
+                                    {getSubtaskStatusIcon(
+                                      subtask?.status?.name,
+                                    )}
                                     <span className="text-white text-xs sm:text-base truncate">
                                       {subtask?.name}
                                     </span>
                                   </div>
-
                                   <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
                                     <Badge
-                                      className={`${getStatusColor(
-                                        subtask?.status?.name,
-                                      )} border text-[10px] sm:text-xs`}
+                                      className={`${getStatusColor(subtask?.status?.name)} border text-[10px] sm:text-xs`}
                                     >
                                       {subtask?.status?.name}
                                     </Badge>
@@ -455,11 +471,14 @@ const TasksPage: React.FC = () => {
     );
   }
 
+  // ─── Task List View ─────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen p-3 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        {/* Header */}
+        <div className="flex flex-col gap-3">
+          {/* Row 1: Title */}
           <div className="flex items-center gap-3">
             <h1 className="text-xl sm:text-3xl font-bold text-white">
               Danh sách công việc
@@ -473,42 +492,88 @@ const TasksPage: React.FC = () => {
             </div>
           </div>
 
-          {/* View Toggle Buttons */}
-          <div className="flex items-center gap-2 bg-black/50 rounded-lg p-1 border border-purple-500/30">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className={`${
-                viewMode === "grid"
-                  ? "bg-purple-600/30 text-white"
-                  : "text-white/60 hover:text-white hover:bg-white/10"
-              } transition-all`}
-            >
-              <LayoutGrid className="w-4 h-4 mr-2" />
-              Grid
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className={`${
-                viewMode === "list"
-                  ? "bg-purple-600/30 text-white"
-                  : "text-white/60 hover:text-white hover:bg-white/10"
-              } transition-all`}
-            >
-              <List className="w-4 h-4 mr-2" />
-              List
-            </Button>
+          {/* Row 2: Controls — stack vertically on mobile, row on sm+ */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            {/* Export Excel — full width on mobile */}
+            <div className="flex items-center gap-2 bg-black/50 rounded-lg p-1 border border-green-500/30 w-full sm:w-auto">
+              <Select value={exportMonth} onValueChange={setExportMonth}>
+                <SelectTrigger className="h-8 flex-1 sm:w-28 bg-black/30 border-green-500/20 text-white text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black/95 border-green-500/30">
+                  {months.map((m) => (
+                    <SelectItem
+                      key={m.value}
+                      value={m.value}
+                      className="text-white text-xs hover:bg-green-600/20"
+                    >
+                      {m.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={exportYear} onValueChange={setExportYear}>
+                <SelectTrigger className="h-8 flex-1 sm:w-20 bg-black/30 border-green-500/20 text-white text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black/95 border-green-500/30">
+                  {years.map((y) => (
+                    <SelectItem
+                      key={y.value}
+                      value={y.value}
+                      className="text-white text-xs hover:bg-green-600/20"
+                    >
+                      {y.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                size="sm"
+                onClick={handleExportExcel}
+                disabled={isExporting}
+                className="h-8 shrink-0 bg-green-600/20 hover:bg-green-600/40 text-green-400 border border-green-500/30 text-xs gap-1.5"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                <span className="hidden xs:inline">
+                  {isExporting ? "Đang xuất..." : "Xuất Excel"}
+                </span>
+                <span className="xs:hidden">
+                  {isExporting ? "..." : "Xuất"}
+                </span>
+              </Button>
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex items-center gap-2 bg-black/50 rounded-lg p-1 border border-purple-500/30 self-end sm:self-auto">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className={`${viewMode === "grid" ? "bg-purple-600/30 text-white" : "text-white/60 hover:text-white hover:bg-white/10"} transition-all`}
+              >
+                <LayoutGrid className="w-4 h-4 mr-2" />
+                Grid
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className={`${viewMode === "list" ? "bg-purple-600/30 text-white" : "text-white/60 hover:text-white hover:bg-white/10"} transition-all`}
+              >
+                <List className="w-4 h-4 mr-2" />
+                List
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Search and Filter Section */}
+        {/* Search & Filter */}
         <Card className="bg-black/50 border-purple-500/30">
           <CardContent className="p-3 sm:p-4">
             <div className="space-y-3">
-              {/* Search Bar */}
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -531,18 +596,13 @@ const TasksPage: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`${
-                    showFilters
-                      ? "bg-purple-600/30 border-purple-500/30 text-white"
-                      : "bg-black/30 border-purple-500/30 text-white/60"
-                  } hover:bg-purple-600/20 hover:text-white transition-all`}
+                  className={`${showFilters ? "bg-purple-600/30 border-purple-500/30 text-white" : "bg-black/30 border-purple-500/30 text-white/60"} hover:bg-purple-600/20 hover:text-white transition-all`}
                 >
                   <Filter className="w-4 h-4 mr-2" />
                   Lọc
                 </Button>
               </div>
 
-              {/* Filter Options */}
               {showFilters && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-purple-500/30">
                   <div className="space-y-2">
@@ -612,7 +672,6 @@ const TasksPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Active Filters Display */}
               {(searchTerm ||
                 statusFilter !== "all" ||
                 priorityFilter !== "all") && (
@@ -649,7 +708,7 @@ const TasksPage: React.FC = () => {
         {/* Grid View */}
         {viewMode === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {filteredTasks && filteredTasks.length > 0 ? (
+            {filteredTasks.length > 0 ? (
               filteredTasks.map((task: any) => (
                 <Card
                   key={task.id}
@@ -664,7 +723,6 @@ const TasksPage: React.FC = () => {
                         </h3>
                         <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
                       </div>
-
                       <div className="flex flex-wrap gap-2">
                         <Badge
                           className={`${getStatusColor(task.status.name)} border text-[10px]`}
@@ -679,7 +737,6 @@ const TasksPage: React.FC = () => {
                           </Badge>
                         )}
                       </div>
-
                       <div className="bg-black/30 rounded p-2 border border-purple-500/30">
                         <div className="flex items-center gap-2 mb-2">
                           <FolderKanban className="w-3 h-3 text-white/60" />
@@ -690,12 +747,11 @@ const TasksPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-3 h-3 text-white/60" />
                           <span className="text-xs text-white/60">
-                            {formatDate(task.date_start)} -{" "}
+                            {formatDate(task.date_start)} –{" "}
                             {formatDate(task.date_end)}
                           </span>
                         </div>
                       </div>
-
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <img
@@ -707,14 +763,10 @@ const TasksPage: React.FC = () => {
                             {task.assignee.name}
                           </span>
                         </div>
-
-                        <div className="text-right">
-                          <div className="text-xl font-bold text-blue-400">
-                            {parseFloat(task.process).toFixed(0)}%
-                          </div>
+                        <div className="text-xl font-bold text-blue-400">
+                          {parseFloat(task.process).toFixed(0)}%
                         </div>
                       </div>
-
                       <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden border border-purple-500/30">
                         <div
                           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
@@ -744,7 +796,7 @@ const TasksPage: React.FC = () => {
         {/* List View */}
         {viewMode === "list" && (
           <div className="grid grid-cols-1 gap-3 sm:gap-4">
-            {filteredTasks && filteredTasks.length > 0 ? (
+            {filteredTasks.length > 0 ? (
               filteredTasks.map((task: any) => (
                 <Card
                   key={task.id}
@@ -760,7 +812,6 @@ const TasksPage: React.FC = () => {
                           </h3>
                           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
                         </div>
-
                         <div className="flex flex-wrap gap-2">
                           <Badge
                             className={`${getStatusColor(task.status.name)} border text-[10px] sm:text-xs`}
@@ -781,12 +832,11 @@ const TasksPage: React.FC = () => {
                             </span>
                           </div>
                         </div>
-
                         <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-sm text-white/60">
                           <div className="flex items-center gap-1 sm:gap-2">
                             <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>
-                              {formatDate(task.date_start)} -{" "}
+                              {formatDate(task.date_start)} –{" "}
                               {formatDate(task.date_end)}
                             </span>
                           </div>
@@ -800,7 +850,6 @@ const TasksPage: React.FC = () => {
                           </div>
                         </div>
                       </div>
-
                       <div className="text-right shrink-0">
                         <div className="text-2xl sm:text-3xl font-bold text-blue-400">
                           {parseFloat(task.process).toFixed(0)}%

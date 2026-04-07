@@ -346,9 +346,17 @@ export const exportExcel = createAsyncThunk(
 
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message, {
-        position: "top-right",
-      });
+     if (error?.response?.data instanceof Blob) {
+        const text = await error.response.data.text();
+        try {
+          const json = JSON.parse(text);
+          toast.error(json.message || "Something went wrong");
+        } catch {
+          toast.error(text);
+        }
+      } else {
+        toast.error(error?.response?.data?.message || error.message);
+      }
       return thunkAPI.rejectWithValue(error?.message);
     }
   },
@@ -427,9 +435,17 @@ export const exportExcelSalary = createAsyncThunk(
 
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message, {
-        position: "top-right",
-      });
+      if (error?.response?.data instanceof Blob) {
+        const text = await error.response.data.text();
+        try {
+          const json = JSON.parse(text);
+          toast.error(json.message || "Something went wrong");
+        } catch {
+          toast.error(text);
+        }
+      } else {
+        toast.error(error?.response?.data?.message || error.message);
+      }
       return thunkAPI.rejectWithValue(error?.message);
     }
   },

@@ -441,10 +441,9 @@ function AttendanceSheet({
                     const status = scoreToStatus(score, hasRec);
                     const cell = STATUS_CELL[status];
                     const isToday = toDateStr(year, month, day) === todayStr;
-                    const displayScore =
-                      hasRec && score !== null ? score.toFixed(3) : "";
+                    const displayScore = hasRec && score !== null ? Number(score).toFixed(3) : "";
                     const title = hasRec
-                      ? `${toDateStr(year, month, day)} | Score: ${score?.toFixed(3)} | In: ${shortTime(rec.checkin)} Ra: ${shortTime(rec.checkout)}`
+                      ? `${toDateStr(year, month, day)} | Score: ${Number(score).toFixed(3)} | In: ${shortTime(rec.checkin)} Ra: ${shortTime(rec.checkout)}`
                       : toDateStr(year, month, day);
 
                     return (
@@ -551,7 +550,7 @@ function AttendanceDetailModal({
                 { label: "Thiếu", val: cntAbsent, color: "text-red-300" },
                 {
                   label: "Tổng điểm",
-                  val: total_score.toFixed(1),
+                  val: Number(total_score).toFixed(1),
                   color: "text-purple-300",
                 },
                 {
@@ -629,7 +628,7 @@ function AttendanceDetailModal({
                           </td>
                           <td className="px-3 py-1.5">
                             <span className={`font-bold text-xs ${cell.text}`}>
-                              {a.score !== null ? a.score.toFixed(3) : "—"}
+                              {a.score !== null ? Number(a.score).toFixed(3) : "—"}
                             </span>
                           </td>
                           <td className="px-3 py-1.5 text-white/55 font-mono">
@@ -1246,7 +1245,7 @@ export default function EmployeeAttendancePage() {
                         </TableCell>
                         <TableCell className="text-center">
                           <span className="text-purple-300 font-semibold">
-                            {emp.statics.total_score.toFixed(1)}
+                            {Number(emp.statics.total_score).toFixed(1)}
                           </span>
                         </TableCell>
                         <TableCell className="text-center">

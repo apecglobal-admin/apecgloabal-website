@@ -538,72 +538,72 @@ export default function EmployeesManagementContent() {
     setShowCreateModal(true);
   };
 
-  const validateForm = () => {
-    const requiredFields = {
-      email: "Email",
-      name: "Họ tên",
-      join_date: "Ngày vào làm",
-      birthday: "Ngày sinh",
-      address: "Địa chỉ",
-      manager_id: "Quản lý trực tiếp",
-      gen: "Giới tính",
-      birth_place: "Nơi sinh",
-      citizen_card: "CCCD",
-      issue_date: "Ngày cấp CCCD",
-      issue_place: "Nơi cấp CCCD",
-      emergency_contract: "Liên hệ khẩn cấp",
-      degree_level: "Trình độ học vấn",
-      major: "Chuyên ngành",
-      school_name: "Trường học",
-      graduation_year: "Năm tốt nghiệp",
-      base_salary: "Lương cơ bản",
-      allowance: "Phụ cấp",
-      contract_type: "Loại hợp đồng",
-      certificate_name: "Chứng chỉ",
-      skill_group_id: "Nhóm kỹ năng",
-      department_id: "Phòng ban",
-      level_id: "Cấp bậc",
-      position: "Chức vụ",
-    };
+  // const validateForm = () => {
+  //   const requiredFields = {
+  //     email: "Email",
+  //     name: "Họ tên",
+  //     join_date: "Ngày vào làm",
+  //     birthday: "Ngày sinh",
+  //     address: "Địa chỉ",
+  //     manager_id: "Quản lý trực tiếp",
+  //     gen: "Giới tính",
+  //     birth_place: "Nơi sinh",
+  //     citizen_card: "CCCD",
+  //     issue_date: "Ngày cấp CCCD",
+  //     issue_place: "Nơi cấp CCCD",
+  //     emergency_contract: "Liên hệ khẩn cấp",
+  //     degree_level: "Trình độ học vấn",
+  //     major: "Chuyên ngành",
+  //     school_name: "Trường học",
+  //     graduation_year: "Năm tốt nghiệp",
+  //     base_salary: "Lương cơ bản",
+  //     allowance: "Phụ cấp",
+  //     contract_type: "Loại hợp đồng",
+  //     certificate_name: "Chứng chỉ",
+  //     skill_group_id: "Nhóm kỹ năng",
+  //     department_id: "Phòng ban",
+  //     level_id: "Cấp bậc",
+  //     position: "Chức vụ",
+  //   };
 
-    type RequiredFormField = keyof typeof requiredFields;
+  //   type RequiredFormField = keyof typeof requiredFields;
 
-    for (const key in requiredFields) {
-      const typedKey = key as RequiredFormField;
-      if (!formData[typedKey] || formData[typedKey] === "") {
-        toast.error(`${requiredFields[typedKey]} không được để trống`);
-        return false;
-      }
-    }
+  //   for (const key in requiredFields) {
+  //     const typedKey = key as RequiredFormField;
+  //     if (!formData[typedKey] || formData[typedKey] === "") {
+  //       toast.error(`${requiredFields[typedKey]} không được để trống`);
+  //       return false;
+  //     }
+  //   }
 
-    if (!formData.skills || formData.skills.length === 0) {
-      toast.error("Vui lòng chọn ít nhất 1 kỹ năng");
-      return false;
-    }
+  //   if (!formData.skills || formData.skills.length === 0) {
+  //     toast.error("Vui lòng chọn ít nhất 1 kỹ năng");
+  //     return false;
+  //   }
 
-    for (const skill of formData.skills) {
-      if (!skill.skill_id) {
-        toast.error("Kỹ năng không hợp lệ");
-        return false;
-      }
-      if (Number(skill.value) < 0 || Number(skill.value) > 100) {
-        toast.error("Điểm kỹ năng phải từ 0–100");
-        return false;
-      }
-    }
+  //   for (const skill of formData.skills) {
+  //     if (!skill.skill_id) {
+  //       toast.error("Kỹ năng không hợp lệ");
+  //       return false;
+  //     }
+  //     if (Number(skill.value) < 0 || Number(skill.value) > 100) {
+  //       toast.error("Điểm kỹ năng phải từ 0–100");
+  //       return false;
+  //     }
+  //   }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.error("Email không hợp lệ");
-      return false;
-    }
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!emailRegex.test(formData.email)) {
+  //     toast.error("Email không hợp lệ");
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   const handleSave = async () => {
     const isEditing = !!editingEmployee;
-    if (!validateForm()) return;
+    // if (!validateForm()) return;
 
     const baseData = {
       email: formData.email,

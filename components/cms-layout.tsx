@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -48,8 +48,13 @@ import {
 } from "lucide-react";
 
 import { useAuthData } from "@/src/hook/authHook";
-import { listSideBars, userInfoCMS, changePassword } from "@/src/features/auth/authApi";
+import {
+  listSideBars,
+  userInfoCMS,
+  changePassword,
+} from "@/src/features/auth/authApi";
 import { logout } from "@/src/features/auth/authSlice";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Icon mapping
 const iconMapping: Record<string, { icon: any; color: string }> = {
@@ -70,7 +75,7 @@ const iconMapping: Record<string, { icon: any; color: string }> = {
   "Phân quyền": { icon: Shield, color: "text-red-400" },
   "Cài đặt": { icon: Settings, color: "text-yellow-400" },
   "Chấm công": { icon: CalendarClock, color: "text-indigo-400" },
-  "Tính lương": { icon: FilePen , color: "text-indigo-400" },
+  "Tính lương": { icon: FilePen, color: "text-indigo-400" },
 };
 
 interface CMSLayoutProps {
@@ -85,14 +90,18 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
-  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
-  const [expandedSubGroups, setExpandedSubGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>(
+    {},
+  );
+  const [expandedSubGroups, setExpandedSubGroups] = useState<
+    Record<string, boolean>
+  >({});
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
     old_password: "",
     new_password: "",
-    confirm_password: ""
+    confirm_password: "",
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
@@ -125,7 +134,11 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
   // Init expanded state
   useEffect(() => {
-    if (sidebars && sidebars.length > 0 && Object.keys(expandedGroups).length === 0) {
+    if (
+      sidebars &&
+      sidebars.length > 0 &&
+      Object.keys(expandedGroups).length === 0
+    ) {
       const initState: Record<number, boolean> = {};
       sidebars.forEach((_: any, i: number) => (initState[i] = true));
       setExpandedGroups(initState);
@@ -133,11 +146,11 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   }, [sidebars]);
 
   const toggleGroup = (index: number) => {
-    setExpandedGroups(prev => ({ ...prev, [index]: !prev[index] }));
+    setExpandedGroups((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
   const toggleSubGroup = (key: string) => {
-    setExpandedSubGroups(prev => ({ ...prev, [key]: !prev[key] }));
+    setExpandedSubGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleLogout = async () => {
@@ -154,7 +167,11 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
   const handleChangePassword = async () => {
     setPasswordError("");
 
-    if (!passwordData.old_password || !passwordData.new_password || !passwordData.confirm_password) {
+    if (
+      !passwordData.old_password ||
+      !passwordData.new_password ||
+      !passwordData.confirm_password
+    ) {
       setPasswordError("Vui lòng điền đầy đủ thông tin");
       return;
     }
@@ -171,16 +188,25 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
     setIsChangingPassword(true);
     try {
-      await dispatch(changePassword({
-        old_password: passwordData.old_password,
-        new_password: passwordData.new_password
-      }) as any).unwrap();
+      await dispatch(
+        changePassword({
+          old_password: passwordData.old_password,
+          new_password: passwordData.new_password,
+        }) as any,
+      ).unwrap();
 
       setIsChangePasswordOpen(false);
-      setPasswordData({ old_password: "", new_password: "", confirm_password: "" });
+      setPasswordData({
+        old_password: "",
+        new_password: "",
+        confirm_password: "",
+      });
       alert("Đổi mật khẩu thành công!");
     } catch (error: any) {
-      setPasswordError(error?.message || "Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu cũ.");
+      setPasswordError(
+        error?.message ||
+          "Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu cũ.",
+      );
     } finally {
       setIsChangingPassword(false);
     }
@@ -188,7 +214,11 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
 
   const handleClosePasswordDialog = () => {
     setIsChangePasswordOpen(false);
-    setPasswordData({ old_password: "", new_password: "", confirm_password: "" });
+    setPasswordData({
+      old_password: "",
+      new_password: "",
+      confirm_password: "",
+    });
     setPasswordError("");
   };
 
@@ -204,12 +234,18 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 className="bg-transparent border border-purple-500/30 text-white hover:bg-purple-500/20"
                 size="sm"
               >
-                {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </Button>
+                {isSidebarOpen ? (
+                  <X className="h-4 w-4" />
+                ) : (
+                  <Menu className="h-4 w-4" />
+                )}
+              </Button>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-xs sm:text-sm">A</span>
+                <span className="text-white font-bold text-xs sm:text-sm">
+                  A
+                </span>
               </div>
               <span className="text-sm sm:text-lg font-bold text-white truncate">
                 ApecGlobal Internal
@@ -244,18 +280,18 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                   <ChevronDown className="h-4 w-4 text-white/60 hidden sm:block" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="end" 
+              <DropdownMenuContent
+                align="end"
                 className="w-56 bg-gray-900 border border-purple-500/30 text-white"
               >
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="cursor-pointer hover:bg-purple-500/20 focus:bg-purple-500/20"
                   onClick={() => setIsChangePasswordOpen(true)}
                 >
                   <KeyRound className="mr-2 h-4 w-4 text-blue-400" />
                   <span>Đổi mật khẩu</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="cursor-pointer hover:bg-red-500/20 focus:bg-red-500/20 text-red-300"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
@@ -270,7 +306,10 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       </div>
 
       {/* Change Password Dialog */}
-      <Dialog open={isChangePasswordOpen} onOpenChange={handleClosePasswordDialog}>
+      <Dialog
+        open={isChangePasswordOpen}
+        onOpenChange={handleClosePasswordDialog}
+      >
         <DialogContent className="sm:max-w-[425px] bg-gray-900 border border-purple-500/30 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">Đổi mật khẩu</DialogTitle>
@@ -280,34 +319,55 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="old_password" className="text-white">Mật khẩu cũ</Label>
+              <Label htmlFor="old_password" className="text-white">
+                Mật khẩu cũ
+              </Label>
               <Input
                 id="old_password"
                 type="password"
                 value={passwordData.old_password}
-                onChange={(e) => setPasswordData({ ...passwordData, old_password: e.target.value })}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    old_password: e.target.value,
+                  })
+                }
                 className="bg-gray-800 border-purple-500/30 text-white"
                 placeholder="Nhập mật khẩu cũ"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="new_password" className="text-white">Mật khẩu mới</Label>
+              <Label htmlFor="new_password" className="text-white">
+                Mật khẩu mới
+              </Label>
               <Input
                 id="new_password"
                 type="password"
                 value={passwordData.new_password}
-                onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    new_password: e.target.value,
+                  })
+                }
                 className="bg-gray-800 border-purple-500/30 text-white"
                 placeholder="Nhập mật khẩu mới"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="confirm_password" className="text-white">Xác nhận mật khẩu mới</Label>
+              <Label htmlFor="confirm_password" className="text-white">
+                Xác nhận mật khẩu mới
+              </Label>
               <Input
                 id="confirm_password"
                 type="password"
                 value={passwordData.confirm_password}
-                onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    confirm_password: e.target.value,
+                  })
+                }
                 className="bg-gray-800 border-purple-500/30 text-white"
                 placeholder="Nhập lại mật khẩu mới"
               />
@@ -358,7 +418,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 <p className="text-white font-medium text-sm truncate">
                   {userInfo?.username || "Administrator"}
                 </p>
-                <Badge className="bg-green-600 text-white text-xs">Online</Badge>
+                <Badge className="bg-green-600 text-white text-xs">
+                  Online
+                </Badge>
               </div>
               {/* Nút đóng sidebar — chỉ hiện trên desktop */}
               <button
@@ -399,111 +461,168 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                   )}
                 </button>
 
-                <div
-                  className={`mt-2 space-y-1 overflow-hidden transition-all duration-300 ${
-                    expandedGroups[groupIndex] ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-                  }`}
-                >
-                  {group.permission_groups?.map((item: any, itemIndex: number) => {
-                    const iconData = iconMapping[item.name] || { icon: FileText, color: "text-gray-400" };
-                    const Icon = iconData.icon;
-                    const subGroupKey = `${groupIndex}-${itemIndex}`;
+                {expandedGroups[groupIndex] && (
+                  <div className="mt-2 space-y-1">
+                    {group.permission_groups?.map(
+                      (item: any, itemIndex: number) => {
+                        const iconData = iconMapping[item.name] || {
+                          icon: FileText,
+                          color: "text-gray-400",
+                        };
 
-                    if (item.children) {
-                      return (
-                        <div key={itemIndex}>
-                          <button
-                            onClick={() => toggleSubGroup(subGroupKey)}
-                            className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group text-white/70 hover:text-white hover:bg-white/10"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Icon className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${iconData.color}`} />
-                              <span className="font-medium text-sm truncate">{item.name}</span>
-                            </div>
-                            {expandedSubGroups[subGroupKey] ? (
-                              <ChevronUp className="h-4 w-4 text-white/60 flex-shrink-0" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-white/60 flex-shrink-0" />
-                            )}
-                          </button>
+                        const Icon = iconData.icon;
+                        const subGroupKey = `${groupIndex}-${itemIndex}`;
 
-                          <div
-                            className={`ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ${
-                              expandedSubGroups[subGroupKey] ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-                            }`}
-                          >
-                            {item.children.map((child: any, childIndex: number) => {
-                              const childIconData = iconMapping[child.name] || { icon: FileText, color: "text-gray-400" };
-                              const ChildIcon = childIconData.icon;
-                              const isActive = pathname === child.href;
-                              const isAdminMenu = child.name === "Phân quyền";
+                        if (item.children) {
+                          return (
+                            <div key={itemIndex}>
+                              <button
+                                onClick={() => toggleSubGroup(subGroupKey)}
+                                className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group text-white/70 hover:text-white hover:bg-white/10"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <Icon
+                                    className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${iconData.color}`}
+                                  />
+                                  <span className="font-medium text-sm truncate">
+                                    {item.name}
+                                  </span>
+                                </div>
 
-                              return (
-                                <Link 
-                                  key={childIndex} 
-                                  href={child.href} 
-                                  prefetch={false} 
-                                  onClick={() => setIsSidebarOpen(false)}
-                                >
-                                  <div
-                                    className={`flex items-center space-x-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 group ${
-                                      isActive
-                                        ? isAdminMenu
-                                          ? "bg-red-500/20 border border-red-500/50 text-white"
-                                          : "bg-purple-500/20 border border-purple-500/30 text-white"
-                                        : "text-white/70 hover:text-white hover:bg-white/10"
-                                    }`}
+                                {expandedSubGroups[subGroupKey] ? (
+                                  <ChevronUp className="h-4 w-4 text-white/60 flex-shrink-0" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4 text-white/60 flex-shrink-0" />
+                                )}
+                              </button>
+
+                              <AnimatePresence initial={false}>
+                                {expandedSubGroups[subGroupKey] && (
+                                  <motion.div
+                                    key={subGroupKey}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.15 }}
+                                    className="ml-4 mt-1 space-y-1"
                                   >
-                                    <ChildIcon
-                                      className={`h-4 w-4 flex-shrink-0 ${
-                                        isActive ? (isAdminMenu ? "text-red-400" : "text-purple-400") : childIconData.color
-                                      }`}
-                                    />
-                                    <span className="font-medium text-sm truncate flex-1">{child.name}</span>
-                                    {isActive && (
-                                      <ChevronRight
-                                        className={`h-4 w-4 flex-shrink-0 ${isAdminMenu ? "text-red-400" : "text-purple-400"}`}
-                                      />
+                                    {item.children.map(
+                                      (child: any, childIndex: number) => {
+                                        const childIconData = iconMapping[
+                                          child.name
+                                        ] || {
+                                          icon: FileText,
+                                          color: "text-gray-400",
+                                        };
+
+                                        const ChildIcon = childIconData.icon;
+                                        const isActive =
+                                          pathname === child.href;
+                                        const isAdminMenu =
+                                          child.name === "Phân quyền";
+
+                                        return (
+                                          <Link
+                                            key={childIndex}
+                                            href={child.href}
+                                            prefetch={false}
+                                            onClick={() =>
+                                              setIsSidebarOpen(false)
+                                            }
+                                          >
+                                            <div
+                                              className={`flex items-center space-x-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 group ${
+                                                isActive
+                                                  ? isAdminMenu
+                                                    ? "bg-red-500/20 border border-red-500/50 text-white"
+                                                    : "bg-purple-500/20 border border-purple-500/30 text-white"
+                                                  : "text-white/70 hover:text-white hover:bg-white/10"
+                                              }`}
+                                            >
+                                              <ChildIcon
+                                                className={`h-4 w-4 flex-shrink-0 ${
+                                                  isActive
+                                                    ? isAdminMenu
+                                                      ? "text-red-400"
+                                                      : "text-purple-400"
+                                                    : childIconData.color
+                                                }`}
+                                              />
+
+                                              <span className="font-medium text-sm truncate flex-1">
+                                                {child.name}
+                                              </span>
+
+                                              {isActive && (
+                                                <ChevronRight
+                                                  className={`h-4 w-4 flex-shrink-0 ${
+                                                    isAdminMenu
+                                                      ? "text-red-400"
+                                                      : "text-purple-400"
+                                                  }`}
+                                                />
+                                              )}
+                                            </div>
+                                          </Link>
+                                        );
+                                      },
                                     )}
-                                  </div>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    }
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          );
+                        }
 
-                    const isActive = pathname === item.href;
-                    const isAdminMenu = item.name === "Phân quyền";
+                        const isActive = pathname === item.href;
+                        const isAdminMenu = item.name === "Phân quyền";
 
-                    return (
-                      <Link key={itemIndex} href={item.href} prefetch={false} onClick={() => setIsSidebarOpen(false)}>
-                        <div
-                          className={`flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group ${
-                            isActive
-                              ? isAdminMenu
-                                ? "bg-red-500/20 border border-red-500/50 text-white"
-                                : "bg-purple-500/20 border border-purple-500/30 text-white"
-                              : "text-white/70 hover:text-white hover:bg-white/10"
-                          }`}
-                        >
-                          <Icon
-                            className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${
-                              isActive ? (isAdminMenu ? "text-red-400" : "text-purple-400") : iconData.color
-                            }`}
-                          />
-                          <span className="font-medium text-sm truncate flex-1">{item.name}</span>
-                          {isActive && (
-                            <ChevronRight
-                              className={`h-4 w-4 flex-shrink-0 ${isAdminMenu ? "text-red-400" : "text-purple-400"}`}
-                            />
-                          )}
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
+                        return (
+                          <Link
+                            key={itemIndex}
+                            href={item.href}
+                            prefetch={false}
+                            onClick={() => setIsSidebarOpen(false)}
+                          >
+                            <div
+                              className={`flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group ${
+                                isActive
+                                  ? isAdminMenu
+                                    ? "bg-red-500/20 border border-red-500/50 text-white"
+                                    : "bg-purple-500/20 border border-purple-500/30 text-white"
+                                  : "text-white/70 hover:text-white hover:bg-white/10"
+                              }`}
+                            >
+                              <Icon
+                                className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${
+                                  isActive
+                                    ? isAdminMenu
+                                      ? "text-red-400"
+                                      : "text-purple-400"
+                                    : iconData.color
+                                }`}
+                              />
+
+                              <span className="font-medium text-sm truncate flex-1">
+                                {item.name}
+                              </span>
+
+                              {isActive && (
+                                <ChevronRight
+                                  className={`h-4 w-4 flex-shrink-0 ${
+                                    isAdminMenu
+                                      ? "text-red-400"
+                                      : "text-purple-400"
+                                  }`}
+                                />
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      },
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </nav>
@@ -530,7 +649,9 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
       )}
 
       {/* Main Content */}
-      <div className={`min-h-screen pt-16 transition-all duration-300 ${isDesktopSidebarOpen ? "lg:ml-64" : "lg:ml-0"}`}>
+      <div
+        className={`min-h-screen pt-16 transition-all duration-300 ${isDesktopSidebarOpen ? "lg:ml-64" : "lg:ml-0"}`}
+      >
         <main>{children}</main>
       </div>
     </div>

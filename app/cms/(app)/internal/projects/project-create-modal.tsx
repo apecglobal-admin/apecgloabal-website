@@ -85,7 +85,7 @@ interface Project {
   end_date: string;
   team_size: number;
   project_status_id: number;
-  company_id: number;
+  company_id: number[];
   departments: number[];
   employees: number[];
   status?: string;
@@ -209,8 +209,10 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
   const [activeSection, setActiveSection] = useState("basic");
 
   // Search/filter states
+  const [companySearch, setCompanySearch] = useState("");
   const [deptSearch, setDeptSearch]     = useState("");
   const [empSearch, setEmpSearch]       = useState("");
+  const [onlySelComps, setOnlySelComps] = useState(false);
   const [onlySelDepts, setOnlySelDepts] = useState(false);
   const [onlySelEmps, setOnlySelEmps]   = useState(false);
 
@@ -219,9 +221,18 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
   const [existingDocs, setExistingDocs]           = useState<any[]>([]);
   const [deletedDocIds, setDeletedDocIds]         = useState<number[]>([]);
 
+  // Get first status ID for default value
+  const getDefaultStatusId = () => {
+    if (Array.isArray(statusProject) && statusProject.length > 0) {
+      const firstStatus = statusProject[0];
+      return typeof firstStatus.id === 'string' ? parseInt(firstStatus.id) : firstStatus.id;
+    }
+    return 2; // Fallback to "Đang thực hiện"
+  };
+
   const EMPTY_FORM: Project = {
     name: "", description: "", manager_id: null, progress: 0, budget: 0, spent: 0,
-    start_date: "", end_date: "", team_size: 0, project_status_id: 1, company_id: 0,
+    start_date: "", end_date: "", team_size: 0, project_status_id: getDefaultStatusId(), company_id: [],
     departments: [], employees: [], status: "planning", priority: "medium",
     technologies: null, client_name: null, client_contact: null, is_featured: false,
     image_url: null, slug: null, gallery: null, features: null, challenges: null,
@@ -230,7 +241,7 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
 
   const [formData, setFormData] = useState<Project>(EMPTY_FORM);
 
-  const isEditMode = !!project?.id;
+  const isEditMode = projectId !== null && projectId !== undefined;
   const currentSectionIndex = SECTIONS.findIndex((s) => s.key === activeSection);
   const completedCount = SECTIONS.filter((s) => isSectionComplete(s.key, formData)).length;
 
@@ -247,7 +258,10 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
   // Load or reset project data
   useEffect(() => {
     if (projectId) {
-      dispatch(listProjectById(projectId as any) as any);
+      const id = typeof projectId === 'object' ? projectId.id : projectId;
+      if (id) {
+        dispatch(listProjectById(id as any) as any);
+      }
     } else {
       resetForm();
     }
@@ -255,10 +269,22 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
 
   useEffect(() => {
     if (isOpen && projectId && project) {
+      // Convert company_id: handle null, single number, array, or companies object array
+      let companyIds: number[] = [];
+      if (Array.isArray(project.companies)) {
+        // Nếu API trả companies array: [{id, name}, ...]
+        companyIds = project.companies.map((c: any) => c.id || c);
+      } else if (Array.isArray(project.company_id)) {
+        companyIds = project.company_id;
+      } else if (project.company_id && typeof project.company_id === 'number') {
+        companyIds = [project.company_id];
+      }
+
       setFormData({
         ...project,
         start_date: formatDateForInput(project.start_date),
         end_date:   formatDateForInput(project.end_date),
+        company_id: companyIds,
         departments: project.departments ? project.departments.map((d: any) => d.id || d) : [],
         employees:   project.members     ? project.members.map((e: any) => e.id || e)     : [],
       });
@@ -272,8 +298,8 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
     setFormData(EMPTY_FORM);
     setSelectedFiles([]);
     setDeletedDocIds([]);
-    setDeptSearch(""); setEmpSearch("");
-    setOnlySelDepts(false); setOnlySelEmps(false);
+    setCompanySearch(""); setDeptSearch(""); setEmpSearch("");
+    setOnlySelComps(false); setOnlySelDepts(false); setOnlySelEmps(false);
     setExistingDocs([]);
     setActiveSection("basic");
   };
@@ -281,6 +307,13 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
   const handleClose = () => { if (!isEditMode) resetForm(); onClose(); };
 
   // Filtered lists
+  const filteredComps = useMemo(() => {
+    let r = companies || [];
+    if (companySearch.trim()) r = r.filter((c: any) => c.name.toLowerCase().includes(companySearch.toLowerCase()));
+    if (onlySelComps)         r = r.filter((c: any) => formData.company_id.includes(c.id));
+    return r;
+  }, [companies, companySearch, onlySelComps, formData.company_id]);
+
   const filteredDepts = useMemo(() => {
     let r = departments || [];
     if (deptSearch.trim()) r = r.filter((d: any) => d.name.toLowerCase().includes(deptSearch.toLowerCase()));
@@ -299,6 +332,9 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
   }, [employees, empSearch, onlySelEmps, formData.employees]);
 
   // Actions
+  const toggleCompany = (id: number) => setFormData(p => ({
+    ...p, company_id: p.company_id.includes(id) ? p.company_id.filter(x => x !== id) : [...p.company_id, id],
+  }));
   const toggleDept = (id: number) => setFormData(p => ({
     ...p, departments: p.departments.includes(id) ? p.departments.filter(x => x !== id) : [...p.departments, id],
   }));
@@ -310,8 +346,9 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
   const goPrev = () => { if (currentSectionIndex > 0) setActiveSection(SECTIONS[currentSectionIndex - 1].key); };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.company_id) { toast.error("Vui lòng nhập tên dự án và chọn công ty"); return; }
-    if (!formData.project_status_id)             { toast.error("Vui lòng chọn trạng thái dự án"); return; }
+    if (!formData.name) { toast.error("Vui lòng nhập tên dự án"); return; }
+    if (!formData.company_id.length) { toast.error("Vui lòng chọn công ty"); return; }
+    if (!formData.project_status_id) { toast.error("Vui lòng chọn trạng thái dự án"); return; }
     try {
       setSaving(true);
       const fd = new FormData();
@@ -325,15 +362,15 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
       fd.append("end_date",          formData.end_date || "");
       fd.append("team_size",         formData.team_size?.toString() || "0");
       fd.append("project_status_id", formData.project_status_id?.toString() || "");
-      fd.append("company_id",        formData.company_id?.toString() || "");
+      fd.append("companies",         JSON.stringify(formData.company_id));
       fd.append("departments",       JSON.stringify(formData.departments));
       fd.append("employees",         JSON.stringify(formData.employees));
       selectedFiles.forEach(f => fd.append("documents", f));
       if (deletedDocIds.length) fd.append("deleted_documents", JSON.stringify(deletedDocIds));
 
       const res = await dispatch(
-        isEditMode && project?.id
-          ? updateProject({ id: project.id, data: fd } as any) as any
+        isEditMode && projectId
+          ? updateProject({ id: projectId as any, data: fd } as any) as any
           : createProject(fd as any) as any
       );
 
@@ -410,15 +447,56 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
                 className="bg-black/30 border-purple-500/30 text-white text-sm placeholder:text-white/20 resize-none"
               />
             </div>
-            <div>
-              <FL>Công Ty *</FL>
-              <SearchableSelect
-                value={formData.company_id ? formData.company_id.toString() : ""}
-                onValueChange={(v: string) => setFormData({ ...formData, company_id: parseInt(v), manager_id: null })}
-                placeholder="Chọn công ty..."
-                items={companies || []}
-                searchPlaceholder="Tìm công ty..."
-              />
+            <div className="sm:col-span-2">
+              <FL>Công Ty ({formData.company_id.length}) *</FL>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <IcoSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
+                    <Input value={companySearch} onChange={e => setCompanySearch(e.target.value)}
+                      placeholder="Tìm công ty..."
+                      className="bg-black/30 border-purple-500/30 text-white h-9 pl-8 text-sm placeholder:text-white/25"
+                    />
+                  </div>
+                  <button onClick={() => {
+                    const ids = filteredComps.map((c: any) => c.id);
+                    setFormData(p => ({ ...p, company_id: [...new Set([...p.company_id, ...ids])] }));
+                  }} className="text-[10px] text-purple-400 hover:text-purple-300 px-2 py-1 rounded hover:bg-purple-500/10">
+                    Chọn tất cả
+                  </button>
+                  <button onClick={() => setFormData(p => ({ ...p, company_id: [] }))}
+                    className="text-[10px] text-white/40 hover:text-white/60 px-2 py-1 rounded hover:bg-white/5">
+                    Bỏ chọn
+                  </button>
+                  <button onClick={() => setOnlySelComps(v => !v)}
+                    className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-colors ${
+                      onlySelComps ? "bg-purple-600 border-purple-500 text-white" : "bg-black/30 border-purple-500/30 text-white/50 hover:bg-purple-500/10"
+                    }`}>
+                    <IcoFilter className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="bg-black/30 border border-purple-500/20 rounded-xl p-2 max-h-48 overflow-y-auto space-y-0.5">
+                  {filteredComps.length === 0 ? (
+                    <div className="py-8 text-center text-white/30 text-xs">Không có công ty</div>
+                  ) : filteredComps.map((comp: any) => {
+                    const sel = formData.company_id.includes(comp.id);
+                    return (
+                      <div key={comp.id} onClick={() => toggleCompany(comp.id)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
+                          sel ? "bg-purple-500/20 border border-purple-500/30" : "hover:bg-purple-500/10 border border-transparent"
+                        }`}>
+                        <div className={`w-4 h-4 shrink-0 rounded border-2 flex items-center justify-center ${
+                          sel ? "border-purple-400 bg-purple-500" : "border-white/25"
+                        }`}>
+                          {sel && <IcoCheck className="w-2.5 h-2.5 text-white" />}
+                        </div>
+                        <IcoBuilding className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                        <span className={`text-xs flex-1 ${sel ? "text-white font-medium" : "text-white/60"}`}>{comp.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
             <div>
               <FL>Quản Lý Dự Án</FL>
@@ -569,11 +647,7 @@ export function ProjectCreateUpdateModal({ isOpen, onClose, onSuccess, projectId
                 </button>
               </div>
               <div className="bg-black/30 border border-purple-500/20 rounded-xl p-2 max-h-48 overflow-y-auto space-y-0.5">
-                {!formData.company_id ? (
-                  <div className="flex items-center justify-center py-8 text-white/30 text-xs gap-2">
-                    <IcoBuilding className="w-4 h-4" />Chọn công ty trước
-                  </div>
-                ) : filteredDepts.length === 0 ? (
+                {filteredDepts.length === 0 ? (
                   <div className="py-8 text-center text-white/30 text-xs">Không có phòng ban</div>
                 ) : filteredDepts.map((dept: any) => {
                   const sel = formData.departments.includes(dept.id);

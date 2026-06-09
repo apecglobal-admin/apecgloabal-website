@@ -654,13 +654,13 @@ export default function InternalProjectsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="bg-black/90 border-purple-500/30">
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => handleViewProject(project)}
                           className="text-white hover:bg-white/10"
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           Chi tiết
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuItem
                           onClick={() => handleEditProject(project)}
                           className="text-white hover:bg-white/10"
@@ -796,7 +796,7 @@ export default function InternalProjectsPage() {
 
                     {/* Actions */}
                     <div className="flex flex-col space-y-2">
-                      <Button
+                      {/* <Button
                         variant="outline"
                         size="sm"
                         className="bg-transparent border-2 border-blue-500/50 text-blue-300 hover:bg-blue-500/20"
@@ -804,7 +804,7 @@ export default function InternalProjectsPage() {
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Chi Tiết
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="outline"
                         size="sm"

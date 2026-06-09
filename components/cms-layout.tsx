@@ -462,160 +462,167 @@ export default function CMSLayout({ children }: CMSLayoutProps) {
                 </button>
 
                 {expandedGroups[groupIndex] && (
-  <div className="mt-2 space-y-1">
-    {group.permission_groups?.map((item: any, itemIndex: number) => {
-      const iconData = iconMapping[item.name] || {
-        icon: FileText,
-        color: "text-gray-400",
-      };
+                  <div className="mt-2 space-y-1">
+                    {group.permission_groups?.map(
+                      (item: any, itemIndex: number) => {
+                        const iconData = iconMapping[item.name] || {
+                          icon: FileText,
+                          color: "text-gray-400",
+                        };
 
-      const Icon = iconData.icon;
-      const subGroupKey = `${groupIndex}-${itemIndex}`;
+                        const Icon = iconData.icon;
+                        const subGroupKey = `${groupIndex}-${itemIndex}`;
 
-      if (item.children) {
-        return (
-          <div key={itemIndex}>
-            <button
-              onClick={() => toggleSubGroup(subGroupKey)}
-              className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group text-white/70 hover:text-white hover:bg-white/10"
-            >
-              <div className="flex items-center space-x-3">
-                <Icon
-                  className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${iconData.color}`}
-                />
-                <span className="font-medium text-sm truncate">
-                  {item.name}
-                </span>
-              </div>
+                        if (item.children) {
+                          return (
+                            <div key={itemIndex}>
+                              <button
+                                onClick={() => toggleSubGroup(subGroupKey)}
+                                className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group text-white/70 hover:text-white hover:bg-white/10"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <Icon
+                                    className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${iconData.color}`}
+                                  />
+                                  <span className="font-medium text-sm truncate">
+                                    {item.name}
+                                  </span>
+                                </div>
 
-              {expandedSubGroups[subGroupKey] ? (
-                <ChevronUp className="h-4 w-4 text-white/60 flex-shrink-0" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-white/60 flex-shrink-0" />
-              )}
-            </button>
+                                {expandedSubGroups[subGroupKey] ? (
+                                  <ChevronUp className="h-4 w-4 text-white/60 flex-shrink-0" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4 text-white/60 flex-shrink-0" />
+                                )}
+                              </button>
 
-            <AnimatePresence initial={false}>
-              {expandedSubGroups[subGroupKey] && (
-                <motion.div
-                  key={subGroupKey}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="ml-4 mt-1 space-y-1"
-                >
-                  {item.children.map(
-                    (child: any, childIndex: number) => {
-                      const childIconData = iconMapping[child.name] || {
-                        icon: FileText,
-                        color: "text-gray-400",
-                      };
+                              <AnimatePresence initial={false}>
+                                {expandedSubGroups[subGroupKey] && (
+                                  <motion.div
+                                    key={subGroupKey}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.15 }}
+                                    className="ml-4 mt-1 space-y-1"
+                                  >
+                                    {item.children.map(
+                                      (child: any, childIndex: number) => {
+                                        const childIconData = iconMapping[
+                                          child.name
+                                        ] || {
+                                          icon: FileText,
+                                          color: "text-gray-400",
+                                        };
 
-                      const ChildIcon = childIconData.icon;
-                      const isActive = pathname === child.href;
-                      const isAdminMenu =
-                        child.name === "Phân quyền";
+                                        const ChildIcon = childIconData.icon;
+                                        const isActive =
+                                          pathname === child.href;
+                                        const isAdminMenu =
+                                          child.name === "Phân quyền";
 
-                      return (
-                        <Link
-                          key={childIndex}
-                          href={child.href}
-                          prefetch={false}
-                          onClick={() => setIsSidebarOpen(false)}
-                        >
-                          <div
-                            className={`flex items-center space-x-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 group ${
-                              isActive
-                                ? isAdminMenu
-                                  ? "bg-red-500/20 border border-red-500/50 text-white"
-                                  : "bg-purple-500/20 border border-purple-500/30 text-white"
-                                : "text-white/70 hover:text-white hover:bg-white/10"
-                            }`}
+                                        return (
+                                          <Link
+                                            key={childIndex}
+                                            href={child.href}
+                                            prefetch={false}
+                                            onClick={() =>
+                                              setIsSidebarOpen(false)
+                                            }
+                                          >
+                                            <div
+                                              className={`flex items-center space-x-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200 group ${
+                                                isActive
+                                                  ? isAdminMenu
+                                                    ? "bg-red-500/20 border border-red-500/50 text-white"
+                                                    : "bg-purple-500/20 border border-purple-500/30 text-white"
+                                                  : "text-white/70 hover:text-white hover:bg-white/10"
+                                              }`}
+                                            >
+                                              <ChildIcon
+                                                className={`h-4 w-4 flex-shrink-0 ${
+                                                  isActive
+                                                    ? isAdminMenu
+                                                      ? "text-red-400"
+                                                      : "text-purple-400"
+                                                    : childIconData.color
+                                                }`}
+                                              />
+
+                                              <span className="font-medium text-sm truncate flex-1">
+                                                {child.name}
+                                              </span>
+
+                                              {isActive && (
+                                                <ChevronRight
+                                                  className={`h-4 w-4 flex-shrink-0 ${
+                                                    isAdminMenu
+                                                      ? "text-red-400"
+                                                      : "text-purple-400"
+                                                  }`}
+                                                />
+                                              )}
+                                            </div>
+                                          </Link>
+                                        );
+                                      },
+                                    )}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          );
+                        }
+
+                        const isActive = pathname === item.href;
+                        const isAdminMenu = item.name === "Phân quyền";
+
+                        return (
+                          <Link
+                            key={itemIndex}
+                            href={item.href}
+                            prefetch={false}
+                            onClick={() => setIsSidebarOpen(false)}
                           >
-                            <ChildIcon
-                              className={`h-4 w-4 flex-shrink-0 ${
+                            <div
+                              className={`flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group ${
                                 isActive
                                   ? isAdminMenu
-                                    ? "text-red-400"
-                                    : "text-purple-400"
-                                  : childIconData.color
+                                    ? "bg-red-500/20 border border-red-500/50 text-white"
+                                    : "bg-purple-500/20 border border-purple-500/30 text-white"
+                                  : "text-white/70 hover:text-white hover:bg-white/10"
                               }`}
-                            />
-
-                            <span className="font-medium text-sm truncate flex-1">
-                              {child.name}
-                            </span>
-
-                            {isActive && (
-                              <ChevronRight
-                                className={`h-4 w-4 flex-shrink-0 ${
-                                  isAdminMenu
-                                    ? "text-red-400"
-                                    : "text-purple-400"
+                            >
+                              <Icon
+                                className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${
+                                  isActive
+                                    ? isAdminMenu
+                                      ? "text-red-400"
+                                      : "text-purple-400"
+                                    : iconData.color
                                 }`}
                               />
-                            )}
-                          </div>
-                        </Link>
-                      );
-                    }
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      }
 
-      const isActive = pathname === item.href;
-      const isAdminMenu = item.name === "Phân quyền";
+                              <span className="font-medium text-sm truncate flex-1">
+                                {item.name}
+                              </span>
 
-      return (
-        <Link
-          key={itemIndex}
-          href={item.href}
-          prefetch={false}
-          onClick={() => setIsSidebarOpen(false)}
-        >
-          <div
-            className={`flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group ${
-              isActive
-                ? isAdminMenu
-                  ? "bg-red-500/20 border border-red-500/50 text-white"
-                  : "bg-purple-500/20 border border-purple-500/30 text-white"
-                : "text-white/70 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            <Icon
-              className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${
-                isActive
-                  ? isAdminMenu
-                    ? "text-red-400"
-                    : "text-purple-400"
-                  : iconData.color
-              }`}
-            />
-
-            <span className="font-medium text-sm truncate flex-1">
-              {item.name}
-            </span>
-
-            {isActive && (
-              <ChevronRight
-                className={`h-4 w-4 flex-shrink-0 ${
-                  isAdminMenu
-                    ? "text-red-400"
-                    : "text-purple-400"
-                }`}
-              />
-            )}
-          </div>
-        </Link>
-      );
-    })}
-  </div>
-)}
+                              {isActive && (
+                                <ChevronRight
+                                  className={`h-4 w-4 flex-shrink-0 ${
+                                    isAdminMenu
+                                      ? "text-red-400"
+                                      : "text-purple-400"
+                                  }`}
+                                />
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      },
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </nav>
